@@ -1,4 +1,0 @@
----
-import Base from '../../layouts/Base.astro';import ToolCard from '../../components/ToolCard.astro';import {tools} from '../../data/tools';
----
-<Base title="Research Workbench"><section class="page-hero container"><p class="eyebrow">INVESTIGATE / WORKBENCH</p><h1>Research tools.</h1><p class="lead">Tools can be experimental, updated, replaced, or archived. Development status and scientific validation are separate.</p></section><section class="section"><div class="container"><div class="feature-grid three">{tools.map(tool=><ToolCard tool={tool}/>)}</div></div></section></Base>

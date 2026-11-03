@@ -1,6 +1,0 @@
----
-import '../styles/global.css';
-const {title='MycoGeeky',description='Stay Curious. Stay Cultivating.'}=Astro.props;
-const nav=[['Explore','/explore/'],['Get Curious','/curious/'],['Investigate','/investigate/'],['Connect','/connect/'],['About','/about/']];
----
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="description" content={description}/><title>{title} · MycoGeeky</title></head><body><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="MycoGeeky home"><span class="brand-mark">✳</span><span>MycoGeeky<small>STAY CURIOUS. STAY CULTIVATING.</small></span></a><nav aria-label="Primary navigation">{nav.map(([label,url])=><a href={url} aria-current={Astro.url.pathname===url?'page':undefined}>{label}</a>)}</nav></div></header><main id="main"><slot/></main><footer><div class="container footer-inner"><span>MycoGeeky · Curiosity, evidence, and connection.</span><span>Independent science. Open questions.</span></div></footer></body></html>

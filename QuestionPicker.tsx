@@ -1,0 +1,3 @@
+import {useState} from 'react';
+const prompts=[{q:'Why does this mushroom grow here?',tip:'Start with observations, habitat notes, and the limits of occurrence data.'},{q:'Are these two fungi actually related?',tip:'Compare morphology and sequence evidence without assuming a match proves identity.'},{q:'What could explain its fruiting season?',tip:'Compare dated records with weather and sampling effort.'}];
+export default function QuestionPicker(){const [index,setIndex]=useState(0);return <div className="question-picker"><p className="eyebrow">A QUESTION TO FOLLOW</p><h3>{prompts[index].q}</h3><p>{prompts[index].tip}</p><button type="button" onClick={()=>setIndex((index+1)%prompts.length)}>Another question ↗</button></div>}

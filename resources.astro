@@ -1,5 +1,0 @@
----
-import Base from '../../layouts/Base.astro';
-const resources=[['iNaturalist','https://www.inaturalist.org','Field observations and identification discussion'],['GBIF','https://www.gbif.org','Occurrence datasets and distribution exploration'],['GenBank','https://www.ncbi.nlm.nih.gov/genbank/','Public DNA sequence accessions'],['NCBI BLAST','https://blast.ncbi.nlm.nih.gov/Blast.cgi','Sequence similarity searches'],['MycoBank','https://www.mycobank.org','Fungal nomenclature'],['MyCoPortal','https://www.mycoportal.org','Specimen collections and vouchers']];
----
-<Base title="Research Resources"><section class="page-hero container"><p class="eyebrow">INVESTIGATE / RESOURCES</p><h1>Find the evidence.</h1><p class="lead">A starting directory of external resources used in fungal research. Learn what each resource can—and cannot—tell you.</p></section><section class="section"><div class="container"><div class="feature-grid three">{resources.map(([name,url,desc])=><a class="feature" href={url} target="_blank" rel="noopener noreferrer"><span>EXTERNAL RESOURCE ↗</span><h3>{name}</h3><p>{desc}</p></a>)}</div></div></section></Base>

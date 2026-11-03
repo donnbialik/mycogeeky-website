@@ -1,5 +1,0 @@
----
-import type {ResearchTool} from '../data/tools';
-const {tool}=Astro.props as {tool:ResearchTool};
----
-<article class="tool-card"><div class="eyebrow">{tool.category}</div><h3>{tool.name}</h3><p>{tool.description}</p><div class="tag-row"><span class="tag">{tool.lifecycle}</span><span class="tag neutral">Science: {tool.validation.replaceAll('-',' ')}</span></div><p class="small muted">{tool.href ? 'Open application from the tool catalog.' : 'Not yet published on this site.'}</p>{tool.href && <a class="text-link" href={tool.href}>Open tool →</a>}</article>

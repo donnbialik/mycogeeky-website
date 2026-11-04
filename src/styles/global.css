@@ -199,3 +199,97 @@
 .resource-entry .resource-caution{border-top:1px solid #173a2b1d;padding-top:10px;margin-top:12px;color:#41574b}
 @media(max-width:950px){.resource-roles,.resource-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.resource-roles,.resource-cards{grid-template-columns:1fr}.resource-role,.resource-entry{padding:18px}}
+
+/* Illustrated discipline cards and educational guides */
+.discipline-card-grid{align-items:stretch}
+.resource-role.discipline-card{display:flex;flex-direction:column;padding:0;overflow:hidden;text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
+.discipline-card:hover,.discipline-card:focus-visible{transform:translateY(-3px);box-shadow:0 10px 28px #173a2b1d}
+.discipline-art{height:158px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--discipline-accent) 13%,#f8f4e9);color:var(--discipline-accent);overflow:hidden}
+.discipline-art svg{height:100%;width:100%;max-width:330px}
+.discipline-card-copy{padding:19px 23px 23px;display:flex;flex:1;flex-direction:column}
+.discipline-card-copy .resource-question{margin:2px 0 5px}
+.discipline-card-copy p{margin:5px 0}
+.discipline-card-link{margin-top:auto;padding-top:15px;font-size:.83rem;font-weight:700;color:#24533d}
+.discipline-page-lead{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+.discipline-page-lead .discipline-art{height:240px;border-radius:18px}
+.discipline-page-lead h1{overflow-wrap:anywhere}
+.discipline-lesson{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:60px;align-items:start}
+.discipline-main>p{max-width:70ch}
+.discipline-main h2{font-size:clamp(1.7rem,3vw,2.5rem);margin:34px 0 14px}
+.discipline-steps{padding-left:24px;line-height:1.65}
+.discipline-steps li{margin:12px 0}
+.discipline-nuance{background:#e8eddf;border-left:4px solid #3b7257;padding:18px 22px;margin:30px 0}
+.discipline-nuance p{margin:8px 0}
+.discipline-sidebar{background:#fffdf7;border:1px solid #173a2b24;border-radius:15px;padding:25px;position:sticky;top:20px}
+.discipline-sidebar h3{font-size:1.35rem}
+.discipline-source{display:block;text-decoration:none;border-top:1px solid #173a2b22;padding:14px 0}
+.discipline-source strong{display:block;text-decoration:underline;text-underline-offset:3px}
+.discipline-source span{display:block;font-size:.84rem;margin-top:6px;line-height:1.5}
+.discipline-source-note{font-size:.77rem;color:#526457}
+.discipline-glossary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.discipline-glossary details{background:#fffdf7;border:1px solid #173a2b25;border-radius:10px;padding:12px 15px}
+.discipline-glossary summary{cursor:pointer;font-weight:700}
+.discipline-glossary p{font-size:.85rem}
+.discipline-related{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.discipline-related a{display:flex;flex-direction:column;gap:8px;padding:18px;background:#fffdf7;border-radius:10px;text-decoration:none}
+.discipline-related span{font-size:.84rem}
+@media(max-width:850px){.discipline-lesson{grid-template-columns:1fr;gap:25px}.discipline-sidebar{position:static}.discipline-page-lead{grid-template-columns:1fr}.discipline-page-lead .discipline-art{height:185px}.discipline-related{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.discipline-glossary,.discipline-related{grid-template-columns:1fr}.discipline-art{height:145px}.discipline-page-lead .discipline-art{height:160px}}
+@media(prefers-reduced-motion:reduce){.discipline-card{transition:none}.discipline-card:hover{transform:none}}
+
+/* Task-led resource discovery */
+.discipline-metaphor{text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:800;color:#456c55;margin:0 0 7px!important}
+.research-workflows{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.4fr);gap:24px;padding:25px;margin:24px 0 32px;background:#e7ecdf;border-radius:18px}
+.research-workflows h3{font-size:1.45rem}
+.research-workflow-options{display:flex;flex-wrap:wrap;gap:8px}
+.research-workflow-choice{border:1px solid #8ea88e;border-radius:999px;background:#fffdf7;padding:9px 13px;font:600 .86rem 'DM Sans',sans-serif;cursor:pointer;color:#19352e}
+.research-workflow-choice[aria-pressed=true]{background:#19352e;color:white}
+.research-workflow-choice:focus-visible{outline:3px solid #c58d4d;outline-offset:2px}
+.research-workflow-detail{background:#fffdf7;border-radius:12px;padding:18px 23px}
+.research-workflow-detail [hidden]{display:none!important}
+.research-workflow-detail ol{padding-left:22px;line-height:1.65}
+.research-workflow-detail li{margin:8px 0}
+.research-workflow-detail a{font-weight:700;text-underline-offset:3px}
+.resource-cards.research-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.research-tool{min-width:0;scroll-margin-top:24px}
+.research-tool.featured{grid-column:span 2;background:#fffdf7;border:1px solid #9cae99;padding:26px}
+.research-tool.specialist{grid-column:span 1}
+.research-tool.additional{grid-column:span 1}
+.research-tool.featured h4{font-size:1.35rem}
+.research-tool ul{padding-left:19px;margin:8px 0;font-size:.9rem;line-height:1.6}
+.research-tool li{margin:6px 0}
+.research-tool-when{font-size:.96rem}
+.research-stage{font-size:.78rem;color:#496651;margin:14px 0}
+@media(max-width:900px){.resource-cards.research-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.research-tool.featured{grid-column:span 2}.research-workflows{grid-template-columns:1fr}}
+@media(max-width:600px){.resource-cards.research-tool-grid{grid-template-columns:1fr}.research-tool.featured,.research-tool.specialist,.research-tool.additional{grid-column:span 1}.research-workflows{padding:17px}}
+
+/* Modern fungal research overview */
+.fungal-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fungal-field,.fungal-initiative{border:1px solid var(--line);background:#fffdf7;border-radius:14px;padding:24px;min-width:0}
+.fungal-field-number{font:700 .78rem 'DM Sans',sans-serif;letter-spacing:.15em;color:#68876b}
+.fungal-field h3,.fungal-initiative h3{font-size:1.4rem;margin:12px 0}
+.fungal-field-question{font-weight:700;color:#295b47}
+.fungal-field-next{font-size:.83rem;color:#596e60;border-top:1px solid var(--line);padding-top:12px}
+.research-reading{display:grid;gap:10px;margin-top:24px}
+.research-reading a{font-weight:700;text-underline-offset:4px}
+.fungal-initiatives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fungal-initiative{display:flex;flex-direction:column}
+.fungal-initiative>a{margin-top:auto;padding-top:14px;font-weight:700;text-underline-offset:4px}
+.fungal-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fungal-paths details{border:1px solid var(--line);background:#fffdf7;border-radius:12px;padding:16px 19px}
+.fungal-paths summary{cursor:pointer;font-weight:700}
+.fungal-paths details p{font-size:.9rem}
+.research-invitation{font-family:'Fraunces',Georgia,serif;font-size:clamp(1.25rem,2.5vw,1.8rem);line-height:1.45;max-width:850px;margin:34px 0}
+.fungal-cta{display:flex;flex-wrap:wrap;gap:12px}
+@media(max-width:950px){.fungal-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.fungal-fields,.fungal-initiatives,.fungal-paths{grid-template-columns:1fr}.fungal-field,.fungal-initiative{padding:19px}}
+
+.fungal-person{display:grid;grid-template-columns:108px minmax(0,1fr);gap:15px;align-items:center;margin-bottom:17px}
+.fungal-person img,.fungal-photo-pending{display:block;width:108px;height:108px;object-fit:cover;border-radius:12px;background:#e6ebdd}
+.fungal-photo-pending{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:10px;gap:5px;border:1px dashed #90a48c}
+.fungal-photo-pending>span{font-size:2rem;color:#57775e}
+.fungal-photo-pending small{font-size:.61rem;line-height:1.3}
+.fungal-person-caption{display:flex;flex-direction:column;gap:4px}
+.fungal-person-caption strong{font-size:.98rem}
+.fungal-person-caption span{font-size:.8rem;color:#4e6858}
+.fungal-person-caption small{font-size:.65rem;color:#6a746a}

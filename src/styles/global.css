@@ -150,3 +150,18 @@
 @media(max-width:900px){.home-pathway-grid{grid-auto-rows:260px}}
 @media(max-width:700px){.home-pathway-grid{grid-auto-rows:240px}}
 @media(max-width:430px){.home-pathway-grid{grid-auto-rows:220px}}
+
+/* Mobile: give the mushrooms their own uninterrupted photographic panel.
+   Observation details follow below, rather than overlaying the mushrooms. */
+.featured-mobile-photo{display:none}
+@media(max-width:700px){
+ .featured-hero{background-image:none!important;background-color:#122a1b}
+ .featured-hero::before{display:none}
+ .featured-hero-shade{background:none}
+ .featured-hero-inner{padding-top:30px;padding-bottom:20px}
+ .featured-mobile-photo{display:block;flex:none;width:calc(100% + 36px);margin:24px -18px 0;height:clamp(270px,78vw,390px);background-image:var(--featured-photo);background-size:cover;background-position:center 66%;position:relative}
+ .featured-mobile-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#122a1b 0%,transparent 18%,transparent 83%,#122a1b 100%)}
+ .observation-card{margin-top:0;position:relative;z-index:1;background:rgba(10,32,13,.94);box-shadow:none}
+ .featured-photo-credit{background:#122a1b}
+}
+@media(max-width:390px){.observation-card{margin-top:0}.featured-mobile-photo{height:285px}}

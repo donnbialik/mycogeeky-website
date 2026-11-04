@@ -45,7 +45,7 @@ const heroImage = feature.heroImage || photo;
       <p class="observation-taxonomy-label">PROVISIONAL IDENTIFICATION</p>
       <h2>{taxonName}</h2>
       {commonName && <p class="observation-common">{commonName}</p>}
-      <div class="observation-details">
+      <details class="observation-mobile-details"><summary>Field notes &amp; observation details <span aria-hidden="true">⌄</span></summary><div class="observation-mobile-details-body"><div class="observation-details">
         {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
         {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
         {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
@@ -55,6 +55,7 @@ const heroImage = feature.heroImage || photo;
       <p class="observation-note">{feature.fieldNote}</p>
       <p class="observation-question">{feature.question}</p>
       {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      </div></details>
       <a class="observation-link" href={observationUrl} target="_blank" rel="noopener noreferrer">View on iNaturalist <span aria-hidden="true">↗</span></a>
     </aside>
   </div>

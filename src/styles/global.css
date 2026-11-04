@@ -54,3 +54,8 @@
  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.03) 10%,rgba(0,0,0,.12) 17%,rgba(0,0,0,.35) 24%,rgba(0,0,0,.7) 32%,#000 41%,#000 59%,rgba(0,0,0,.7) 68%,rgba(0,0,0,.35) 76%,rgba(0,0,0,.12) 83%,rgba(0,0,0,.03) 90%,transparent 100%);
 }
 }
+
+/* Keep the headline on exactly two intentional lines, at all viewport widths. */
+.featured-headline{font-size:clamp(1.8rem,3.15vw,3.65rem)!important;line-height:1.12!important}
+.featured-headline>span{display:block;white-space:nowrap}
+@media(max-width:700px){.featured-headline{font-size:clamp(1.75rem,7.2vw,3.2rem)!important}}

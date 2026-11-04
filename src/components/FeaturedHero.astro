@@ -1,0 +1,60 @@
+---
+import { featuredObservation as feature } from '../data/featuredObservation';
+const observationUrl = `https://www.inaturalist.org/observations/${feature.id}`;
+let obs: any = null;
+try {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
+  try {
+    const response = await fetch(`https://api.inaturalist.org/v1/observations/${feature.id}`, {
+      headers: { Accept: 'application/json' }, signal: controller.signal,
+    });
+    if (response.ok) {
+      const data = await response.json();
+      obs = data.results?.find((item: any) => item.id === feature.id) ?? null;
+    }
+  } finally { clearTimeout(timeout); }
+} catch (error) {
+  console.warn('iNaturalist unavailable at build time; using safe fallback', error);
+}
+const taxon = obs?.taxon;
+const taxonName = taxon?.name || 'Identification pending';
+const commonName = taxon?.preferred_common_name || '';
+const date = obs?.observed_on ? new Date(obs.observed_on + 'T12:00:00').toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', timeZone:'UTC' }) : '';
+const place = obs?.place_guess || '';
+const observer = obs?.user?.login || '';
+const quality = obs?.quality_grade?.replaceAll('_', ' ') || '';
+const photo = obs?.photos?.[0]?.url?.replace('/square.', '/large.') || '';
+const heroImage = feature.heroImage || photo;
+---
+<section class="featured-hero" style={heroImage ? `--featured-photo:url("${heroImage.replaceAll('"','%22')}")` : undefined}>
+  <div class="featured-hero-shade"></div>
+  <div class="container featured-hero-inner">
+    <div class="featured-copy">
+      <p class="featured-kicker">REAL OBSERVATIONS. BETTER QUESTIONS.</p>
+      <h1>The forest is full of <em>questions.</em></h1>
+      <p class="featured-lead">You don’t need a degree to start asking better ones.</p>
+      <div class="actions">
+        <a class="button primary" href="/curious/">Follow a mystery <span aria-hidden="true">→</span></a>
+        <a class="button featured-outline" href="/investigate/">Explore the science</a>
+      </div>
+    </div>
+    <aside class="observation-card" aria-label="Featured iNaturalist observation">
+      <div class="observation-card-top"><span>FEATURED OBSERVATION</span><span class="observation-source">iNaturalist</span></div>
+      <p class="observation-id">OBSERVATION #{feature.id}</p>
+      <h2>{taxonName}</h2>
+      {commonName && <p class="observation-common">{commonName}</p>}
+      <div class="observation-details">
+        {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
+        {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
+        {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
+        {quality && <p><span aria-hidden="true">◈</span><span>iNat status: {quality}</span></p>}
+      </div>
+      <p class="observation-note">{feature.fieldNote}</p>
+      <p class="observation-question">{feature.question}</p>
+      {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      <a class="observation-link" href={observationUrl} target="_blank" rel="noopener noreferrer">View on iNaturalist <span aria-hidden="true">↗</span></a>
+    </aside>
+  </div>
+  <div class="featured-photo-credit">Featured observation #{feature.id} · Background may be artistically extended</div>
+</section>

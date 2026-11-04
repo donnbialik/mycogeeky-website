@@ -1,5 +1,5 @@
 export type Resource = {name:string;url:string;purpose:string;note:string;source:'paper'|'expanded'};
-export const groups:{id:string;title:string;intro:string;resources:Resource[]}[]=[
+export const groups:{id:string;title:string;intro:string;resources:[string,string,string,string,'paper'|'expanded'][]}[]=[
 {id:'names',title:'Names, nomenclature & classification',intro:'Check whether a name exists, how it was published, which type anchors it, and how its classification is currently interpreted.',resources:[
 ['MycoBank','https://www.mycobank.org','Register and investigate fungal names','A registered name is not proof that the taxon is distinct.','paper'],
 ['Index Fungorum','https://www.indexfungorum.org','Search fungal names and nomenclatural records','Name records and taxonomic opinions should not be conflated.','paper'],

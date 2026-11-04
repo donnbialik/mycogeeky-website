@@ -1,0 +1,15 @@
+---
+interface Props {kind:string;accent?:string}
+const {kind,accent='#66856d'}=Astro.props;
+---
+<div class="discipline-art" style={`--discipline-accent:${accent}`} aria-hidden="true">
+<svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="268" cy="37" r="63" opacity=".09" fill="currentColor" stroke="none"/><circle cx="42" cy="147" r="70" opacity=".07" fill="currentColor" stroke="none"/>
+{kind==='mushroom' && <g><path d="M112 112 Q98 66 160 45 Q222 66 208 112 Z"/><path d="M142 112 L140 154 Q160 163 180 154 L178 112"/><path d="M112 112 Q160 130 208 112"/><path d="M132 113 L146 127 M155 117 L160 130 M180 115 L173 127"/><circle cx="108" cy="42" r="9"/><path d="M99 42 H117 M108 33 V51"/><path d="M68 143 Q84 122 100 143 M222 143 Q238 122 254 143"/></g>}
+{kind==='branches' && <g><path d="M160 154 V112 M160 112 L98 72 M160 112 L222 72 M98 72 L68 31 M98 72 L125 31 M222 72 L195 31 M222 72 L252 31"/>{[68,125,195,252].map(x=><circle cx={x} cy="31" r="12" fill="var(--discipline-accent)" stroke="none"/>)}<circle cx="160" cy="112" r="6"/><path d="M48 154 H272" opacity=".4"/></g>}
+{kind==='tree' && <g><path d="M160 152 V122 L102 89 L69 48 M102 89 L137 48 M160 122 L219 89 L186 48 M219 89 L252 48"/>{[69,137,186,252].map((x,i)=><g><circle cx={x} cy="43" r="12"/><circle cx={x} cy="43" r="4" fill="currentColor" stroke="none"/></g>)}<path d="M62 20 H144 M178 20 H260" opacity=".25" stroke-dasharray="4 6"/></g>}
+{kind==='book' && <g><path d="M160 52 Q126 30 78 42 V138 Q124 126 160 149 Q196 126 242 138 V42 Q194 30 160 52 Z"/><path d="M160 52 V149 M96 64 Q121 58 143 70 M96 83 Q121 77 143 89 M177 70 Q199 58 224 64 M177 89 Q199 77 224 83"/><path d="M105 111 H140 M180 111 H215" opacity=".5"/></g>}
+{kind==='forest' && <g><path d="M87 139 V96 M87 96 L59 111 L87 60 L115 111 Z M160 139 V79 M160 79 L121 104 L160 29 L199 104 Z M232 139 V101 M232 101 L209 115 L232 70 L255 115 Z"/><path d="M49 142 Q158 131 270 142"/><path d="M132 147 Q124 127 144 124 Q164 127 156 147 M144 147 V157"/></g>}
+{kind==='specimen' && <g><rect x="95" y="18" width="130" height="137" rx="4"/><path d="M110 34 H168 M110 44 H149 M110 133 H211 M110 143 H178" opacity=".5"/><path d="M160 116 V83 M133 83 Q131 51 160 51 Q189 51 187 83 Z M133 83 Q160 93 187 83"/><path d="M112 102 H140 M180 102 H208" opacity=".3"/></g>}
+</svg>
+</div>

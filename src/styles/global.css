@@ -262,3 +262,24 @@
 .research-stage{font-size:.78rem;color:#496651;margin:14px 0}
 @media(max-width:900px){.resource-cards.research-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.research-tool.featured{grid-column:span 2}.research-workflows{grid-template-columns:1fr}}
 @media(max-width:600px){.resource-cards.research-tool-grid{grid-template-columns:1fr}.research-tool.featured,.research-tool.specialist,.research-tool.additional{grid-column:span 1}.research-workflows{padding:17px}}
+
+/* Modern fungal research overview */
+.fungal-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fungal-field,.fungal-initiative{border:1px solid var(--line);background:#fffdf7;border-radius:14px;padding:24px;min-width:0}
+.fungal-field-number{font:700 .78rem 'DM Sans',sans-serif;letter-spacing:.15em;color:#68876b}
+.fungal-field h3,.fungal-initiative h3{font-size:1.4rem;margin:12px 0}
+.fungal-field-question{font-weight:700;color:#295b47}
+.fungal-field-next{font-size:.83rem;color:#596e60;border-top:1px solid var(--line);padding-top:12px}
+.research-reading{display:grid;gap:10px;margin-top:24px}
+.research-reading a{font-weight:700;text-underline-offset:4px}
+.fungal-initiatives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.fungal-initiative{display:flex;flex-direction:column}
+.fungal-initiative>a{margin-top:auto;padding-top:14px;font-weight:700;text-underline-offset:4px}
+.fungal-paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fungal-paths details{border:1px solid var(--line);background:#fffdf7;border-radius:12px;padding:16px 19px}
+.fungal-paths summary{cursor:pointer;font-weight:700}
+.fungal-paths details p{font-size:.9rem}
+.research-invitation{font-family:'Fraunces',Georgia,serif;font-size:clamp(1.25rem,2.5vw,1.8rem);line-height:1.45;max-width:850px;margin:34px 0}
+.fungal-cta{display:flex;flex-wrap:wrap;gap:12px}
+@media(max-width:950px){.fungal-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.fungal-fields,.fungal-initiatives,.fungal-paths{grid-template-columns:1fr}.fungal-field,.fungal-initiative{padding:19px}}

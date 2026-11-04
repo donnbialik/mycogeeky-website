@@ -1,13 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import FeaturedHero from '../components/FeaturedHero.astro';
-import QuestionPicker from '../components/QuestionPicker';
 import CuriosityGenerator from '../components/CuriosityGenerator';
 import { Image } from 'astro:assets';
 import explore from '../assets/pathways/explore.jpg';
 import curious from '../assets/pathways/curious.jpg';
 import investigate from '../assets/pathways/investigate.jpg';
 import connect from '../assets/pathways/connect.jpg';
+import { activeTools } from '../data/tools';
 
 const pathways = [
   { title: 'Explore', href: '/explore/', image: explore, alt: 'Dramatic rocky landscape encountered during a field adventure', description: 'Stories, field notes, and real-world mushroom adventures.' },
@@ -29,5 +29,33 @@ const pathways = [
     </div>
   </section>
   <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:visible /></div></section>
-  <section class="section soft"><div class="container split"><div><p class="eyebrow">THE QUESTION IS THE BEGINNING</p><h2>You don't need permission to be curious.</h2><p>Take science seriously without taking yourself too seriously. Respect expertise, examine evidence, and make room for people who want to contribute.</p></div><QuestionPicker client:visible /></div></section>
+  <section class="section soft research-home" aria-labelledby="research-home-title">
+    <div class="container">
+      <div class="research-home-intro">
+        <div><p class="eyebrow">FOR THE QUESTION THAT WON'T LET GO</p>
+          <h2 id="research-home-title">Curiosity meets evidence.</h2>
+          <p>Already collecting specimens, comparing sequences, or questioning a name? This is where field observations become investigations—and where uncertainty is part of the work.</p>
+        </div>
+        <a class="button primary" href="/investigate/">Enter the Research Workbench <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="research-home-grid">
+        <article class="research-home-feature">
+          <p class="eyebrow">A RESEARCH QUESTION</p>
+          <h3>When does a name outrun the evidence?</h3>
+          <p>Look-alike mushrooms, provisional names, and DNA barcodes raise a deceptively difficult question: how confident should an identification be?</p>
+          <p class="research-home-note">An invitation to investigate—not a claim that any particular identification has been resolved.</p>
+        </article>
+        <div class="research-home-tools">
+          <p class="eyebrow">TOOLS IN DEVELOPMENT</p>
+          {activeTools.map((tool) => (
+            <article class="research-home-tool">
+              <div><h3>{tool.name}</h3><p>{tool.description}</p></div>
+              <span class="research-home-status">{tool.version === 'planned' ? 'Planned' : 'Experimental'}</span>
+            </article>
+          ))}
+          <p class="research-home-note">These tools are prototypes or plans, not validated scientific services. Sequence similarity alone does not establish species identity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

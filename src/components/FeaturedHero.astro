@@ -39,22 +39,35 @@ const heroImage = feature.heroImage || photo;
         <a class="button featured-outline" href="/investigate/">Explore the science</a>
       </div>
     </div>
+    <div class="featured-mobile-photo" aria-hidden="true"></div>
     <aside class="observation-card" aria-label="Featured iNaturalist observation">
       <div class="observation-card-top"><span>FEATURED OBSERVATION</span><span class="observation-source">iNaturalist</span></div>
       <p class="observation-id">OBSERVATION #{feature.id}</p>
       <p class="observation-taxonomy-label">PROVISIONAL IDENTIFICATION</p>
       <h2>{taxonName}</h2>
       {commonName && <p class="observation-common">{commonName}</p>}
+      <div class="observation-desktop-details">
       <div class="observation-details">
         {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
         {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
         {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
-
       </div>
       <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>
       <p class="observation-note">{feature.fieldNote}</p>
       <p class="observation-question">{feature.question}</p>
       {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      </div>
+      <details class="observation-mobile-details"><summary>Field notes &amp; observation details <span aria-hidden="true">⌄</span></summary><div class="observation-mobile-details-body">
+      <div class="observation-details">
+        {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
+        {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
+        {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
+      </div>
+      <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>
+      <p class="observation-note">{feature.fieldNote}</p>
+      <p class="observation-question">{feature.question}</p>
+      {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      </div></details>
       <a class="observation-link" href={observationUrl} target="_blank" rel="noopener noreferrer">View on iNaturalist <span aria-hidden="true">↗</span></a>
     </aside>
   </div>

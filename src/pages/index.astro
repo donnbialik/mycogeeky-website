@@ -7,7 +7,7 @@ import explore from '../assets/pathways/explore.jpg';
 import curious from '../assets/pathways/curious.jpg';
 import investigate from '../assets/pathways/investigate.jpg';
 import connect from '../assets/pathways/connect.jpg';
-
+import { activeTools } from '../data/tools';
 
 const pathways = [
   { title: 'Explore', href: '/explore/', image: explore, alt: 'Dramatic rocky landscape encountered during a field adventure', description: 'Stories, field notes, and real-world mushroom adventures.' },
@@ -29,28 +29,32 @@ const pathways = [
     </div>
   </section>
   <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:visible /></div></section>
-  <section class="section soft home-deeper" aria-labelledby="home-deeper-title">
+  <section class="section soft research-home" aria-labelledby="research-home-title">
     <div class="container">
-      <div class="home-deeper-intro">
-        <div><p class="eyebrow">GO DEEPER · REAL QUESTIONS, REAL EVIDENCE</p><h2 id="home-deeper-title">Curiosity can become research.</h2>
-          <p>It might begin with a mushroom you can't name, a place you return to every season, or a DNA sequence that raises more questions than it answers. You don't have to choose between wonder and scientific rigor.</p>
+      <div class="research-home-intro">
+        <div><p class="eyebrow">FOR THE QUESTION THAT WON'T LET GO</p>
+          <h2 id="research-home-title">Curiosity meets evidence.</h2>
+          <p>Already collecting specimens, comparing sequences, or questioning a name? This is where field observations become investigations—and where uncertainty is part of the work.</p>
         </div>
-        <a class="button primary" href="/investigate/learn/">What is fungal research? <span aria-hidden="true">→</span></a>
+        <a class="button primary" href="/investigate/">Enter the Research Workbench <span aria-hidden="true">→</span></a>
       </div>
-      <div class="home-deeper-grid">
-        <a class="home-deeper-card" href="/investigate/learn/#ways"><span class="eyebrow">SIX WAYS INTO THE SCIENCE</span><h3>Find your kind of question.</h3><p>Field surveys, taxonomy, DNA, ecology, microscopy, and scientific collections. See what each looks like—and where I contribute.</p><span class="home-deeper-link">Explore the research fields →</span></a>
-        <a class="home-deeper-card" href="/investigate/learn/#closer"><span class="eyebrow">CLOSER TO HOME</span><h3>From observations to collaboration.</h3><p>Follow the projects, people, and open questions shaping my own work in mycology, including NEO MYCO.</p><span class="home-deeper-link">Read the story →</span></a>
-        <a class="home-deeper-card" href="/investigate/learn/#closer"><span class="eyebrow">LONG-TERM FIELDWORK</span><h3>What changes when you keep looking?</h3><p>Repeated surveys can reveal seasonal patterns, missed species, and changing forests. Explore why the same places are worth visiting year after year.</p><span class="home-deeper-link">See the survey approach →</span></a>
-      </div>
-      <div class="home-deeper-bottom"><p>Want to work with the evidence yourself?</p><a href="/investigate/tools/">Open the Research Workbench →</a><a href="/investigate/resources/">Browse research resources →</a></div>
-    </div>
-  </section>
-  <section class="section home-media" aria-labelledby="home-media-title">
-    <div class="container">
-      <div class="home-media-heading"><div><p class="eyebrow">CONVERSATIONS AND STORIES</p><h2 id="home-media-title">See what we're exploring.</h2></div><p>Research conversations, field stories, and the people who make mycology worth sharing.</p></div>
-      <div class="home-media-grid">
-        <article class="home-media-card"><span class="eyebrow">THE MYCOVIEW</span><h3>New perspectives on fungal science.</h3><p>Field observations, discoveries, and the questions that connect curious people to research.</p><p class="home-media-pending">Episode links and thumbnails coming soon.</p></article>
-        <article class="home-media-card"><span class="eyebrow">THE MYCOGEEKY PODCAST</span><h3>Conversations from the mycosphere.</h3><p>Long-form discussions with the people exploring fungi from many different angles.</p><p class="home-media-pending">Episode links and thumbnails coming soon.</p></article>
+      <div class="research-home-grid">
+        <article class="research-home-feature">
+          <p class="eyebrow">A RESEARCH QUESTION</p>
+          <h3>When does a name outrun the evidence?</h3>
+          <p>Look-alike mushrooms, provisional names, and DNA barcodes raise a deceptively difficult question: how confident should an identification be?</p>
+          <p class="research-home-note">An invitation to investigate—not a claim that any particular identification has been resolved.</p>
+        </article>
+        <div class="research-home-tools">
+          <p class="eyebrow">TOOLS IN DEVELOPMENT</p>
+          {activeTools.map((tool) => (
+            <article class="research-home-tool">
+              <div><h3>{tool.name}</h3><p>{tool.description}</p></div>
+              <span class="research-home-status">{tool.version === 'planned' ? 'Planned' : 'Experimental'}</span>
+            </article>
+          ))}
+          <p class="research-home-note">These tools are prototypes or plans, not validated scientific services. Sequence similarity alone does not establish species identity.</p>
+        </div>
       </div>
     </div>
   </section>

@@ -3,29 +3,31 @@ import Base from '../layouts/Base.astro';
 import FeaturedHero from '../components/FeaturedHero.astro';
 import QuestionPicker from '../components/QuestionPicker';
 import CuriosityGenerator from '../components/CuriosityGenerator';
+import { Image } from 'astro:assets';
+import explore from '../assets/pathways/explore.jpg';
+import curious from '../assets/pathways/curious.jpg';
+import investigate from '../assets/pathways/investigate.jpg';
+import connect from '../assets/pathways/connect.jpg';
+
+const pathways = [
+  { title: 'Explore', href: '/explore/', image: explore, alt: 'Dramatic rocky landscape encountered during a field adventure', description: 'Stories, field notes, and real-world mushroom adventures.' },
+  { title: 'Get Curious', href: '/curious/', image: curious, alt: 'Intricate purple mushroom underside viewed up close', description: 'Interactive mysteries, observation games, and hands-on learning.' },
+  { title: 'Investigate', href: '/investigate/', image: investigate, alt: 'Camera documenting wild mushrooms in the field', description: 'Tools, data, and research resources for all levels.' },
+  { title: 'Connect', href: '/connect/', image: connect, alt: 'Naturalists examining discoveries together in the woods', description: 'Find collaborators, share observations, and join the community.' },
+];
 ---
-<Base title="Stay Curious. Stay Cultivating.">
+<Base title="Stay Curious. Stay Cultivating." description="MycoGeeky is where curious mushroom people learn to do real mycology: field observation, microscopy, DNA barcoding, and the questions that lead to new species.">
   <FeaturedHero />
   <section class="home-pathways" aria-label="Ways to explore MycoGeeky">
     <div class="container home-pathway-grid">
-      <a href="/explore/" class="home-pathway" aria-label="Explore: Stories, field notes, and real-world mushroom adventures.">
-        <img src="/images/pathways/explore.jpg" alt="Dramatic rocky landscape encountered during a field adventure" loading="lazy" />
-        <span class="home-pathway-content"><span class="home-pathway-title">Explore <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">Stories, field notes, and real-world mushroom adventures.</span></span>
-      </a>
-      <a href="/curious/" class="home-pathway" aria-label="Get Curious: Interactive mysteries, observation games, and hands-on learning.">
-        <img src="/images/pathways/curious.jpg" alt="Intricate purple mushroom underside viewed up close" loading="lazy" />
-        <span class="home-pathway-content"><span class="home-pathway-title">Get Curious <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">Interactive mysteries, observation games, and hands-on learning.</span></span>
-      </a>
-      <a href="/investigate/" class="home-pathway" aria-label="Investigate: Tools, data, and research resources for all levels.">
-        <img src="/images/pathways/investigate.jpg" alt="Camera documenting wild mushrooms in the field" loading="lazy" />
-        <span class="home-pathway-content"><span class="home-pathway-title">Investigate <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">Tools, data, and research resources for all levels.</span></span>
-      </a>
-      <a href="/connect/" class="home-pathway" aria-label="Connect: Find collaborators, share observations, and join the community.">
-        <img src="/images/pathways/connect.jpg" alt="Naturalists examining discoveries together in the woods" loading="lazy" />
-        <span class="home-pathway-content"><span class="home-pathway-title">Connect <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">Find collaborators, share observations, and join the community.</span></span>
-      </a>
+      {pathways.map((p) => (
+        <a href={p.href} class="home-pathway" aria-label={`${p.title}: ${p.description}`}>
+          <Image src={p.image} alt={p.alt} widths={[320, 480, 640]} sizes="(max-width: 700px) 50vw, (max-width: 900px) 45vw, 280px" format="webp" quality={72} loading="lazy" />
+          <span class="home-pathway-content"><span class="home-pathway-title">{p.title} <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">{p.description}</span></span>
+        </a>
+      ))}
     </div>
   </section>
-  <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:load /></div></section>
-  <section class="section soft"><div class="container split"><div><p class="eyebrow">THE QUESTION IS THE BEGINNING</p><h2>You don't need permission to be curious.</h2><p>Take science seriously without taking yourself too seriously. Respect expertise, examine evidence, and make room for people who want to contribute.</p></div><QuestionPicker client:load /></div></section>
+  <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:visible /></div></section>
+  <section class="section soft"><div class="container split"><div><p class="eyebrow">THE QUESTION IS THE BEGINNING</p><h2>You don't need permission to be curious.</h2><p>Take science seriously without taking yourself too seriously. Respect expertise, examine evidence, and make room for people who want to contribute.</p></div><QuestionPicker client:visible /></div></section>
 </Base>

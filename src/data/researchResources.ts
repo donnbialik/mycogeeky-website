@@ -42,6 +42,8 @@ export const groups:{id:string;title:string;intro:string;resources:[string,strin
 ]},
 {id:'field',title:'Field observations, ecology & distributions',intro:'Explore what has been observed, where fungi occur, and what ecological hypotheses those patterns suggest.',resources:[
 ['iNaturalist','https://www.inaturalist.org','Community observations and identification discussion','Photo IDs vary in certainty; examine evidence and disagreements.','paper'],
+['Mycoquébec','https://www.mycoquebec.org','Regional fungal descriptions, imagery and identification resources','Québec emphasis; verify the applicability of identifications elsewhere.','expanded'],
+['Amanitaceae Studies (Rod Tulloss)','https://amanitaceae.mushroomobserver.org/','Specialist treatments and research resources for Amanitaceae','Consult underlying specimens, literature and revision dates.','expanded'],
 ['Mushroom Observer','https://mushroomobserver.org','Fungal observations, specimens and community identification','Taxon concepts and evidence vary by observation.','paper'],
 ['FUNGuild','https://funguild.org','Assign ecological guilds from fungal taxonomy','Guild assignments are predictions with varying confidence.','paper'],
 ['GBIF occurrence search','https://www.gbif.org/occurrence/search','Filter and download biodiversity occurrences','Sampling effort and geolocation precision can distort apparent range.','paper'],

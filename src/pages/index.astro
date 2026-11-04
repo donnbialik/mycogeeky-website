@@ -8,10 +8,22 @@ import CuriosityGenerator from '../components/CuriosityGenerator';
   <FeaturedHero />
   <section class="home-pathways" aria-label="Ways to explore MycoGeeky">
     <div class="container home-pathway-grid">
-      <a href="/explore/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">⌕</span><h2>Explore</h2><p>Stories, field notes, and real-world mushroom adventures.</p><span class="pathway-link">Dive in →</span></a>
-      <a href="/curious/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">✳</span><h2>Get Curious</h2><p>Interactive mysteries, observation games, and hands-on learning.</p><span class="pathway-link">Play & learn →</span></a>
-      <a href="/investigate/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">⚗</span><h2>Investigate</h2><p>Tools, data, and research resources for all levels.</p><span class="pathway-link">Start exploring →</span></a>
-      <a href="/connect/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">♧</span><h2>Connect</h2><p>Find collaborators, share observations, and join the community.</p><span class="pathway-link">Find your people →</span></a>
+      <a href="/explore/" class="home-pathway" aria-label="Explore: Stories, field notes, and real-world mushroom adventures.">
+        <img src="/images/pathways/explore.jpg" alt="Dramatic rocky landscape encountered during a field adventure" loading="lazy" />
+        <span class="home-pathway-content"><span class="home-pathway-title">Explore <span aria-hidden="true">↗</span></span><span class="home-pathway-description">Stories, field notes, and real-world mushroom adventures.</span></span>
+      </a>
+      <a href="/curious/" class="home-pathway" aria-label="Get Curious: Interactive mysteries, observation games, and hands-on learning.">
+        <img src="/images/pathways/curious.jpg" alt="Intricate purple mushroom underside viewed up close" loading="lazy" />
+        <span class="home-pathway-content"><span class="home-pathway-title">Get Curious <span aria-hidden="true">↗</span></span><span class="home-pathway-description">Interactive mysteries, observation games, and hands-on learning.</span></span>
+      </a>
+      <a href="/investigate/" class="home-pathway" aria-label="Investigate: Tools, data, and research resources for all levels.">
+        <img src="/images/pathways/investigate.jpg" alt="Camera documenting wild mushrooms in the field" loading="lazy" />
+        <span class="home-pathway-content"><span class="home-pathway-title">Investigate <span aria-hidden="true">↗</span></span><span class="home-pathway-description">Tools, data, and research resources for all levels.</span></span>
+      </a>
+      <a href="/connect/" class="home-pathway" aria-label="Connect: Find collaborators, share observations, and join the community.">
+        <img src="/images/pathways/connect.jpg" alt="Naturalists examining discoveries together in the woods" loading="lazy" />
+        <span class="home-pathway-content"><span class="home-pathway-title">Connect <span aria-hidden="true">↗</span></span><span class="home-pathway-description">Find collaborators, share observations, and join the community.</span></span>
+      </a>
     </div>
   </section>
   <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:load /></div></section>

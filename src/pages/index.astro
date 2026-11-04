@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import FeaturedHero from '../components/FeaturedHero.astro';
 import QuestionPicker from '../components/QuestionPicker';
+import CuriosityGenerator from '../components/CuriosityGenerator';
 ---
 <Base title="Stay Curious. Stay Cultivating.">
   <FeaturedHero />
@@ -13,5 +14,6 @@ import QuestionPicker from '../components/QuestionPicker';
       <a href="/connect/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">♧</span><h2>Connect</h2><p>Find collaborators, share observations, and join the community.</p><span class="pathway-link">Find your people →</span></a>
     </div>
   </section>
+  <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:load /></div></section>
   <section class="section soft"><div class="container split"><div><p class="eyebrow">THE QUESTION IS THE BEGINNING</p><h2>You don't need permission to be curious.</h2><p>Take science seriously without taking yourself too seriously. Respect expertise, examine evidence, and make room for people who want to contribute.</p></div><QuestionPicker client:load /></div></section>
 </Base>

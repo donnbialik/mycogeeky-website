@@ -82,3 +82,35 @@
 @media(max-width:430px){.home-pathway-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-pathway{min-height:200px}}
 @media(hover:none){.home-pathway-description{max-height:110px;opacity:1;transform:none;font-size:.77rem}.home-pathway::after{background:linear-gradient(180deg,transparent 10%,rgba(3,21,14,.28) 38%,rgba(3,21,14,.91) 100%)}}
 @media(prefers-reduced-motion:reduce){.home-pathway img,.home-pathway-description{transition:none}}
+
+/* Mobile hero: keep the mushroom photograph visible and the observation compact.
+   Desktop styling remains unchanged. */
+@media(max-width:700px){
+ .featured-hero{min-height:0;display:block;background-position:center 46%}
+ .featured-hero-inner{width:min(100% - 36px,520px);display:flex;flex-direction:column;align-items:stretch;gap:0;padding:40px 0 44px}
+ .featured-copy{width:100%;max-width:none;padding:0}
+ .featured-kicker{font-size:.62rem;letter-spacing:.14em}
+ .featured-headline{font-size:clamp(1.7rem,7.1vw,2.75rem)!important;margin:18px 0}
+ .featured-lead{font-size:1.04rem;line-height:1.5;max-width:330px}
+ .featured-copy .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:22px}
+ .featured-copy .button{padding:12px 10px;font-size:.78rem;text-align:center;display:flex;justify-content:center;align-items:center;min-height:49px}
+ .featured-hero::before{background-size:auto 70%;background-position:center 49%;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 82%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 82%,transparent 100%)}
+ .featured-hero-shade{background:linear-gradient(180deg,rgba(7,26,11,.87) 0%,rgba(7,26,11,.42) 24%,rgba(7,26,11,.12) 44%,rgba(7,26,11,.32) 65%,rgba(7,26,11,.88) 100%)}
+ .observation-card{width:100%;max-width:none;margin-top:clamp(185px,56vw,270px);padding:19px 19px 20px;border-radius:15px;backdrop-filter:blur(12px)}
+ .observation-card-top{font-size:.58rem;padding-bottom:11px}
+ .observation-id{font-size:.64rem;margin:13px 0 3px}
+ .observation-taxonomy-label{font-size:.59rem;margin:11px 0 4px}
+ .observation-card h2{font-size:clamp(1.18rem,4.6vw,1.5rem);line-height:1.22}
+ .observation-details{padding:7px 0}
+ .observation-details p{font-size:.78rem;margin:5px 0}
+ .observation-taxonomy-note{font-size:.7rem;margin:10px 0}
+ .observation-note{font-size:.8rem;margin:10px 0 4px}
+ .observation-question{font-size:.96rem;margin:7px 0 12px}
+ .observation-link{padding:11px;font-size:.86rem}
+ .featured-photo-credit{position:relative;left:auto;right:auto;bottom:auto;text-align:center;padding:0 15px 12px;font-size:.58rem}
+}
+@media(max-width:390px){
+ .featured-headline{font-size:clamp(1.55rem,7vw,2rem)!important}
+ .featured-copy .button{font-size:.72rem}
+ .observation-card{margin-top:175px}
+}

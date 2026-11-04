@@ -23,7 +23,7 @@ const commonName = taxon?.preferred_common_name || '';
 const date = obs?.observed_on ? new Date(obs.observed_on + 'T12:00:00').toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric', timeZone:'UTC' }) : '';
 const place = obs?.place_guess || '';
 const observer = obs?.user?.login || '';
-const quality = obs?.quality_grade?.replaceAll('_', ' ') || '';
+
 const photo = obs?.photos?.[0]?.url?.replace('/square.', '/large.') || '';
 const heroImage = feature.heroImage || photo;
 ---
@@ -32,7 +32,7 @@ const heroImage = feature.heroImage || photo;
   <div class="container featured-hero-inner">
     <div class="featured-copy">
       <p class="featured-kicker">REAL OBSERVATIONS. BETTER QUESTIONS.</p>
-      <h1>The forest is full of <em>questions.</em></h1>
+      <h1 class="featured-headline"><span>The forest is full</span><span>of <em>questions.</em></span></h1>
       <p class="featured-lead">You don’t need a degree to start asking better ones.</p>
       <div class="actions">
         <a class="button primary" href="/curious/">Follow a mystery <span aria-hidden="true">→</span></a>
@@ -42,14 +42,16 @@ const heroImage = feature.heroImage || photo;
     <aside class="observation-card" aria-label="Featured iNaturalist observation">
       <div class="observation-card-top"><span>FEATURED OBSERVATION</span><span class="observation-source">iNaturalist</span></div>
       <p class="observation-id">OBSERVATION #{feature.id}</p>
+      <p class="observation-taxonomy-label">PROVISIONAL IDENTIFICATION</p>
       <h2>{taxonName}</h2>
       {commonName && <p class="observation-common">{commonName}</p>}
       <div class="observation-details">
         {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
         {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
         {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
-        {quality && <p><span aria-hidden="true">◈</span><span>iNat status: {quality}</span></p>}
+
       </div>
+      <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>
       <p class="observation-note">{feature.fieldNote}</p>
       <p class="observation-question">{feature.question}</p>
       {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}

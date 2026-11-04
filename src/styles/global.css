@@ -199,3 +199,40 @@
 .resource-entry .resource-caution{border-top:1px solid #173a2b1d;padding-top:10px;margin-top:12px;color:#41574b}
 @media(max-width:950px){.resource-roles,.resource-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.resource-roles,.resource-cards{grid-template-columns:1fr}.resource-role,.resource-entry{padding:18px}}
+
+/* Illustrated discipline cards and educational guides */
+.discipline-card-grid{align-items:stretch}
+.resource-role.discipline-card{display:flex;flex-direction:column;padding:0;overflow:hidden;text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
+.discipline-card:hover,.discipline-card:focus-visible{transform:translateY(-3px);box-shadow:0 10px 28px #173a2b1d}
+.discipline-art{height:158px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--discipline-accent) 13%,#f8f4e9);color:var(--discipline-accent);overflow:hidden}
+.discipline-art svg{height:100%;width:100%;max-width:330px}
+.discipline-card-copy{padding:19px 23px 23px;display:flex;flex:1;flex-direction:column}
+.discipline-card-copy .resource-question{margin:2px 0 5px}
+.discipline-card-copy p{margin:5px 0}
+.discipline-card-link{margin-top:auto;padding-top:15px;font-size:.83rem;font-weight:700;color:#24533d}
+.discipline-page-lead{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:center}
+.discipline-page-lead .discipline-art{height:240px;border-radius:18px}
+.discipline-page-lead h1{overflow-wrap:anywhere}
+.discipline-lesson{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:60px;align-items:start}
+.discipline-main>p{max-width:70ch}
+.discipline-main h2{font-size:clamp(1.7rem,3vw,2.5rem);margin:34px 0 14px}
+.discipline-steps{padding-left:24px;line-height:1.65}
+.discipline-steps li{margin:12px 0}
+.discipline-nuance{background:#e8eddf;border-left:4px solid #3b7257;padding:18px 22px;margin:30px 0}
+.discipline-nuance p{margin:8px 0}
+.discipline-sidebar{background:#fffdf7;border:1px solid #173a2b24;border-radius:15px;padding:25px;position:sticky;top:20px}
+.discipline-sidebar h3{font-size:1.35rem}
+.discipline-source{display:block;text-decoration:none;border-top:1px solid #173a2b22;padding:14px 0}
+.discipline-source strong{display:block;text-decoration:underline;text-underline-offset:3px}
+.discipline-source span{display:block;font-size:.84rem;margin-top:6px;line-height:1.5}
+.discipline-source-note{font-size:.77rem;color:#526457}
+.discipline-glossary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.discipline-glossary details{background:#fffdf7;border:1px solid #173a2b25;border-radius:10px;padding:12px 15px}
+.discipline-glossary summary{cursor:pointer;font-weight:700}
+.discipline-glossary p{font-size:.85rem}
+.discipline-related{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.discipline-related a{display:flex;flex-direction:column;gap:8px;padding:18px;background:#fffdf7;border-radius:10px;text-decoration:none}
+.discipline-related span{font-size:.84rem}
+@media(max-width:850px){.discipline-lesson{grid-template-columns:1fr;gap:25px}.discipline-sidebar{position:static}.discipline-page-lead{grid-template-columns:1fr}.discipline-page-lead .discipline-art{height:185px}.discipline-related{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.discipline-glossary,.discipline-related{grid-template-columns:1fr}.discipline-art{height:145px}.discipline-page-lead .discipline-art{height:160px}}
+@media(prefers-reduced-motion:reduce){.discipline-card{transition:none}.discipline-card:hover{transform:none}}

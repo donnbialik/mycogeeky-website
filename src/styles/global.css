@@ -165,3 +165,13 @@
  .featured-photo-credit{background:#122a1b}
 }
 @media(max-width:390px){.observation-card{margin-top:0}.featured-mobile-photo{height:285px}}
+
+/* Remove double-exposure ghosting from the desktop hero.
+   Keep the sharp central photo, but use a crisp boundary instead of feathering
+   two differently scaled copies of the same photograph together. */
+@media(min-width:701px){
+ .featured-hero::before{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 26.9%,#000 27%,#000 73%,transparent 73.1%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,transparent 26.9%,#000 27%,#000 73%,transparent 73.1%,transparent 100%);
+ }
+}

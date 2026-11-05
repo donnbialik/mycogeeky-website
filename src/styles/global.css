@@ -332,3 +332,15 @@
 .survey-why dt:first-child{margin-top:0}
 .survey-why dd{margin:4px 0 0;font-size:.92rem;line-height:1.6;color:#e7eddf}
 @media(max-width:850px){.survey-block{grid-template-columns:1fr}}
+
+/* Personal story dialog */
+.story-open{display:inline-flex;align-items:center;justify-content:center;margin:12px 0;padding:11px 18px;border:1px solid #a77b32;border-radius:999px;background:#f5e5bf;color:#273b2b;font:inherit;font-weight:700;cursor:pointer}
+.story-open:hover{background:#ead29e}
+.story-open:focus-visible,.story-close:focus-visible{outline:3px solid #00a8c8;outline-offset:3px}
+.story-dialog{width:min(620px,calc(100% - 32px));max-height:min(85dvh,850px);margin:auto;padding:0;border:1px solid #b8b09a;border-radius:18px;background:#fffdf7;color:#26382d;box-shadow:0 20px 70px #0005;overflow:auto}
+.story-dialog::backdrop{background:#071d17b8}
+.story-dialog-inner{position:relative;padding:clamp(24px,5vw,42px)}
+.story-dialog-inner h2{margin:8px 40px 22px 0}
+.story-dialog-inner p:not(.eyebrow){line-height:1.7;margin:0 0 17px}
+.story-dialog-inner a{font-weight:700}
+.story-close{position:sticky;float:right;top:10px;display:grid;place-items:center;width:40px;height:40px;margin:-10px -10px 0 10px;border:1px solid #a8b2a8;border-radius:50%;background:#fff;color:#25392c;font-size:28px;line-height:1;cursor:pointer}

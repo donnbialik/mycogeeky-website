@@ -79,5 +79,9 @@ const paths=[
   openButton?.addEventListener('click', () => dialog?.showModal());
   closeButton?.addEventListener('click', () => dialog?.close());
   dialog?.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+  const ampgDialog = document.querySelector<HTMLDialogElement>('#ampg-story-dialog');
+  document.querySelector<HTMLButtonElement>('[data-ampg-open]')?.addEventListener('click', () => ampgDialog?.showModal());
+  ampgDialog?.querySelector<HTMLButtonElement>('[data-ampg-close]')?.addEventListener('click', () => ampgDialog.close());
+  ampgDialog?.addEventListener('click', event => { if (event.target === ampgDialog) ampgDialog.close(); });
 </script>
 </Base>

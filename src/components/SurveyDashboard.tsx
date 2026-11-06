@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 const PROJECT = 'crane-hollow-fungal-diversity-survey';
 const URL = 'https://www.inaturalist.org/projects/' + PROJECT;
 const API = 'https://api.inaturalist.org/v1';
+type Provisional = { name:string; ids:number[] };
 type Summary = { observations:number|null; taxa:number|null; contributors:number|null; created:string|null; updated:string };
 const number = (n:number|null) => n === null ? '—' : n.toLocaleString();
 async function get(path:string) {
@@ -14,6 +15,8 @@ export default function SurveyDashboard() {
   const [data,setData] = useState<Summary|null>(null);
   const [error,setError] = useState(false);
   const [expanded,setExpanded] = useState(false);
+  const [provisionals,setProvisionals] = useState<Provisional[]>([]);
+  const [provisionalStatus,setProvisionalStatus] = useState<'idle'|'loading'|'ready'|'error'|'limited'>('idle');
   useEffect(() => {
     let active=true;
     const query = '?project_id=' + encodeURIComponent(PROJECT);
@@ -32,6 +35,47 @@ export default function SurveyDashboard() {
     }).catch(()=>setError(true));
     return ()=>{active=false};
   },[]);
+  useEffect(() => {
+    if (!expanded || provisionalStatus !== 'idle') return;
+    let active=true;
+    const load=async()=>{
+      setProvisionalStatus('loading');
+      const grouped=new Map<string,Set<number>>();
+      try {
+        // Read observation field values (ofvs) directly; never infer provisional status from taxon IDs.
+        const pageSize=200;
+        let page=1;
+        let total=0;
+        while (page<=50) {
+          const payload=await get('/observations?project_id='+encodeURIComponent(PROJECT)+'&per_page='+pageSize+'&page='+page);
+          total=Number(payload.total_results ?? 0);
+          for (const observation of payload.results ?? []) {
+            for (const entry of observation.ofvs ?? []) {
+              const fieldName=String(entry.name ?? entry.observation_field?.name ?? '').trim().toLowerCase();
+              if (fieldName !== 'provisional name') continue;
+              const name=String(entry.value ?? '').trim();
+              if (!name || !Number.isFinite(observation.id)) continue;
+              const key=name.toLowerCase();
+              if (!grouped.has(key)) grouped.set(key,new Set());
+              grouped.get(key)!.add(Number(observation.id));
+              // Keep the original field value, not an inferred taxonomic identification.
+              if (!names.has(key)) names.set(key,name);
+            }
+          }
+          if (page*pageSize>=total || !(payload.results ?? []).length) break;
+          page++;
+        }
+        if (!active) return;
+        setProvisionals([...grouped].map(([key,ids])=>({name:names.get(key)??key,ids:[...ids]})).sort((a,b)=>b.ids.length-a.ids.length||a.name.localeCompare(b.name)));
+        setProvisionalStatus(page*pageSize<total?'limited':'ready');
+      } catch {
+        if (active) setProvisionalStatus('error');
+      }
+    };
+    const names=new Map<string,string>();
+    void load();
+    return ()=>{active=false};
+  },[expanded,provisionalStatus]);
   return <section className="survey-dashboard" aria-label="Crane Hollow project dashboard">
     <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} target="_blank" rel="noopener noreferrer">View iNaturalist project ↗</a></div>
     <div className="survey-metrics">
@@ -45,7 +89,13 @@ export default function SurveyDashboard() {
       <h4>Provisional taxa: questions worth investigating</h4>
       <p>DNA barcoding can reveal fungal lineages that don't yet have a confidently established species name. Researchers sometimes use provisional labels while comparing sequences, collections, morphology, and published descriptions.</p>
       <p>A provisional name does <strong>not</strong> automatically mean a new species has been discovered. Some lineages may correspond to already-described taxa; others may need more evidence or formal taxonomic work.</p>
-      <p><strong>Crane Hollow provisional taxa list:</strong> A verified project-specific list is being prepared. We won't publish a count or names until the supporting observations and sequence evidence have been reviewed.</p>
+      {provisionalStatus==='loading' && <p>Checking project observation fields for provisional names…</p>}
+      {provisionalStatus==='error' && <p>Provisional-name records could not be retrieved right now. You can still explore the observations on iNaturalist.</p>}
+      {(provisionalStatus==='ready'||provisionalStatus==='limited') && <div>
+        <p><strong>{provisionals.length} distinct provisional name{provisionals.length===1?'':'s'} recorded</strong> in the observation fields scanned.</p>
+        {provisionals.length ? <ul className="survey-provisional-list">{provisionals.map(item=><li key={item.name}><span><strong>{item.name}</strong><small>{item.ids.length} observation{item.ids.length===1?'':'s'}</small></span><a href={'https://www.inaturalist.org/observations?id='+item.ids.join(',')} target="_blank" rel="noopener noreferrer">View records ↗</a></li>)}</ul> : <p>No observations with an exact “Provisional Name” observation field were found in the scanned records. Other field names or records outside this project may exist.</p>}
+        {provisionalStatus==='limited' && <p className="survey-data-note">Only the first 10,000 observations were scanned; these counts may be incomplete.</p>}
+      </div>}
       <a href={URL} target="_blank" rel="noopener noreferrer">Explore the survey observations on iNaturalist ↗</a>
     </div>}
     <p className="survey-data-note">{error?'Live data could not be loaded. Use the iNaturalist project link for current records.':data?'Live iNaturalist snapshot retrieved '+data.updated+'.':'Loading live iNaturalist statistics…'} Recorded taxa are not necessarily confirmed species. Formal sampling visits are tracked separately and are not yet available.</p>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 const PROJECT = 'crane-hollow-fungal-diversity-survey';
 const URL = 'https://www.inaturalist.org/projects/' + PROJECT;
 const API = 'https://api.inaturalist.org/v1';
-type Provisional = { name:string; ids:number[]; barcodeCount:number };
+
 type Summary = { observations:number|null; taxa:number|null; contributors:number|null; created:string|null; updated:string };
 const number = (n:number|null) => n === null ? '—' : n.toLocaleString();
 async function get(path:string) {
@@ -15,7 +15,8 @@ export default function SurveyDashboard() {
   const [data,setData] = useState<Summary|null>(null);
   const [error,setError] = useState(false);
   const [expanded,setExpanded] = useState(false);
-  const [provisionals,setProvisionals] = useState<Provisional[]>([]);
+  const [provisionalCount,setProvisionalCount] = useState<number|null>(null);
+  const [namedSpeciesCount,setNamedSpeciesCount] = useState<number|null>(null);
   const [provisionalStatus,setProvisionalStatus] = useState<'idle'|'loading'|'ready'|'error'|'limited'>('idle');
   useEffect(() => {
     let active=true;
@@ -40,8 +41,7 @@ export default function SurveyDashboard() {
     let active=true;
     const load=async()=>{
       setProvisionalStatus('loading');
-      const grouped=new Map<string,Set<number>>();
-      const barcoded=new Map<string,Set<number>>();
+      const grouped=new Set<string>();
       try {
         // Read observation field values (ofvs) directly; never infer provisional status from taxon IDs.
         const pageSize=200;
@@ -56,27 +56,32 @@ export default function SurveyDashboard() {
               value:String(entry.value ?? '').trim()
             }));
             const provisional=fields.find((field:{name:string;value:string})=>field.name==='provisional species name' && field.value);
-            if (!provisional || !Number.isFinite(observation.id)) continue;
-            const key=provisional.value.toLowerCase();
-            if (!grouped.has(key)) grouped.set(key,new Set());
-            grouped.get(key)!.add(Number(observation.id));
-            if (!names.has(key)) names.set(key,provisional.value);
-            if (fields.some((field:{name:string;value:string})=>field.name==='dna barcode its' && field.value)) {
-              if (!barcoded.has(key)) barcoded.set(key,new Set());
-              barcoded.get(key)!.add(Number(observation.id));
-            }
+            if (!provisional || !fields.some((field:{name:string;value:string})=>field.name==='dna barcode its' && field.value)) continue;
+            grouped.add(provisional.value.toLowerCase());
           }
           if (page*pageSize>=total || !(payload.results ?? []).length) break;
           page++;
         }
         if (!active) return;
-        setProvisionals([...grouped].map(([key,ids])=>({name:names.get(key)??key,ids:[...ids],barcodeCount:barcoded.get(key)?.size??0})).sort((a,b)=>b.ids.length-a.ids.length||a.name.localeCompare(b.name)));
-        setProvisionalStatus(page*pageSize<total?'limited':'ready');
+        // Count only species-rank iNaturalist taxa; genus-level identifications are excluded.
+        const namedSpecies=new Set<number>();
+        let speciesPage=1;
+        let speciesTotal=0;
+        while (speciesPage<=50) {
+          const species=await get('/observations/species_counts?project_id='+encodeURIComponent(PROJECT)+'&per_page=200&page='+speciesPage);
+          speciesTotal=Number(species.total_results ?? 0);
+          for (const row of species.results ?? []) if (row.taxon?.rank==='species' && Number.isFinite(row.taxon.id)) namedSpecies.add(row.taxon.id);
+          if (speciesPage*200>=speciesTotal || !(species.results ?? []).length) break;
+          speciesPage++;
+        }
+        if (!active) return;
+        setProvisionalCount(grouped.size);
+        setNamedSpeciesCount(namedSpecies.size);
+        setProvisionalStatus(page*pageSize<total || speciesPage*200<speciesTotal?'limited':'ready');
       } catch {
         if (active) setProvisionalStatus('error');
       }
     };
-    const names=new Map<string,string>();
     void load();
     return ()=>{active=false};
   },[expanded]);
@@ -91,14 +96,19 @@ export default function SurveyDashboard() {
     <button className="story-open" type="button" aria-expanded={expanded} aria-controls="crane-provisional-details" onClick={()=>setExpanded(!expanded)}>{expanded?'Hide provisional taxa ↑':'Explore provisional taxa ↓'}</button>
     {expanded && <div className="survey-chart-wrap" id="crane-provisional-details">
       <h4>Provisional taxa: questions worth investigating</h4>
-      <p>DNA barcoding can reveal fungal lineages that don't yet have a confidently established species name. Researchers sometimes use provisional labels while comparing sequences, collections, morphology, and published descriptions. Here we look for observations with the “Provisional Species Name:” field and check whether the “DNA Barcode ITS:” field is populated.</p>
+      <p>DNA barcoding can reveal fungal lineages that don't yet have a confidently established species name. Researchers sometimes use provisional labels while comparing sequences, collections, morphology, and published descriptions. The calculation uses distinct provisional names on observations with a populated “DNA Barcode ITS:” field.</p>
       <p>A provisional name does <strong>not</strong> automatically mean a new species has been discovered. Some lineages may correspond to already-described taxa; others may need more evidence or formal taxonomic work.</p>
       {provisionalStatus==='loading' && <p>Checking project observation fields for provisional names…</p>}
       {provisionalStatus==='error' && <p>Provisional-name records could not be retrieved right now. You can still explore the observations on iNaturalist.</p>}
       {(provisionalStatus==='ready'||provisionalStatus==='limited') && <div>
-        <p><strong>{provisionals.length} distinct provisional name{provisionals.length===1?'':'s'} recorded</strong> in the observation fields scanned.</p>
-        {provisionals.length ? <ul className="survey-provisional-list">{provisionals.map(item=><li key={item.name}><span><strong>{item.name}</strong><small>{item.ids.length} observation{item.ids.length===1?'':'s'} · {item.barcodeCount} with DNA Barcode ITS field populated</small></span><a href={'https://www.inaturalist.org/observations?id='+item.ids.join(',')} target="_blank" rel="noopener noreferrer">View records ↗</a></li>)}</ul> : <p>No observations with a populated “Provisional Species Name:” observation field were found in the scanned records. Other field names or records outside this project may exist.</p>}
-        {provisionalStatus==='limited' && <p className="survey-data-note">Only the first 10,000 observations were scanned; these counts may be incomplete.</p>}
+        <div className="survey-metrics survey-provisional-metrics">
+          <div><span>Named species (iNaturalist)</span><strong>{number(namedSpeciesCount)}</strong></div>
+          <div><span>Distinct provisional species</span><strong>{number(provisionalCount)}</strong></div>
+          <div><span>Total species-level entries</span><strong>{namedSpeciesCount!==null&&provisionalCount!==null?number(namedSpeciesCount+provisionalCount):'—'}</strong></div>
+          <div><span>Provisional share</span><strong>{namedSpeciesCount!==null&&provisionalCount!==null&&namedSpeciesCount+provisionalCount>0?(100*provisionalCount/(namedSpeciesCount+provisionalCount)).toFixed(1)+'%':'—'}</strong></div>
+        </div>
+        <p className="survey-data-note">Provisional species are counted as distinct “Provisional Species Name:” values on observations with a populated “DNA Barcode ITS:” field. Named species are distinct species-rank iNaturalist identifications. The combined total and percentage are an <strong>estimate</strong>: provisional names may overlap named species, and field values are not independently validated.</p>
+        {provisionalStatus==='limited' && <p className="survey-data-note">The API scan reached its 10,000-record limit; counts may be incomplete.</p>}
       </div>}
       <a href={URL} target="_blank" rel="noopener noreferrer">Explore the survey observations on iNaturalist ↗</a>
     </div>}

@@ -32,13 +32,13 @@ export default function SurveyDashboard() {
     }).catch(()=>setError(true));
     return ()=>{active=false};
   },[]);
-  return <section className="survey-dashboard" aria-label="Crane Hollow project dashboard">
-    <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} target="_blank" rel="noopener noreferrer">View iNaturalist project ↗</a></div>
+  return <section className="survey-dashboard" style={{color:"#1b3029",backgroundColor:"#fffefa"}} aria-label="Crane Hollow project dashboard">
+    <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3 style={{color:"#1b3029"}}>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} style={{color:"#1b3029"}} target="_blank" rel="noopener noreferrer">View iNaturalist project ↗</a></div>
     <div className="survey-metrics">
-      <div><span>Observations</span><strong>{data?number(data.observations):'—'}</strong></div>
-      <div><span>Recorded taxa</span><strong>{data?number(data.taxa):'—'}</strong></div>
-      <div><span>Contributors</span><strong>{data?number(data.contributors):'—'}</strong></div>
-      <div><span>Project created</span><strong className="survey-date">{data?.created?new Date(data.created).toLocaleDateString(undefined,{month:'short',year:'numeric'}):'—'}</strong></div>
+      <div><span>Observations</span><strong style={{color:"#1b3029"}}>{data?number(data.observations):'—'}</strong></div>
+      <div><span>Recorded taxa</span><strong style={{color:"#1b3029"}}>{data?number(data.taxa):'—'}</strong></div>
+      <div><span>Contributors</span><strong style={{color:"#1b3029"}}>{data?number(data.contributors):'—'}</strong></div>
+      <div><span>Project created</span><strong className="survey-date" style={{color:"#1b3029"}}>{data?.created?new Date(data.created).toLocaleDateString(undefined,{month:'short',year:'numeric'}):'—'}</strong></div>
     </div>
     <p className="survey-data-note">{error?'Live data could not be loaded. Use the iNaturalist project link for current records.':data?'Live iNaturalist snapshot retrieved '+data.updated+'.':'Loading live iNaturalist statistics…'} Recorded taxa are not necessarily confirmed species. Formal sampling visits are tracked separately and are not yet available.</p>
   </section>;

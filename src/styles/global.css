@@ -391,3 +391,5 @@
 .survey-block>.survey-why dt{margin:0}
 .survey-block>.survey-why dd{margin:6px 0 0}
 @media(max-width:750px){.survey-block>.survey-why dl{display:block}.survey-block>.survey-why dt{margin-top:18px}}
+
+.survey-block>.survey-why dl{display:block;columns:2;column-gap:40px}.survey-block>.survey-why dt{break-after:avoid;break-inside:avoid;margin-top:18px}.survey-block>.survey-why dd{break-inside:avoid;margin-bottom:16px}@media(max-width:750px){.survey-block>.survey-why dl{columns:1}}

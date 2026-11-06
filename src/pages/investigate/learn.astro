@@ -83,5 +83,9 @@ const paths=[
   document.querySelector<HTMLButtonElement>('[data-ampg-open]')?.addEventListener('click', () => ampgDialog?.showModal());
   ampgDialog?.querySelector<HTMLButtonElement>('[data-ampg-close]')?.addEventListener('click', () => ampgDialog.close());
   ampgDialog?.addEventListener('click', event => { if (event.target === ampgDialog) ampgDialog.close(); });
+  const neoDialog = document.querySelector<HTMLDialogElement>('#neo-story-dialog');
+  document.querySelector<HTMLButtonElement>('[data-neo-open]')?.addEventListener('click', () => neoDialog?.showModal());
+  neoDialog?.querySelector<HTMLButtonElement>('[data-neo-close]')?.addEventListener('click', () => neoDialog.close());
+  neoDialog?.addEventListener('click', event => { if (event.target === neoDialog) neoDialog.close(); });
 </script>
 </Base>

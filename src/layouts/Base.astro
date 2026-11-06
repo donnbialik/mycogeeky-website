@@ -1,6 +1,64 @@
 ---
 import '../styles/global.css';
-const {title='MycoGeeky',description='Stay Curious. Stay Cultivating.'}=Astro.props;
-const nav=[['Explore','/explore/'],['Get Curious','/curious/'],['Investigate','/investigate/'],['Connect','/connect/'],['About','/about/']];
+import { Image, getImage } from 'astro:assets';
+import logo from '../assets/mycogeeky-logo.png';
+import shareImageSource from '../assets/featured-orange-mushrooms.png';
+
+interface Props { title?: string; description?: string; }
+const {
+  title = 'MycoGeeky',
+  description = 'Real mycology, done by everyone. Field observation, microscopy, DNA barcoding, and the questions that lead to new species.',
+} = Astro.props;
+
+const nav = [['Explore','/explore/'],['Get Curious','/curious/'],['Investigate','/investigate/'],['Connect','/connect/'],['About','/about/']];
+const pageTitle = `${title} · MycoGeeky`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+// Preview image used when a page is shared on Facebook, iNaturalist forums, Discord, etc.
+const shareImage = await getImage({ src: shareImageSource, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
+const shareImageUrl = new URL(shareImage.src, Astro.site);
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="description" content={description}/><title>{title} · MycoGeeky</title></head><body><a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="MycoGeeky home"><img class="brand-logo" src="/images/mycogeeky-logo.png" alt="" width="52" height="52" /><span>MycoGeeky<small>STAY CURIOUS. STAY CULTIVATING.</small></span></a><nav aria-label="Primary navigation">{nav.map(([label,url])=><a href={url} aria-current={Astro.url.pathname===url?'page':undefined}>{label}</a>)}</nav></div></header><main id="main"><slot/></main><footer><div class="container footer-inner"><span>MycoGeeky · Curiosity, evidence, and connection.</span><span>Independent science. Open questions.</span></div></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="MycoGeeky" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={shareImageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght,SOFT,WONK@9..144,500,0,1;9..144,650,0,1&display=swap" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label="MycoGeeky home">
+        <Image class="brand-logo" src={logo} alt="" width={52} densities={[1, 2]} format="webp" loading="eager" />
+        <span>MycoGeeky<small>STAY CURIOUS. STAY CULTIVATING.</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname === url ? 'page' : undefined}>{label}</a>)}
+      </nav>
+    </div>
+  </header>
+  <main id="main"><slot /></main>
+  <footer>
+    <div class="container footer-inner">
+      <span>MycoGeeky · Curiosity, evidence, and connection.</span>
+      <span>Independent science. Open questions.</span>
+    </div>
+  </footer>
+</body>
+</html>

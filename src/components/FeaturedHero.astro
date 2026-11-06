@@ -1,4 +1,5 @@
 ---
+import { getImage } from 'astro:assets';
 import { featuredObservation as feature } from '../data/featuredObservation';
 const observationUrl = `https://www.inaturalist.org/observations/${feature.id}`;
 let obs: any = null;
@@ -25,36 +26,69 @@ const place = obs?.place_guess || '';
 const observer = obs?.user?.login || '';
 
 const photo = obs?.photos?.[0]?.url?.replace('/square.', '/large.') || '';
-const heroImage = feature.heroImage || photo;
+
+// A local hero image is resized and converted to WebP at build time:
+// a full-width version for desktop and a smaller one for the mobile photo panel.
+let heroImage = photo;
+let heroImageSmall = photo;
+if (feature.heroImage) {
+  const large = await getImage({ src: feature.heroImage, width: Math.min(1920, feature.heroImage.width), format: 'webp', quality: 78 });
+  const small = await getImage({ src: feature.heroImage, width: 900, format: 'webp', quality: 75 });
+  heroImage = large.src;
+  heroImageSmall = small.src;
+}
+const cssUrl = (url: string) => `url("${url.replaceAll('"', '%22')}")`;
+const heroStyle = heroImage ? `--featured-photo:${cssUrl(heroImage)};--featured-photo-sm:${cssUrl(heroImageSmall)}` : undefined;
+
+// Only label the name as provisional when it is one (e.g. Gliophorus sp. 'psittacinus-IN04').
+const isProvisional = /\bsp\.|['‘’"]/.test(taxonName);
+const taxonLabel = isProvisional ? 'PROVISIONAL IDENTIFICATION' : 'IDENTIFICATION';
 ---
-<section class="featured-hero" style={heroImage ? `--featured-photo:url("${heroImage.replaceAll('"','%22')}")` : undefined}>
+{heroImage && (
+  <link rel="preload" as="image" href={heroImage} media="(min-width: 701px)" fetchpriority="high" />
+  <link rel="preload" as="image" href={heroImageSmall} media="(max-width: 700px)" fetchpriority="high" />
+)}
+<section class="featured-hero" style={heroStyle}>
   <div class="featured-hero-shade"></div>
   <div class="container featured-hero-inner">
     <div class="featured-copy">
       <p class="featured-kicker">REAL OBSERVATIONS. BETTER QUESTIONS.</p>
-      <h1 class="featured-headline"><span>The forest is full</span><span>of <em>questions.</em></span></h1>
+      <h1 class="featured-headline"><span>The forest is full</span> <span>of <em>questions.</em></span></h1>
       <p class="featured-lead">You don’t need a degree to start asking better ones.</p>
       <div class="actions">
         <a class="button primary" href="/curious/">Follow a mystery <span aria-hidden="true">→</span></a>
         <a class="button featured-outline" href="/investigate/">Explore the science</a>
       </div>
     </div>
+    <div class="featured-mobile-photo" aria-hidden="true"></div>
     <aside class="observation-card" aria-label="Featured iNaturalist observation">
       <div class="observation-card-top"><span>FEATURED OBSERVATION</span><span class="observation-source">iNaturalist</span></div>
       <p class="observation-id">OBSERVATION #{feature.id}</p>
-      <p class="observation-taxonomy-label">PROVISIONAL IDENTIFICATION</p>
+      <p class="observation-taxonomy-label">{taxonLabel}</p>
       <h2>{taxonName}</h2>
       {commonName && <p class="observation-common">{commonName}</p>}
+      <div class="observation-desktop-details">
       <div class="observation-details">
         {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
         {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
         {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
-
       </div>
-      <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>
+      {isProvisional && <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>}
       <p class="observation-note">{feature.fieldNote}</p>
       <p class="observation-question">{feature.question}</p>
       {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      </div>
+      <details class="observation-mobile-details"><summary>Field notes &amp; observation details <span aria-hidden="true">⌄</span></summary><div class="observation-mobile-details-body">
+      <div class="observation-details">
+        {date && <p><span aria-hidden="true">◷</span><span>{date}</span></p>}
+        {place && <p><span aria-hidden="true">⌖</span><span>{place}</span></p>}
+        {observer && <p><span aria-hidden="true">◎</span><span>Observed by @{observer}</span></p>}
+      </div>
+      {isProvisional && <p class="observation-taxonomy-note">Informal species designation; formal description not yet established.</p>}
+      <p class="observation-note">{feature.fieldNote}</p>
+      <p class="observation-question">{feature.question}</p>
+      {!obs && <p class="observation-unavailable">Live observation details temporarily unavailable.</p>}
+      </div></details>
       <a class="observation-link" href={observationUrl} target="_blank" rel="noopener noreferrer">View on iNaturalist <span aria-hidden="true">↗</span></a>
     </aside>
   </div>

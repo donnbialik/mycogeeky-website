@@ -1,17 +1,61 @@
 ---
 import Base from '../layouts/Base.astro';
 import FeaturedHero from '../components/FeaturedHero.astro';
-import QuestionPicker from '../components/QuestionPicker';
+import CuriosityGenerator from '../components/CuriosityGenerator';
+import { Image } from 'astro:assets';
+import explore from '../assets/pathways/explore.jpg';
+import curious from '../assets/pathways/curious.jpg';
+import investigate from '../assets/pathways/investigate.jpg';
+import connect from '../assets/pathways/connect.jpg';
+import { activeTools } from '../data/tools';
+
+const pathways = [
+  { title: 'Explore', href: '/explore/', image: explore, alt: 'Dramatic rocky landscape encountered during a field adventure', description: 'Stories, field notes, and real-world mushroom adventures.' },
+  { title: 'Get Curious', href: '/curious/', image: curious, alt: 'Intricate purple mushroom underside viewed up close', description: 'Interactive mysteries, observation games, and hands-on learning.' },
+  { title: 'Investigate', href: '/investigate/', image: investigate, alt: 'Camera documenting wild mushrooms in the field', description: 'Tools, data, and research resources for all levels.' },
+  { title: 'Connect', href: '/connect/', image: connect, alt: 'Naturalists examining discoveries together in the woods', description: 'Find collaborators, share observations, and join the community.' },
+];
 ---
-<Base title="Stay Curious. Stay Cultivating.">
+<Base title="Stay Curious. Stay Cultivating." description="MycoGeeky is where curious mushroom people learn to do real mycology: field observation, microscopy, DNA barcoding, and the questions that lead to new species.">
   <FeaturedHero />
   <section class="home-pathways" aria-label="Ways to explore MycoGeeky">
     <div class="container home-pathway-grid">
-      <a href="/explore/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">⌕</span><h2>Explore</h2><p>Stories, field notes, and real-world mushroom adventures.</p><span class="pathway-link">Dive in →</span></a>
-      <a href="/curious/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">✳</span><h2>Get Curious</h2><p>Interactive mysteries, observation games, and hands-on learning.</p><span class="pathway-link">Play & learn →</span></a>
-      <a href="/investigate/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">⚗</span><h2>Investigate</h2><p>Tools, data, and research resources for all levels.</p><span class="pathway-link">Start exploring →</span></a>
-      <a href="/connect/" class="home-pathway"><span class="pathway-icon" aria-hidden="true">♧</span><h2>Connect</h2><p>Find collaborators, share observations, and join the community.</p><span class="pathway-link">Find your people →</span></a>
+      {pathways.map((p) => (
+        <a href={p.href} class="home-pathway" aria-label={`${p.title}: ${p.description}`}>
+          <Image src={p.image} alt={p.alt} widths={[320, 480, 640]} sizes="(max-width: 700px) 50vw, (max-width: 900px) 45vw, 280px" format="webp" quality={72} loading="lazy" />
+          <span class="home-pathway-content"><span class="home-pathway-title">{p.title} <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">{p.description}</span></span>
+        </a>
+      ))}
     </div>
   </section>
-  <section class="section soft"><div class="container split"><div><p class="eyebrow">THE QUESTION IS THE BEGINNING</p><h2>You don't need permission to be curious.</h2><p>Take science seriously without taking yourself too seriously. Respect expertise, examine evidence, and make room for people who want to contribute.</p></div><QuestionPicker client:load /></div></section>
+  <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:visible /></div></section>
+  <section class="section soft research-home" aria-labelledby="research-home-title">
+    <div class="container">
+      <div class="research-home-intro">
+        <div><p class="eyebrow">FOR THE QUESTION THAT WON'T LET GO</p>
+          <h2 id="research-home-title">Curiosity meets evidence.</h2>
+          <p>Already collecting specimens, comparing sequences, or questioning a name? This is where field observations become investigations—and where uncertainty is part of the work.</p>
+        </div>
+        <a class="button primary" href="/investigate/">Enter the Research Workbench <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="research-home-grid">
+        <article class="research-home-feature">
+          <p class="eyebrow">A RESEARCH QUESTION</p>
+          <h3>When does a name outrun the evidence?</h3>
+          <p>Look-alike mushrooms, provisional names, and DNA barcodes raise a deceptively difficult question: how confident should an identification be?</p>
+          <p class="research-home-note">An invitation to investigate—not a claim that any particular identification has been resolved.</p>
+        </article>
+        <div class="research-home-tools">
+          <p class="eyebrow">TOOLS IN DEVELOPMENT</p>
+          {activeTools.map((tool) => (
+            <article class="research-home-tool">
+              <div><h3>{tool.name}</h3><p>{tool.description}</p></div>
+              <span class="research-home-status">{tool.version === 'planned' ? 'Planned' : 'Experimental'}</span>
+            </article>
+          ))}
+          <p class="research-home-note">These tools are prototypes or plans, not validated scientific services. Sequence similarity alone does not establish species identity.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </Base>

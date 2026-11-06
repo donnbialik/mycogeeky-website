@@ -1,0 +1,23 @@
+---
+import Base from '../../../layouts/Base.astro';
+import DisciplineArt from '../../../components/DisciplineArt.astro';
+import {disciplines,glossary} from '../../../data/disciplines';
+export function getStaticPaths(){return disciplines.map(d=>({params:{slug:d.slug},props:{discipline:d}}))}
+const {discipline:d}=Astro.props;
+const other=disciplines.filter(item=>item.slug!==d.slug);
+---
+<Base title={d.title} description={d.summary}>
+<section class="page-hero container discipline-page-head"><p class="eyebrow"><a href="/investigate/resources/">RESEARCH RESOURCES</a> / WHO DOES WHAT</p><div class="discipline-page-lead"><div><h1>{d.title}</h1><p class="lead">{d.question}</p><p>{d.summary}</p></div><DisciplineArt kind={d.icon} accent={d.accent}/></div></section>
+<section class="section"><div class="container discipline-lesson">
+<div class="discipline-main">
+<p class="eyebrow">THE BIG PICTURE</p><h2>What does this work involve?</h2><p>{d.intro}</p>
+<h2>What does it look like in practice?</h2><ol class="discipline-steps">{d.practice.map(step=><li>{step}</li>)}</ol>
+<h2>Follow a fungal question</h2><p>{d.example}</p>
+<div class="discipline-nuance"><p class="eyebrow">WHERE THE SCIENCE GETS INTERESTING</p><p>{d.nuance}</p></div>
+<h2>Explore the vocabulary</h2><p>These definitions are a starting point. Open a term to see what it means and why the distinction matters.</p>
+<div class="discipline-glossary">{Object.entries(glossary).map(([key,entry])=><details><summary>{key==='its'?'ITS':key.charAt(0).toUpperCase()+key.slice(1)}</summary><p>{entry.definition}</p><p>{entry.detail}</p></details>)}</div>
+</div>
+<aside class="discipline-sidebar"><p class="eyebrow">GO DEEPER</p><h3>Sources and working tools</h3>{d.resources.map(r=><a class="discipline-source" href={r.url} target="_blank" rel="noopener noreferrer"><strong>{r.title} ↗</strong><span>{r.why}</span></a>)}<p class="discipline-source-note">External references provide context, not an endorsement of every taxonomic interpretation. Some methods and requirements evolve.</p><a class="button primary" href="/investigate/resources/#directory">Browse the full directory →</a></aside>
+</div></section>
+<section class="section soft"><div class="container"><p class="eyebrow">THE QUESTIONS CONNECT</p><h2>Other ways to investigate</h2><div class="discipline-related">{other.map(item=><a href={`/investigate/disciplines/${item.slug}/`}><strong>{item.title}</strong><span>{item.question} →</span></a>)}</div></div></section>
+</Base>

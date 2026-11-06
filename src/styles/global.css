@@ -370,3 +370,24 @@
 .survey-project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0}.survey-project-card{padding:22px;background:var(--white);border:1px solid var(--line);border-radius:12px}.survey-project-card summary{cursor:pointer;font-weight:700}@media(max-width:800px){.survey-project-grid{grid-template-columns:1fr}}
 
 .survey-block>.survey-project-grid,.survey-block>.survey-dashboard{grid-column:1/-1}.survey-project-card{color:var(--ink)}.survey-project-card h4{color:var(--forest);font-family:'Fraunces',Georgia,serif;font-size:1.4rem;line-height:1.2;margin:10px 0}.survey-project-card p:not(.eyebrow){color:var(--muted);font-size:.92rem}.survey-project-card .eyebrow{color:#627e63}.survey-project-card details{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}.survey-project-card summary{color:var(--forest)}.survey-project-card a{color:var(--forest)}.survey-block>.survey-dashboard{color:var(--ink);min-width:0}.survey-block>.survey-dashboard .eyebrow{color:#627e63}
+
+/* Long-term survey section: deliberate single-column composition */
+.survey-block{display:flex;flex-direction:column;gap:28px;min-width:0}
+.survey-block>.survey-intro{max-width:850px}
+.survey-block>.survey-intro h3{font-size:clamp(2rem,3.6vw,3rem)}
+.survey-block>.survey-intro>p:not(.eyebrow){font-size:1.08rem;line-height:1.7;color:#e7eddf;max-width:780px}
+.survey-block>.survey-project-grid{width:100%;margin:0;align-items:stretch}
+.survey-project-card{display:flex;flex-direction:column;min-width:0;color:var(--ink)}
+.survey-project-card h4{color:var(--forest)}
+.survey-project-card details{margin-top:auto;padding-top:16px}
+.survey-block>.survey-dashboard{width:100%;margin:0;background:#fffefa;color:#1b2926}
+.survey-block>.survey-dashboard h3{color:#19352e;font-size:clamp(1.6rem,2.5vw,2.25rem)}
+.survey-block>.survey-dashboard a{color:#19352e}
+.survey-block>.survey-dashboard .survey-metrics strong{color:#19352e}
+.survey-block>.survey-dashboard .survey-metrics span{color:#5e6b63}
+.survey-block>.survey-dashboard .survey-dashboard-heading p{color:#5e6b63}
+.survey-block>.survey-why{width:100%;border-top:1px solid #ffffff40;padding-top:24px}
+.survey-block>.survey-why dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px;row-gap:18px}
+.survey-block>.survey-why dt{margin:0}
+.survey-block>.survey-why dd{margin:6px 0 0}
+@media(max-width:750px){.survey-block>.survey-why dl{display:block}.survey-block>.survey-why dt{margin-top:18px}}

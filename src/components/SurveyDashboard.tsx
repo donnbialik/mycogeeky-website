@@ -75,7 +75,7 @@ export default function SurveyDashboard() {
     const names=new Map<string,string>();
     void load();
     return ()=>{active=false};
-  },[expanded,provisionalStatus]);
+  },[expanded]);
   return <section className="survey-dashboard" aria-label="Crane Hollow project dashboard">
     <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} target="_blank" rel="noopener noreferrer">View iNaturalist project ↗</a></div>
     <div className="survey-metrics">

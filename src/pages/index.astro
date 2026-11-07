@@ -1,61 +1,56 @@
 ---
 import Base from '../layouts/Base.astro';
-import FeaturedHero from '../components/FeaturedHero.astro';
 import CuriosityGenerator from '../components/CuriosityGenerator';
+import SurveyDashboard from '../components/SurveyDashboard';
 import { Image } from 'astro:assets';
+import hero from '../assets/featured-orange-mushrooms.png';
 import explore from '../assets/pathways/explore.jpg';
 import curious from '../assets/pathways/curious.jpg';
 import investigate from '../assets/pathways/investigate.jpg';
 import connect from '../assets/pathways/connect.jpg';
-import { activeTools } from '../data/tools';
-
-const pathways = [
-  { title: 'Explore', href: '/explore/', image: explore, alt: 'Dramatic rocky landscape encountered during a field adventure', description: 'Stories, field notes, and real-world mushroom adventures.' },
-  { title: 'Get Curious', href: '/curious/', image: curious, alt: 'Intricate purple mushroom underside viewed up close', description: 'Interactive mysteries, observation games, and hands-on learning.' },
-  { title: 'Investigate', href: '/investigate/', image: investigate, alt: 'Camera documenting wild mushrooms in the field', description: 'Tools, data, and research resources for all levels.' },
-  { title: 'Connect', href: '/connect/', image: connect, alt: 'Naturalists examining discoveries together in the woods', description: 'Find collaborators, share observations, and join the community.' },
+const paths=[
+ {name:'Discover',href:'/discover/',desc:'Field notes, strange discoveries, and stories worth sharing.',icon:'◎'},
+ {name:'Learn',href:'/learn/',desc:'Observation games, practical guides, and a little science.',icon:'◇'},
+ {name:'Investigate',href:'/investigate/',desc:'Real research, evidence, data, and questions.',icon:'▥'},
+ {name:'Connect',href:'/connect/',desc:'Find collaborators, projects, and your people.',icon:'♧'}
+];
+const cards=[
+ {title:'Under the microscope',label:'LEARN / METHODS',text:'The tiny structures that change how we see fungi.',href:'/investigate/learn/',image:curious},
+ {title:'From field to DNA',label:'INVESTIGATE / EVIDENCE',text:'Follow a collection from observation to sequence.',href:'/investigate/learn/#my-inat',image:investigate},
+ {title:'This season’s finds',label:'DISCOVER / FIELD NOTES',text:'Look closer at the places fungi turn up.',href:'/discover/',image:explore}
 ];
 ---
-<Base title="Stay Curious. Stay Cultivating." description="MycoGeeky is where curious mushroom people learn to do real mycology: field observation, microscopy, DNA barcoding, and the questions that lead to new species.">
-  <FeaturedHero />
-  <section class="home-pathways" aria-label="Ways to explore MycoGeeky">
-    <div class="container home-pathway-grid">
-      {pathways.map((p) => (
-        <a href={p.href} class="home-pathway" aria-label={`${p.title}: ${p.description}`}>
-          <Image src={p.image} alt={p.alt} widths={[320, 480, 640]} sizes="(max-width: 700px) 50vw, (max-width: 900px) 45vw, 280px" format="webp" quality={72} loading="lazy" />
-          <span class="home-pathway-content"><span class="home-pathway-title">{p.title} <span class="pathway-arrow" aria-hidden="true"></span></span><span class="home-pathway-description">{p.description}</span></span>
-        </a>
-      ))}
-    </div>
-  </section>
-  <section class="section curiosity-section" aria-labelledby="curiosity-section-title"><div class="container curiosity-section-grid"><div><p class="eyebrow">LOOK A LITTLE CLOSER</p><h2 id="curiosity-section-title">Curiosity is something you do.</h2><p>You don’t need to know the name of a mushroom to discover something interesting about it. Start with a small challenge, then follow the questions wherever they lead.</p></div><CuriosityGenerator client:visible /></div></section>
-  <section class="section soft research-home" aria-labelledby="research-home-title">
-    <div class="container">
-      <div class="research-home-intro">
-        <div><p class="eyebrow">FOR THE QUESTION THAT WON'T LET GO</p>
-          <h2 id="research-home-title">Curiosity meets evidence.</h2>
-          <p>Already collecting specimens, comparing sequences, or questioning a name? This is where field observations become investigations—and where uncertainty is part of the work.</p>
-        </div>
-        <a class="button primary" href="/investigate/">Enter the Research Workbench <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="research-home-grid">
-        <article class="research-home-feature">
-          <p class="eyebrow">A RESEARCH QUESTION</p>
-          <h3>When does a name outrun the evidence?</h3>
-          <p>Look-alike mushrooms, provisional names, and DNA barcodes raise a deceptively difficult question: how confident should an identification be?</p>
-          <p class="research-home-note">An invitation to investigate—not a claim that any particular identification has been resolved.</p>
+<Base title="Stay Curious. Stay Cultivating." description="MycoGeeky: field discoveries, citizen science, mycology education, cultivation, and people exploring fungi together.">
+  <div class="v5-home">
+    <section class="v5-hero" aria-labelledby="v5-title">
+      <div class="v5-hero-image"><Image src={hero} alt="Clusters of orange mushrooms in moss" loading="eager" widths={[640,960,1440]} sizes="(max-width: 720px) 100vw, 50vw" /></div>
+      <div class="v5-hero-copy"><p class="v5-eyebrow">AN INDEPENDENT MYCOLOGY FIELD STATION</p><h1 id="v5-title">Fungi, experiments, real research, and a few mysteries.</h1><p>Field observations, unexpected questions, practical science, and the people who make discovery worth sharing.</p><p class="v5-promise">And who knows? We might just accomplish something great.</p><a class="v5-cta" href="#featured">See what’s happening ↓</a></div>
+    </section>
+    <nav class="v5-pathways" aria-label="Explore MycoGeeky">
+      {paths.map(p=><a href={p.href} class="v5-path"><span class="v5-path-icon" aria-hidden="true">{p.icon}</span><span><strong>{p.name}</strong><small>{p.desc}</small></span></a>)}
+    </nav>
+    <section class="v5-section" id="featured" aria-label="Featured discoveries">
+      <div class="v5-section-heading"><h2>THE FIELD STATION</h2><span>FOLLOW A QUESTION. FIND YOUR PEOPLE.</span></div>
+      <div class="v5-feature-grid">
+        <article class="v5-investigation">
+          <div class="v5-feature-image"><Image src={investigate} alt="Camera documenting mushrooms during fieldwork" widths={[400,700]} sizes="(max-width: 720px) 100vw, 30vw" /></div>
+          <div class="v5-feature-copy"><p class="v5-eyebrow">FEATURED INVESTIGATION</p><h3>When does a name outrun the evidence?</h3><p>Provisional names, DNA barcodes, and the questions behind a confident identification. Follow the evidence, not just the label.</p><a class="v5-link" href="/investigate/learn/#my-inat">Investigate the evidence →</a></div>
         </article>
-        <div class="research-home-tools">
-          <p class="eyebrow">TOOLS IN DEVELOPMENT</p>
-          {activeTools.map((tool) => (
-            <article class="research-home-tool">
-              <div><h3>{tool.name}</h3><p>{tool.description}</p></div>
-              <span class="research-home-status">{tool.version === 'planned' ? 'Planned' : 'Experimental'}</span>
-            </article>
-          ))}
-          <p class="research-home-note">These tools are prototypes or plans, not validated scientific services. Sequence similarity alone does not establish species identity.</p>
-        </div>
+        <article class="v5-curiosity"><p class="v5-eyebrow">TRY SOMETHING</p><h3>The Curiosity Generator</h3><p>A small invitation to notice something you might otherwise miss.</p><CuriosityGenerator client:visible /><a class="v5-link" href="/learn/">More ways to get curious →</a></article>
+        <article class="v5-survey"><p class="v5-eyebrow">LIVE FIELD DATA</p><SurveyDashboard client:visible /><a class="v5-link" href="/investigate/learn/#surveys">Explore field surveys →</a></article>
       </div>
-    </div>
-  </section>
+    </section>
+    <section class="v5-section" aria-labelledby="v5-more">
+      <div class="v5-section-heading"><h2 id="v5-more">MORE TO EXPLORE THIS SEASON</h2><span>LOOK CLOSER / GO DEEPER</span></div>
+      <div class="v5-editorial-grid">{cards.map(c=><a href={c.href} class="v5-editorial"><Image src={c.image} alt="" widths={[300,500]} sizes="(max-width: 720px) 35vw, 15vw" loading="lazy"/><span><small>{c.label}</small><strong>{c.title}</strong><span>{c.text}</span></span></a>)}</div>
+    </section>
+    <section class="v5-section v5-world" aria-labelledby="v5-world">
+      <div class="v5-section-heading"><h2 id="v5-world">EXPLORE THE MYCOGEEKY WORLD</h2><span>GROW / LISTEN / COLLABORATE</span></div>
+      <div class="v5-world-grid">
+        <article id="cultivation"><Image src={curious} alt="Close view of a mushroom" widths={[360,600]} sizes="(max-width: 720px) 100vw, 30vw"/><div><p class="v5-eyebrow">MUSHROOM CULTIVATION</p><h3>Grow mushrooms. Ask better questions.</h3><p>Practical growing knowledge, experimentation, and the science behind cultivation.</p><a class="v5-link" href="/learn/">Explore learning and growing →</a></div></article>
+        <article id="media"><Image src={explore} alt="Landscape encountered during field exploration" widths={[360,600]} sizes="(max-width: 720px) 100vw, 30vw"/><div><p class="v5-eyebrow">PODCASTS & MEDIA</p><h3>Conversations that grow into friendships.</h3><p>Explore the MycoGeeky Podcast legacy and the people whose questions keep mycology interesting.</p><a class="v5-link" href="/discover/">Discover stories and media →</a></div></article>
+        <article id="neomyco"><Image src={connect} alt="Naturalists examining fungi together" widths={[360,600]} sizes="(max-width: 720px) 100vw, 30vw"/><div><p class="v5-eyebrow">NEO MYCO</p><h3>Discover together. Contribute together.</h3><p>Community-driven fungal research and collaboration in Northeast Ohio.</p><a class="v5-link" href="/connect/">Explore collaboration →</a></div></article>
+      </div>
+    </section>
+  </div>
 </Base>

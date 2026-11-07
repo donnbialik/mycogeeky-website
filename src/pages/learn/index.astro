@@ -1,5 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CuriosityGenerator from '../../components/CuriosityGenerator';
+import { Image } from 'astro:assets';
+import curious from '../../assets/pathways/curious.jpg';
 ---
-<Base title="Learn"><section class="page-hero container"><p class="eyebrow">LEARN BY NOTICING</p><h1>Curiosity is something you do.</h1><p class="lead">Start with a question, try an experiment, and learn to see fungi in a different way.</p><div class="v5-learn-generator"><CuriosityGenerator client:visible /></div><a class="button outline" href="/investigate/learn/">Explore the scientific disciplines →</a></section></Base>
+<Base title="Learn"><div class="station-page">
+<section class="station-hero station-hero-split"><div class="station-hero-copy"><p class="eyebrow">LEARN / THE CURIOSITY LAB</p><h1>Science starts with <em>noticing.</em></h1><p class="lead">No grades. No gatekeepers. Just small experiments, surprisingly useful questions, and new ways to see the fungi around you.</p><a class="station-button" href="#play">Try an activity ↓</a></div><Image src={curious} alt="Purple mushroom structures seen close up" widths={[500,850]} sizes="(max-width:760px) 100vw,48vw"/></section>
+<section class="station-content" id="play"><div class="station-section-head"><h2>THE CURIOSITY GENERATOR</h2><span>PLAY FIRST / SCIENCE AFTER</span></div><div class="station-learning-grid"><div><h2>What happens when you look a little closer?</h2><p>Try an observation exercise, invent an explanation, then discover the scientific habit hiding inside the game. You can participate alone, with a friend, or on a foray.</p><p class="station-footnote">Nothing to submit. Nothing to score. Share only if you want to.</p></div><CuriosityGenerator client:visible /></div></section>
+<section class="station-content"><div class="station-section-head"><h2>GO DEEPER</h2><span>FIELD / MICROSCOPE / DNA</span></div><div class="station-link-grid"><a href="/investigate/learn/">Explore six ways to do fungal research <span>→</span></a><a href="/investigate/resources/">Find scientific references and databases <span>→</span></a><a href="/investigate/tools/">Understand experimental research tools <span>→</span></a></div></section>
+</div></Base>

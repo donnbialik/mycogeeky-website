@@ -1,0 +1,68 @@
+/* V5 homepage: isolated layout system. Existing research pages retain their original styling until migration. */
+:root{--v5-green:#123b30;--v5-paper:#f7f6f1;--v5-lime:#d8ed43;--v5-serif:"Source Serif 4",Georgia,serif;--v5-sans:"IBM Plex Sans",sans-serif;--v5-mono:"IBM Plex Mono",monospace}
+body{font-family:var(--v5-sans)}
+.site-header{background:var(--v5-green);color:#fff;border:0}
+.site-header .header-inner{min-height:68px;width:min(1540px,calc(100% - 40px))}
+.site-header .brand{font-family:var(--v5-serif);font-size:2rem;letter-spacing:-.04em}
+.site-header .brand small{font-family:var(--v5-serif);font-size:.72rem;font-style:italic;letter-spacing:0;font-weight:400}
+.site-header nav a{font-size:.95rem}
+.v5-home{background:var(--v5-paper);color:#1c3028;padding-bottom:30px}
+.v5-home h1,.v5-home h2,.v5-home h3{font-family:var(--v5-serif);letter-spacing:-.025em}
+.v5-home p{line-height:1.48}
+.v5-hero{display:grid;grid-template-columns:1fr 1fr;background:var(--v5-green);color:white;min-height:295px}
+.v5-hero-image{min-height:295px;overflow:hidden}
+.v5-hero-image img{width:100%;height:100%;max-height:340px;object-fit:cover;display:block}
+.v5-hero-copy{padding:24px clamp(24px,3vw,55px);display:flex;flex-direction:column;justify-content:center}
+.v5-eyebrow{font:600 .68rem var(--v5-mono);letter-spacing:.12em;text-transform:uppercase;margin:0;color:#66816c}
+.v5-hero .v5-eyebrow{color:#c6dba2}
+.v5-hero h1{font-size:clamp(2rem,3.1vw,3.25rem);line-height:1.04;margin:9px 0 11px;max-width:630px}
+.v5-hero-copy>p:not(.v5-eyebrow){font-size:.95rem;margin:5px 0}
+.v5-hero .v5-promise{font-family:var(--v5-serif);font-style:italic;font-size:1.15rem!important;color:#e3eb9c}
+.v5-cta{align-self:flex-start;background:var(--v5-lime);color:#163c30;text-decoration:none;padding:10px 16px;font-weight:700;border-radius:4px;margin-top:10px}
+.v5-pathways{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #d3d8cb;background:#fffdf8;padding:0 max(18px,calc((100vw - 1540px)/2))}
+.v5-path{display:flex;align-items:center;gap:13px;padding:17px 14px;text-decoration:none;border-right:1px solid #d3d8cb}
+.v5-path:last-child{border:0}.v5-path:hover{background:#eef1e4}
+.v5-path-icon{font-size:2.2rem;color:#1c5a47;line-height:1;width:44px;text-align:center}
+.v5-path strong{display:block;font:700 1.5rem var(--v5-serif);line-height:1.05}
+.v5-path small{display:block;font-size:.79rem;line-height:1.25;margin-top:4px;color:#53645a}
+.v5-section{width:min(1540px,calc(100% - 36px));margin:0 auto;padding:15px 0 11px}
+.v5-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:15px;margin:0 0 12px}
+.v5-section-heading h2{font:700 1rem var(--v5-sans);letter-spacing:.08em;margin:0}
+.v5-section-heading>span{font:500 .64rem var(--v5-mono);letter-spacing:.05em;color:#748278}
+.v5-feature-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.9fr) minmax(0,1.05fr);gap:12px;align-items:stretch}
+.v5-feature-grid>article{min-width:0;border:1px solid #d9dfd2;border-radius:8px;overflow:hidden;background:white}
+.v5-investigation{display:grid;grid-template-columns:49% 51%;min-height:365px}
+.v5-feature-image img{width:100%;height:100%;object-fit:cover;display:block}
+.v5-feature-copy{padding:18px;display:flex;flex-direction:column;align-items:flex-start}
+.v5-feature-copy h3,.v5-curiosity h3{font-size:clamp(1.6rem,2vw,2rem);line-height:1.05;margin:12px 0}
+.v5-feature-copy>p:not(.v5-eyebrow){font-size:.9rem}
+.v5-link{display:inline-block;margin-top:auto;font-size:.85rem;font-weight:700;text-decoration:underline;text-underline-offset:4px;color:#174d3a}
+.v5-curiosity{padding:16px;background:#eae1ee!important;display:flex;flex-direction:column;gap:5px}
+.v5-curiosity .curiosity-generator{padding:12px;background:#f9f6fb;border-radius:6px;box-shadow:none}
+.v5-curiosity .curiosity-generator h3{font-size:1.1rem;margin:6px 0}
+.v5-curiosity .curiosity-generator .eyebrow{font-size:.55rem}
+.v5-curiosity .curiosity-prompt{font-size:.8rem;line-height:1.35}
+.v5-curiosity .curiosity-controls{margin-top:10px;gap:6px}
+.v5-curiosity .curiosity-controls button{font-size:.7rem;padding:9px 10px}
+.v5-curiosity .curiosity-disclaimer{margin:10px 0 0;font-size:.65rem}
+.v5-survey{padding:15px;background:#f9faf6!important;display:flex;flex-direction:column}
+.v5-survey .survey-dashboard{padding:0!important;background:transparent!important}
+.v5-survey .survey-dashboard-heading h3{font-size:1.6rem;line-height:1.08}
+.v5-survey .survey-dashboard-heading p,.v5-survey .survey-data-note{font-size:.74rem}
+.v5-survey .survey-metrics strong{font-size:1.5rem}
+.v5-editorial-grid,.v5-world-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.v5-editorial{display:grid;grid-template-columns:43% 57%;min-height:155px;border:1px solid #d8dfd2;border-radius:7px;overflow:hidden;background:#fff;text-decoration:none}
+.v5-editorial img{width:100%;height:100%;object-fit:cover}
+.v5-editorial>span{display:flex;flex-direction:column;gap:6px;padding:13px}
+.v5-editorial small{font:600 .6rem var(--v5-mono);color:#67826b}
+.v5-editorial strong{font:700 1.4rem var(--v5-serif);line-height:1.08}
+.v5-editorial>span>span{font-size:.8rem;line-height:1.35}
+.v5-world-grid article{border:1px solid #d8dfd2;background:#fff;border-radius:7px;overflow:hidden;display:flex;flex-direction:column}
+.v5-world-grid article>img{width:100%;height:165px;object-fit:cover}
+.v5-world-grid article>div{padding:16px;display:flex;flex-direction:column;flex:1}
+.v5-world-grid h3{font-size:1.65rem;line-height:1.1;margin:8px 0}
+.v5-world-grid p:not(.v5-eyebrow){font-size:.86rem}
+.v5-world-grid .v5-link{padding-top:10px}
+.v5-learn-generator{max-width:760px;margin:30px 0}
+@media(max-width:1050px){.v5-feature-grid{grid-template-columns:1.2fr 1fr}.v5-survey{grid-column:1/-1}.v5-path strong{font-size:1.2rem}.v5-path-icon{font-size:1.6rem;width:28px}}
+@media(max-width:720px){.v5-hero{grid-template-columns:1fr}.v5-hero-image{min-height:190px;height:190px}.v5-hero-image img{max-height:none}.v5-hero-copy{padding:22px}.v5-hero h1{font-size:2.3rem}.v5-pathways{grid-template-columns:1fr 1fr}.v5-path{padding:13px 8px}.v5-path strong{font-size:1.18rem}.v5-path small{font-size:.68rem}.v5-feature-grid,.v5-editorial-grid,.v5-world-grid{grid-template-columns:1fr}.v5-investigation{grid-template-columns:42% 58%;min-height:320px}.v5-feature-copy{padding:12px}.v5-feature-copy h3{font-size:1.5rem}.v5-editorial{min-height:130px}.v5-section-heading>span{display:none}}

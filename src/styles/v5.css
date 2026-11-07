@@ -136,3 +136,26 @@ a:focus-visible,button:focus-visible{outline:3px solid #bdcf37;outline-offset:3p
 html{scroll-behavior:smooth;scroll-padding-top:20px}
 @media(max-width:900px){.station-hero-split{grid-template-columns:1fr 1fr}.station-editorial-grid,.station-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.station-learning-grid,.station-data-grid{grid-template-columns:1fr}.station-link-grid{grid-template-columns:1fr}}
 @media(max-width:700px){.station-hero-split{grid-template-columns:1fr}.station-hero>img{height:220px;min-height:220px}.station-hero-copy{padding:30px 22px}.station-hero h1{font-size:2.6rem}.station-editorial-grid,.station-tool-grid{grid-template-columns:1fr}.station-section-head>span{display:none}.station-content{padding:24px 0}.station-data{padding:24px 22px}.page-hero{margin-top:10px;padding:35px 22px}.site-header .brand{font-size:1.65rem}}
+
+/* Research interiors: dense, editorial, source-first rather than generic dashboards */
+.page-hero:has(+.section) {background:linear-gradient(115deg,#e8eee3 0%,#f5f5ec 66%,#e3e8d8 100%);border-left:7px solid #557d62}
+.page-hero h1{font-family:var(--v5-serif);font-size:clamp(2.7rem,5.5vw,5.8rem);letter-spacing:-.045em;line-height:1.02}
+.page-hero .lead{font-size:clamp(1.05rem,1.6vw,1.35rem)}
+.section h2{line-height:1.12;max-width:950px}
+.section .eyebrow{margin-bottom:13px}
+.section .container.narrow{max-width:860px}
+.section .container.narrow>p{font-size:1.06rem;line-height:1.68}
+.research-reading{border-left:3px solid #79966f;padding:12px 18px;background:#f8f9f2}
+.research-reading a{display:block;margin:8px 0}
+.discipline-card-grid,.resource-roles{gap:14px}
+.discipline-card,.resource-role{background:#fffefa;border:1px solid #d6dfd1;border-radius:7px;overflow:hidden}
+.discipline-card-copy{padding:18px}
+.discipline-card-copy h3{font-family:var(--v5-serif);font-size:1.65rem}
+.research-workflows{background:#e8ede3;border:1px solid #d2dfcd;border-radius:7px;padding:22px}
+.research-workflow-choice{font-family:var(--v5-sans);border-radius:4px}
+.research-workflow-detail{background:#fffefa;border:1px solid #d6dfd1;border-radius:5px}
+.resource-footnote,.resource-intro{color:#4e6455}
+.resource-count{font:500 .82rem var(--v5-mono);color:#46624d}
+dialog{border:1px solid #d6dfd1;border-radius:9px;box-shadow:0 18px 70px #11291b55;max-width:min(900px,95vw)}
+dialog::backdrop{background:#0b2419a8}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

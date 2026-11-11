@@ -1,0 +1,22 @@
+---
+import Base from '../../../layouts/Base.astro';
+import StudyDesigner from '../../../components/StudyDesigner';
+---
+<Base title="Research Question & Study Designer" description="Turn an interesting fungal observation into a testable question, alternative explanation, and preliminary study plan.">
+  <div class="mv-study-page">
+    <section class="mv-study-hero">
+      <p class="mv-kicker">INVESTIGATE / ASK BETTER QUESTIONS</p>
+      <h1>What would it take to <em>find out?</em></h1>
+      <p>An observation, a hunch, an unexpected pattern: every investigation starts somewhere. Turn yours into a researchable question, challenge your assumptions, and sketch the evidence you'd need to test it.</p>
+      <div class="mv-study-note"><strong>Research Question & Study Designer</strong><span>Working prototype · guided worksheet · no AI-generated conclusions</span></div>
+    </section>
+    <section class="mv-study-workspace">
+      <StudyDesigner client:load />
+    </section>
+    <section class="mv-study-follow">
+      <p class="mv-kicker">GO DEEPER</p>
+      <h2>A good plan is the start, not the finish.</h2>
+      <div><a href="/investigate/resources/">Find original scientific resources ↗</a><a href="/investigate/learn/">Explore research methods ↗</a><a href="/neo-myco/">Find potential collaborators through Neo Myco ↗</a></div>
+    </section>
+  </div>
+</Base>

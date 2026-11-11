@@ -80,6 +80,22 @@ export const frameworks:Framework[]=[
  ],pitfalls:['Two fungi failing to co-occur is not evidence of competitive exclusion.','Avoid introducing organisms into new habitats or harming trees.'],next:['Define the proposed interaction and a falsifiable prediction.','List environmental explanations that might produce the same pattern.','Start with non-invasive replicated observations.'],resourceIds:['events','neon','learn'],related:['ECO-02','ECO-03','MOL-03']
 },
 {
+ id:'ECO-05',area:'ecology',title:'Habitat gradients & environmental conditions',question:'Does a fungus occur more often under particular environmental conditions?',
+ summary:'Investigate elevation, soil, moisture, canopy, and habitat patterns without assuming cause.',
+ choices:[
+ opt('habitat','Does it seem restricted to a habitat?','Habitat association','Define repeatable habitat categories and document availability and survey effort.'),
+ opt('gradient','Does it track moisture or elevation?','Environmental gradient','Compare observations and appropriate environmental measurements across a gradient.'),
+ opt('soil','Could soil or substrate chemistry explain it?','Substrate or soil conditions','Distinguish broad map proxies from site-level samples and measured chemistry.'),
+ opt('absence','Why does it seem missing from comparable places?','Detection and possible absence','Determine whether surveys could detect the fungus before interpreting nondetections.')
+ ],evidence:['occurrence','survey','measurements','voucher'],
+ methods:[
+ {name:'Habitat and variable audit',why:'Determines whether environmental records match the spatial and temporal scale of the fungus observations.',requires:['Georeferenced records','Habitat classifications','Variable coverage and accuracy'],cannot:'Demonstrate physiological tolerance or causation from a map overlay.'},
+ {name:'Stratified or matched field survey',why:'Compares defined habitat strata while documenting search effort and detection differences.',requires:['Sampling strata','Effort records','Repeated comparable visits'],cannot:'Prove a particular soil or climate variable causes the pattern without additional testing.'}
+ ],pitfalls:['Broad regional habitat maps may not represent conditions at the fruiting site.','Fruiting detection varies seasonally and geographically.','Correlated environmental variables can make one apparent driver misleading.'],
+ next:['Select one measurable ecological response and one proposed environmental factor.','Review spatial precision, taxonomic evidence, and habitat metadata.','Choose comparable sites or stratified surveys with documented effort.'],
+ resourceIds:['inat','gbif','events','neon','fia'],related:['ECO-01','ECO-02','BIO-01']
+},
+{
  id:'TAX-01',area:'taxonomy',title:'Identification evidence & uncertainty',question:'How confident should we be in a fungal identification?',
  summary:'Evaluate morphology, ecology, molecular references, and the appropriate taxonomic rank.',
  choices:[opt('photo','Can a photograph support this species ID?','Photographic identifiability','Check known lookalikes and whether reliable diagnostic characters are visible.'),opt('dna','Does a sequence match settle the ID?','Molecular comparison','Check marker resolution, voucher provenance, and reference quality.'),opt('conflict','Why do sources disagree on the name?','Conflicting evidence','Compare underlying species concepts and nomenclature.'),opt('rank','Should we stop at genus or complex?','Defensible taxonomic rank','Prefer a higher-level ID when evidence cannot resolve species.')],evidence:['photo','voucher','dna','literature'],methods:[

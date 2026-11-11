@@ -161,3 +161,65 @@
 .mv-observation-dialog-body .mv-primary{margin-top:10px}
 @media(max-width:1100px){.mv-hero{min-height:390px}.mv-hero-image{min-height:390px}}
 @media(max-width:760px){.mv-hero{grid-template-columns:1fr}.mv-hero-image{min-height:260px;height:260px}.mv-hero-copy{padding:26px 21px 30px}.mv-hero h1{font-size:clamp(3.05rem,9vw,4.4rem)}.mv-section{padding:38px 19px}.mv-opening-image img{height:250px}.mv-story-image img{height:210px}.mv-host-section{padding:38px 19px}.mv-host-image img{height:250px}.mv-community-image img{height:240px}.mv-community-copy{padding:32px 22px}.mv-observation-widget{bottom:10px;left:10px;max-width:calc(100% - 20px)}.mv-observation-trigger{padding:9px 12px}.mv-observation-trigger strong{font-size:.77rem}.mv-observation-trigger small{font-size:.53rem}.mv-observation-dialog-head,.mv-observation-dialog-body{padding:19px}.mv-observation-dialog-head h2{font-size:1.7rem}}
+
+
+/* Research process, Study Designer, and Neo Myco landing page */
+.mv-study-page{background:#f8f7f1;color:#17372e}
+.mv-study-hero{padding:52px max(24px,calc((100vw - 1290px)/2));background:#123c31;color:#fff}
+.mv-study-hero .mv-kicker{color:#e5ca82}
+.mv-study-hero h1{font:700 clamp(2.8rem,5vw,5.5rem)/1.03 var(--mv-serif);letter-spacing:-.035em;max-width:850px;margin:6px 0 16px}
+.mv-study-hero h1 em{color:#f4ca73}
+.mv-study-hero>p:not(.mv-kicker){max-width:780px;font-size:1.12rem;line-height:1.55;color:#e7eee5}
+.mv-study-note{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:22px;font-size:.8rem}
+.mv-study-note span{color:#cadebf}
+.mv-study-workspace,.mv-study-follow{max-width:1350px;margin:auto;padding:40px 24px}
+.mv-designer{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.7fr);gap:18px;align-items:start}
+.mv-designer-form{display:grid;gap:17px;background:#fff;border:1px solid #d3ddce;border-top:5px solid #e99a62;border-radius:9px;padding:28px}
+.mv-designer-form-header span,.mv-designer-guidance>span,.mv-designer-result-head span{font:700 .72rem var(--mv-mono);letter-spacing:.07em;color:#4e775d}
+.mv-designer-form-header p{font-size:.82rem;color:#5c6d60;margin:7px 0 0}
+.mv-designer-form label{display:grid;gap:7px;font-weight:700;font-size:.9rem}
+.mv-designer-form textarea,.mv-designer-form input,.mv-designer-form select{border:1px solid #aebfb0;border-radius:5px;background:#fbfcf9;padding:12px;font:400 .95rem "IBM Plex Sans",sans-serif;color:#17372e;max-width:100%;width:100%;box-sizing:border-box}
+.mv-designer-form :is(textarea,input,select):focus-visible{outline:3px solid #e8b86d;outline-offset:2px}
+.mv-designer-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mv-designer-form button{border:0;cursor:pointer;justify-self:start}
+.mv-designer-guidance{background:#e9e1f2;border-top:5px solid #aa78c7;border-radius:9px;padding:25px}
+.mv-designer-guidance h2{font:700 2rem/1.15 var(--mv-serif);margin:13px 0}
+.mv-designer-guidance h3{font:700 1.13rem var(--mv-serif)}
+.mv-designer-guidance p,.mv-designer-guidance li{font-size:.89rem;line-height:1.55}
+.mv-designer-guidance ul{padding-left:20px}
+.mv-designer-disclaimer{font-size:.8rem;color:#5d685e;line-height:1.5}
+.mv-designer-result{grid-column:1/-1;background:#f2f7ee;border:1px solid #c8d9c5;border-top:5px solid #69a18c;border-radius:9px;padding:24px}
+.mv-designer-result-head{display:flex;justify-content:space-between;align-items:center;gap:15px}
+.mv-designer-result-head h2{font:700 2rem var(--mv-serif);margin:7px 0 0}
+.mv-copy-plan{border:1px solid #24543d;background:#fff;color:#174732;border-radius:5px;padding:10px 15px;font-weight:700;cursor:pointer}
+.mv-copy-plan:hover{background:#e5f1df}
+.mv-designer-result pre{white-space:pre-wrap;overflow-wrap:anywhere;font:400 .85rem/1.6 var(--mv-mono);background:#fff;padding:19px;border:1px solid #d7e1d4;border-radius:7px;max-height:580px;overflow:auto}
+.mv-study-follow{padding-top:0;padding-bottom:60px}
+.mv-study-follow h2{font:700 2rem var(--mv-serif);margin:6px 0 16px}
+.mv-study-follow>div{display:flex;gap:16px;flex-wrap:wrap}
+.mv-study-follow a{font-weight:700;text-underline-offset:4px}
+.mv-study-feature{display:flex;justify-content:space-between;align-items:center;gap:22px;background:#e5ecf4;border-left:6px solid #6baab8;padding:22px 26px;margin-bottom:17px;border-radius:6px}
+.mv-study-feature>div{max-width:800px}.mv-study-feature h3{font:700 clamp(1.6rem,2.4vw,2.4rem)/1.1 var(--mv-serif);margin:0 0 8px}
+.mv-study-feature p:not(.mv-kicker){font-size:.91rem;margin:0}.mv-study-feature .mv-kicker{margin-bottom:7px}
+.mv-study-feature .mv-primary{white-space:nowrap}
+.mv-investigate-designer{display:flex;align-items:center;justify-content:space-between;gap:30px;background:#e9eff4;border-left:6px solid #73b2c5}
+.mv-investigate-designer>div{max-width:740px}.mv-investigate-designer h2{font:700 clamp(1.8rem,3vw,2.8rem) var(--mv-serif);margin:5px 0 9px}.mv-investigate-designer p:not(.eyebrow){font-size:.93rem}
+.mv-investigate-designer .station-button{white-space:nowrap}
+.mv-neo-intro{max-width:1100px}
+.mv-neo-intro h2{font:700 clamp(2rem,3.1vw,3.25rem)/1.1 var(--mv-serif);margin:8px 0 18px}
+.mv-neo-intro p:not(.eyebrow){font-size:1rem;max-width:920px}
+.mv-neo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mv-neo-grid article{border:1px solid #d5decf;border-top:5px solid #88aa74;border-radius:8px;background:white;padding:22px}
+.mv-neo-grid article:nth-child(2){border-top-color:#aa78c7;background:#faf6fc}
+.mv-neo-grid article:nth-child(3){border-top-color:#71b5c2;background:#f2f9fa}
+.mv-neo-grid article span{font:700 .68rem var(--mv-mono);letter-spacing:.07em;color:#5a7461}
+.mv-neo-grid article h3{font:700 1.7rem/1.15 var(--mv-serif);margin:12px 0}
+.mv-neo-grid article p{font-size:.9rem}
+.mv-neo-membership{display:grid;grid-template-columns:1.4fr .9fr;gap:25px;background:#f4eddb;border-radius:9px}
+.mv-neo-membership h2,.mv-neo-footer h2{font:700 clamp(2rem,3vw,3rem)/1.1 var(--mv-serif);margin:8px 0 16px}
+.mv-neo-membership-note{background:white;border-radius:7px;border-left:5px solid #d59d54;padding:20px}
+.mv-neo-membership-note strong{font:700 1.5rem var(--mv-serif)}
+.mv-neo-membership-note p{font-size:.87rem}
+.mv-neo-footer{padding-bottom:56px}
+@media(max-width:900px){.mv-designer{grid-template-columns:1fr}.mv-designer-result{grid-column:auto}.mv-neo-grid{grid-template-columns:1fr 1fr}.mv-study-feature,.mv-investigate-designer{align-items:flex-start;flex-direction:column}.mv-neo-membership{grid-template-columns:1fr}}
+@media(max-width:600px){.mv-study-hero{padding:36px 19px}.mv-study-workspace,.mv-study-follow{padding:26px 16px}.mv-designer-form,.mv-designer-guidance,.mv-designer-result{padding:18px}.mv-designer-two,.mv-neo-grid{grid-template-columns:1fr}.mv-study-feature{padding:19px}.mv-study-feature .mv-primary,.mv-investigate-designer .station-button{white-space:normal}.mv-designer-result-head{align-items:flex-start;flex-direction:column}}

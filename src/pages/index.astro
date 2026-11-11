@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import CuriosityGenerator from '../components/CuriosityGenerator';
 import SurveyDashboard from '../components/SurveyDashboard';
+import HeroObservation from '../components/HeroObservation.astro';
 import { Image } from 'astro:assets';
 import hero from '../assets/featured-orange-mushrooms.png';
 import explore from '../assets/pathways/explore.jpg';
@@ -19,7 +20,7 @@ const paths=[
 <Base title="See fungi differently" description="MycoView is a welcoming field station for fungal discovery, citizen science, original evidence, research tools, and meaningful collaboration.">
 <div class="mv-home">
   <section class="mv-hero" aria-labelledby="mv-hero-title">
-    <div class="mv-hero-image"><Image src={hero} alt="Brilliant orange wild mushrooms emerging among moss and leaves" loading="eager" widths={[640,960,1440]} sizes="(max-width: 760px) 100vw, 53vw" /></div>
+    <div class="mv-hero-image"><Image src={hero} alt="Brilliant orange wild mushrooms emerging among moss and leaves" loading="eager" widths={[640,960,1440]} sizes="(max-width: 760px) 100vw, 53vw" /><HeroObservation /></div>
     <div class="mv-hero-copy">
       <p class="mv-kicker">WELCOME TO MYCOVIEW · AN INDEPENDENT MYCOLOGY FIELD STATION</p>
       <h1 id="mv-hero-title">See fungi <em>differently.</em></h1>

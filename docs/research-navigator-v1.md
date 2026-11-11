@@ -15,7 +15,7 @@ A no-AI, no-account, publicly accessible educational navigator across **5 areas 
 All choices are changeable using Previous. Related pathways allow jumping to their framework in step 2. Data remains in the browser component while mounted. No server storage or analytics of research notes is implemented.
 
 ## Area inventory
-- Ecology & relationships: ECO-01 host associations; ECO-02 fruiting/seasonality; ECO-03 decomposition; ECO-04 organism interactions.
+- Ecology & relationships: ECO-01 host associations; ECO-02 fruiting/seasonality; ECO-03 decomposition; ECO-04 organism interactions; ECO-05 environmental gradients.
 - Identity & taxonomy: TAX-01 identification confidence; TAX-02 species delimitation.
 - Morphology & specimens: MOR-01 field documentation; MOR-02 microscopy/variation.
 - Molecular evidence & evolution: MOL-01 ITS evidence; MOL-02 phylogenetics; MOL-03 population genetics/ecology.

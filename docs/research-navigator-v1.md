@@ -62,3 +62,23 @@ Reference sources:
 Ask at least two qualified people to review methodological content independently of code before attaching a scientific validation label. Record review date, area of expertise, framework version, and exact changes requested.
 
 Test with contradictory questions, not just the Grifola/white-oak example: cryptic Morchella IDs, fungal fruiting phenology, microscopy character reliability, duplicate ITS records, spatial sampling gaps, and fungus/wood-substrate associations.
+
+## v1.1 — Research Journey / Technical Brief separation
+The result now defaults to **My Research Journey**: an editable research question, a conceptual explanation, a labeled hypothetical example, evidence tiers, next steps tailored to goal, curated sources, and inference warnings. Visitors can switch to **Technical Research Brief** for full methodology, prerequisites, limitations, and text export.
+
+- src/data/researchLessons.ts contains 15 authored educational lessons, one per framework.
+- src/components/ResearchJourney.tsx renders the journey separately from the technical brief.
+- Step 2 offers a visitor-editable research-question template. The original wording remains intact and is not claimed to be scientifically or grammatically interpreted.
+- Evidence tiers: start here / strengthen the investigation / advanced or a separate question. Lessons provide distinct actions for understanding, auditing records, field surveys and collaborating.
+- Technical export contains original and suggested question, evidence tiers, example, method limitations, goal-specific next steps, and notes.
+
+### Grifola regression tests
+- Select ECO-01 → Fruiting association. Enter the original question: Why does Grifrola frondosa like Quercus alba so much? Select Understand the question.
+- Confirm original wording is preserved and a generic, non-assuming template appears, editable to include the species, place and comparison. There is no automatic typo correction.
+- DNA and vouchers must not be listed as mandatory starting data for the simple fruiting association.
+- Confirm the teaching example about 70% vs 15% tree availability is explicitly hypothetical.
+- Understanding-first next steps should emphasize literature, source records and competing hypotheses, not an invasive field experiment.
+- Switch between views and verify the technical report contains the refined question, limitations, tiers, notes and relevant actions.
+- Check alternate goals, all 15 lessons, keyboard usability, mobile layout, and copy/download behavior.
+
+Build and browser QA remain outstanding; the scientific content is still draft and awaits independent review.

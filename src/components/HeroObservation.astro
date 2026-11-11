@@ -1,0 +1,67 @@
+---
+import { featuredObservation as feature } from '../data/featuredObservation';
+const observationUrl = `https://www.inaturalist.org/observations/${feature.id}`;
+let observation: any = null;
+try {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
+  try {
+    const response = await fetch(`https://api.inaturalist.org/v1/observations/${feature.id}`, {
+      headers: { Accept: 'application/json' }, signal: controller.signal,
+    });
+    if (response.ok) {
+      const data = await response.json();
+      observation = data.results?.find((item: any) => item.id === feature.id) ?? null;
+    }
+  } finally { clearTimeout(timeout); }
+} catch {
+  // The observation remains accessible even when the upstream service is unavailable.
+}
+const taxonName = observation?.taxon?.name || 'Identification awaiting verification';
+const commonName = observation?.taxon?.preferred_common_name || '';
+const observedDate = observation?.observed_on ? new Date(observation.observed_on + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : '';
+const place = observation?.place_guess || '';
+const observer = observation?.user?.login || '';
+const isProvisional = /\bsp\.|['‘’"]/.test(taxonName);
+---
+<div class="mv-observation-widget">
+  <button type="button" class="mv-observation-trigger" data-open-observation aria-haspopup="dialog" aria-label="View the featured mushroom specimen and observation details">
+    <span class="mv-observation-dot" aria-hidden="true">◎</span>
+    <span><small>FEATURED FIELD OBSERVATION</small><strong>Meet the mushrooms in this photograph <span aria-hidden="true">↗</span></strong></span>
+  </button>
+  <dialog class="mv-observation-dialog" aria-labelledby="mv-observation-heading" data-observation-dialog>
+    <div class="mv-observation-dialog-head">
+      <div><p class="mv-kicker">MYCOVIEW FIELD NOTES · INATURALIST</p><h2 id="mv-observation-heading">Behind the photograph</h2></div>
+      <button type="button" class="mv-observation-close" data-close-observation aria-label="Close observation details">×</button>
+    </div>
+    <div class="mv-observation-dialog-body">
+      <p class="mv-observation-record">OBSERVATION #{feature.id}</p>
+      <p class="mv-observation-id-label">{isProvisional ? 'PROVISIONAL IDENTIFICATION' : 'IDENTIFICATION'}</p>
+      <h3>{taxonName}</h3>
+      {commonName && <p class="mv-observation-common">{commonName}</p>}
+      <dl class="mv-observation-facts">
+        {observedDate && <><dt>Observed</dt><dd>{observedDate}</dd></>}
+        {place && <><dt>Location</dt><dd>{place}</dd></>}
+        {observer && <><dt>Observer</dt><dd>@{observer}</dd></>}
+      </dl>
+      {isProvisional && <p class="mv-observation-notice">This is an informal identification, not necessarily a formally described species.</p>}
+      <p><strong>Field note:</strong> {feature.fieldNote}</p>
+      <p class="mv-observation-question">{feature.question}</p>
+      {!observation && <p class="mv-observation-notice">Live observation details were unavailable when this page was built. Use the original observation to see the current identification and metadata.</p>}
+      <a class="mv-primary" href={observationUrl} target="_blank" rel="noopener noreferrer">View original iNaturalist record ↗</a>
+    </div>
+  </dialog>
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('.mv-observation-widget').forEach(widget => {
+    const dialog = widget.querySelector<HTMLDialogElement>('[data-observation-dialog]');
+    const trigger = widget.querySelector<HTMLButtonElement>('[data-open-observation]');
+    const close = widget.querySelector<HTMLButtonElement>('[data-close-observation]');
+    if (!dialog || !trigger || !close) return;
+    trigger.addEventListener('click', () => dialog.showModal());
+    close.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+</script>

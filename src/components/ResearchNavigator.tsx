@@ -1,4 +1,6 @@
 import {useMemo,useState} from 'react';
+import ResearchJourney from './ResearchJourney';
+import {lessons,learningEvidence} from '../data/researchLessons';
 import {areas,evidenceLabels,frameworkById,frameworksForArea,frameworks,resourceLibrary,type AreaId,type EvidenceId,type Framework} from '../data/researchFrameworks';
 
 type Stage=0|1|2|3|4;
@@ -21,6 +23,8 @@ export default function ResearchNavigator(){
  const [frameworkId,setFrameworkId]=useState('ECO-01');
  const [choice,setChoice]=useState('proximity');
  const [question,setQuestion]=useState('');
+ const [refinedQuestion,setRefinedQuestion]=useState('');
+ const [resultView,setResultView]=useState<'journey'|'brief'>('journey');
  const [evidence,setEvidence]=useState<EvidenceId[]>([]);
  const [effort,setEffort]=useState<Effort>('unknown');
  const [comparison,setComparison]=useState<Comparison>('none');
@@ -30,6 +34,11 @@ export default function ResearchNavigator(){
  const [feedback,setFeedback]=useState('');
  const chosen=frameworkById[frameworkId]??frameworks[0];
  const selectedChoice=chosen.choices.find(c=>c.id===choice)??chosen.choices[0];
+ const lesson=lessons[chosen.id];
+ const tiers=learningEvidence(chosen.id,selectedChoice.id);
+ const proposedQuestion=chosen.id==='ECO-01'&&choice==='fruiting'?'Does the focal fungus fruit disproportionately near the proposed tree species compared with other available trees in the study area?':chosen.id==='ECO-01'&&choice==='proximity'?'Is the focal fungus observed near the proposed tree species more often than expected from tree availability and observation effort?':chosen.id==='MOL-03'&&choice==='host'?'Does host-associated genetic variation remain after accounting for geographic population structure?':chosen.question;
+ const usableQuestion=safe(refinedQuestion)||proposedQuestion;
+ const learningSteps=goal==='understand'?lesson.explore:goal==='audit'?lesson.audit:goal==='survey'?lesson.survey:lesson.collaborate;
  const resources=chosen.resourceIds.map(id=>resourceLibrary[id]).filter(Boolean);
  const noStructuredEffort=effort!=='standardized';
  const missingComparison=comparison!=='matched';
@@ -59,7 +68,8 @@ export default function ResearchNavigator(){
   '',
   'RESEARCH AREA',areas.find(a=>a.id===area)?.title??area,
   'FRAMEWORK',chosen.id+' · '+chosen.title,
-  'RESEARCH QUESTION',safe(question)||chosen.question,
+  'ORIGINAL QUESTION',safe(question)||'Not provided',
+  'PROPOSED RESEARCHABLE QUESTION',usableQuestion,
   'SPECIFIC INVESTIGATION',selectedChoice.meaning,
   'WHY THIS DIRECTION',selectedChoice.methodNote,
   'REGION OR SCOPE',safe(location)||'Not specified',
@@ -70,21 +80,27 @@ export default function ResearchNavigator(){
   'NOTES',safe(notes)||'None',
   '',
   'READINESS',status,
-  'EVIDENCE NEEDED',...chosen.evidence.map(x=>'- '+evidenceLabels[x]),
+  'STARTING EVIDENCE',...tiers.starting.map(x=>'- '+evidenceLabels[x]),
+  'EVIDENCE TO STRENGTHEN THE INVESTIGATION',...tiers.strengthening.map(x=>'- '+evidenceLabels[x]),
+  'ADVANCED EVIDENCE — NOT REQUIRED TO BEGIN',...tiers.advanced.map(x=>'- '+evidenceLabels[x]),
+  '',
+  'SCIENTIFIC PRINCIPLE',lesson.concept,lesson.explanation,
+  'ILLUSTRATIVE HYPOTHETICAL EXAMPLE',lesson.example,
   '',
   'RECOMMENDED METHODS AND WHY',
   ...chosen.methods.flatMap(m=>['- '+m.name,'  Why: '+m.why,'  Needs: '+m.requires.join('; '),'  Cannot show: '+m.cannot]),
   '',
   'IMPORTANT LIMITATIONS',...caveats.map(x=>'- '+x),
   '',
-  'PRACTICAL NEXT STEPS',...suggested.map((x,i)=>`${i+1}. ${x}`),
+  'GOAL-SPECIFIC NEXT STEPS',...learningSteps.map((x,i)=>`${i+1}. ${x}`),
+  'ADDITIONAL METHODOLOGICAL TASKS',...suggested.map((x,i)=>`${i+1}. ${x}`),
   '',
   'CURATED RESOURCES',...resources.map(r=>`${r.title}: ${r.url}\n  Purpose: ${r.purpose}\n  Caution: ${r.limits}`),
   '',
   'Review substantive methods with qualified collaborators before attempting interventions or publication.'
- ].join('\n'),[area,chosen,question,selectedChoice,location,goal,evidence,effort,comparison,notes,status,caveats,suggested,resources]);
- const setAreaAndFramework=(id:AreaId)=>{const first=frameworksForArea(id)[0];setArea(id);setFrameworkId(first.id);setChoice(first.choices[0].id);setFeedback('')};
- const setFramework=(id:string)=>{const f=frameworkById[id];if(!f)return;setFrameworkId(id);setArea(f.area);setChoice(f.choices[0].id);setFeedback('')};
+ ].join('\n'),[area,chosen,question,usableQuestion,selectedChoice,location,goal,evidence,effort,comparison,notes,status,caveats,suggested,learningSteps,lesson,tiers,resources]);
+ const setAreaAndFramework=(id:AreaId)=>{setRefinedQuestion('');const first=frameworksForArea(id)[0];setArea(id);setFrameworkId(first.id);setChoice(first.choices[0].id);setFeedback('')};
+ const setFramework=(id:string)=>{setRefinedQuestion('');const f=frameworkById[id];if(!f)return;setFrameworkId(id);setArea(f.area);setChoice(f.choices[0].id);setFeedback('')};
  const next=()=>{setFeedback('');setStage(s=>Math.min(4,s+1) as Stage)};
  const back=()=>{setFeedback('');setStage(s=>Math.max(0,s-1) as Stage)};
  const restart=()=>{setStage(0);setFeedback('')};
@@ -112,8 +128,10 @@ export default function ResearchNavigator(){
     </div>
     <div className="mv-nav-choice-box">
      <h3>Let's be precise. What do you mean?</h3>
-     <div className="mv-nav-choices">{chosen.choices.map(o=><label className={choice===o.id?'is-selected':''} key={o.id}><input type="radio" name="specific-question" value={o.id} checked={choice===o.id} onChange={()=>setChoice(o.id)}/><span>{o.label}</span></label>)}</div>
+     <div className="mv-nav-choices">{chosen.choices.map(o=><label className={choice===o.id?'is-selected':''} key={o.id}><input type="radio" name="specific-question" value={o.id} checked={choice===o.id} onChange={()=>{setChoice(o.id);setRefinedQuestion('')}}/><span>{o.label}</span></label>)}</div>
      <p className="mv-nav-explain"><strong>Why this matters:</strong> {selectedChoice.methodNote}</p>
+     <label className="mv-nav-field">A more researchable question (edit this to name your fungus, comparison, and location)<textarea rows={3} value={refinedQuestion||proposedQuestion} onChange={e=>setRefinedQuestion(e.target.value)} /></label>
+     <p className="mv-nav-explain">This is a transparent suggestion based on your menu choices, not an AI interpretation of your original wording.</p>
     </div>
    </section>}
    {stage===2&&<section className="mv-nav-step">
@@ -136,21 +154,20 @@ export default function ResearchNavigator(){
     <label className="mv-nav-field">Optional: sources, observations, or a second hypothesis<textarea rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Record IDs, alternative explanations, open questions..." /></label>
    </section>}
    {stage===4&&<section className="mv-nav-step mv-nav-results">
-    <p className="mv-kicker">05 / YOUR PERSONAL RESEARCH PATHWAY</p>
-    <h2>{chosen.title}</h2>
-    <p className="mv-nav-context">{chosen.question}</p>
-    <div className="mv-nav-result-intro"><span>{chosen.id} · {areas.find(a=>a.id===area)?.title}</span><strong>{status}</strong><p>{safe(question)||'A starting question is already provided by the framework.'}</p><p><b>Specific focus:</b> {selectedChoice.meaning}. <b>Why:</b> {selectedChoice.methodNote}</p></div>
-    <div className="mv-nav-result-grid">
-     <section><h3>What evidence would strengthen this?</h3><ul>{chosen.evidence.map(id=><li key={id}>{evidenceLabels[id]} {evidence.includes(id)?<small>· You have this</small>:null}</li>)}</ul></section>
-     <section><h3>Which methods fit—and why?</h3>{chosen.methods.map(m=><article key={m.name}><h4>{m.name}</h4><p><b>Why:</b> {m.why}</p><p><b>Needed:</b> {m.requires.join('; ')}.</p><p><b>Cannot establish:</b> {m.cannot}</p></article>)}</section>
-    </div>
-    <section className="mv-nav-result-section"><h3>What not to conclude yet</h3><ul>{caveats.map(x=><li key={x}>{x}</li>)}</ul></section>
-    <section className="mv-nav-result-section"><h3>Practical next steps</h3><ol>{suggested.map((x,i)=><li key={i}>{x}</li>)}</ol></section>
-    <section className="mv-nav-result-section"><h3>Recommended sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title} ↗</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
+    <p className="mv-kicker">05 / FOLLOW THE EVIDENCE</p>
+    <div className="mv-nav-view-tabs" role="group" aria-label="Result view"><button type="button" className={resultView==='journey'?'is-selected':''} aria-pressed={resultView==='journey'} onClick={()=>setResultView('journey')}>My Research Journey</button><button type="button" className={resultView==='brief'?'is-selected':''} aria-pressed={resultView==='brief'} onClick={()=>setResultView('brief')}>Technical Research Brief</button></div>
+    {resultView==='journey'?<ResearchJourney framework={chosen} area={area} choiceId={selectedChoice.id} original={question} refined={usableQuestion} location={location} goal={goal} evidence={evidence} caveats={caveats} onTechnical={()=>setResultView('brief')} onEdit={()=>setStage(1)}/>:<>
+    <h2>Technical research brief</h2><p className="mv-nav-context">A shareable summary of methodology and evidence limitations, not a validated protocol.</p>
+    <div className="mv-nav-result-intro"><span>{chosen.id} · {areas.find(a=>a.id===area)?.title}</span><strong>{status}</strong><p><b>Researchable question:</b> {usableQuestion}</p><p><b>Specific focus:</b> {selectedChoice.meaning}</p></div>
+    <div className="mv-nav-result-grid"><section><h3>Evidence by purpose</h3>{[{name:'To begin',ids:tiers.starting},{name:'To strengthen',ids:tiers.strengthening},{name:'Advanced or separate questions',ids:tiers.advanced}].filter(t=>t.ids.length).map(t=><div key={t.name}><h4>{t.name}</h4><ul>{t.ids.map(id=><li key={id}>{evidenceLabels[id]}{evidence.includes(id)?<small> · Available</small>:null}</li>)}</ul></div>)}</section><section><h3>Methods: why, evidence, limits</h3>{chosen.methods.map(m=><article key={m.name}><h4>{m.name}</h4><p><b>Why:</b> {m.why}</p><p><b>Requires:</b> {m.requires.join('; ')}.</p><p><b>What this method cannot demonstrate:</b> {m.cannot}</p></article>)}</section></div>
+    <section className="mv-nav-result-section"><h3>Important methodological cautions</h3><ul>{caveats.map(x=><li key={x}>{x}</li>)}</ul></section>
+    <section className="mv-nav-result-section"><h3>Additional planning considerations</h3><ol>{suggested.map((x,i)=><li key={i}>{x}</li>)}</ol></section>
+    <section className="mv-nav-result-section"><h3>Curated research sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title} ↗</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
+    </>}
     <section className="mv-nav-related"><h3>Related questions worth exploring</h3><div>{chosen.related.map(id=>frameworkById[id]).filter(Boolean).map(f=><button type="button" key={f.id} onClick={()=>{setFramework(f.id);setStage(1)}}>{f.id} · {f.title} ↗</button>)}</div></section>
-    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy research brief</button><button type="button" onClick={download}>Download text brief</button><p role="status">{feedback}</p></div>
-    <details className="mv-nav-full"><summary>View full, shareable text brief</summary><pre tabIndex={0}>{report}</pre></details>
-    <p className="mv-nav-disclaimer">Framework draft 1.0 · Not independently scientifically reviewed. This guide does not access databases, interpret your files, certify methods, or authorize ecological interventions. Expert review is recommended before consequential fieldwork or publication.</p>
+    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button><p role="status">{feedback}</p></div>
+    <details className="mv-nav-full"><summary>View full, shareable technical brief</summary><pre tabIndex={0}>{report}</pre></details>
+    <p className="mv-nav-disclaimer">Framework draft 1.1 · Not independently scientifically reviewed. This guide does not access data sources, verify your claims, certify protocols, or authorize ecological interventions.</p>
    </section>}
    <nav className="mv-nav-actions" aria-label="Research Navigator steps">
     {stage>0&&<button type="button" onClick={back} className="mv-nav-back">← Previous</button>}

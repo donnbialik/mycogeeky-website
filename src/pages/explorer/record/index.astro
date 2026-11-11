@@ -1,0 +1,24 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Record" active="records">
+  <p class="eyebrow"><a href="/explorer/">All records</a> · <span id="crumb"></span></p>
+  <h1 id="title">Loading the record.</h1>
+  <div class="xp-msg info" id="status"></div>
+  <div class="xp-grid">
+    <div>
+      <section class="xp-panel"><h2>Evidence tiers</h2><dl class="xp-kv" id="tiers"></dl></section>
+      <section class="xp-panel"><h2>Boundary checks</h2>
+        <p class="muted small">The ITSx anchoring cross-check compares each directly located outer boundary with independent reference records. It is <strong>experimental</strong>: it did not meet its prespecified validation criteria (M6). Insufficient evidence means the boundary could not be checked, not that it is wrong.</p>
+        <div class="xp-scroll"><table><thead><tr><th>Boundary</th><th>Result</th><th>What it means</th></tr></thead><tbody id="checks"></tbody></table></div></section>
+      <section class="xp-panel"><h2>Flags</h2><div id="flags"></div></section>
+    </div>
+    <div>
+      <section class="xp-panel"><h2>Provenance</h2><dl class="xp-kv" id="prov"></dl></section>
+      <section class="xp-panel" id="casebox" hidden><h2>Review case</h2><p id="caselink"></p></section>
+    </div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/record.js';
+</script>

@@ -1,0 +1,44 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Review case" active="cases">
+  <p class="eyebrow"><a href="/explorer/cases/">All cases</a> · <span id="cid"></span></p>
+  <h1 id="title">Loading the case.</h1>
+  <p id="why" class="muted"></p>
+  <div class="xp-msg info"><strong>Status: <span id="rstatus"></span>.</strong> The name is as deposited in GenBank, not accepted taxonomy. Flags and the nearest neighbour are evidence to weigh, not verdicts. Do not rename a record because of its nearest neighbour: that would make the reference set circular, and a stable nearest neighbour is not proof of species identity.</div>
+  <div class="xp-grid">
+    <div>
+      <section class="xp-panel"><h2>Identity and provenance</h2><dl class="xp-kv" id="prov"></dl></section>
+      <section class="xp-panel"><h2>Sequence and regions</h2><div class="xp-seq" id="seq"></div>
+        <div class="xp-legend"><span style="--c:#dbe8d2">ITS1</span><span style="--c:#f3e3c8">5.8S</span><span style="--c:#d6e1ea">ITS2</span><span style="--c:transparent;outline:1px dashed var(--amber)">reference-inferred end (reference-anchored tier)</span><span style="--c:#eceae4">outside the regions</span></div>
+        <div class="xp-scroll" style="margin-top:12px"><table><thead><tr><th>Region</th><th>Primary tier</th><th>Reference-anchored tier</th></tr></thead><tbody id="regions"></tbody></table></div></section>
+      <section class="xp-panel"><h2>Boundary evidence</h2><p class="muted small">ITSx positions (0-based, oriented sequence); the cross-check (experimental, M6: did not meet its validation criteria); and reference inference where ITSx did not observe a boundary (reference-anchored tier, a separate research tier).</p>
+        <div class="xp-scroll"><table><thead><tr><th>Boundary</th><th>ITSx</th><th>Cross-check</th><th>Reference inference</th></tr></thead><tbody id="bounds"></tbody></table></div></section>
+      <section class="xp-panel"><h2>Nearest core neighbours and species context</h2><dl class="xp-kv" id="nn"></dl></section>
+    </div>
+    <div>
+      <section class="xp-panel"><h2>Your review</h2>
+        <form id="f" novalidate>
+          <label for="decision">Decision</label>
+          <select id="decision" required><option value="">Choose…</option><option>accept name</option><option>other name</option><option>reject as reference</option><option>unresolved</option></select>
+          <label for="name_after_review">Name after review <span class="xp-hint">(only for “other name”)</span></label><input type="text" id="name_after_review" />
+          <label for="voucher_confirmed">Voucher or culture confirmed in its catalogue</label>
+          <select id="voucher_confirmed" required><option value="">Choose…</option><option>yes</option><option>no</option><option>unknown</option></select>
+          <label for="identification_basis">What the name rests on <span class="xp-hint">morphology, host, region, sequence matching, type comparison; who identified it</span></label><textarea id="identification_basis" required></textarea>
+          <label for="notes">Evidence and reasoning <span class="xp-hint">required; say how you weighed each flag</span></label><textarea id="notes" required></textarea>
+          <label for="supporting_references">Supporting references <span class="xp-hint">DOIs, URLs, catalogue numbers</span></label><input type="text" id="supporting_references" />
+          <fieldset class="xp-mode" style="border:0;padding:0"><legend class="sr-only">Review mode</legend>
+            <label><input type="radio" name="mode" value="test" checked /> Test review</label>
+            <label><input type="radio" name="mode" value="formal" id="formalRadio" /> Formal review</label></fieldset>
+          <p class="muted small" id="modeNote"></p><p class="muted small" id="supNote"></p>
+          <button type="submit">Save review</button>
+          <div id="msg" aria-live="polite"></div>
+        </form>
+      </section>
+      <section class="xp-panel"><h2>Review history</h2><p id="adj"></p><ul class="xp-history" id="hist"></ul><div id="others"></div><div id="acc"></div></section>
+    </div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/case.js';
+</script>

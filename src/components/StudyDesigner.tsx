@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type FormEvent } from 'react';
 
 type Topic = 'ecology' | 'taxonomy' | 'morphology' | 'distribution';
 const templates: Record<Topic, { label: string; alternative: string; methods: string[]; confounders: string[]; evidence: string[] }> = {
@@ -82,7 +82,7 @@ export default function StudyDesigner() {
     ];
     return lines.join('\n');
   }, [topic, question, prediction, location, observations]);
-  const create = (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!clean(question)) return; setGenerated(true); setCopyStatus(''); };
+  const create = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); if (!clean(question)) return; setGenerated(true); setCopyStatus(''); };
   const copy = async () => { try { await navigator.clipboard.writeText(documentText); setCopyStatus('Copied to clipboard.'); } catch { setCopyStatus('Clipboard unavailable; select and copy the plan below.'); } };
   return <div className="mv-designer">
     <form onSubmit={create} className="mv-designer-form">

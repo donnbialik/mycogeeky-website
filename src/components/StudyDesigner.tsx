@@ -33,6 +33,7 @@ export default function StudyDesigner(){
   const hostQuestion=topic==='ecology'&&(definition==='host'||/\\b(oak|quercus|tree|host|hemlock|pine|beech)\\b/.test(textInput));
   const lineageQuestion=/\\b(haplotyp|genotyp|population genetic|lineage|snp|microsatellite|allele|its sequence)\\b/.test(textInput);
   const competitionQuestion=/\\b(competi|competitor|fruiting window|seasonal niche|seasonality)\\b/.test(textInput);
+  const isGrifola=/\b(grifola|hen of the woods|hen-of-the-woods|maitake)\b/.test(textInput);
   const whiteOakQuestion=/\\b(white oak|quercus alba)\\b/.test(textInput);
   const data=topicDetails[topic];
   const comparisonMissing=comparison==='none'||comparison==='presence';
@@ -73,8 +74,8 @@ export default function StudyDesigner(){
     return Array.from(new Set(steps));
   },[topic,outcome,evidence,comparison,broad,goal,data,hostQuestion,whiteOakQuestion,lineageQuestion,competitionQuestion]);
   const contextualResources:Resource[]=[
-    ...(hostQuestion?[{label:'UMass: Grifola host and decay biology',url:'https://www.umass.edu/agriculture-food-environment/landscape/fact-sheets/root-butt-rot-caused-by-grifola-frondosa-hen-of-woods',why:'Background on documented oak hosts, not a claim of white-oak specificity.'}]:[]),
-    ...(lineageQuestion?[{label:'Grifola population SNP study (2024)',url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC11340509/',why:'An example of population-genetic analysis; it did not test your proposed host association.'}]:[])
+    ...(hostQuestion&&isGrifola?[{label:'UMass: Grifola host and decay biology',url:'https://www.umass.edu/agriculture-food-environment/landscape/fact-sheets/root-butt-rot-caused-by-grifola-frondosa-hen-of-woods',why:'Background on documented oak hosts, not a claim of white-oak specificity.'}]:[]),
+    ...(lineageQuestion&&isGrifola?[{label:'Grifola population SNP study (2024)',url:'https://pmc.ncbi.nlm.nih.gov/articles/PMC11340509/',why:'An example of population-genetic analysis; it did not test your proposed host association.'}]:[])
   ];
   const recommendedResources=[...data.links,...contextualResources];
   const report=useMemo(()=>[

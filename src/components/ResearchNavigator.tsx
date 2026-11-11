@@ -126,6 +126,7 @@ export default function ResearchNavigator(){
     <div className="mv-nav-area-grid">
      {areas.map(a=><button key={a.id} type="button" className={`mv-nav-area ${a.id===area?'is-selected':''}`} aria-pressed={a.id===area} onClick={()=>setAreaAndFramework(a.id)}><span aria-hidden="true">{a.icon}</span><strong>{a.title}</strong><small>{a.description}</small></button>)}
     </div>
+    <div className="mv-nav-case-invite"><strong>Want to see how a real investigation works first?</strong><p>Follow a published case study about an unexpected <i>Clathrus archeri</i> observation in Ukraine. Trace the evidence and see the limits of a distribution claim.</p><a href="/investigate/case-studies/clathrus-archeri/">Explore the real research case →</a></div>
     <label className="mv-nav-field">Optional: describe your curiosity in your own words<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="I keep finding this fungus near certain trees, and I want to know why..." /></label>
    </section>}
    {stage===1&&<section className="mv-nav-step">

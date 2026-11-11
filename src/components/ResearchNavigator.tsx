@@ -1,4 +1,4 @@
-import {useMemo,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import ResearchJourney from './ResearchJourney';
 import {lessons,learningEvidence} from '../data/researchLessons';
 import {areas,evidenceLabels,frameworkById,frameworksForArea,frameworks,resourceLibrary,type AreaId,type EvidenceId,type Framework} from '../data/researchFrameworks';
@@ -32,6 +32,15 @@ export default function ResearchNavigator(){
  const [location,setLocation]=useState('');
  const [notes,setNotes]=useState('');
  const [feedback,setFeedback]=useState('');
+ useEffect(()=>{
+  const params=new URLSearchParams(window.location.search);
+  const target=params.get('framework');
+  if(target&&frameworkById[target]){
+   const f=frameworkById[target];
+   setArea(f.area);setFrameworkId(f.id);setChoice(f.choices[0].id);setStage(1);
+  }
+ },[]);
+
  const chosen=frameworkById[frameworkId]??frameworks[0];
  const selectedChoice=chosen.choices.find(c=>c.id===choice)??chosen.choices[0];
  const lesson=lessons[chosen.id];

@@ -7,7 +7,7 @@ import { Image } from 'astro:assets';
 import researchPhoto from '../../assets/pathways/investigate.jpg';
 import fieldPhoto from '../../assets/pathways/explore.jpg';
 ---
-<Base title="Investigate Fungi">
+<Base title="Investigate fungi">
 <div class="station-page">
   <section class="station-hero station-hero-split">
     <div class="station-hero-copy"><p class="eyebrow">INVESTIGATE / THE RESEARCH STATION</p><h1>Follow the evidence.<br/><em>Question everything.</em></h1><p class="lead">An observation becomes a question. A question becomes an investigation. The work gets better when we share what we find—and what we still don't know.</p><div class="station-actions"><a class="station-button" href="/investigate/learn/">Explore the research →</a><a class="station-text-link" href="#workbench">Open the workbench ↓</a></div></div>
@@ -19,6 +19,6 @@ import fieldPhoto from '../../assets/pathways/explore.jpg';
     <a class="station-editorial-card" href="/investigate/tools/"><span class="station-card-symbol" aria-hidden="true">↗</span><span class="station-card-body"><small>03 / EXPERIMENTAL TOOLS</small><strong>What can we test ourselves?</strong><span>Workbenches for molecular, ecological, and field questions. Tool maturity and scientific validation are labeled separately.</span><b>Inspect tools →</b></span></a>
   </div></section>
   <section class="station-content station-data" id="field-data"><div class="station-section-head"><h2>FROM THE FIELD</h2><span>REAL OBSERVATIONS / LIVE DATA</span></div><div class="station-data-grid"><div><p class="eyebrow">PROJECT SNAPSHOT</p><h2>Crane Hollow Fungal Diversity Survey</h2><p>What can repeated observations tell us about the fungi of a particular place? Explore the live project summary, then follow the original observations to evaluate the evidence yourself.</p><a class="station-text-link" href="/investigate/learn/#surveys">How field surveys work →</a></div><SurveyDashboard client:visible /></div></section>
-  <section class="station-content" id="workbench"><div class="station-section-head"><h2>THE RESEARCH WORKBENCH</h2><span>PROTOTYPES / METHODS / LIMITATIONS</span></div><div class="station-tool-grid">{activeTools.map(tool=><ToolCard tool={tool}/>)}</div><p class="station-footnote">These tools are experimental or planned; none should be treated as a validated species-identification service.</p></section>
+  <section class="station-content" id="workbench"><div class="station-section-head"><h2>THE RESEARCH WORKBENCH</h2><span>TOOLS / METHODS / LIMITATIONS</span></div><p class="station-tool-intro">Explore the tools we are building to investigate fungal ecology, molecular evidence, and field observations. Availability, software maturity, and independent scientific validation are different questions, and each tool should make those distinctions clear.</p><div class="station-tool-grid">{activeTools.map(tool=><ToolCard tool={tool}/>)}</div><p class="station-footnote">These tools are experimental or planned; none should be treated as a validated species-identification service.</p></section>
 </div>
 </Base>

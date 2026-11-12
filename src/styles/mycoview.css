@@ -525,3 +525,8 @@
 .mv-case-feedback-heading strong{font-size:1.01rem}
 .mv-case-feedback small{color:inherit;opacity:.8}
 @media(prefers-reduced-motion:reduce){.mv-case-options button{transition:none}}
+
+/* Override global site-footer styling on the in-card case-study navigation. */
+.mv-case .mv-case-footer{background:#f8faf6;color:#254c34;border-top:1px solid #d9e4d5;padding:18px 4px 4px}
+.mv-case .mv-case-footer p{color:#607b67;opacity:1}
+.mv-case .mv-case-footer .mv-case-back:disabled{color:#42614d;background:#edf2ea;border-color:#d6e2d4;opacity:.65}

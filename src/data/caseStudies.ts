@@ -26,14 +26,14 @@ export const clathrusStudy={
  credits:'Educational adaptation and commentary by MycoView, based on Prylutskyi & Kapets (2024). Original paper CC BY 4.0; archived data and code in the authors’ repository (see repository license).',
  questions:[
   {id:'first',title:'What would a distant observation mean?',prompt:'Someone photographs a distinctive fungus beyond the region where you know it has been recorded. What can you say now?',choices:[
-    {id:'arrived',assessment:'uncertain',label:'The fungus must have recently spread there.',response:'Possible, but not established. A new record is not a documented arrival date.'},
+    {id:'arrived',assessment:'unsupported',label:'The fungus must have recently spread there.',response:'Possible, but not established. A new record is not a documented arrival date.'},
     {id:'record',assessment:'supported',label:'The known occurrence record may need updating.',response:'Exactly the cautious interpretation: verify identity, place, date and prior sources before revising the documented range.'},
     {id:'adapted',assessment:'unsupported',label:'The fungus evolved to tolerate a different climate.',response:'That would require independent evidence about adaptation and environmental tolerance.'}
   ]},
   {id:'evidence',title:'What would you want to check first?',prompt:'You find a promising iNaturalist photograph. Which evidence matters most for a geographic claim?',choices:[
     {id:'photo',assessment:'supported',label:'A convincing species identification, observation date and credible location.',response:'These directly support whether the record is a plausible documented occurrence at that place and time.'},
     {id:'likes',assessment:'unsupported',label:'The number of favorites and reactions on the photograph.',response:'Popular observations can draw attention, but engagement does not validate a distribution record.'},
-    {id:'grade',assessment:'uncertain',label:'Research Grade alone, without checking what was observed.',response:'Community agreement helps, but reviewing original evidence and taxon-specific identification limits is still important.'}
+    {id:'grade',assessment:'unsupported',label:'Research Grade alone, without checking what was observed.',response:'Community agreement helps, but reviewing original evidence and taxon-specific identification limits is still important.'}
   ]},
   {id:'sources',title:'What should we compare the record against?',prompt:'An outlying iNaturalist observation looks plausible. How do we tell whether it adds information?',choices:[
     {id:'only',assessment:'uncertain',label:'Compare it with other iNaturalist photographs only.',response:'Useful as a first pass, but previous records may be in museums, checklists, papers or other datasets.'},

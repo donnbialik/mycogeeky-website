@@ -1,22 +1,41 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { Image } from 'astro:assets';
-import explore from '../../assets/pathways/explore.jpg';
-import curious from '../../assets/pathways/curious.jpg';
-import connect from '../../assets/pathways/connect.jpg';
 ---
-<Base title="Discover"><div class="station-page">
-<section class="station-hero station-hero-split"><div class="station-hero-copy"><p class="eyebrow">DISCOVER / FIELD NOTES & STORIES</p><h1>The forest has <em>questions.</em></h1><p class="lead">Strange finds, beautiful fungi, memorable conversations, and the people who make the search worthwhile.</p><div class="station-actions"><a class="station-button" href="#discover-stories">Explore stories ↓</a><a class="station-text-link" href="/investigate/learn/">My path into research →</a></div></div><Image src={explore} alt="Landscape encountered on a field adventure" widths={[500,850]} sizes="(max-width:760px) 100vw,48vw"/></section>
-<section class="station-content mv-case-feature" aria-labelledby="discover-clathrus-title">
-<div class="mv-case-feature-copy"><p class="eyebrow">FEATURED FIELD MYSTERY / DISCOVER → LEARN → INVESTIGATE</p>
-<h2 id="discover-clathrus-title">Did the devil’s fingers really move?</h2>
-<p>A strange red fungus turns up near Kyiv, far from previously documented records. Is it evidence of a recent arrival—or evidence that we weren't looking closely enough? Follow a real published investigation, one question at a time.</p>
-<a class="station-button" href="/investigate/case-studies/clathrus-archeri/">Explore the mystery →</a>
-<a class="station-text-link" href="/learn/#evidence-journey">First, learn how to question a sighting ↗</a></div>
-<figure><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri_100906693.jpg" alt="Bright red branching arms of Clathrus archeri" loading="lazy"/><figcaption>Illustrative photograph, not the Ukrainian study specimen. Matteo Marcandella, <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri_100906693.jpg">CC BY 4.0</a>.</figcaption></figure>
-</section>
-<section class="station-content" id="discover-stories"><div class="station-section-head"><h2>STORIES WORTH FOLLOWING</h2><span>PEOPLE / PLACES / QUESTIONS</span></div><div class="station-editorial-grid">
-<a class="station-editorial-card" href="/investigate/learn/#my-inat"><Image src={curious} alt="Close-up of mushroom structures" widths={[300,600]} sizes="(max-width:760px) 100vw,30vw"/><span class="station-card-body"><small>FIELD TO LAB</small><strong>From an observation to a research question</strong><span>How field notes, sequences, and collaborators change what we think we know.</span><b>Read the story →</b></span></a>
-<a class="station-editorial-card" href="/about/"><Image src={connect} alt="Naturalists exploring together" widths={[300,600]} sizes="(max-width:760px) 100vw,30vw"/><span class="station-card-body"><small>PODCASTS & MEDIA</small><strong>People worth listening to</strong><span>Conversations and connections from The MycoGeeky Podcast and beyond.</span><b>Explore media →</b></span></a>
-<a class="station-editorial-card" href="/learn/"><span class="station-card-symbol" aria-hidden="true">✳</span><span class="station-card-body"><small>CULTIVATION</small><strong>Grow something. Learn something.</strong><span>Practical mushroom cultivation as a doorway into experimentation and scientific curiosity.</span><b>Explore cultivation →</b></span></a>
-</div></section></div></Base>
+<Base title="Discover" description="Fungal mysteries, new scientific discoveries, field stories and the questions worth following.">
+<div class="discover-home">
+  <section class="discover-lead">
+    <div class="discover-lead-copy">
+      <p class="discover-kicker">DISCOVER / STORIES FROM THE FUNGAL WORLD</p>
+      <h1>There's more out there <em>than we know.</em></h1>
+      <p>Strange organisms. Surprising research. People asking questions nobody has answered yet. Come find something worth wondering about.</p>
+      <a href="#featured-discovery" class="discover-lead-link">Explore the featured discovery ↓</a>
+    </div>
+    <div class="discover-lead-side"><span>FIELD NOTES · SCIENCE · PEOPLE · UNANSWERED QUESTIONS</span><p>The fungal world is bigger than any field guide. And every observation is a possible beginning.</p></div>
+  </section>
+  <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
+    <a class="discover-feature-photo" href="/discover/devils-fingers/" aria-label="Read Did the devil's fingers really move?">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri_100906693.jpg" alt="Clathrus archeri, a fungus with bright red finger-like arms" loading="eager"/>
+    </a>
+    <div class="discover-feature-copy">
+      <p class="discover-kicker">FEATURED DISCOVERY / BIODIVERSITY &amp; EVIDENCE</p>
+      <h2 id="discover-feature-title">Did the devil's fingers <em>really move?</em></h2>
+      <p>One unusual fungus. An observation near Kyiv. A 350-kilometer gap in the documented record. But did the fungus arrive somewhere new—or did we finally notice what was already there?</p>
+      <a class="discover-main-link" href="/discover/devils-fingers/">Read the discovery →</a>
+      <a class="discover-minor-link" href="/investigate/case-studies/clathrus-archeri/">Already know the story? Investigate the evidence ↗</a>
+      <p class="discover-credit">Illustrative photo, not from the Ukrainian study. Matteo Marcandella · <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri_100906693.jpg">CC BY 4.0</a></p>
+    </div>
+  </section>
+  <section class="discover-bottom">
+    <div class="discover-bottom-head"><p class="discover-kicker">WHAT YOU'LL FIND HERE</p><h2>Follow what makes you curious.</h2><p>Discover is MycoView's editorial home: selected scientific discoveries, field observations, unanswered questions, and the people investigating them. We choose stories for their substance, not just their novelty.</p></div>
+    <div class="discover-pillars">
+      <div><span>01 / RESEARCH &amp; DISCOVERIES</span><h3>From the fungal world</h3><p>New studies and remarkable findings, explained with sources, context, and the limits of what we know.</p></div>
+      <div><span>02 / FIELD NOTES</span><h3>Closer to the ground</h3><p>Unusual observations and the questions that emerge when people pay attention.</p></div>
+      <div><span>03 / PEOPLE &amp; PERSPECTIVES</span><h3>Curiosity is contagious</h3><p>The researchers, naturalists, and collaborators who make fungal exploration a shared adventure.</p></div>
+    </div>
+    <p class="discover-future">We're beginning with one fully developed discovery. More stories will appear as they're researched and ready—not as empty placeholders.</p>
+  </section>
+</div>
+</Base>
+<style>
+.discover-home{background:#f8f7f1;color:#17372e}.discover-kicker{font:600 .7rem "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#64806b}.discover-lead{background:#10382c;color:#f6f7eb;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.5fr);align-items:end;gap:40px;padding:clamp(55px,7vw,115px) max(28px,calc((100vw - 1400px)/2)) 70px}.discover-lead .discover-kicker{color:#c7d8a7}.discover-lead h1{font:600 clamp(3.7rem,6.5vw,7rem)/1.02 "Source Serif 4",Georgia,serif;letter-spacing:-.04em;max-width:950px;margin:26px 0}.discover-lead h1 em,.discover-feature h2 em{font-weight:500;color:#d8eb9a}.discover-lead-copy>p:not(.discover-kicker){font-size:clamp(1.1rem,1.4vw,1.4rem);line-height:1.6;max-width:660px;color:#e4eee4}.discover-lead-link{display:inline-block;margin-top:22px;background:#d8ec62;padding:14px 20px;border-radius:4px;color:#143b2d;font-weight:700;text-decoration:none}.discover-lead-side{border-top:1px solid #789384;padding-top:20px;max-width:300px}.discover-lead-side span{font:600 .67rem "IBM Plex Mono",monospace;letter-spacing:.09em;color:#c8d7a7}.discover-lead-side p{font:500 1.35rem/1.4 "Source Serif 4",Georgia,serif}.discover-feature{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);padding:70px 30px;gap:clamp(28px,5vw,75px);align-items:center}.discover-feature-photo{display:block;overflow:hidden;background:#254537;min-height:450px}.discover-feature-photo img{display:block;width:100%;height:100%;min-height:450px;max-height:650px;object-fit:cover;object-position:center 48%;transition:transform .3s}.discover-feature-photo:hover img{transform:scale(1.025)}.discover-feature h2{font:600 clamp(2.9rem,4.4vw,5.2rem)/1.07 "Source Serif 4",Georgia,serif;letter-spacing:-.035em;margin:18px 0}.discover-feature h2 em{color:#547748}.discover-feature-copy>p:not(.discover-kicker):not(.discover-credit){font-size:1.14rem;line-height:1.7;max-width:520px}.discover-main-link{display:inline-block;background:#173d2f;color:#fff;padding:14px 22px;border-radius:4px;text-decoration:none;font-weight:700;margin:18px 0 12px}.discover-minor-link{display:block;color:#20523d;font-size:.87rem;font-weight:600;text-underline-offset:4px}.discover-feature .discover-credit{font-size:.73rem;line-height:1.5;color:#657468;margin-top:35px}.discover-credit a{color:inherit}.discover-bottom{background:#e8ede3;padding:75px 30px}.discover-bottom-head,.discover-pillars,.discover-future{max-width:1350px;margin-left:auto;margin-right:auto}.discover-bottom-head h2{font:600 clamp(2.4rem,4vw,4rem)/1.12 "Source Serif 4",Georgia,serif;margin:12px 0}.discover-bottom-head>p:last-child{max-width:740px;line-height:1.7}.discover-pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:36px}.discover-pillars>div{padding:30px;background:#f8f7f1;border-top:4px solid #8ca66e}.discover-pillars span{font:600 .66rem "IBM Plex Mono",monospace;color:#55745a;letter-spacing:.08em}.discover-pillars h3{font:600 1.9rem "Source Serif 4",Georgia,serif;margin:18px 0 12px}.discover-pillars p{line-height:1.65;color:#52645a}.discover-future{font-size:.83rem;color:#52675a;margin-top:26px}.discover-home a:focus-visible{outline:3px solid #b6c958;outline-offset:4px}@media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:50px 25px}.discover-lead-side{max-width:600px}.discover-feature{grid-template-columns:1fr;padding:42px 20px}.discover-feature-photo,.discover-feature-photo img{min-height:320px;max-height:470px}.discover-pillars{grid-template-columns:1fr}.discover-bottom{padding:50px 20px}}@media(max-width:480px){.discover-lead h1{font-size:3.4rem}.discover-feature h2{font-size:2.8rem}.discover-feature-photo,.discover-feature-photo img{min-height:280px;height:280px}}
+</style>

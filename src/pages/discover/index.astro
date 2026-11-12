@@ -16,24 +16,9 @@ import orange from '../../assets/featured-orange-mushrooms.png';
       <p>Strange organisms. Surprising research. People asking questions nobody has answered yet. Come find something worth wondering about.</p>
       <a href="#featured-discovery" class="discover-lead-link">Explore the featured discovery ↓</a>
     </div>
-    <div class="discover-quilt" aria-label="A photographic field-journal quilt of sixteen fungal and forest details">
-      <figure class="quilt-tile"><Image src={macro} alt="Pink cup fungi" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={orange} alt="Crust fungi on wood" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={macro} alt="Tiny fungi emerging" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={orange} alt="Coral fungus" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={field} alt="Toothed mushroom" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={woodland} alt="Bracket fungus" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={people} alt="Delicate forest mushrooms" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={orange} alt="Mossy woodland fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={woodland} alt="Clusters on fallen wood" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={macro} alt="Layered bracket fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={orange} alt="Yellow jelly fungus" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={field} alt="Brown mushrooms on wood" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={macro} alt="Purple mushroom gills" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={people} alt="Small puffballs" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={woodland} alt="Forest floor mushrooms" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-      <figure class="quilt-tile"><Image src={field} alt="Moss-covered log fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
-    </div>
+    <figure class="discover-quilt-art">
+      <img src="/mycoview-discover-quilt.webp" alt="A photographic quilt of sixteen different wild fungi, from delicate mushrooms and coral fungi to brackets and woodland species" width="1440" height="1080" loading="eager" fetchpriority="high" />
+    </figure>
   </section>
   <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
     <a class="discover-feature-photo" href="/discover/devils-fingers/" aria-label="Read Did the devil's fingers really move?">
@@ -117,4 +102,13 @@ import orange from '../../assets/featured-orange-mushrooms.png';
 @media(max-width:850px){.discover-lead{grid-template-columns:1fr}.discover-quilt{aspect-ratio:1.6;max-width:760px}}
 @media(max-width:480px){.discover-quilt{gap:3px;aspect-ratio:1.15}}
 @media(prefers-reduced-motion:reduce){.discover-quilt .quilt-tile img{transition:none}}
+</style>
+
+<style>
+/* Approved photographic quilt asset: large, uninterrupted editorial composition. */
+.discover-lead{grid-template-columns:minmax(0,.98fr) minmax(0,1.02fr);align-items:center;gap:clamp(28px,3vw,52px);padding-top:clamp(38px,4vw,65px);padding-bottom:clamp(38px,4vw,65px)}
+.discover-lead h1{font-size:clamp(3.3rem,4.55vw,5.75rem)}
+.discover-quilt-art{margin:0;min-width:0;width:100%;overflow:hidden}
+.discover-quilt-art img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
+@media(max-width:850px){.discover-lead{grid-template-columns:1fr;gap:30px}.discover-quilt-art{max-width:740px}}
 </style>

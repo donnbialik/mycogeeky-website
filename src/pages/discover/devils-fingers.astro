@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+const photo='https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri.Devils_fingers._(16725724164).jpg';
+---
+<Base title="Did the devil's fingers really move?" description="An unexpected fungal record near Kyiv, a 350-kilometer gap in the documented record, and the difference between finding a fungus and knowing when it arrived.">
+<article class="discovery-article">
+  <header class="discovery-cover">
+    <div class="discovery-cover-inner">
+      <div class="discovery-cover-rail" aria-hidden="true"><span>MYCOVIEW / FIELD NOTES</span><span>001 — THE UNEXPECTED</span></div>
+      <div class="discovery-cover-story">
+        <div class="discovery-cover-topline"><span>DISCOVER / FIELD MYSTERIES</span><a href="/discover/">← ALL DISCOVERIES</a></div>
+        <p class="discovery-cover-eyebrow">AN OBSERVATION IS NOT AN ARRIVAL</p>
+        <h1>Did the devil's fingers <em>really move?</em></h1>
+        <p class="discovery-cover-deck">A fungus turns up far from the records. But did it travel—or did we simply fail to notice it before?</p>
+        <div class="discovery-cover-meta"><span>BIODIVERSITY & EVIDENCE</span><span>RESEARCH STORY · 2024 STUDY</span></div>
+      </div>
+      <figure class="discovery-cover-visual">
+        <div class="discovery-cover-image"><img src={photo} alt="Clathrus archeri, the striking red devil's fingers fungus" loading="eager"/><span class="discovery-image-mark" aria-hidden="true">01 / AN UNEXPECTED FIND</span></div>
+        <figcaption><i>Clathrus archeri</i> · Illustrative image, not the Ukrainian specimen. Bernard Spragg NZ, <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri.Devils_fingers._(16725724164).jpg">CC0 / public domain</a>.</figcaption>
+      </figure>
+    </div>
+  </header>
+  <div class="discovery-prose">
+    <p class="discovery-drop">There are mushrooms that blend into the forest floor. And then there's <i>Clathrus archeri</i>. Its bright red, finger-like arms unfold into a shape that seems borrowed from another planet. You might know it as devil's fingers.</p>
+    <p>It's the kind of fungus you would think somebody would remember seeing. But remembering, recording, and scientifically documenting an occurrence are three very different things.</p>
+    <h2>A dot on the map</h2>
+    <p>In a 2024 study of Ukrainian fungal observations, researchers <strong>Oleh Prylutskyi and Nadiia Kapets</strong> examined how records contributed through iNaturalist could add to the country's existing fungal biodiversity knowledge.</p>
+    <p>One example stood out. An observation of <i>Clathrus archeri</i> near Kyiv lay approximately <strong>350 kilometers</strong> from the nearest previously documented occurrence in the sources the authors compared.</p>
+    <aside class="discovery-pull"><span>THE SURPRISING PART</span><strong>350 km between documented records is not 350 km of measured movement.</strong></aside>
+    <p>It's tempting to picture a fungus marching across the landscape. But the paper didn't follow spores, track colonization, or establish when the organism first reached the area. It compared occurrence records.</p>
+    <h2>What if it was already there?</h2>
+    <p>A new record tells us that someone documented a fungus in a particular place. It does not tell us when the fungus arrived. Earlier populations might have gone unobserved, unreported, or unrecognized. Records may also be tucked away in local publications or collections that aren't represented in a particular dataset.</p>
+    <p>That doesn't make the observation unimportant. Quite the opposite: careful citizen-science records can reveal gaps in what science has documented. The discovery may be about the fungus's distribution, about our sampling, or about both. Distinguishing those possibilities is the interesting part.</p>
+    <div class="discovery-three">
+      <p class="discovery-kicker">THREE QUESTIONS TO TAKE INTO THE WOODS</p>
+      <ol><li><strong>What was actually observed?</strong> A fungus at a place and time—or a claim about its history?</li><li><strong>What might be missing?</strong> Earlier records, overlooked habitats, or areas with few observers?</li><li><strong>What would change our minds?</strong> Better identification, independent records, or targeted surveys?</li></ol>
+    </div>
+    <h2>Sometimes the discovery is what we didn't know</h2>
+    <p>That's the beautiful—and occasionally frustrating—thing about biodiversity research. A photograph can add a valuable new point to the scientific record while leaving a much larger story unresolved.</p>
+    <p>The authors' work illustrates why community observations matter, and why scientific restraint matters just as much. The question isn't only <em>where is this fungus?</em> It's also <em>how well have we looked?</em></p>
+  </div>
+  <section class="discovery-next" aria-labelledby="discovery-next-title">
+    <div class="discovery-wrap">
+      <p class="discovery-kicker">THE STORY DOESN'T END HERE</p>
+      <h2 id="discovery-next-title">Want to follow the evidence yourself?</h2>
+      <p>This article tells the story. Our separate, seven-chapter research case study lets you make predictions, compare interpretations, and trace the published sources. No grades, no account required.</p>
+      <a class="discovery-button" href="/investigate/case-studies/clathrus-archeri/">Open the interactive investigation →</a>
+      <a class="discovery-secondary" href="/learn/#evidence-journey">Explore the science of asking better questions →</a>
+    </div>
+  </section>
+  <footer class="discovery-sources discovery-wrap">
+    <p class="discovery-kicker">SOURCE & SCIENTIFIC LIMITS</p>
+    <p>Based on Prylutskyi, O. &amp; Kapets, N. (2024), <i>State-of-the-Art of iNaturalist as a Source of Data on Ukrainian Fungi</i>, <i>Citizen Science: Theory and Practice</i>. The authors' data snapshot was June 1, 2024. The approximately 350 km figure describes the separation from the nearest previously documented comparison record, not a measured dispersal distance. This editorial adaptation does not independently verify the original observation or establish a present-day range boundary.</p>
+    <p><a href="https://doi.org/10.5334/cstp.717" target="_blank" rel="noopener noreferrer">Read the original study ↗</a> · <a href="https://github.com/olehprylutskyi/inaturalist_ua_paper" target="_blank" rel="noopener noreferrer">Authors' data and analysis code ↗</a></p>
+  </footer>
+</article>
+</Base>
+<style>
+.discovery-article{background:#f8f7f1;color:#17372e}.discovery-wrap{max-width:1060px;margin:0 auto;padding:0 30px}.discovery-cover{background:#10382c;color:#f8f8ec;overflow:hidden}.discovery-cover-inner{max-width:1480px;margin:auto;display:grid;grid-template-columns:45px minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(18px,3vw,54px);align-items:stretch;padding:35px clamp(22px,4vw,60px) 38px}.discovery-cover-rail{border-right:1px solid #466a58;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;padding:4px 12px 4px 0}.discovery-cover-rail span{writing-mode:vertical-rl;transform:rotate(180deg);font:600 .62rem "IBM Plex Mono",monospace;letter-spacing:.15em;color:#b4caab}.discovery-cover-story{padding:7px 0 10px;display:flex;flex-direction:column;justify-content:center;min-width:0}.discovery-cover-topline{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font:600 .65rem "IBM Plex Mono",monospace;letter-spacing:.1em;color:#c1d49e}.discovery-cover-topline a{color:#d9e8b5;text-underline-offset:4px}.discovery-cover-eyebrow{font:600 .7rem "IBM Plex Mono",monospace;letter-spacing:.13em;color:#c3d895;margin:clamp(26px,4vw,58px) 0 14px}.discovery-cover h1{font:600 clamp(3.5rem,5.3vw,6.7rem)/.98 "Source Serif 4",Georgia,serif;letter-spacing:-.05em;margin:0 0 25px;max-width:800px}.discovery-cover h1 em{font-weight:500;color:#d8ec96;white-space:nowrap}.discovery-cover-deck{font:500 clamp(1.15rem,1.6vw,1.45rem)/1.5 "Source Serif 4",Georgia,serif;max-width:620px;color:#e5ecdf;margin:0 0 25px}.discovery-cover-meta{display:flex;flex-wrap:wrap;gap:10px 22px;border-top:1px solid #527260;padding-top:16px;font:600 .61rem "IBM Plex Mono",monospace;letter-spacing:.08em;color:#bbcfb6}.discovery-cover-visual{position:relative;min-width:0;margin:0;align-self:center}.discovery-cover-image{position:relative;height:clamp(350px,38vw,520px);background:#294739;overflow:hidden}.discovery-cover-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;filter:contrast(1.08) saturate(1.08)}.discovery-image-mark{position:absolute;left:0;bottom:0;background:#d9e96f;color:#153a2c;padding:12px 17px;font:700 .63rem "IBM Plex Mono",monospace;letter-spacing:.08em}.discovery-cover-visual figcaption{font-size:.69rem;line-height:1.55;color:#c5d4c6;padding:11px 0 0}.discovery-cover-visual figcaption a{color:#e2f0af;text-underline-offset:3px}.discovery-kicker{font:600 .69rem "IBM Plex Mono",monospace;letter-spacing:.14em;color:#a7c58f;text-transform:uppercase}.discovery-prose{max-width:780px;margin:0 auto;padding:38px 26px 42px}.discovery-prose p{font-size:1.14rem;line-height:1.85;margin:0 0 17px}.discovery-prose .discovery-drop{font:500 clamp(1.45rem,2.7vw,2rem)/1.5 "Source Serif 4",Georgia,serif}.discovery-prose h2{font:600 clamp(2.2rem,4vw,3.2rem)/1.12 "Source Serif 4",Georgia,serif;letter-spacing:-.03em;margin:36px 0 16px}.discovery-pull{margin:28px -20px;padding:23px 28px;border-left:5px solid #b7cc62;background:#e8eee1}.discovery-pull span{display:block;font:600 .7rem "IBM Plex Mono",monospace;letter-spacing:.1em;margin-bottom:12px}.discovery-pull strong{font:600 clamp(1.5rem,3vw,2.2rem)/1.3 "Source Serif 4",Georgia,serif}.discovery-three{background:#e9eee5;padding:28px 34px;margin:28px 0}.discovery-three .discovery-kicker{color:#466c50}.discovery-three ol{padding-left:23px}.discovery-three li{line-height:1.7;margin:12px 0}.discovery-next{background:#143c2f;color:#f8f8ee;padding:42px 0}.discovery-next h2{font:600 clamp(2.3rem,4.5vw,4rem)/1.1 "Source Serif 4",Georgia,serif;margin:12px 0 18px}.discovery-next p:not(.discovery-kicker){max-width:670px;line-height:1.65;color:#e5eadd}.discovery-button{display:inline-block;background:#d8ec62;color:#153a2c;padding:14px 21px;border-radius:4px;font-weight:700;text-decoration:none;margin:18px 20px 10px 0}.discovery-secondary{color:#e6f3c4;text-underline-offset:5px;display:inline-block}.discovery-sources{background:#f8f7f1;color:#17372e;padding-top:28px;padding-bottom:35px}.discovery-sources .discovery-kicker{color:#496a55}.discovery-sources p{font-size:.9rem;line-height:1.7;color:#344d40}.discovery-sources a{color:#174b34;text-decoration:underline;text-underline-offset:3px}.discovery-article a:focus-visible{outline:3px solid #9bbd55;outline-offset:4px}@media(max-width:1000px){.discovery-cover-inner{grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:24px}.discovery-cover-rail{display:none}.discovery-cover h1{font-size:clamp(3.1rem,5.4vw,5.5rem)}.discovery-cover-image{height:410px}}@media(max-width:700px){.discovery-cover-inner{grid-template-columns:1fr;padding:25px 20px 30px;gap:20px}.discovery-cover-story{padding:0}.discovery-cover-eyebrow{margin:26px 0 12px}.discovery-cover h1{font-size:clamp(3.1rem,11vw,4.8rem);margin-bottom:18px}.discovery-cover-deck{margin-bottom:20px}.discovery-cover-image{height:clamp(250px,75vw,390px)}.discovery-wrap{padding-left:22px;padding-right:22px}.discovery-prose{padding-top:30px}.discovery-prose p{font-size:1.05rem}.discovery-pull{margin-left:0;margin-right:0;padding:24px}.discovery-three{padding:22px}.discovery-button{display:block;text-align:center;margin-right:0}}
+</style>

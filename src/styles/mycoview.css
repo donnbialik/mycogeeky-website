@@ -736,3 +736,31 @@
  .mv-home .mv-survey-card .survey-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  .mv-home .mv-survey-card .survey-metrics>div{padding:7px!important}
 }
+
+
+/* Mobile composition pass 3 — photograph-first hero and tighter editorial hierarchy. */
+@media(max-width:760px){
+  /* Top-left field-note card, leaving the lower mushroom cluster unobstructed. */
+  .mv-home .mv-hero-image{height:clamp(290px,85vw,405px);overflow:hidden}
+  .mv-home .mv-hero-image img{object-position:53% 59%}
+  .mv-home .mv-observation-widget{top:13px;bottom:auto;left:13px;right:auto;width:min(178px,43vw);max-width:none}
+  .mv-home .mv-observation-trigger{min-height:125px;width:100%;padding:13px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:7px;text-align:left;background:#103a2ee8;border:1px solid #d5e6aa7a;border-radius:9px;box-shadow:0 4px 20px #0a281d42}
+  .mv-home .mv-observation-trigger .mv-observation-dot{font-size:1.35rem;line-height:1}
+  .mv-home .mv-observation-trigger small{display:block;font-size:.53rem;line-height:1.35;letter-spacing:.075em}
+  .mv-home .mv-observation-trigger strong{display:block;font-size:.78rem;line-height:1.25}
+  .mv-home .mv-hero-copy{padding-top:19px}
+  /* More of the actual experiment, less of the wrapper. */
+  .mv-home .mv-play>p:not(.mv-kicker){font-size:.84rem;line-height:1.4;margin:7px 0 10px}
+  .mv-home .mv-play h3{margin-bottom:6px}
+  .mv-home .mv-play .curiosity-generator{margin:8px 0 11px;padding:12px}
+  .mv-home .mv-play .curiosity-generator p{line-height:1.4}
+  /* Keep the research introduction concise and make the navigator the primary entry. */
+  .mv-home .mv-research>.mv-section-head{gap:7px;margin-bottom:11px}
+  .mv-home .mv-research>.mv-section-head p:not(.mv-kicker){font-size:.89rem;line-height:1.4;margin:7px 0}
+  .mv-home .mv-study-feature{gap:9px}
+  .mv-home .mv-study-feature p:not(.mv-kicker){font-size:.87rem;line-height:1.4}
+  /* Let the final image earn its place without lengthening the entire section. */
+  .mv-home .mv-community-image img{height:235px;object-position:center 42%}
+  .mv-home .mv-community-copy{padding-top:20px}
+  .mv-home .mv-community-copy h2{margin-bottom:10px}
+}

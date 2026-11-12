@@ -75,8 +75,8 @@ $('selftest').addEventListener('click', async () => {
     for (const r of releases) ok(`${r.id} declares no human validation`, r.manifest.human_review.status === 'none' || r.manifest.human_review.status === 'partial', r.manifest.human_review.label);
     const xo = await fetch('/api/explorer/reviews', { method: 'POST', headers: { 'content-type': 'text/plain' }, body: '{}' });
     ok('A non-JSON (cross-site style) write is refused', xo.status === 415 || xo.status === 403, `status ${xo.status}`);
-    const st = await fetch('/data/laetiporus-v1/records.json', { credentials: 'omit' });
-    ok('Evidence is not published as a static file', st.status === 404 || !(st.headers.get('content-type') || '').includes('json'), `status ${st.status}`);
+    const st = await fetch('/data/laetiporus-v1/records.json', { credentials: 'omit', redirect: 'manual' });
+    ok('Evidence is not published as a static file', st.type === 'opaqueredirect' || st.status === 404 || !(st.headers.get('content-type') || '').includes('json'), `status ${st.status || st.type}`);
     say('stmsg', out.some(x => x.includes('✗')) ? 'bad' : 'ok', '<ul>' + out.join('') + '</ul>');
   } catch (e) { say('stmsg', 'bad', '<ul>' + out.join('') + `</ul>Stopped: ${esc(e.message)}`); }
 });

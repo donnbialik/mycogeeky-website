@@ -16,14 +16,23 @@ import orange from '../../assets/featured-orange-mushrooms.png';
       <p>Strange organisms. Surprising research. People asking questions nobody has answered yet. Come find something worth wondering about.</p>
       <a href="#featured-discovery" class="discover-lead-link">Explore the featured discovery ↓</a>
     </div>
-    <div class="discover-quilt" aria-label="Photographic mosaic of fungi, fieldwork, and naturalists">
-      <figure class="quilt-tile quilt-macro"><Image src={macro} alt="Purple mushroom gills photographed close up" loading="eager" widths={[500,850]} sizes="(max-width: 850px) 60vw, 24vw"/><figcaption>01 / LOOK CLOSER</figcaption></figure>
-      <figure class="quilt-tile quilt-orange"><Image src={orange} alt="Orange wild mushrooms among moss and fallen leaves" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>02 / THE UNEXPECTED</figcaption></figure>
-      <figure class="quilt-tile quilt-field"><Image src={field} alt="A camera documenting fungi in the forest" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>03 / DOCUMENT</figcaption></figure>
-      <figure class="quilt-tile quilt-woodland"><Image src={woodland} alt="Fungal exploration in a woodland environment" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>04 / WANDER</figcaption></figure>
-      <figure class="quilt-tile quilt-people"><Image src={people} alt="Naturalists examining a discovery together" loading="eager" widths={[350,700]} sizes="(max-width: 850px) 55vw, 20vw"/><figcaption>05 / TOGETHER</figcaption></figure>
-      <figure class="quilt-tile quilt-devils"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri.Devils_fingers._(16725724164).jpg" alt="Red devil's fingers fungus emerging from the ground" loading="eager"/><figcaption>06 / QUESTION</figcaption></figure>
-      <div class="discover-quilt-foot"><span>FIELD NOTES / A WORLD WORTH NOTICING</span><span>OBSERVE · QUESTION · INVESTIGATE</span></div>
+    <div class="discover-quilt" aria-label="A photographic field-journal quilt of sixteen fungal and forest details">
+      <figure class="quilt-tile"><Image src={macro} alt="Pink cup fungi" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={orange} alt="Crust fungi on wood" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={macro} alt="Tiny fungi emerging" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={orange} alt="Coral fungus" loading="eager" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={field} alt="Toothed mushroom" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={woodland} alt="Bracket fungus" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={people} alt="Delicate forest mushrooms" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={orange} alt="Mossy woodland fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={woodland} alt="Clusters on fallen wood" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={macro} alt="Layered bracket fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={orange} alt="Yellow jelly fungus" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={field} alt="Brown mushrooms on wood" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={macro} alt="Purple mushroom gills" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={people} alt="Small puffballs" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={woodland} alt="Forest floor mushrooms" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
+      <figure class="quilt-tile"><Image src={field} alt="Moss-covered log fungi" loading="lazy" widths={[240,480]} sizes="(max-width:850px) 25vw, 12vw" /></figure>
     </div>
   </section>
   <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
@@ -93,5 +102,19 @@ import orange from '../../assets/featured-orange-mushrooms.png';
 @media(max-width:1100px){.discover-quilt{grid-template-rows:120px 120px 120px auto}.discover-lead h1{font-size:clamp(3.4rem,4.9vw,5.2rem)}}
 @media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:38px 24px 42px;gap:27px}.discover-quilt{grid-template-rows:clamp(90px,22vw,150px) clamp(90px,22vw,150px) clamp(90px,22vw,150px) auto;max-width:760px;width:100%;margin:auto}.discover-lead h1{font-size:clamp(3.5rem,8vw,5.5rem)}}
 @media(max-width:480px){.discover-quilt{gap:5px;grid-template-rows:90px 90px 90px auto}.discover-quilt .quilt-tile figcaption{font-size:.43rem;padding:16px 5px 5px}.discover-quilt-foot{font-size:.43rem;flex-wrap:wrap}.discover-lead h1{font-size:3.2rem}}
+@media(prefers-reduced-motion:reduce){.discover-quilt .quilt-tile img{transition:none}}
+</style>
+<style>
+/* Editorial field-journal quilt: four columns, sixteen equal photographic windows. */
+.discover-lead{grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:clamp(28px,3.4vw,60px);padding-top:38px;padding-bottom:38px}
+.discover-lead h1{font-size:clamp(3.45rem,4.55vw,5.75rem)}
+.discover-quilt{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;aspect-ratio:1.7;width:100%;min-width:0}
+.discover-quilt .quilt-tile{grid-column:auto!important;grid-row:auto!important;min-height:0;overflow:hidden;margin:0;background:#254637;border-radius:2px}
+.discover-quilt .quilt-tile img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .35s ease}
+.discover-quilt .quilt-tile:nth-child(4n+2) img{object-position:35% center}
+.discover-quilt .quilt-tile:nth-child(4n+3) img{object-position:70% center}
+.discover-quilt .quilt-tile:hover img{transform:scale(1.055)}
+@media(max-width:850px){.discover-lead{grid-template-columns:1fr}.discover-quilt{aspect-ratio:1.6;max-width:760px}}
+@media(max-width:480px){.discover-quilt{gap:3px;aspect-ratio:1.15}}
 @media(prefers-reduced-motion:reduce){.discover-quilt .quilt-tile img{transition:none}}
 </style>

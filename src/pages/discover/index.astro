@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import explore from '../../assets/pathways/explore.jpg';
+import curious from '../../assets/pathways/curious.jpg';
+import connect from '../../assets/pathways/connect.jpg';
+---
+<Base title="Discover"><div class="station-page">
+<section class="station-hero station-hero-split"><div class="station-hero-copy"><p class="eyebrow">DISCOVER / FIELD NOTES & STORIES</p><h1>The forest has <em>questions.</em></h1><p class="lead">Strange finds, beautiful fungi, memorable conversations, and the people who make the search worthwhile.</p><div class="station-actions"><a class="station-button" href="#discover-stories">Explore stories ↓</a><a class="station-text-link" href="/investigate/learn/">My path into research →</a></div></div><Image src={explore} alt="Landscape encountered on a field adventure" widths={[500,850]} sizes="(max-width:760px) 100vw,48vw"/></section>
+<section class="station-content" id="discover-stories"><div class="station-section-head"><h2>STORIES WORTH FOLLOWING</h2><span>PEOPLE / PLACES / QUESTIONS</span></div><div class="station-editorial-grid">
+<a class="station-editorial-card" href="/investigate/learn/#my-inat"><Image src={curious} alt="Close-up of mushroom structures" widths={[300,600]} sizes="(max-width:760px) 100vw,30vw"/><span class="station-card-body"><small>FIELD TO LAB</small><strong>From an observation to a research question</strong><span>How field notes, sequences, and collaborators change what we think we know.</span><b>Read the story →</b></span></a>
+<a class="station-editorial-card" href="/about/"><Image src={connect} alt="Naturalists exploring together" widths={[300,600]} sizes="(max-width:760px) 100vw,30vw"/><span class="station-card-body"><small>PODCASTS & MEDIA</small><strong>People worth listening to</strong><span>Conversations and connections from The MycoGeeky Podcast and beyond.</span><b>Explore media →</b></span></a>
+<a class="station-editorial-card" href="/learn/"><span class="station-card-symbol" aria-hidden="true">✳</span><span class="station-card-body"><small>CULTIVATION</small><strong>Grow something. Learn something.</strong><span>Practical mushroom cultivation as a doorway into experimentation and scientific curiosity.</span><b>Explore cultivation →</b></span></a>
+</div></section></div></Base>

@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import communityPhoto from '../../assets/pathways/connect.jpg';
+---
+<Base title="Neo Myco" description="Rooted in Northeast Ohio, Neo Myco welcomes curious amateur and professional mycologists from around the world into collaborative fieldwork and research.">
+<div class="station-page mv-neo">
+  <section class="station-hero station-hero-split">
+    <div class="station-hero-copy">
+      <p class="eyebrow">CONNECT / NEO MYCO</p>
+      <h1>Rooted in Northeast Ohio.<br/><em>Connected by curiosity.</em></h1>
+      <p class="lead">A home-grown community for people who want to find fungi, ask better questions, learn from one another, and turn shared curiosity into real scientific contributions.</p>
+      <div class="station-actions"><a class="station-button" href="#participate">Explore ways to participate ↓</a><a class="station-text-link" href="/investigate/study-designer/">Explore research questions →</a></div>
+    </div>
+    <Image src={communityPhoto} alt="A group of naturalists learning together in the woods" widths={[500,850]} sizes="(max-width: 760px) 100vw,48vw" />
+  </section>
+  <section class="station-content mv-neo-intro">
+    <p class="eyebrow">LOCAL ROOTS / OPEN COLLABORATION</p>
+    <h2>A place to belong. A reason to investigate.</h2>
+    <p>Neo Myco's boots are planted in the forests, parks, and communities of Northeast Ohio. Its ambitions aren't limited by geography. People anywhere can contribute knowledge, specimens where legally permitted, microscopy, data analysis, ideas, and collaboration.</p>
+    <p>We're building opportunities for beginners, experienced amateurs, and professional researchers to work alongside one another. You don't have to be pursuing a publication to make a meaningful contribution.</p>
+  </section>
+  <section class="station-content" id="participate">
+    <div class="station-section-head"><h2>HOW TO TAKE PART</h2><span>FORAYS / FIELD SCIENCE / GLOBAL COLLABORATION</span></div>
+    <div class="mv-neo-grid">
+      <article><span>01 / GET OUTSIDE</span><h3>Forays and field experiences</h3><p>Discover fungi together in Northeast Ohio. Neo Myco plans to offer forays included with membership, alongside pay-per-foray options for nonmembers. Specific events, fees, and eligibility will be published when confirmed.</p></article>
+      <article><span>02 / ASK & INVESTIGATE</span><h3>Collaborative research</h3><p>Develop testable questions, document observations, practice sampling, and explore fungal taxonomy, morphology, and ecology with other curious minds.</p></article>
+      <article><span>03 / CONTRIBUTE FROM ANYWHERE</span><h3>Beyond Northeast Ohio</h3><p>Help with literature, microscopy, molecular interpretation, data quality, project design, or mentorship. Meaningful research collaboration doesn't always require being physically present.</p></article>
+    </div>
+  </section>
+  <section class="station-content mv-neo-membership">
+    <div><p class="eyebrow">NEO MYCO MEMBERSHIP</p><h2>Support the community. Spend more time in the woods.</h2><p>Membership will help sustain organized forays and shared projects. Our intended model includes member-included forays and individual paid forays for nonmembers. We are not accepting memberships through this page yet; fees, benefits, scheduling, and terms will be published before registration opens.</p></div>
+    <div class="mv-neo-membership-note"><strong>Coming into focus</strong><p>Local forays · Research collaborations · Accessible entry points · Transparent membership benefits</p><p>Future partner benefits, including any MycoMap discount, are possibilities—not current offers or agreements.</p></div>
+  </section>
+  <section class="station-content mv-neo-footer"><p class="eyebrow">A SHARED INVITATION</p><h2>There's room for your curiosity here.</h2><p>Whether you're just learning to notice fungi or helping describe species, there's more we can discover together.</p><a class="station-button" href="/connect/">Explore the wider MycoView community →</a></section>
+</div>
+</Base>

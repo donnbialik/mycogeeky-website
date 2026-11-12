@@ -1,18 +1,18 @@
 ---
 import '../styles/global.css';
 import '../styles/v5.css';
+import '../styles/mycoview.css';
 import { Image, getImage } from 'astro:assets';
-import logo from '../assets/mycogeeky-logo.png';
 import shareImageSource from '../assets/featured-orange-mushrooms.png';
 
 interface Props { title?: string; description?: string; }
 const {
-  title = 'MycoGeeky',
-  description = 'Real mycology, done by everyone. Field observation, microscopy, DNA barcoding, and the questions that lead to new species.',
+  title = 'MycoView',
+  description = 'Explore the fungal world through field discoveries, practical science, open research tools, and people worth meeting.',
 } = Astro.props;
 
 const nav = [['Discover','/discover/'],['Learn','/learn/'],['Investigate','/investigate/'],['Connect','/connect/'],['About','/about/']];
-const pageTitle = `${title} · MycoGeeky`;
+const pageTitle = `${title} · MycoView`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // Preview image used when a page is shared on Facebook, iNaturalist forums, Discord, etc.
 const shareImage = await getImage({ src: shareImageSource, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
@@ -28,7 +28,7 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
   <link rel="canonical" href={canonical} />
 
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="MycoGeeky" />
+  <meta property="og:site_name" content="MycoView" />
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
@@ -45,9 +45,9 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="/" aria-label="MycoGeeky home">
-        <Image class="brand-logo" src={logo} alt="" width={52} densities={[1, 2]} format="webp" loading="eager" />
-        <span>MycoGeeky<small>STAY CURIOUS. STAY CULTIVATING.</small></span>
+      <a class="brand" href="/" aria-label="MycoView home">
+        <span class="mycoview-brand-symbol" aria-hidden="true">◉</span>
+        <span>MycoView<small>SEE FUNGI DIFFERENTLY.</small></span>
       </a>
       <nav aria-label="Primary navigation">
         {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname === url ? 'page' : undefined}>{label}</a>)}
@@ -57,8 +57,8 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
   <main id="main"><slot /></main>
   <footer>
     <div class="container footer-inner">
-      <span>MycoGeeky · Curiosity, evidence, and connection.</span>
-      <span>Independent science. Open questions.</span>
+      <span>MycoView · Curiosity, evidence, and connection.</span>
+      <span>Guided by MycoGeeky. Built for curious people.</span>
     </div>
   </footer>
 </body>

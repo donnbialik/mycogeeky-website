@@ -14,8 +14,12 @@ async function get(path:string) {
 export default function SurveyDashboard() {
   const [data,setData] = useState<Summary|null>(null);
   const [error,setError] = useState(false);
+  const [partial,setPartial] = useState(false);
+  const [loading,setLoading] = useState(true);
+  const [refresh,setRefresh] = useState(0);
   useEffect(() => {
     let active=true;
+    setLoading(true);setError(false);setPartial(false);
     const query = '?project_id=' + encodeURIComponent(PROJECT);
     Promise.allSettled([
       get('/projects/' + PROJECT),
@@ -29,9 +33,11 @@ export default function SurveyDashboard() {
       const next:Summary={observations:value(1)?.total_results ?? null,taxa:value(2)?.total_results ?? null,contributors:value(3)?.total_results ?? null,created:project?.created_at ?? null,updated:new Date().toLocaleString()};
       setData(next);
       setError(results.every(r=>r.status==='rejected'));
-    }).catch(()=>setError(true));
+      setPartial(results.some(r=>r.status==='rejected')&&results.some(r=>r.status==='fulfilled'));
+      setLoading(false);
+    }).catch(()=>{if(active){setError(true);setLoading(false)}});
     return ()=>{active=false};
-  },[]);
+  },[refresh]);
   return <section className="survey-dashboard" style={{color:"#1b3029",backgroundColor:"#fffefa"}} aria-label="Crane Hollow project dashboard">
     <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3 style={{color:"#1b3029"}}>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} style={{color:"#1b3029"}} target="_blank" rel="noopener noreferrer">View iNaturalist project ↗</a></div>
     <div className="survey-metrics">
@@ -40,6 +46,10 @@ export default function SurveyDashboard() {
       <div><span>Contributors</span><strong style={{color:"#1b3029"}}>{data?number(data.contributors):'—'}</strong></div>
       <div><span>Project created</span><strong className="survey-date" style={{color:"#1b3029"}}>{data?.created?new Date(data.created).toLocaleDateString(undefined,{month:'short',year:'numeric'}):'—'}</strong></div>
     </div>
-    <p className="survey-data-note">{error?'Live data could not be loaded. Use the iNaturalist project link for current records.':data?'Live iNaturalist snapshot retrieved '+data.updated+'.':'Loading live iNaturalist statistics…'} Recorded taxa are not necessarily confirmed species. Formal sampling visits are tracked separately and are not yet available.</p>
+    <div className="mv-survey-feedback" data-state={loading?'loading':error?'error':partial?'partial':'ready'} role="status" aria-live="polite">
+      <span aria-hidden="true">{loading?'◷':error?'!':partial?'!':'✓'}</span>
+      <p>{loading?'Loading live iNaturalist statistics…':error?'Live data could not be loaded; the values above are not current.':partial?'Some iNaturalist figures could not be retrieved. Missing values are shown as dashes.':'Live snapshot retrieved '+data?.updated+'.'} Recorded taxa are not necessarily confirmed species. Formal sampling visits are tracked separately.</p>
+      {!loading&&(error||partial)&&<button type="button" onClick={()=>setRefresh(n=>n+1)}>Try again ↻</button>}
+    </div>
   </section>;
 }

@@ -26,29 +26,29 @@ export const clathrusStudy={
  credits:'Educational adaptation and commentary by MycoView, based on Prylutskyi & Kapets (2024). Original paper CC BY 4.0; archived data and code in the authors’ repository (see repository license).',
  questions:[
   {id:'first',title:'What would a distant observation mean?',prompt:'Someone photographs a distinctive fungus beyond the region where you know it has been recorded. What can you say now?',choices:[
-    {id:'arrived',label:'The fungus must have recently spread there.',response:'Possible, but not established. A new record is not a documented arrival date.'},
-    {id:'record',label:'The known occurrence record may need updating.',response:'Exactly the cautious interpretation: verify identity, place, date and prior sources before revising the documented range.'},
-    {id:'adapted',label:'The fungus evolved to tolerate a different climate.',response:'That would require independent evidence about adaptation and environmental tolerance.'}
+    {id:'arrived',assessment:'uncertain',label:'The fungus must have recently spread there.',response:'Possible, but not established. A new record is not a documented arrival date.'},
+    {id:'record',assessment:'supported',label:'The known occurrence record may need updating.',response:'Exactly the cautious interpretation: verify identity, place, date and prior sources before revising the documented range.'},
+    {id:'adapted',assessment:'unsupported',label:'The fungus evolved to tolerate a different climate.',response:'That would require independent evidence about adaptation and environmental tolerance.'}
   ]},
   {id:'evidence',title:'What would you want to check first?',prompt:'You find a promising iNaturalist photograph. Which evidence matters most for a geographic claim?',choices:[
-    {id:'photo',label:'A convincing species identification, observation date and credible location.',response:'These directly support whether the record is a plausible documented occurrence at that place and time.'},
-    {id:'likes',label:'The number of favorites and reactions on the photograph.',response:'Popular observations can draw attention, but engagement does not validate a distribution record.'},
-    {id:'grade',label:'Research Grade alone, without checking what was observed.',response:'Community agreement helps, but reviewing original evidence and taxon-specific identification limits is still important.'}
+    {id:'photo',assessment:'supported',label:'A convincing species identification, observation date and credible location.',response:'These directly support whether the record is a plausible documented occurrence at that place and time.'},
+    {id:'likes',assessment:'unsupported',label:'The number of favorites and reactions on the photograph.',response:'Popular observations can draw attention, but engagement does not validate a distribution record.'},
+    {id:'grade',assessment:'uncertain',label:'Research Grade alone, without checking what was observed.',response:'Community agreement helps, but reviewing original evidence and taxon-specific identification limits is still important.'}
   ]},
   {id:'sources',title:'What should we compare the record against?',prompt:'An outlying iNaturalist observation looks plausible. How do we tell whether it adds information?',choices:[
-    {id:'only',label:'Compare it with other iNaturalist photographs only.',response:'Useful as a first pass, but previous records may be in museums, checklists, papers or other datasets.'},
-    {id:'multiple',label:'Check independent published records, collections and other occurrence sources.',response:'This is the kind of source comparison the researchers used to evaluate the geographic contribution of iNaturalist.'},
-    {id:'none',label:'No comparison is needed if the photograph is distinctive.',response:'Identity and novelty are separate questions. A correct photo could still be from a previously documented locality.'}
+    {id:'only',assessment:'uncertain',label:'Compare it with other iNaturalist photographs only.',response:'Useful as a first pass, but previous records may be in museums, checklists, papers or other datasets.'},
+    {id:'multiple',assessment:'supported',label:'Check independent published records, collections and other occurrence sources.',response:'This is the kind of source comparison the researchers used to evaluate the geographic contribution of iNaturalist.'},
+    {id:'none',assessment:'unsupported',label:'No comparison is needed if the photograph is distinctive.',response:'Identity and novelty are separate questions. A correct photo could still be from a previously documented locality.'}
   ]},
   {id:'interpret',title:'What does a 350 km difference establish?',prompt:'A verified record appears roughly 350 km from the closest occurrence in the comparison sources. What follows?',choices:[
-    {id:'distance',label:'The known documented occurrence extends to the new locality.',response:'Yes, with the qualifications of the date, identity and completeness of the reference sources.'},
-    {id:'migration',label:'The fungus traveled 350 km during the study.',response:'The researchers compared record locations; they did not track an individual fungus moving that distance.'},
-    {id:'continuous',label:'The species occupies every suitable habitat between the two points.',response:'A record gap cannot establish either continuous presence or true absence between locations.'}
+    {id:'distance',assessment:'supported',label:'The known documented occurrence extends to the new locality.',response:'Yes, with the qualifications of the date, identity and completeness of the reference sources.'},
+    {id:'migration',assessment:'unsupported',label:'The fungus traveled 350 km during the study.',response:'The researchers compared record locations; they did not track an individual fungus moving that distance.'},
+    {id:'continuous',assessment:'unsupported',label:'The species occupies every suitable habitat between the two points.',response:'A record gap cannot establish either continuous presence or true absence between locations.'}
   ]},
   {id:'next',title:'How would you investigate a similar mystery yourself?',prompt:'What would you do after noticing a possible distribution gap for a fungus in your region?',choices:[
-    {id:'map',label:'Plot all observations and treat empty areas as absences.',response:'Mapping is an excellent start, but empty areas often lack observers or repeated surveys.'},
-    {id:'audit',label:'Audit identifications and coordinates, compare prior records, then target gaps with surveys.',response:'A strong next step. It separates historical record review from new fieldwork with documented effort.'},
-    {id:'conclude',label:'Announce a newly invasive species from one photograph.',response:'Invasion status and recent colonization require evidence well beyond a single outlying record.'}
+    {id:'map',assessment:'unsupported',label:'Plot all observations and treat empty areas as absences.',response:'Mapping is an excellent start, but empty areas often lack observers or repeated surveys.'},
+    {id:'audit',assessment:'supported',label:'Audit identifications and coordinates, compare prior records, then target gaps with surveys.',response:'A strong next step. It separates historical record review from new fieldwork with documented effort.'},
+    {id:'conclude',assessment:'unsupported',label:'Announce a newly invasive species from one photograph.',response:'Invasion status and recent colonization require evidence well beyond a single outlying record.'}
   ]}
  ]
 } as const;

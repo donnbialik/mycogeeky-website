@@ -4,6 +4,8 @@ import { Image } from 'astro:assets';
 import macro from '../../assets/pathways/curious.jpg';
 import field from '../../assets/pathways/investigate.jpg';
 import people from '../../assets/pathways/connect.jpg';
+import woodland from '../../assets/pathways/explore.jpg';
+import orange from '../../assets/featured-orange-mushrooms.png';
 ---
 <Base title="Discover" description="Fungal mysteries, new scientific discoveries, field stories and the questions worth following.">
 <div class="discover-home">
@@ -14,20 +16,14 @@ import people from '../../assets/pathways/connect.jpg';
       <p>Strange organisms. Surprising research. People asking questions nobody has answered yet. Come find something worth wondering about.</p>
       <a href="#featured-discovery" class="discover-lead-link">Explore the featured discovery ↓</a>
     </div>
-    <div class="discover-visual" aria-label="Three photographic views of fungal discovery">
-      <figure class="discover-visual-main">
-        <Image src={macro} alt="An intimate macro view of purple mushroom gills, revealing hidden structures" loading="eager" widths={[480,760,1000]} sizes="(max-width: 850px) 100vw, 40vw"/>
-        <figcaption><span>01 / LOOK CLOSER</span><span>THE DETAILS MATTER</span></figcaption>
-      </figure>
-      <figure class="discover-visual-field">
-        <Image src={field} alt="A field camera documenting mushrooms where they grow" loading="eager" widths={[300,540]} sizes="(max-width: 850px) 45vw, 20vw"/>
-        <figcaption>02 / DOCUMENT</figcaption>
-      </figure>
-      <figure class="discover-visual-people">
-        <Image src={people} alt="Naturalists exploring and examining a find together in the forest" loading="eager" widths={[300,540]} sizes="(max-width: 850px) 45vw, 20vw"/>
-        <figcaption>03 / DISCOVER TOGETHER</figcaption>
-      </figure>
-      <div class="discover-visual-caption"><span class="discover-visual-marker">THE FIELD JOURNAL</span><p>Look closer. Ask better questions. Find your people.</p></div>
+    <div class="discover-quilt" aria-label="Photographic mosaic of fungi, fieldwork, and naturalists">
+      <figure class="quilt-tile quilt-macro"><Image src={macro} alt="Purple mushroom gills photographed close up" loading="eager" widths={[500,850]} sizes="(max-width: 850px) 60vw, 24vw"/><figcaption>01 / LOOK CLOSER</figcaption></figure>
+      <figure class="quilt-tile quilt-orange"><Image src={orange} alt="Orange wild mushrooms among moss and fallen leaves" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>02 / THE UNEXPECTED</figcaption></figure>
+      <figure class="quilt-tile quilt-field"><Image src={field} alt="A camera documenting fungi in the forest" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>03 / DOCUMENT</figcaption></figure>
+      <figure class="quilt-tile quilt-woodland"><Image src={woodland} alt="Fungal exploration in a woodland environment" loading="eager" widths={[300,600]} sizes="(max-width: 850px) 40vw, 16vw"/><figcaption>04 / WANDER</figcaption></figure>
+      <figure class="quilt-tile quilt-people"><Image src={people} alt="Naturalists examining a discovery together" loading="eager" widths={[350,700]} sizes="(max-width: 850px) 55vw, 20vw"/><figcaption>05 / TOGETHER</figcaption></figure>
+      <figure class="quilt-tile quilt-devils"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri.Devils_fingers._(16725724164).jpg" alt="Red devil's fingers fungus emerging from the ground" loading="eager"/><figcaption>06 / QUESTION</figcaption></figure>
+      <div class="discover-quilt-foot"><span>FIELD NOTES / A WORLD WORTH NOTICING</span><span>OBSERVE · QUESTION · INVESTIGATE</span></div>
     </div>
   </section>
   <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
@@ -75,4 +71,27 @@ import people from '../../assets/pathways/connect.jpg';
 @media(max-width:1100px){.discover-lead{gap:26px}.discover-visual{grid-template-rows:170px 170px auto}.discover-lead h1{font-size:clamp(3.5rem,5vw,5.3rem)}}
 @media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:42px 25px 48px;gap:28px}.discover-visual{max-width:750px;width:100%;grid-template-rows:210px 210px auto}.discover-lead h1{font-size:clamp(3.6rem,8vw,5.6rem)}}
 @media(max-width:480px){.discover-lead h1{font-size:3.3rem}.discover-visual{grid-template-rows:155px 155px auto;gap:7px}.discover-visual figcaption{font-size:.48rem;padding:20px 7px 7px}.discover-visual-caption{display:block}.discover-visual-caption p{text-align:left;margin-top:6px}}
+</style>
+
+<style>
+/* The Discover mosaic: one cohesive photographic quilt, not overlapping cards. */
+.discover-lead{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(28px,4vw,65px);padding-top:38px;padding-bottom:42px;align-items:center}
+.discover-lead h1{font-size:clamp(3.6rem,4.8vw,6rem)}
+.discover-quilt{display:grid;grid-template-columns:1.2fr 1fr .85fr;grid-template-rows:145px 145px 145px auto;gap:7px;min-width:0}
+.discover-quilt .quilt-tile{position:relative;overflow:hidden;margin:0;min-width:0;background:#315542}
+.discover-quilt .quilt-tile img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .45s ease}
+.discover-quilt .quilt-tile:hover img{transform:scale(1.035)}
+.discover-quilt .quilt-tile figcaption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,#08241bc9);padding:22px 10px 9px;color:#f2f4e9;font:700 .55rem "IBM Plex Mono",monospace;letter-spacing:.08em}
+.discover-quilt .quilt-macro{grid-column:1;grid-row:1/3}
+.discover-quilt .quilt-orange{grid-column:2;grid-row:1}
+.discover-quilt .quilt-field{grid-column:3;grid-row:1/3}
+.discover-quilt .quilt-woodland{grid-column:1;grid-row:3}
+.discover-quilt .quilt-people{grid-column:2;grid-row:2/4}
+.discover-quilt .quilt-devils{grid-column:3;grid-row:3}
+.discover-quilt .quilt-foot{grid-column:1/-1}
+.discover-quilt-foot{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;padding-top:10px;color:#c3d4b3;font:700 .56rem "IBM Plex Mono",monospace;letter-spacing:.09em}
+@media(max-width:1100px){.discover-quilt{grid-template-rows:120px 120px 120px auto}.discover-lead h1{font-size:clamp(3.4rem,4.9vw,5.2rem)}}
+@media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:38px 24px 42px;gap:27px}.discover-quilt{grid-template-rows:clamp(90px,22vw,150px) clamp(90px,22vw,150px) clamp(90px,22vw,150px) auto;max-width:760px;width:100%;margin:auto}.discover-lead h1{font-size:clamp(3.5rem,8vw,5.5rem)}}
+@media(max-width:480px){.discover-quilt{gap:5px;grid-template-rows:90px 90px 90px auto}.discover-quilt .quilt-tile figcaption{font-size:.43rem;padding:16px 5px 5px}.discover-quilt-foot{font-size:.43rem;flex-wrap:wrap}.discover-lead h1{font-size:3.2rem}}
+@media(prefers-reduced-motion:reduce){.discover-quilt .quilt-tile img{transition:none}}
 </style>

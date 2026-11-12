@@ -504,3 +504,24 @@
 .mv-nav-case-invite p{font-size:.88rem;line-height:1.58;margin:8px 0}
 .mv-nav-case-invite a{color:#1b6947;font-weight:700;font-size:.86rem}
 @media(max-width:780px){.mv-case-feature,.mv-case-index-card{grid-template-columns:1fr}.mv-case-index-card img{max-height:310px}.mv-case-index-card>div{padding:0 22px 22px}.mv-case-feature figure{max-width:100%}}
+
+/* Case study: evidence-strength feedback, rather than identical green for every choice. */
+.mv-case-options button{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;transition:background-color .15s,border-color .15s}
+.mv-case-options button.is-selected{padding:13px 15px}
+.mv-case-options button.is-selected.is-supported{background:#e1f1e4;border-color:#328253;color:#174a2e}
+.mv-case-options button.is-selected.is-uncertain{background:#fff0d2;border-color:#b47d20;color:#62410c}
+.mv-case-options button.is-selected.is-unsupported{background:#fbe6e4;border-color:#ba4c44;color:#72251f}
+.mv-case-option-label{flex:1;min-width:180px}
+.mv-case-option-status{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.mv-case-option-status>span,.mv-case-feedback-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;border-radius:50%;font-weight:800;line-height:1}
+.mv-case-options .is-supported .mv-case-option-status>span,.mv-case-feedback.is-supported .mv-case-feedback-icon{background:#267248;color:#fff}
+.mv-case-options .is-uncertain .mv-case-option-status>span,.mv-case-feedback.is-uncertain .mv-case-feedback-icon{background:#9c691a;color:#fff}
+.mv-case-options .is-unsupported .mv-case-option-status>span,.mv-case-feedback.is-unsupported .mv-case-feedback-icon{background:#aa3830;color:#fff}
+.mv-case-feedback{border-left-width:5px}
+.mv-case-feedback.is-supported{background:#e1f1e4;border-color:#328253;color:#174a2e}
+.mv-case-feedback.is-uncertain{background:#fff0d2;border-color:#b47d20;color:#62410c}
+.mv-case-feedback.is-unsupported{background:#fbe6e4;border-color:#ba4c44;color:#72251f}
+.mv-case-feedback-heading{display:flex;align-items:center;gap:10px;line-height:1.4}
+.mv-case-feedback-heading strong{font-size:1.01rem}
+.mv-case-feedback small{color:inherit;opacity:.8}
+@media(prefers-reduced-motion:reduce){.mv-case-options button{transition:none}}

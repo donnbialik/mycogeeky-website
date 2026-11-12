@@ -25,7 +25,7 @@ import Base from '../../layouts/Base.astro';
         <p>What does a new observation <em>actually</em> tell us?</p>
         <span class="discover-journal-note-foot">LOOK CLOSER · ASK AGAIN · FOLLOW THE EVIDENCE</span>
       </div>
-      <span class="discover-journal-index" aria-hidden="true">01 — 03 / OBSERVE · QUESTION · INVESTIGATE</span>
+      <span class="discover-journal-index">PHOTOS: <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri.Devils_fingers._(16725724164).jpg">BERNARD SPRAGG NZ · CC0</a> / <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri_100906693.jpg">MATTEO MARCANDELLA · CC BY 4.0</a></span>
     </div>
   </section>
   <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
@@ -73,7 +73,7 @@ import Base from '../../layouts/Base.astro';
 .discover-journal-note-label,.discover-journal-note-foot{font:700 .58rem "IBM Plex Mono",monospace;letter-spacing:.11em;color:#537150}
 .discover-journal-note p{font:600 clamp(1.35rem,1.9vw,1.9rem)/1.14 "Source Serif 4",Georgia,serif;margin:12px 0 14px}
 .discover-journal-note p em{color:#567d47}
-.discover-journal-index{position:absolute;bottom:0;left:0;color:#b4cba8;font:600 .55rem "IBM Plex Mono",monospace;letter-spacing:.09em}
+.discover-journal-index a{color:inherit;text-underline-offset:2px}.discover-journal-index{position:absolute;bottom:0;left:0;color:#b4cba8;font:600 .55rem "IBM Plex Mono",monospace;letter-spacing:.09em}
 @media(max-width:1100px){.discover-lead{grid-template-columns:minmax(0,1fr) minmax(310px,.9fr);gap:25px;min-height:0}.discover-journal{height:450px}.discover-journal-primary{height:335px}.discover-journal-detail{top:130px;height:225px}.discover-journal-note{width:72%;padding:16px}.discover-lead h1{font-size:clamp(3.3rem,5.2vw,5rem)}}
 @media(max-width:850px){.discover-lead{grid-template-columns:1fr;gap:30px;padding:44px 25px 55px}.discover-lead h1{font-size:clamp(3.6rem,9vw,5.5rem)}.discover-journal{height:460px;max-width:610px;width:100%;margin:0 auto}.discover-journal-primary{height:345px}.discover-journal-detail{height:235px}.discover-journal-note{width:60%}}
 @media(max-width:480px){.discover-lead h1{font-size:3.4rem}.discover-journal{height:355px}.discover-journal-primary{top:25px;height:255px;width:75%}.discover-journal-detail{top:95px;height:178px;width:49%;border-width:5px}.discover-journal-detail figcaption{font-size:.45rem}.discover-journal-note{width:70%;bottom:12px;padding:11px 13px}.discover-journal-note p{font-size:1.2rem;margin:8px 0}.discover-journal-note-label,.discover-journal-note-foot{font-size:.48rem}.discover-journal-index{font-size:.46rem}}

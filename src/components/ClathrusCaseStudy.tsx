@@ -37,7 +37,14 @@ export default function ClathrusCaseStudy(){
    {chosen&&<div className={'mv-case-feedback is-'+chosen.assessment} role="status" aria-live="polite">
     <span className="mv-case-feedback-heading"><span aria-hidden="true" className="mv-case-feedback-icon">{visualLabels[chosen.assessment].symbol}</span><strong>{visualLabels[chosen.assessment].title}</strong></span>
     <p>{chosen.response}</p>
-    <small>This evaluates the strength of this interpretation, not you. Change your selection to explore the alternatives.</small>
+    <div className="mv-case-reasoning" aria-label="Explore the reasoning">
+     <p className="mv-case-reasoning-label">LOOK CLOSER AT THE REASONING</p>
+     <p><strong>{chosen.assessment==='supported'?'Why this interpretation holds up':'Why this answer is tempting'}</strong><br/>{chosen.reasoning[0]}</p>
+     <p><strong>{chosen.assessment==='supported'?'What still needs checking':'The assumption to examine'}</strong><br/>{chosen.reasoning[1]}</p>
+     <p><strong>How to investigate further</strong><br/>{chosen.reasoning[2]}</p>
+     <p className="mv-case-thinking-habit"><strong>TAKEAWAY · </strong>{chosen.reasoning[3]}</p>
+    </div>
+    <small>This evaluates an interpretation, not you. Try another choice to compare the reasoning.</small>
    </div>}
   </section>;
  };
@@ -77,3 +84,11 @@ export default function ClathrusCaseStudy(){
   </div>
  </div>;
 }
+
+<style>{`
+.mv-case-reasoning{border-top:1px solid currentColor;margin-top:20px;padding-top:16px}
+.mv-case-reasoning-label{font-size:.72rem!important;letter-spacing:.09em;font-weight:800;opacity:.8;margin:0 0 16px!important}
+.mv-case-reasoning p{margin:0 0 14px;line-height:1.6}
+.mv-case-reasoning p strong{font-weight:750}
+.mv-case-thinking-habit{padding:13px 16px;background:rgba(20,60,46,.07);border-left:3px solid #6b8e52}
+`}</style>

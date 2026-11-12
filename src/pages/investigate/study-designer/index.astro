@@ -1,0 +1,22 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ResearchNavigator from '../../../components/ResearchNavigator';
+---
+<Base title="Research Navigator" description="Explore five areas of mycology research through fifteen evidence-aware frameworks and practical scientific resources.">
+  <div class="mv-study-page">
+    <section class="mv-study-hero">
+      <p class="mv-kicker">INVESTIGATE / ASK BETTER QUESTIONS</p>
+      <h1>Every question is <em>a place to begin.</em></h1>
+      <p>Follow your curiosity through five areas of fungal research. Discover the science behind your question, explore evidence and practical next steps, then open a separate technical brief when you're ready to dig deeper.</p>
+      <div class="mv-study-note"><strong>MycoView Research Navigator</strong><span>15 research frameworks · educational journeys · downloadable technical briefs</span></div>
+    </section>
+    <section class="mv-study-workspace">
+      <ResearchNavigator client:load />
+    </section>
+    <section class="mv-study-follow">
+      <p class="mv-kicker">GO DEEPER</p>
+      <h2>The next discovery might come from a conversation.</h2>
+      <div><a href="/investigate/resources/">Find original scientific resources ↗</a><a href="/investigate/learn/">Explore research methods ↗</a><a href="/neo-myco/">Find potential collaborators through Neo Myco ↗</a></div>
+    </section>
+  </div>
+</Base>

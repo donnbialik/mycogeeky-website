@@ -1,0 +1,40 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Set-up" active="admin">
+  <p class="eyebrow">Owner only</p>
+  <h1>Set-up and checks</h1>
+  <div class="xp-grid">
+    <div>
+      <section class="xp-panel"><h2>1. Database</h2><div id="mig">Checking…</div><button id="migrate" hidden>Apply the database schema</button><div id="migmsg"></div></section>
+      <section class="xp-panel"><h2>2. Import an evidence release</h2>
+        <p class="muted small">Choose the three files of one release exported by the engine. They are checked here first (contract, counts, SHA-256), then again on the server. A release is immutable once imported.</p>
+        <label for="f-manifest">release.json</label><input type="file" id="f-manifest" accept=".json,application/json" />
+        <label for="f-records">records.json</label><input type="file" id="f-records" accept=".json,application/json" />
+        <label for="f-cases">cases.json</label><input type="file" id="f-cases" accept=".json,application/json" />
+        <button id="check">Check the files</button> <button id="import" disabled>Import the release</button>
+        <div id="impmsg"></div></section>
+      <section class="xp-panel"><h2>3. Import a corroboration supplement</h2>
+        <p class="muted small">A supplement file built by the engine for an imported release (contract bre-supplement/1): sequence-matched GenBank collections and iNaturalist observations for each review case. It is checked against the release's pinned hashes and refused if it contains any location fields. Supplements are immutable once imported.</p>
+        <label for="f-supp">Supplement (.json)</label><input type="file" id="f-supp" accept=".json,application/json" />
+        <button id="scheck">Check the file</button> <button id="simport" disabled>Import the supplement</button>
+        <div id="smsg"></div></section>
+      <section class="xp-panel"><h2>Production readiness checks</h2>
+        <p class="muted small">Runs from your signed-in browser against this deployment. It does not change any data.</p>
+        <button id="selftest" class="secondary">Run the checks</button><div id="stmsg"></div></section>
+    </div>
+    <div>
+      <section class="xp-panel"><h2>Reviewers</h2>
+        <p class="muted small">Do not add outside reviewers yet (M8). Every review is a test review until you enable formal reviews for that person, including yourself.</p>
+        <div class="xp-scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Formal</th><th>Active</th></tr></thead><tbody id="revs"></tbody></table></div>
+        <label for="r-email">E-mail</label><input type="email" id="r-email" />
+        <label for="r-name">Display name</label><input type="text" id="r-name" />
+        <label for="r-role">Role</label><select id="r-role"><option>reviewer</option><option>observer</option></select>
+        <button id="r-add" class="secondary">Add reviewer</button><div id="rmsg"></div></section>
+      <section class="xp-panel"><h2>Audit log</h2><div class="xp-scroll"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Object</th></tr></thead><tbody id="audit"></tbody></table></div></section>
+    </div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/admin.js';
+</script>

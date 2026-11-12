@@ -1,0 +1,46 @@
+---
+// PUBLIC page: what the Barcode Reliability Explorer is, what it is not, and the validation status of each part.
+// It contains no evidence data; the evidence is restricted to signed-in reviewers.
+import Base from '../../layouts/Base.astro';
+import '../../styles/explorer.css';
+const status = [
+  ['Explorer (this tool)', 'experimental · restricted reviewer preview', 'Development status, not scientific validation.'],
+  ['Directly anchored (primary) tier', 'M4 go/no-go: failed (unchanged)', 'Regions whose boundaries ITSx located with the flanking rRNA observed. The Laetiporus sampling criterion of M4 was not met, and that result stands.'],
+  ['Reference-anchored tier', 'separate research tier', 'Region ends inferred from independent reference records where ITSx could not observe them. Never merged into the primary tier.'],
+  ['ITSx anchoring cross-check (M6)', 'experimental: did not meet its prespecified criteria', 'Compares each located boundary with independent references. Its outcomes are a diagnostic to weigh, not a verdict.'],
+  ['Corroborated-primary policy v1 (M7)', 'Experimental — did not pass prespecified held-out validation in M7.', 'Not used in the first evidence release. It never replaces ITSx coordinates and does not redefine the primary tier.'],
+  ['Reference records', 'computationally curated, not human-reviewed', 'No record has been reviewed by a person. Review is under way, starting with the site owner; nothing becomes an accepted reference without independent formal reviews.'],
+];
+---
+<Base title="Barcode Reliability Explorer" description="A research tool that shows how reliable ITS barcode evidence is, including where it is uncertain. Not an identification service.">
+  <section class="page-hero container"><p class="eyebrow">INVESTIGATE / WORKBENCH / BARCODE RELIABILITY EXPLORER</p>
+    <h1>How far can this barcode be trusted?</h1>
+    <p class="lead">The Barcode Reliability Explorer examines ITS reference sequences: where each region begins and ends, how sure that is, where references disagree, and which records a species' barcode gap rests on. It exposes uncertainty. It does not resolve it for you.</p>
+    <div class="tag-row"><span class="tag">experimental</span><span class="tag neutral">Science: not validated as an identification method</span><span class="tag neutral">Restricted preview</span></div>
+  </section>
+  <section class="section soft"><div class="container narrow xp" style="padding:0">
+    <h2>What it is not</h2>
+    <p><strong>It is not a species-identification service.</strong> Sequence similarity, a nearest neighbour or a barcode gap is evidence about a reference set, not proof of a species. A taxon that is missing from the references can still sit stably next to one that is present. No identification threshold is used or implied.</p>
+  </div></section>
+  <section class="section"><div class="container xp" style="padding:0">
+    <h2>Validation status of each part</h2>
+    <div class="xp-panel xp-scroll"><table><thead><tr><th>Part</th><th>Status</th><th>What that means</th></tr></thead>
+      <tbody>{status.map(([a, b, c]) => <tr><td><strong>{a}</strong></td><td>{b}</td><td class="muted">{c}</td></tr>)}</tbody></table></div>
+    <h2 style="margin-top:40px">Four kinds of boundary evidence</h2>
+    <p class="muted">Each region boundary located by ITSx is compared with independent reference records. The result is always one of these, kept distinct:</p>
+    <div class="xp-def">
+      <div><span class="pill agree">Confirmed computational agreement</span><p>Independent references place the boundary within 2 bases of ITSx. Agreement with a convention, not proof of a biological processing site.</p></div>
+      <div><span class="pill minor">Minor boundary disagreement</span><p>References place it 3–12 bases away. Kept as explicit uncertainty; comparisons that depend on it are checked at both positions.</p></div>
+      <div><span class="pill conflict">Conflicting reference evidence</span><p>References agree on a position more than 12 bases away. The region is withheld from the primary tier until a person reviews it. The ITSx position is kept.</p></div>
+      <div><span class="pill insufficient">Insufficient evidence to check</span><p>Too few independent references, or references that disagree among themselves. <strong>This is not an error:</strong> the boundary simply could not be checked.</p></div>
+    </div>
+    <h2 style="margin-top:40px">How the evidence is produced and reviewed</h2>
+    <ul class="muted">
+      <li>Evidence releases are computed offline by a versioned engine, frozen and identified by SHA-256 hashes. The site displays a release; it never recomputes one.</li>
+      <li>Every review is pinned to the exact evidence the reviewer saw. Reviews are append-only: corrections supersede, nothing is edited or deleted.</li>
+      <li>Reviewers do not see each other's decisions until they have submitted their own.</li>
+      <li>Test reviews never count. An outcome needs independent formal reviews, and only the owner can accept it, into a future release.</li>
+    </ul>
+    <p style="margin-top:30px"><a class="button primary" href="/explorer/">Reviewer sign-in</a> <span class="muted small">Restricted to invited reviewers.</span></p>
+  </div></section>
+</Base>

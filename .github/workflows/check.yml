@@ -11,4 +11,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install
+      - run: npm run explorer:test
       - run: npm run build
+      - run: npm run explorer:scan
+      - run: npm run explorer:e2e

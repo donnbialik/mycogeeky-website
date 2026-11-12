@@ -1,0 +1,8 @@
+# Cloudflare Pages response headers.
+# The Explorer is a restricted reviewer application: never index it and never cache it.
+/explorer/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Referrer-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY

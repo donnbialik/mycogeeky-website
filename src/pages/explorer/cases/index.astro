@@ -1,0 +1,15 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Review cases" active="cases">
+  <p class="eyebrow">Evidence release · human review</p>
+  <h1>Review cases</h1>
+  <p class="lead">Records chosen for review because they determine a species' barcode gap, carry a boundary conflict, or rest on an undocumented name.</p>
+  <div class="xp-panel"><div class="xp-scroll"><table>
+    <thead><tr><th>Case</th><th>Priority</th><th>Name as deposited</th><th>Outcome from formal reviews</th><th>Your current review</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="5" class="muted">Loading the cases.</td></tr></tbody></table></div></div>
+  <p class="muted small">The outcome is derived from formal reviews only. Test reviews are saved and shown but never count. No review changes the current release: an agreed outcome can only be accepted by the owner into a future release.</p>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/cases.js';
+</script>

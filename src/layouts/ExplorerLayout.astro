@@ -1,0 +1,24 @@
+---
+// Shell for the restricted Explorer pages. It holds NO evidence: everything is loaded from the authenticated API.
+import Base from './Base.astro';
+import '../styles/explorer.css';
+const { title, active } = Astro.props;
+const links = [['records', 'Records', '/explorer/'], ['cases', 'Review cases', '/explorer/cases/'], ['methods', 'Methods and limits', '/investigate/explorer/']];
+---
+<Base title={`${title} · Explorer`} description="Barcode Reliability Explorer: restricted reviewer preview.">
+  <div class="container xp">
+    <nav class="xp-sub" aria-label="Explorer navigation">
+      <strong>Barcode Reliability Explorer</strong>
+      <span class="pill experimental">Restricted preview · experimental</span>
+      {links.map(([k, label, href]) => <a href={href} aria-current={active === k ? 'page' : undefined}>{label}</a>)}
+      <a href="/explorer/admin/" id="xp-admin-link" hidden aria-current={active === 'admin' ? 'page' : undefined}>Set-up</a>
+      <span class="who" id="xp-who"></span>
+    </nav>
+    <div class="xp-status" id="xp-release" role="note">
+      <strong>Research tool, not an identification service.</strong> It shows how reliable barcode evidence is, including where the
+      evidence is uncertain or absent. Nothing here has been reviewed by a person. Loading the release…
+    </div>
+    <div id="xp-error" hidden></div>
+    <slot />
+  </div>
+</Base>

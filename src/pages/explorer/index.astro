@@ -1,0 +1,26 @@
+---
+import ExplorerLayout from '../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Records" active="records">
+  <p class="eyebrow">Evidence release · records</p>
+  <h1>Reference records</h1>
+  <p class="lead">Every record in the release, with its evidence tier, boundary checks, flags and provenance. Names are as deposited in GenBank, not accepted taxonomy.</p>
+  <div class="xp-panel">
+    <div class="xp-filters">
+      <div class="wide"><label for="q">Search</label><input type="search" id="q" placeholder="Accession, name, country, publication…" /></div>
+      <div><label for="f-set">Set</label><select id="f-set"><option value="">All</option></select></div>
+      <div><label for="f-name">Name as deposited</label><select id="f-name"><option value="">All</option></select></div>
+      <div><label for="f-check">Boundary check</label><select id="f-check"><option value="">Any</option>
+        <option value="agree">Confirmed agreement (both ends)</option><option value="minor">Minor disagreement</option><option value="conflict">Conflicting evidence</option>
+        <option value="insufficient">Insufficient evidence</option><option value="notassessed">Not assessed</option></select></div>
+      <div><label for="f-pri">Review priority</label><select id="f-pri"><option value="">All</option></select></div>
+    </div>
+    <p class="xp-count" id="count" aria-live="polite">Loading records…</p>
+    <div class="xp-scroll"><table>
+      <thead><tr><th>Accession</th><th>Name as deposited</th><th>Set</th><th>Primary tier</th><th>Reference-anchored tier</th><th>ITS1 start</th><th>ITS2 end</th><th>Priority</th><th>Flags</th></tr></thead>
+      <tbody id="rows"></tbody></table></div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../scripts/explorer/records.js';
+</script>

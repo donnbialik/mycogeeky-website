@@ -32,6 +32,7 @@ export default function ResearchNavigator(){
  const [location,setLocation]=useState('');
  const [notes,setNotes]=useState('');
  const [feedback,setFeedback]=useState('');
+ const [feedbackTone,setFeedbackTone]=useState<'success'|'caution'|'neutral'>('neutral');
  useEffect(()=>{
   const params=new URLSearchParams(window.location.search);
   const target=params.get('framework');
@@ -112,12 +113,12 @@ export default function ResearchNavigator(){
  const setFramework=(id:string)=>{setRefinedQuestion('');const f=frameworkById[id];if(!f)return;setFrameworkId(id);setArea(f.area);setChoice(f.choices[0].id);setFeedback('')};
  const next=()=>{setFeedback('');setStage(s=>Math.min(4,s+1) as Stage)};
  const back=()=>{setFeedback('');setStage(s=>Math.max(0,s-1) as Stage)};
- const restart=()=>{setStage(0);setFeedback('')};
- const copy=async()=>{try{await navigator.clipboard.writeText(report);setFeedback('Research brief copied.')}catch{setFeedback('Clipboard unavailable; expand the text brief and copy manually.')}};
- const download=()=>{const blob=new Blob([report],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download='mycoview-research-brief.txt';document.body.appendChild(anchor);anchor.click();anchor.remove();URL.revokeObjectURL(url);setFeedback('Text brief download requested.')};
+ const restart=()=>{setStage(0);setFeedback('');setResultView('journey')};
+ const copy=async()=>{try{await navigator.clipboard.writeText(report);setFeedbackTone('success');setFeedback('Technical research brief copied to clipboard.')}catch{setFeedbackTone('caution');setFeedback('Clipboard access is unavailable. Expand the text brief and copy it manually.')}};
+ const download=()=>{const blob=new Blob([report],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download='mycoview-research-brief.txt';document.body.appendChild(anchor);anchor.click();anchor.remove();URL.revokeObjectURL(url);setFeedbackTone('success');setFeedback('Text brief prepared for download.')};
  const toggleEvidence=(id:EvidenceId)=>setEvidence(old=>old.includes(id)?old.filter(v=>v!==id):[...old,id]);
  return <div className="mv-nav" aria-label="MycoView Research Navigator">
-  <header className="mv-nav-progress"><div><strong>RESEARCH NAVIGATOR</strong><span>Five areas · fifteen pathways · no AI or account needed</span></div><span>STEP {stage+1} OF 5</span><div className="mv-nav-meter"><span style={{width:`${(stage+1)*20}%`}} /></div></header>
+  <header className="mv-nav-progress"><div><strong>RESEARCH NAVIGATOR</strong><span>Five areas · fifteen pathways · no AI or account needed</span></div><span>STEP {stage+1} OF 5</span><div className="mv-nav-meter" role="progressbar" aria-label="Research Navigator progress" aria-valuemin={1} aria-valuemax={5} aria-valuenow={stage+1}><span style={{width:`${(stage+1)*20}%`}} /></div></header>
   <div className="mv-nav-body">
    {stage===0&&<section className="mv-nav-step">
     <p className="mv-kicker">01 / FOLLOW YOUR CURIOSITY</p>
@@ -139,7 +140,7 @@ export default function ResearchNavigator(){
     <div className="mv-nav-choice-box">
      <h3>Let's be precise. What do you mean?</h3>
      <div className="mv-nav-choices">{chosen.choices.map(o=><label className={choice===o.id?'is-selected':''} key={o.id}><input type="radio" name="specific-question" value={o.id} checked={choice===o.id} onChange={()=>{setChoice(o.id);setRefinedQuestion('')}}/><span>{o.label}</span></label>)}</div>
-     <p className="mv-nav-explain"><strong>Why this matters:</strong> {selectedChoice.methodNote}</p>
+     <div className="mv-nav-choice-feedback" role="status"><span aria-hidden="true">✓</span><div><strong>You're investigating: {selectedChoice.meaning}</strong><p>{selectedChoice.methodNote}</p><small>This identifies your research direction, not a right or wrong answer.</small></div></div>
      <label className="mv-nav-field">A more researchable question (edit this to name your fungus, comparison, and location)<textarea rows={3} value={refinedQuestion||proposedQuestion} onChange={e=>setRefinedQuestion(e.target.value)} /></label>
      <p className="mv-nav-explain">This is a transparent suggestion based on your menu choices, not an AI interpretation of your original wording.</p>
     </div>
@@ -149,7 +150,7 @@ export default function ResearchNavigator(){
     <h2>What do you have to work with?</h2>
     <p>Choose as many evidence types as apply. “Nothing yet” is a perfectly useful starting point—just leave everything unchecked.</p>
     <div className="mv-nav-evidence">{(Object.keys(evidenceLabels) as EvidenceId[]).filter(k=>k!=='none').map(id=><label key={id} className={evidence.includes(id)?'is-selected':''}><input type="checkbox" checked={evidence.includes(id)} onChange={()=>toggleEvidence(id)}/><span>{evidenceLabels[id]}</span></label>)}</div>
-    <div className="mv-nav-info"><strong>Evidence is not all equivalent.</strong><p>Photographs, sequences and biodiversity observations can support different claims. We will distinguish useful starting material from evidence needed for stronger comparisons.</p></div>
+    <div className="mv-nav-info" role="status"><strong>{evidence.length?evidence.length+' evidence '+(evidence.length===1?'type':'types')+' selected':'No existing evidence? You can still begin.'}</strong><p>{evidence.length?'Your selections are recorded. The research pathway will explain what each kind of evidence can support.':'Start with a scientific question and the original literature. You do not need a specimen or sequence to begin learning.'}</p></div>
    </section>}
    {stage===3&&<section className="mv-nav-step">
     <p className="mv-kicker">04 / UNDERSTAND THE LIMITS</p>
@@ -159,6 +160,7 @@ export default function ResearchNavigator(){
      <fieldset><legend>What is known about search effort?</legend>{(Object.keys(readableEffort) as Effort[]).map(id=><label key={id}><input type="radio" name="effort" checked={effort===id} onChange={()=>setEffort(id)}/>{readableEffort[id]}</label>)}</fieldset>
      <fieldset><legend>Do you have comparison information?</legend>{(Object.keys(readableComparison) as Comparison[]).map(id=><label key={id}><input type="radio" name="comparison" checked={comparison===id} onChange={()=>setComparison(id)}/>{readableComparison[id]}</label>)}</fieldset>
     </div>
+    <div className="mv-nav-design-feedback" role="note"><strong>What your selections mean</strong><p>{effort==='standardized'?'You report standardized effort. That can make comparisons more interpretable if the sampling method suits this question.':effort==='unknown'?'Sampling effort is still uncertain. That is useful to know: don't interpret missing sightings as confirmed absence.':'Your observations can help generate hypotheses, but nondetections and comparable search effort may not be recorded.'}</p><p>{comparison==='matched'?'You have described comparable groups; check that they truly address the same outcome and confounders.':'A meaningful comparative claim will require appropriate comparison data. For now, an exploratory investigation remains worthwhile.'}</p></div>
     <label className="mv-nav-field">Where do you hope to investigate?<input value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Northeast Ohio, a specific preserve, or not sure" /></label>
     <label className="mv-nav-field">What would you like to do next?<select value={goal} onChange={e=>setGoal(e.target.value as Goal)}>{goals.map(g=><option key={g.id} value={g.id}>{g.label} — {g.desc}</option>)}</select></label>
     <label className="mv-nav-field">Optional: sources, observations, or a second hypothesis<textarea rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Record IDs, alternative explanations, open questions..." /></label>
@@ -175,7 +177,7 @@ export default function ResearchNavigator(){
     <section className="mv-nav-result-section"><h3>Curated research sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title} ↗</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
     </>}
     <section className="mv-nav-related"><h3>Related questions worth exploring</h3><div>{chosen.related.map(id=>frameworkById[id]).filter(Boolean).map(f=><button type="button" key={f.id} onClick={()=>{setFramework(f.id);setStage(1)}}>{f.id} · {f.title} ↗</button>)}</div></section>
-    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button><p role="status">{feedback}</p></div>
+    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button>{feedback&&<p role="status" className={'mv-nav-action-status is-'+feedbackTone}>{feedbackTone==='success'?'✓ ':feedbackTone==='caution'?'! ':''}{feedback}</p>}</div>
     <details className="mv-nav-full"><summary>View full, shareable technical brief</summary><pre tabIndex={0}>{report}</pre></details>
     <p className="mv-nav-disclaimer">Framework draft 1.1 · Not independently scientifically reviewed. This guide does not access data sources, verify your claims, certify protocols, or authorize ecological interventions.</p>
    </section>}

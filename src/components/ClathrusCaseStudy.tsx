@@ -16,11 +16,31 @@ export default function ClathrusCaseStudy(){
  const [showMethods,setShowMethods]=useState(false);
  const answer=(id:string,value:string)=>setAnswers(current=>({...current,[id]:value}));
  const move=(next:number)=>{setStage(Math.max(0,Math.min(6,next)) as Stage)};
- const card=(index:number)=>{const q=study.questions[index];const chosen=q.choices.find(c=>c.id===answers[q.id]);return <section className="mv-case-activity">
+ const visualLabels={
+  supported:{title:'Well supported by the evidence',short:'Well supported',symbol:'✓'},
+  uncertain:{title:'Plausible, but not established',short:'Needs more evidence',symbol:'?'},
+  unsupported:{title:'Not supported by this evidence',short:'Unsupported inference',symbol:'!'}
+ } as const;
+ const card=(index:number)=>{
+  const q=study.questions[index];
+  const chosen=q.choices.find(c=>c.id===answers[q.id]);
+  return <section className="mv-case-activity">
    <p className="mv-case-eyebrow">YOUR TURN · THINK LIKE AN INVESTIGATOR</p><h3>{q.title}</h3><p>{q.prompt}</p>
-   <div className="mv-case-options">{q.choices.map(choice=><button type="button" key={choice.id} aria-pressed={answers[q.id]===choice.id} className={answers[q.id]===choice.id?'is-selected':''} onClick={()=>answer(q.id,choice.id)}>{choice.label}</button>)}</div>
-   {chosen&&<div className="mv-case-feedback" role="status"><strong>What this choice tells us</strong><p>{chosen.response}</p><small>Not a grade. Scientific reasoning improves when we examine the alternatives.</small></div>}
- </section>};
+   <div className="mv-case-options">{q.choices.map(choice=>{
+    const selected=answers[q.id]===choice.id;
+    const assessment=visualLabels[choice.assessment];
+    return <button type="button" key={choice.id} aria-pressed={selected} className={selected?'is-selected is-'+choice.assessment:''} onClick={()=>answer(q.id,choice.id)}>
+     <span className="mv-case-option-label">{choice.label}</span>
+     {selected&&<span className="mv-case-option-status"><span aria-hidden="true">{assessment.symbol}</span> {assessment.short}</span>}
+    </button>;
+   })}</div>
+   {chosen&&<div className={'mv-case-feedback is-'+chosen.assessment} role="status" aria-live="polite">
+    <span className="mv-case-feedback-heading"><span aria-hidden="true" className="mv-case-feedback-icon">{visualLabels[chosen.assessment].symbol}</span><strong>{visualLabels[chosen.assessment].title}</strong></span>
+    <p>{chosen.response}</p>
+    <small>This evaluates the strength of this interpretation, not you. Change your selection to explore the alternatives.</small>
+   </div>}
+  </section>;
+ };
  return <div className="mv-case" aria-label="Clathrus archeri guided research case study">
   <header className="mv-case-progress"><span>CASE STUDY 001 · BIO-01</span><span>{stage+1} / 7</span><div className="mv-case-progress-track"><span style={{width:`${(stage+1)/7*100}%`}}/></div></header>
   <nav className="mv-case-chapters" aria-label="Case study chapters">{stages.map((title,i)=><button key={title} type="button" aria-current={stage===i?'step':undefined} className={stage===i?'is-current':''} onClick={()=>move(i)}><span>{String(i+1).padStart(2,'0')}</span>{title}</button>)}</nav>

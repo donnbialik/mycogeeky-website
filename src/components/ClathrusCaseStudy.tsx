@@ -7,6 +7,13 @@ function PaperLinks({compact=false}:{compact?:boolean}){
   <a href={study.article.doi} target="_blank" rel="noopener noreferrer">Read the published paper ↗</a>
   <a href={study.article.figures} target="_blank" rel="noopener noreferrer">See original Figure 2d ↗</a>
   <a href={study.article.archive} target="_blank" rel="noopener noreferrer">Original data & R code ↗</a>
+ <style>{`
+.mv-case-reasoning{border-top:1px solid currentColor;margin-top:20px;padding-top:16px}
+.mv-case-reasoning-label{font-size:.72rem!important;letter-spacing:.09em;font-weight:800;opacity:.8;margin:0 0 16px!important}
+.mv-case-reasoning p{margin:0 0 14px;line-height:1.6}
+.mv-case-reasoning p strong{font-weight:750}
+.mv-case-thinking-habit{padding:13px 16px;background:rgba(20,60,46,.07);border-left:3px solid #6b8e52}
+`}</style>
  </div>;
 }
 export default function ClathrusCaseStudy(){
@@ -84,11 +91,3 @@ export default function ClathrusCaseStudy(){
   </div>
  </div>;
 }
-
-<style>{`
-.mv-case-reasoning{border-top:1px solid currentColor;margin-top:20px;padding-top:16px}
-.mv-case-reasoning-label{font-size:.72rem!important;letter-spacing:.09em;font-weight:800;opacity:.8;margin:0 0 16px!important}
-.mv-case-reasoning p{margin:0 0 14px;line-height:1.6}
-.mv-case-reasoning p strong{font-weight:750}
-.mv-case-thinking-habit{padding:13px 16px;background:rgba(20,60,46,.07);border-left:3px solid #6b8e52}
-`}</style>

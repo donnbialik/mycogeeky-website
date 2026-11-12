@@ -1,5 +1,9 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import macro from '../../assets/pathways/curious.jpg';
+import field from '../../assets/pathways/investigate.jpg';
+import people from '../../assets/pathways/connect.jpg';
 ---
 <Base title="Discover" description="Fungal mysteries, new scientific discoveries, field stories and the questions worth following.">
 <div class="discover-home">
@@ -10,22 +14,20 @@ import Base from '../../layouts/Base.astro';
       <p>Strange organisms. Surprising research. People asking questions nobody has answered yet. Come find something worth wondering about.</p>
       <a href="#featured-discovery" class="discover-lead-link">Explore the featured discovery ↓</a>
     </div>
-    <div class="discover-journal" aria-label="A naturalist's field journal with photographs and an observation note">
-      <div class="discover-journal-rule" aria-hidden="true">FIELD JOURNAL / 001</div>
-      <figure class="discover-journal-primary">
-        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri.Devils_fingers._(16725724164).jpg" alt="Red arms of the devil's fingers fungus emerging from the forest floor" loading="eager"/>
-        <figcaption><i>Clathrus archeri</i> / A CLOSER LOOK</figcaption>
+    <div class="discover-visual" aria-label="Three photographic views of fungal discovery">
+      <figure class="discover-visual-main">
+        <Image src={macro} alt="An intimate macro view of purple mushroom gills, revealing hidden structures" loading="eager" widths={[480,760,1000]} sizes="(max-width: 850px) 100vw, 40vw"/>
+        <figcaption><span>01 / LOOK CLOSER</span><span>THE DETAILS MATTER</span></figcaption>
       </figure>
-      <figure class="discover-journal-detail">
-        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Clathrus_archeri_100906693.jpg" alt="A second field photograph of devil's fingers, partly concealed by vegetation" loading="lazy"/>
-        <figcaption>ANOTHER VIEW / SAME SPECIES</figcaption>
+      <figure class="discover-visual-field">
+        <Image src={field} alt="A field camera documenting mushrooms where they grow" loading="eager" widths={[300,540]} sizes="(max-width: 850px) 45vw, 20vw"/>
+        <figcaption>02 / DOCUMENT</figcaption>
       </figure>
-      <div class="discover-journal-note">
-        <span class="discover-journal-note-label">FIELD QUESTION / NO. 01</span>
-        <p>What does a new observation <em>actually</em> tell us?</p>
-        <span class="discover-journal-note-foot">LOOK CLOSER · ASK AGAIN · FOLLOW THE EVIDENCE</span>
-      </div>
-      <span class="discover-journal-index">PHOTOS: <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri.Devils_fingers._(16725724164).jpg">BERNARD SPRAGG NZ · CC0</a> / <a href="https://commons.wikimedia.org/wiki/File:Clathrus_archeri_100906693.jpg">MATTEO MARCANDELLA · CC BY 4.0</a></span>
+      <figure class="discover-visual-people">
+        <Image src={people} alt="Naturalists exploring and examining a find together in the forest" loading="eager" widths={[300,540]} sizes="(max-width: 850px) 45vw, 20vw"/>
+        <figcaption>03 / DISCOVER TOGETHER</figcaption>
+      </figure>
+      <div class="discover-visual-caption"><span class="discover-visual-marker">THE FIELD JOURNAL</span><p>Look closer. Ask better questions. Find your people.</p></div>
     </div>
   </section>
   <section class="discover-feature" id="featured-discovery" aria-labelledby="discover-feature-title">
@@ -56,26 +58,21 @@ import Base from '../../layouts/Base.astro';
 .discover-home{background:#f8f7f1;color:#17372e}.discover-kicker{font:600 .7rem "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#64806b}.discover-lead{background:#10382c;color:#f6f7eb;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,.5fr);align-items:end;gap:40px;padding:clamp(55px,7vw,115px) max(28px,calc((100vw - 1400px)/2)) 70px}.discover-lead .discover-kicker{color:#c7d8a7}.discover-lead h1{font:600 clamp(3.7rem,6.5vw,7rem)/1.02 "Source Serif 4",Georgia,serif;letter-spacing:-.04em;max-width:950px;margin:26px 0}.discover-lead h1 em,.discover-feature h2 em{font-weight:500;color:#d8eb9a}.discover-lead-copy>p:not(.discover-kicker){font-size:clamp(1.1rem,1.4vw,1.4rem);line-height:1.6;max-width:660px;color:#e4eee4}.discover-lead-link{display:inline-block;margin-top:22px;background:#d8ec62;padding:14px 20px;border-radius:4px;color:#143b2d;font-weight:700;text-decoration:none}.discover-lead-side{border-top:1px solid #789384;padding-top:20px;max-width:300px}.discover-lead-side span{font:600 .67rem "IBM Plex Mono",monospace;letter-spacing:.09em;color:#c8d7a7}.discover-lead-side p{font:500 1.35rem/1.4 "Source Serif 4",Georgia,serif}.discover-feature{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);padding:70px 30px;gap:clamp(28px,5vw,75px);align-items:center}.discover-feature-photo{display:block;overflow:hidden;background:#254537;min-height:450px}.discover-feature-photo img{display:block;width:100%;height:100%;min-height:450px;max-height:650px;object-fit:cover;object-position:center 48%;transition:transform .3s}.discover-feature-photo:hover img{transform:scale(1.025)}.discover-feature h2{font:600 clamp(2.9rem,4.4vw,5.2rem)/1.07 "Source Serif 4",Georgia,serif;letter-spacing:-.035em;margin:18px 0}.discover-feature h2 em{color:#547748}.discover-feature-copy>p:not(.discover-kicker):not(.discover-credit){font-size:1.14rem;line-height:1.7;max-width:520px}.discover-main-link{display:inline-block;background:#173d2f;color:#fff;padding:14px 22px;border-radius:4px;text-decoration:none;font-weight:700;margin:18px 0 12px}.discover-minor-link{display:block;color:#20523d;font-size:.87rem;font-weight:600;text-underline-offset:4px}.discover-feature .discover-credit{font-size:.73rem;line-height:1.5;color:#657468;margin-top:35px}.discover-credit a{color:inherit}.discover-bottom{background:#e8ede3;padding:75px 30px}.discover-bottom-head,.discover-pillars,.discover-future{max-width:1350px;margin-left:auto;margin-right:auto}.discover-bottom-head h2{font:600 clamp(2.4rem,4vw,4rem)/1.12 "Source Serif 4",Georgia,serif;margin:12px 0}.discover-bottom-head>p:last-child{max-width:740px;line-height:1.7}.discover-pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:36px}.discover-pillars>div{padding:30px;background:#f8f7f1;border-top:4px solid #8ca66e}.discover-pillars span{font:600 .66rem "IBM Plex Mono",monospace;color:#55745a;letter-spacing:.08em}.discover-pillars h3{font:600 1.9rem "Source Serif 4",Georgia,serif;margin:18px 0 12px}.discover-pillars p{line-height:1.65;color:#52645a}.discover-future{font-size:.83rem;color:#52675a;margin-top:26px}.discover-home a:focus-visible{outline:3px solid #b6c958;outline-offset:4px}@media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:50px 25px}.discover-lead-side{max-width:600px}.discover-feature{grid-template-columns:1fr;padding:42px 20px}.discover-feature-photo,.discover-feature-photo img{min-height:320px;max-height:470px}.discover-pillars{grid-template-columns:1fr}.discover-bottom{padding:50px 20px}}@media(max-width:480px){.discover-lead h1{font-size:3.4rem}.discover-feature h2{font-size:2.8rem}.discover-feature-photo,.discover-feature-photo img{min-height:280px;height:280px}}
 </style>
 <style>
-/* Discover's field-journal cover: a deliberate editorial composition, not decorative pseudo-data. */
-.discover-lead{grid-template-columns:minmax(0,1fr) minmax(400px,.88fr);align-items:center;gap:clamp(35px,5vw,95px);padding-top:65px;padding-bottom:65px;min-height:640px}
-.discover-lead-copy{min-width:0;position:relative;z-index:2}
-.discover-lead h1{font-size:clamp(3.8rem,5.4vw,6.6rem);max-width:750px}
-.discover-journal{position:relative;height:530px;min-width:0;isolation:isolate}
-.discover-journal-rule{position:absolute;top:3px;right:0;font:700 .63rem "IBM Plex Mono",monospace;letter-spacing:.14em;color:#c8d99b;border-bottom:1px solid #6c8d70;padding-bottom:10px}
-.discover-journal-primary{position:absolute;top:35px;right:0;width:72%;height:390px;margin:0;background:#294d38;box-shadow:0 18px 36px #001a124d;transform:rotate(2deg);z-index:1}
-.discover-journal-primary img,.discover-journal-detail img{width:100%;height:100%;object-fit:cover;display:block}
-.discover-journal-primary img{object-position:center 50%}
-.discover-journal-primary figcaption{position:absolute;bottom:0;left:0;right:0;background:#e9ebd8;color:#244735;padding:9px 13px;font:700 .64rem "IBM Plex Mono",monospace;letter-spacing:.06em}
-.discover-journal-detail{position:absolute;top:145px;left:0;width:46%;height:265px;margin:0;background:#37523e;border:8px solid #f3f0df;box-shadow:0 16px 32px #001a1260;transform:rotate(-7deg);z-index:2}
-.discover-journal-detail img{height:calc(100% - 25px);object-position:center}
-.discover-journal-detail figcaption{height:25px;padding:6px 3px 0;font:700 .55rem "IBM Plex Mono",monospace;letter-spacing:.03em;color:#284737;background:#f3f0df}
-.discover-journal-note{position:absolute;right:4%;bottom:5px;width:66%;background:#e6e9ce;color:#173d2f;padding:20px 24px 19px;box-shadow:0 12px 30px #001a1240;transform:rotate(-2deg);z-index:3;border-left:4px solid #c4d56b}
-.discover-journal-note-label,.discover-journal-note-foot{font:700 .58rem "IBM Plex Mono",monospace;letter-spacing:.11em;color:#537150}
-.discover-journal-note p{font:600 clamp(1.35rem,1.9vw,1.9rem)/1.14 "Source Serif 4",Georgia,serif;margin:12px 0 14px}
-.discover-journal-note p em{color:#567d47}
-.discover-journal-index a{color:inherit;text-underline-offset:2px}.discover-journal-index{position:absolute;bottom:0;left:0;color:#b4cba8;font:600 .55rem "IBM Plex Mono",monospace;letter-spacing:.09em}
-@media(max-width:1100px){.discover-lead{grid-template-columns:minmax(0,1fr) minmax(310px,.9fr);gap:25px;min-height:0}.discover-journal{height:450px}.discover-journal-primary{height:335px}.discover-journal-detail{top:130px;height:225px}.discover-journal-note{width:72%;padding:16px}.discover-lead h1{font-size:clamp(3.3rem,5.2vw,5rem)}}
-@media(max-width:850px){.discover-lead{grid-template-columns:1fr;gap:30px;padding:44px 25px 55px}.discover-lead h1{font-size:clamp(3.6rem,9vw,5.5rem)}.discover-journal{height:460px;max-width:610px;width:100%;margin:0 auto}.discover-journal-primary{height:345px}.discover-journal-detail{height:235px}.discover-journal-note{width:60%}}
-@media(max-width:480px){.discover-lead h1{font-size:3.4rem}.discover-journal{height:355px}.discover-journal-primary{top:25px;height:255px;width:75%}.discover-journal-detail{top:95px;height:178px;width:49%;border-width:5px}.discover-journal-detail figcaption{font-size:.45rem}.discover-journal-note{width:70%;bottom:12px;padding:11px 13px}.discover-journal-note p{font-size:1.2rem;margin:8px 0}.discover-journal-note-label,.discover-journal-note-foot{font-size:.48rem}.discover-journal-index{font-size:.46rem}}
-@media(prefers-reduced-motion:reduce){.discover-feature-photo img{transition:none}}
+.discover-lead{grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:clamp(25px,4vw,65px);align-items:center;min-height:0;padding-top:50px;padding-bottom:52px}
+.discover-lead-copy{min-width:0}
+.discover-lead h1{font-size:clamp(3.8rem,5.1vw,6.2rem);max-width:800px}
+.discover-visual{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,.8fr);grid-template-rows:220px 220px auto;gap:12px;min-width:0}
+.discover-visual figure{margin:0;min-width:0;position:relative;overflow:hidden;background:#315542}
+.discover-visual img{display:block;width:100%;height:100%;object-fit:cover}
+.discover-visual-main{grid-row:1 / 3;grid-column:1}
+.discover-visual-main img{object-position:center center}
+.discover-visual-field{grid-row:1;grid-column:2}
+.discover-visual-people{grid-row:2;grid-column:2}
+.discover-visual figcaption{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;gap:8px;background:linear-gradient(transparent,#0d2b21dc);color:#f1f4e6;padding:26px 12px 11px;font:700 .59rem "IBM Plex Mono",monospace;letter-spacing:.08em}
+.discover-visual-caption{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:20px;border-top:1px solid #6b8978;padding-top:13px;color:#d6e4cf}
+.discover-visual-marker{white-space:nowrap;color:#d8eb9a;font:700 .61rem "IBM Plex Mono",monospace;letter-spacing:.1em}
+.discover-visual-caption p{margin:0;font:500 1.1rem/1.35 "Source Serif 4",Georgia,serif;text-align:right}
+@media(max-width:1100px){.discover-lead{gap:26px}.discover-visual{grid-template-rows:170px 170px auto}.discover-lead h1{font-size:clamp(3.5rem,5vw,5.3rem)}}
+@media(max-width:850px){.discover-lead{grid-template-columns:1fr;padding:42px 25px 48px;gap:28px}.discover-visual{max-width:750px;width:100%;grid-template-rows:210px 210px auto}.discover-lead h1{font-size:clamp(3.6rem,8vw,5.6rem)}}
+@media(max-width:480px){.discover-lead h1{font-size:3.3rem}.discover-visual{grid-template-rows:155px 155px auto;gap:7px}.discover-visual figcaption{font-size:.48rem;padding:20px 7px 7px}.discover-visual-caption{display:block}.discover-visual-caption p{text-align:left;margin-top:6px}}
 </style>

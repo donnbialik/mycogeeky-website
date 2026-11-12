@@ -14,6 +14,7 @@
 // Tests only: ACCESS_TEST_JWKS (public keys used instead of the Access team's) together with ALLOW_TEST_KEYS='1'.
 import { MIGRATIONS } from './schema.js';
 import { CONTRACT, FILES, validateManifest, canonical, sha256 } from '../contract/release.js';
+import { SUPPLEMENT_CONTRACT, validateSupplement, citationsOf, CITATION } from '../contract/supplement.js';
 
 const DECISIONS = ['accept name', 'other name', 'reject as reference', 'unresolved'];
 const VOUCHER = ['yes', 'no', 'unknown'];
@@ -106,7 +107,8 @@ export function adjudicate(formal) {
 }
 const publicReview = r => ({ id: r.id, reviewer: r.display_name, mode: r.mode, decision: r.decision, name_after_review: r.name_after_review,
   voucher_confirmed: r.voucher_confirmed, identification_basis: r.identification_basis, boundary_interval: r.boundary_interval && JSON.parse(r.boundary_interval),
-  notes: r.notes, supporting_references: r.supporting_references, evidence_sha256: r.evidence_sha256, supersedes: r.supersedes, created_at: r.created_at });
+  notes: r.notes, supporting_references: r.supporting_references, evidence_sha256: r.evidence_sha256, supersedes: r.supersedes, created_at: r.created_at,
+  supplement_sha256: r.supplement_sha256 ?? null, cited: r.cited ? JSON.parse(r.cited) : [] });
 
 function validateReview(b, c) {
   const e = [];
@@ -157,6 +159,36 @@ async function importRelease(env, me, b) {
   st.push(await auditStmt(env, me.email, 'import release', manifest.release, { manifest_sha256: await sha256(b.manifest_text), files: digests }));
   await env.DB.batch(st);                                // one transaction: all or nothing
   return json({ imported: true, release: manifest.release, files_sha256: digests, cases: cases.length }, 201);
+}
+
+// ---------------------------------------------------------------- supplements (bre-supplement/1)
+async function importSupplement(env, me, b) {
+  const text = b && b.supplement_text;
+  if (typeof text !== 'string' || !text.length) return err(400, 'supplement_text is missing');
+  let s; try { s = JSON.parse(text); } catch { return err(400, 'the supplement is not valid JSON'); }
+  const rel = s && typeof s.release === 'string' ? await env.DB.prepare('SELECT manifest_json FROM releases WHERE id = ?').bind(s.release).first() : null;
+  if (!rel) return err(400, 'the supplement was not imported', [`release "${String(s && s.release)}" has not been imported`]);
+  const errors = validateSupplement(s, JSON.parse(rel.manifest_json));
+  const ids = Object.keys(s.cases || {});
+  const known = new Set((await env.DB.prepare('SELECT id FROM review_cases WHERE release_id = ?').bind(s.release).all()).results.map(r => r.id));
+  for (const id of ids) if (!known.has(id)) errors.push(`case ${id} is not a review case of release ${s.release}`);
+  const rows = ids.map(id => [id, canonical(s.cases[id])]);
+  for (const [id, t] of rows) if (new TextEncoder().encode(t).length > 1900000) errors.push(`case ${id}: its supplement entry is too large for one database row`);
+  if (errors.length) return err(400, 'the supplement was not imported', errors);
+  const digest = await sha256(text);
+  if (await env.DB.prepare('SELECT id FROM supplements WHERE id = ? OR sha256 = ?').bind(s.supplement, digest).first()) return err(409, `supplement ${s.supplement} already exists; supplements are immutable`);
+  const { cases, ...header } = s;
+  const st = [env.DB.prepare('INSERT INTO supplements (id, release_id, kind, contract, header_json, sha256, bytes, imported_at, imported_by) VALUES (?,?,?,?,?,?,?,?,?)')
+    .bind(s.supplement, s.release, s.kind, SUPPLEMENT_CONTRACT, canonical(header), digest, new TextEncoder().encode(text).length, now(), me.email)];
+  for (const [id, t] of rows) st.push(env.DB.prepare('INSERT INTO supplement_cases (supplement_id, case_id, content_json) VALUES (?,?,?)').bind(s.supplement, id, t));
+  st.push(await auditStmt(env, me.email, 'import supplement', s.supplement, { sha256: digest, release: s.release, cases: ids.length }));
+  await env.DB.batch(st);                                // one transaction: all or nothing
+  return json({ imported: true, supplement: s.supplement, sha256: digest, cases: ids.length }, 201);
+}
+async function supplementsFor(env, caseId) {
+  const rows = (await env.DB.prepare(`SELECT s.id, s.kind, s.header_json, s.sha256, s.imported_at, c.content_json FROM supplement_cases c
+      JOIN supplements s ON s.id = c.supplement_id WHERE c.case_id = ? ORDER BY s.imported_at`).bind(caseId).all()).results;
+  return rows.map(r => ({ id: r.id, kind: r.kind, sha256: r.sha256, imported_at: r.imported_at, header: JSON.parse(r.header_json), entry: JSON.parse(r.content_json) }));
 }
 
 async function releaseList(env) {
@@ -243,7 +275,8 @@ export async function onRequest(context) {
       return json({ case: meta, evidence: JSON.parse(evidence_json), adjudication: adjudicate(cur.filter(r => r.mode === 'formal')),
         my_reviews: mine.map(publicReview), others: show ? all.filter(r => r.reviewer_id !== me.id).map(publicReview) : null, others_hidden: !show,
         others_count: new Set(all.filter(r => r.reviewer_id !== me.id).map(r => r.reviewer_id)).size,
-        acceptances: (await env.DB.prepare('SELECT id, target_release, decision, name_accepted, created_at FROM acceptances WHERE case_id = ?').bind(c.id).all()).results });
+        acceptances: (await env.DB.prepare('SELECT id, target_release, decision, name_accepted, created_at FROM acceptances WHERE case_id = ?').bind(c.id).all()).results,
+        supplements: await supplementsFor(env, c.id) });
     }
     if (M === 'POST' && parts[0] === 'reviews' && parts.length === 1) {
       if (me.role === 'observer') return err(403, 'observers cannot submit reviews');
@@ -259,12 +292,25 @@ export async function onRequest(context) {
         else if (prev.superseded_by) errors.push('that review has already been superseded');
         else if (prev.mode === 'formal' && mode === 'test') errors.push('a formal review cannot be superseded by a test review');
       }
+      // Corroborators cited from a supplement must exist in that supplement's entry for this case.
+      let cited = null;
+      if (b.supplement_sha256 != null || (Array.isArray(b.cited) && b.cited.length)) {
+        const sup = b.supplement_sha256 == null ? null : await env.DB.prepare(`SELECT c.content_json FROM supplements s JOIN supplement_cases c ON c.supplement_id = s.id
+            WHERE s.sha256 = ? AND c.case_id = ?`).bind(String(b.supplement_sha256), c.id).first();
+        if (!sup) errors.push('supplement_sha256 does not name a supplement of this case');
+        else {
+          const ok = new Set(citationsOf(JSON.parse(sup.content_json))); const xs = Array.isArray(b.cited) ? b.cited : [];
+          if (xs.length > 200) errors.push('cite at most 200 corroborators');
+          for (const x of xs.slice(0, 200)) if (typeof x !== 'string' || !CITATION.test(x) || !ok.has(x)) errors.push(`cited "${String(x).slice(0, 40)}" is not a corroborator of this case in that supplement`);
+          cited = JSON.stringify([...new Set(xs)].sort());
+        }
+      }
       if (errors.length) return err(400, 'the review was not saved', errors);
       const r = await env.DB.prepare(`INSERT INTO reviews (case_id, reviewer_id, mode, decision, name_after_review, voucher_confirmed, identification_basis,
-          boundary_interval, notes, supporting_references, evidence_sha256, supersedes, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`)
+          boundary_interval, notes, supporting_references, evidence_sha256, supersedes, created_at, supplement_sha256, cited) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id`)
         .bind(c.id, me.id, mode, b.decision, b.decision === 'other name' ? String(b.name_after_review).trim() : null, b.voucher_confirmed, String(b.identification_basis).trim(),
           b.boundary_interval != null ? JSON.stringify(b.boundary_interval) : null, String(b.notes).trim(), String(b.supporting_references || '').trim() || null,
-          b.evidence_sha256, b.supersedes ?? null, now()).first();
+          b.evidence_sha256, b.supersedes ?? null, now(), b.supplement_sha256 == null ? null : String(b.supplement_sha256), cited).first();
       await audit(env, me.email, mode === 'formal' ? 'submit formal review' : 'submit test review', c.id, { review_id: r.id, ...b });
       return json({ saved: true, review_id: r.id, mode }, 201);
     }
@@ -272,6 +318,7 @@ export async function onRequest(context) {
     // ---- owner only
     if (me.role !== 'owner') return err(403, 'only the owner can do this');
     if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'releases') return importRelease(env, me, await request.json());
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'supplements') return importSupplement(env, me, await request.json());
     if (M === 'POST' && parts[0] === 'acceptances') {
       const b = await request.json();
       const c = await env.DB.prepare('SELECT id, release_id, priority FROM review_cases WHERE id = ?').bind(b.case_id).first();

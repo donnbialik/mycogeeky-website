@@ -104,4 +104,30 @@ export const MIGRATIONS = [
          BEGIN SELECT RAISE(ABORT, 'a formal review cannot be superseded by a test review'); END`,
     ],
   },
+  {
+    // Corroboration supplements (contract bre-supplement/1): hash-pinned, immutable additions to a release. A review
+    // records which supplement it was written against and which corroborators it cites.
+    id: '0002_supplements',
+    statements: [
+      `CREATE TABLE supplements (
+         id TEXT PRIMARY KEY,
+         release_id TEXT NOT NULL REFERENCES releases(id),
+         kind TEXT NOT NULL,
+         contract TEXT NOT NULL,
+         header_json TEXT NOT NULL,
+         sha256 TEXT NOT NULL UNIQUE,
+         bytes INTEGER NOT NULL,
+         imported_at TEXT NOT NULL,
+         imported_by TEXT NOT NULL)`,
+      `CREATE TABLE supplement_cases (
+         supplement_id TEXT NOT NULL REFERENCES supplements(id),
+         case_id TEXT NOT NULL REFERENCES review_cases(id),
+         content_json TEXT NOT NULL,
+         PRIMARY KEY (supplement_id, case_id))`,
+      `ALTER TABLE reviews ADD COLUMN supplement_sha256 TEXT`,
+      `ALTER TABLE reviews ADD COLUMN cited TEXT`,
+      ...noChange('supplements', 'supplements are immutable'),
+      ...noChange('supplement_cases', 'supplements are immutable'),
+    ],
+  },
 ];

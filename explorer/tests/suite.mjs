@@ -3,7 +3,7 @@
 //   e2e.mjs        over HTTP against the real Cloudflare runtime (wrangler pages dev: workerd + local D1)
 // `req(method, path, {token, body, origin, contentType})` -> {status, body, text, headers}.
 import assert from 'node:assert/strict';
-import { syntheticRelease } from './fixture.mjs';
+import { syntheticRelease, syntheticSupplement } from './fixture.mjs';
 
 export const OWNER = 'owner@example.org', R1 = 'r1@example.org', R2 = 'r2@example.org', OBS = 'observer@example.org';
 
@@ -42,7 +42,7 @@ export function suite(test, ctx) {
   });
   test('owner applies the schema once; it is recorded and audited', async () => {
     const m = await as(OWNER, 'POST', 'admin/migrate', {});
-    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1']);
+    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements']);
     assert.deepEqual((await as(OWNER, 'POST', 'admin/migrate', {})).body.applied, []);
     assert.ok((await as(OWNER, 'GET', 'admin/status')).body.migrations.every(x => x.applied && !x.changed_since_applied));
   });
@@ -121,6 +121,38 @@ export function suite(test, ctx) {
     const ok = await as(OWNER, 'POST', 'acceptances', { case_id: A2, target_release: 'synthetic-v2' }); assert.equal(ok.status, 201);
     const f = await as(R1, 'GET', 'releases/synthetic-v1/records.json'); assert.equal(f.text, REL.records_text, 'the current release is unchanged');
   });
+  test('supplement import: owner only; refused with location fields, wrong release hashes or unknown cases', async () => {
+    const S = syntheticSupplement(REL);
+    assert.equal((await as(R1, 'POST', 'admin/supplements', { supplement_text: S.text })).status, 403);
+    const loc = JSON.parse(S.text); loc.cases[A].inaturalist[0].location = '45.1,-89.2';
+    const r1 = await as(OWNER, 'POST', 'admin/supplements', { supplement_text: JSON.stringify(loc) }); assert.equal(r1.status, 400); assert.match(r1.body.detail.join(' '), /location fields/);
+    const geo = JSON.parse(S.text); geo.cases[A].inaturalist[0].geojson = { coordinates: [1, 2] };
+    assert.equal((await as(OWNER, 'POST', 'admin/supplements', { supplement_text: JSON.stringify(geo) })).status, 400);
+    const other = syntheticSupplement(REL, { release_files_sha256: { 'records.json': '0'.repeat(64), 'cases.json': '0'.repeat(64) } });
+    const r2 = await as(OWNER, 'POST', 'admin/supplements', { supplement_text: other.text }); assert.equal(r2.status, 400); assert.match(r2.body.detail.join(' '), /different evidence/);
+    const bad = JSON.parse(S.text); bad.cases['A-NOPE.1'] = bad.cases[A];
+    assert.equal((await as(OWNER, 'POST', 'admin/supplements', { supplement_text: JSON.stringify(bad) })).status, 400);
+    const ph = JSON.parse(S.text); ph.cases[A].inaturalist[0].photos[0].url = 'https://evil.example/x.jpg';
+    assert.equal((await as(OWNER, 'POST', 'admin/supplements', { supplement_text: JSON.stringify(ph) })).status, 400, 'photos only from iNaturalist hosts');
+  });
+  test('supplement import: accepted once, pinned by hash, shown with the case, immutable', async () => {
+    const S = syntheticSupplement(REL);
+    const r = await as(OWNER, 'POST', 'admin/supplements', { supplement_text: S.text }); assert.equal(r.status, 201, JSON.stringify(r.body));
+    assert.equal((await as(OWNER, 'POST', 'admin/supplements', { supplement_text: S.text })).status, 409);
+    const v = await as(R1, 'GET', 'cases/' + A); assert.equal(v.body.supplements.length, 1);
+    assert.equal(v.body.supplements[0].sha256, r.body.sha256); assert.equal(v.body.supplements[0].entry.inaturalist.length, 2);
+    assert.equal(v.body.supplements[0].header.cases, undefined);
+    assert.equal((await as(R1, 'GET', 'cases/' + B)).body.supplements.length, 0);
+  });
+  test('reviews cite corroborators only from the case supplement; citations are stored', async () => {
+    const v = await as(R2, 'GET', 'cases/' + A); const sh = v.body.supplements[0].sha256; const h = v.body.case.evidence_sha256;
+    const bad = await as(R2, 'POST', 'reviews', review(A, h, { supplement_sha256: sh, cited: ['iNaturalist 123', 'GenBank TEST0002.1'] }));
+    assert.equal(bad.status, 400); assert.match(bad.body.detail.join(' '), /not a corroborator/);
+    assert.equal((await as(R2, 'POST', 'reviews', review(A, h, { supplement_sha256: 'f'.repeat(64), cited: [] }))).status, 400);
+    const ok = await as(R2, 'POST', 'reviews', review(A, h, { supplement_sha256: sh, cited: ['iNaturalist 9000001', 'GenBank TEST0002.1'] })); assert.equal(ok.status, 201);
+    const mine = (await as(R2, 'GET', 'cases/' + A)).body.my_reviews.at(-1);
+    assert.deepEqual(mine.cited, ['GenBank TEST0002.1', 'iNaturalist 9000001']); assert.equal(mine.supplement_sha256, sh);
+  });
   test('a formal review cannot be superseded by a test review', async () => {
     const v = await as(R1, 'GET', 'cases/' + A2); const mine = v.body.my_reviews.at(-1);
     assert.equal((await as(R1, 'POST', 'reviews', review(A2, mine.evidence_sha256, { supersedes: mine.id }))).status, 400);
@@ -132,7 +164,8 @@ export function suite(test, ctx) {
   });
   if (ctx.db) test('the database itself refuses edits and deletes of evidence, reviews and the audit log', async () => {
     for (const sql of ["UPDATE reviews SET decision = 'accept name'", 'DELETE FROM reviews', 'DELETE FROM audit_events', "UPDATE release_files SET content = 'x'",
-      'DELETE FROM releases', "UPDATE review_cases SET priority = 'C'", 'DELETE FROM acceptances', 'DELETE FROM schema_migrations'])
+      'DELETE FROM releases', "UPDATE review_cases SET priority = 'C'", 'DELETE FROM acceptances', 'DELETE FROM schema_migrations',
+      "UPDATE supplement_cases SET content_json = '{}'", 'DELETE FROM supplements'])
       await assert.rejects(ctx.db(sql), undefined, sql);
   });
 }

@@ -1,6 +1,7 @@
 // Client code of the Explorer admin page (a data-free shell; evidence comes only from the authenticated API).
 import { api, apiText, post, esc, $, whoami, releaseStrip, showError } from './common.js';
 import { validateManifest, validateEvidence, sha256 } from '../../../explorer/contract/release.js';
+import { validateSupplement } from '../../../explorer/contract/supplement.js';
 const say = (id, cls, html) => { $(id).className = 'xp-msg ' + cls; $(id).innerHTML = html; };
 const list = xs => '<ul>' + xs.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';
 let files = null;
@@ -47,6 +48,24 @@ $('check').addEventListener('click', async () => {
 $('import').addEventListener('click', async () => {
   try { $('import').disabled = true; const r = await post('admin/releases', files); say('impmsg', 'ok', `Imported <strong>${esc(r.release)}</strong> (${r.cases} review cases).`); await loadAll(); }
   catch (e) { say('impmsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
+});
+let supp = null;
+$('scheck').addEventListener('click', async () => {
+  $('simport').disabled = true; supp = null;
+  try {
+    const f = $('f-supp').files[0]; if (!f) throw new Error('choose the supplement file');
+    const text = await f.text(); const s = JSON.parse(text);
+    const { releases } = await api('releases'); const rel = releases.find(r => r.id === s.release);
+    const errs = rel ? validateSupplement(s, rel.manifest) : [`release "${s.release}" has not been imported yet`];
+    if (errs.length) return say('smsg', 'bad', '<strong>This supplement cannot be imported.</strong>' + list(errs));
+    supp = text; const n = Object.keys(s.cases).length; const m = s.method || {};
+    say('smsg', 'ok', `<strong>${esc(s.supplement)}</strong> for ${esc(s.release)}: ${n} cases; ${m.inat_observations_with_its} iNaturalist observations searched; SHA-256 ${(await sha256(text)).slice(0, 12)}…; matches the release's pinned hashes; no location fields.`);
+    $('simport').disabled = false;
+  } catch (e) { say('smsg', 'bad', esc(e.message)); }
+});
+$('simport').addEventListener('click', async () => {
+  try { $('simport').disabled = true; const r = await post('admin/supplements', { supplement_text: supp }); say('smsg', 'ok', `Imported <strong>${esc(r.supplement)}</strong> (${r.cases} cases, SHA-256 ${esc(r.sha256.slice(0, 12))}…).`); await loadAll(); }
+  catch (e) { say('smsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
 });
 $('r-add').addEventListener('click', async () => {
   try { await post('reviewers', { email: $('r-email').value, display_name: $('r-name').value, role: $('r-role').value }); say('rmsg', 'ok', 'Added.'); await loadAll(); }

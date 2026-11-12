@@ -9,6 +9,14 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
   <div class="xp-grid">
     <div>
       <section class="xp-panel"><h2>Identity and provenance</h2><dl class="xp-kv" id="prov"></dl></section>
+      <section class="xp-panel" id="corr" hidden><h2>Independent corroboration</h2>
+        <p class="muted small" id="corrHead"></p>
+        <div class="xp-msg info small"><strong>Leads to weigh, not verdicts.</strong> Each entry has an ITS sequence matching this case's within the stated distance. A match filed under the same name is only independent if its name came from the organism (photos, microscopy, a voucher) rather than from the DNA. Research grade is community agreement, not expert verification. Compare the photographs with the published description of the deposited species yourself.</div>
+        <p id="corrSum"></p>
+        <div class="xp-tabs" role="tablist" id="corrTabs"></div>
+        <figure class="xp-viewer" id="viewer" hidden><img id="viewerImg" alt="" referrerpolicy="no-referrer" /><figcaption id="viewerCap" class="small"></figcaption></figure>
+        <div id="corrBody"></div>
+      </section>
       <section class="xp-panel"><h2>Sequence and regions</h2><div class="xp-seq" id="seq"></div>
         <div class="xp-legend"><span style="--c:#dbe8d2">ITS1</span><span style="--c:#f3e3c8">5.8S</span><span style="--c:#d6e1ea">ITS2</span><span style="--c:transparent;outline:1px dashed var(--amber)">reference-inferred end (reference-anchored tier)</span><span style="--c:#eceae4">outside the regions</span></div>
         <div class="xp-scroll" style="margin-top:12px"><table><thead><tr><th>Region</th><th>Primary tier</th><th>Reference-anchored tier</th></tr></thead><tbody id="regions"></tbody></table></div></section>
@@ -27,6 +35,7 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
           <label for="identification_basis">What the name rests on <span class="xp-hint">morphology, host, region, sequence matching, type comparison; who identified it</span></label><textarea id="identification_basis" required></textarea>
           <label for="notes">Evidence and reasoning <span class="xp-hint">required; say how you weighed each flag</span></label><textarea id="notes" required></textarea>
           <label for="supporting_references">Supporting references <span class="xp-hint">DOIs, URLs, catalogue numbers</span></label><input type="text" id="supporting_references" />
+          <p class="muted small" id="citedNote">Corroborators you cite from the panel are saved with the review.</p>
           <fieldset class="xp-mode" style="border:0;padding:0"><legend class="sr-only">Review mode</legend>
             <label><input type="radio" name="mode" value="test" checked /> Test review</label>
             <label><input type="radio" name="mode" value="formal" id="formalRadio" /> Formal review</label></fieldset>

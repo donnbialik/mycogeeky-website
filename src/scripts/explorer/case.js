@@ -1,5 +1,6 @@
 // Client code of the Explorer case page (a data-free shell; evidence comes only from the authenticated API).
 import { api, post, esc, $, outcome, whoami, releaseStrip, latestRelease, showError } from './common.js';
+import { LINK_HOSTS, PHOTO_HOSTS } from '../../../explorer/contract/supplement.js';
 const id = new URLSearchParams(location.search).get('id');
 let view;
 const fmt = v => v == null || v === '' ? '<span class="muted">not recorded</span>' : esc(v);
@@ -48,6 +49,62 @@ function render(c) {
     ['Note', 'A barcode gap describes this reference set. It is not a species boundary or an identification threshold.']]
     .map(([k, v]) => `<dt>${k}</dt><dd>${k === 'Note' ? esc(v) : fmt(v)}</dd>`).join('');
 }
+// ---------------------------------------------------------------- independent corroboration (bre-supplement/1)
+const cited = new Set(); let sup = null, tab = 'same', showAll = false;
+const link = (u, t) => LINK_HOSTS.test(String(u || '')) ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(t ?? u)}</a>` : esc(t ?? u);
+const valOrLink = v => /^https:\/\//.test(String(v)) ? link(v, String(v).replace(/^https:\/\/(www\.)?/, '').slice(0, 48) + (String(v).length > 60 ? '…' : '')) : esc(v);
+const circ = c => c.startsWith('likely') ? ['agree', 'species ID at posting'] : c.startsWith('possibly') ? ['minor', 'species ID added later'] : ['na', 'no species ID'];
+function inatCard(o) {
+  const key = `iNaturalist ${o.id}`; const [cc, cl] = circ(o.circularity);
+  const photos = (o.photos || []).filter(p => PHOTO_HOSTS.test(p.url));
+  const ids = (o.identifications || []).map(i => `<li>${esc(i.on)} · <em>${esc(i.name)}</em> (${esc(i.rank)}) by ${esc(i.by)}${i.current === false ? ' · withdrawn' : ''}${i.category ? ' · ' + esc(i.category) : ''}</li>`).join('');
+  const f = Object.entries(o.fields || {}).map(([k, v]) => `<div><span class="muted">${esc(k)}:</span> ${valOrLink(v)}</div>`).join('');
+  return `<article class="xp-card${cited.has(key) ? ' cited' : ''}">
+    ${photos.length ? `<div class="xp-thumbs">${photos.slice(0, 3).map((p, i) => `<button type="button" data-photo="${esc(p.url)}" data-cap="${esc(`${p.attribution} · ${p.license || 'licence not stated'} · observation ${o.id}`)}" aria-label="Enlarge photo ${i + 1} of observation ${o.id}"><img loading="lazy" referrerpolicy="no-referrer" src="${esc(p.url)}" alt="Photo ${i + 1} of iNaturalist observation ${o.id}, ${esc(p.attribution)}" /></button>`).join('')}</div>` : '<p class="muted small">No photos.</p>'}
+    <div><strong><em>${esc(o.name || 'unnamed')}</em></strong> · ${link(o.url, '#' + o.id)}</div>
+    <div class="row"><span class="pill ${o.quality_grade === 'research' ? 'rg' : 'na'}">${esc(o.quality_grade || 'grade unknown')}</span><span class="pill ${cc}" title="${esc(o.circularity)}">${esc(cl)}</span><span class="pill">${o.distance_pct} points</span></div>
+    <div class="muted small">Observed ${esc(o.observed_on || '?')} · posted ${esc(o.posted || '?')}${o.days_from_posting_to_species_id != null ? ` · species ID after ${o.days_from_posting_to_species_id} d` : ''} · ${esc(o.observer || '')} · ${o.photo_count} photo${o.photo_count === 1 ? '' : 's'}</div>
+    ${f ? `<div class="small" style="margin-top:6px">${f}</div>` : ''}
+    <details><summary>Identification timeline (${(o.identifications || []).length})</summary><ol class="small">${ids}</ol></details>
+    <label class="cite"><input type="checkbox" data-cite="${esc(key)}" ${cited.has(key) ? 'checked' : ''} /> Cite in my review</label></article>`;
+}
+function gbTable(rows) {
+  if (!rows.length) return '<p class="muted">No GenBank collection within the distance.</p>';
+  return `<div class="xp-scroll"><table><thead><tr><th>Cite</th><th>Accession</th><th>Name</th><th>Points</th><th>Independent</th><th>Voucher / culture</th><th>Identified by · date</th><th>Cross-links</th></tr></thead><tbody>${rows.map(g => {
+    const key = `GenBank ${g.accession}`;
+    return `<tr><td><input type="checkbox" data-cite="${esc(key)}" ${cited.has(key) ? 'checked' : ''} aria-label="Cite ${esc(g.accession)}" /></td>
+      <td>${link(`https://www.ncbi.nlm.nih.gov/nuccore/${g.accession}`, g.accession)}<div class="muted small">${esc(g.first_author || '')} ${esc(g.country || '')}</div></td>
+      <td><em>${esc(g.name)}</em>${g.same_name ? '' : ' <span class="pill conflict">other name</span>'}</td><td>${g.distance_pct}</td>
+      <td>${g.independent ? '<span class="pill agree">yes</span>' : `<span class="pill minor">no</span><div class="muted small">${esc(g.not_independent_because.join('; '))}</div>`}</td>
+      <td class="small">${esc(g.voucher || '')}${g.culture ? `<div>${esc(g.culture)}</div>` : ''}</td>
+      <td class="small">${esc(g.identified_by || '')}${g.collection_date ? ` · ${esc(g.collection_date)}` : ''}</td>
+      <td class="small">${(g.mushroom_observer || []).map(n => link(`https://mushroomobserver.org/${n}`, 'MO ' + n)).join(' ')} ${(g.inaturalist || []).map(n => link(`https://www.inaturalist.org/observations/${n}`, 'iNat ' + n)).join(' ')}</td></tr>`; }).join('')}</tbody></table></div>`;
+}
+function renderCorr() {
+  if (!sup) return;
+  const e = sup.entry, s = e.summary, h = sup.header, m = h.method || {};
+  const groups = { same: e.inaturalist.filter(o => o.same_name), other: e.inaturalist.filter(o => !o.same_name && o.species_level !== false && (o.name || '').split(' ').length > 1),
+    genus: e.inaturalist.filter(o => (o.name || '').split(' ').length < 2), gb: e.genbank };
+  const labels = { same: `iNaturalist, same name (${groups.same.length})`, other: `iNaturalist, other species (${groups.other.length})`, genus: `iNaturalist, genus only (${groups.genus.length})`, gb: `GenBank (${groups.gb.length})` };
+  $('corrHead').textContent = `Supplement ${sup.id} · SHA-256 ${sup.sha256.slice(0, 12)}… · sources retrieved ${String(h.created_utc).slice(0, 10)} · sequences within ${e.max_distance_pct} points of this case (full ITS; ${m.inat_observations_with_its} ${m.inat_genus} observations with an ITS field searched)`;
+  $('corrSum').innerHTML = `<strong>${s.genbank_independent_same_name}</strong> independent GenBank collections under the same name · <strong>${s.inat_same_name}</strong> iNaturalist observations under the same name (${s.inat_same_name_research_grade} research grade; ${s.inat_same_name_likely_named_before_sequencing} named at posting) · <strong>${s.inat_other_species ?? 0}</strong> under another species`
+    + (s.contradictions.length ? `<div class="xp-msg bad small"><strong>Same or near-identical ITS under another species name:</strong><ul>${s.contradictions.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '');
+  $('corrTabs').innerHTML = Object.entries(labels).map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === tab}">${esc(l)}</button>`).join('');
+  const rows = groups[tab]; const N = 24;
+  $('corrBody').innerHTML = tab === 'gb' ? gbTable(rows)
+    : rows.length ? `<div class="xp-cards">${(showAll ? rows : rows.slice(0, N)).map(inatCard).join('')}</div>${rows.length > N && !showAll ? `<button type="button" class="secondary" id="corrMore">Show all ${rows.length}</button>` : ''}`
+    : '<p class="muted">None.</p>';
+  $('citedNote').innerHTML = cited.size ? `Citing ${cited.size} corroborator${cited.size === 1 ? '' : 's'} from supplement ${esc(sup.id)}: ${[...cited].map(esc).join(', ')}` : 'Corroborators you cite from the panel are saved with the review.';
+}
+$('corrTabs').addEventListener('click', ev => { const t = ev.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; showAll = false; renderCorr(); } });
+$('corrBody').addEventListener('click', ev => {
+  if (ev.target.id === 'corrMore') { showAll = true; renderCorr(); return; }
+  const b = ev.target.closest('[data-photo]'); if (!b) return;
+  $('viewerImg').src = b.dataset.photo.replace('/small.', '/medium.'); $('viewerImg').alt = b.querySelector('img').alt; $('viewerCap').textContent = b.dataset.cap;
+  $('viewer').hidden = false; $('viewer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+$('corrBody').addEventListener('change', ev => { const k = ev.target.dataset && ev.target.dataset.cite; if (!k) return; ev.target.checked ? cited.add(k) : cited.delete(k); renderCorr(); });
+
 function renderReviews() {
   const a = view.adjudication;
   $('adj').innerHTML = `Outcome from formal reviews: <span class="pill">${esc(a.status)}</span> · ${a.formal_reviewers} formal reviewer${a.formal_reviewers === 1 ? '' : 's'}`;
@@ -55,7 +112,7 @@ function renderReviews() {
   $('hist').innerHTML = view.my_reviews.length ? view.my_reviews.slice().reverse().map(r => `<li class="${sup.has(r.id) ? 'sup' : ''}">
       <span class="pill ${r.mode}">${r.mode}</span> <strong>${esc(r.decision)}</strong>${r.name_after_review ? ' → <em>' + esc(r.name_after_review) + '</em>' : ''} · voucher ${esc(r.voucher_confirmed)}
       <div class="muted small">#${r.id} · ${esc(r.created_at)}${r.supersedes ? ' · corrects #' + r.supersedes : ''}${sup.has(r.id) ? ' · superseded' : ''}</div>
-      <div>${esc(r.notes)}</div></li>`).join('') : '<li class="muted">You have not reviewed this case yet.</li>';
+      <div>${esc(r.notes)}</div>${r.cited && r.cited.length ? `<div class="muted small">Cited: ${r.cited.map(esc).join(', ')}</div>` : ''}</li>`).join('') : '<li class="muted">You have not reviewed this case yet.</li>';
   $('others').innerHTML = view.others_hidden
     ? `<p class="muted small">${view.others_count} other reviewer${view.others_count === 1 ? ' has' : 's have'} reviewed this case. Their decisions stay hidden until you submit your own, so that reviews are independent.</p>`
     : (view.others.length ? '<h3>Other reviewers</h3><ul class="xp-history">' + view.others.map(r => `<li><span class="pill ${r.mode}">${r.mode}</span> <strong>${esc(r.reviewer)}</strong>: ${esc(r.decision)}${r.name_after_review ? ' → <em>' + esc(r.name_after_review) + '</em>' : ''}<div>${esc(r.notes)}</div></li>`).join('') + '</ul>' : '');
@@ -66,6 +123,8 @@ function renderReviews() {
 async function load() {
   const [me, rel, v] = await Promise.all([api('me'), latestRelease(), api('cases/' + encodeURIComponent(id))]);
   view = v; whoami(me); releaseStrip(rel); render(view.evidence);
+  sup = (view.supplements || []).filter(x => x.kind === 'corroboration').pop() || null;
+  if (sup) { $('corr').hidden = false; renderCorr(); }
   $('formalRadio').disabled = !me.formal_reviews_enabled;
   $('modeNote').textContent = me.formal_reviews_enabled
     ? 'Formal reviews count toward the case outcome. Nothing becomes an accepted reference until the owner accepts an agreed outcome into a future release.'
@@ -77,10 +136,11 @@ $('f').addEventListener('submit', async ev => {
   const sup = new Set(view.my_reviews.filter(r => r.supersedes).map(r => r.supersedes)); const current = view.my_reviews.filter(r => !sup.has(r.id)).pop();
   const body = { case_id: id, decision: g('decision'), name_after_review: g('name_after_review'), voucher_confirmed: g('voucher_confirmed'), identification_basis: g('identification_basis'),
     notes: g('notes'), supporting_references: g('supporting_references'), evidence_sha256: view.case.evidence_sha256,
-    mode: document.querySelector('input[name=mode]:checked').value, supersedes: current ? current.id : null };
+    mode: document.querySelector('input[name=mode]:checked').value, supersedes: current ? current.id : null,
+    ...(sup ? { supplement_sha256: sup.sha256, cited: [...cited] } : {}) };
   const m = $('msg');
   try { const r = await post('reviews', body);
-    m.className = 'xp-msg ok'; m.textContent = `Saved as ${r.mode} review #${r.review_id}.`; view = await api('cases/' + encodeURIComponent(id)); renderReviews(); ev.target.reset(); }
+    m.className = 'xp-msg ok'; m.textContent = `Saved as ${r.mode} review #${r.review_id}.`; view = await api('cases/' + encodeURIComponent(id)); renderReviews(); ev.target.reset(); cited.clear(); renderCorr(); }
   catch (e) { m.className = 'xp-msg bad'; m.innerHTML = '<strong>The review was not saved.</strong><ul>' + (e.detail || [e.message]).map(x => `<li>${esc(x)}</li>`).join('') + '</ul>'; }
 });
 load().catch(showError);

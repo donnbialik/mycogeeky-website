@@ -393,3 +393,14 @@
 @media(max-width:750px){.survey-block>.survey-why dl{display:block}.survey-block>.survey-why dt{margin-top:18px}}
 
 .survey-block>.survey-why dl{display:block;columns:2;column-gap:40px}.survey-block>.survey-why dt{break-after:avoid;break-inside:avoid;margin-top:18px}.survey-block>.survey-why dd{break-inside:avoid;margin-bottom:16px}@media(max-width:750px){.survey-block>.survey-why dl{columns:1}}
+
+/* Discovery Indicator: reserved for invitations to uncover evidence or reveal insight. */
+.mv-discovery-indicator{display:inline-grid;place-items:center;vertical-align:middle;position:relative;isolation:isolate;width:1.7em;height:1.7em;margin-inline-start:.5em;border:1.5px solid currentColor;border-radius:50%;font-size:.9em;line-height:1;flex:none;color:#d7eb83;background:#183e30;box-shadow:0 0 7px #d7eb8350;animation:mv-discovery-glow 3.6s ease-in-out infinite}
+.mv-discovery-indicator::after{content:'';position:absolute;inset:-4px;border:1px solid currentColor;border-radius:50%;opacity:0;pointer-events:none;animation:mv-discovery-ring 3.6s ease-out infinite}
+.mv-discovery-invite{display:inline-flex!important;align-items:center;justify-content:center;gap:.1em;flex-wrap:wrap}
+.mv-discovery-invite:hover .mv-discovery-indicator,.mv-discovery-invite:focus-visible .mv-discovery-indicator{background:#d7eb83;color:#153a2d;animation-play-state:paused}
+.mv-discovery-invite:focus-visible{outline:3px solid #d7eb83;outline-offset:4px}
+@keyframes mv-discovery-glow{0%,17%,70%,100%{box-shadow:0 0 7px #d7eb8340,0 0 14px #d7eb831a}35%,50%{box-shadow:0 0 12px 3px #d7eb83aa,0 0 24px 7px #d7eb8359,0 0 36px 10px #d7eb8322}}
+@keyframes mv-discovery-ring{0%,17%,70%,100%{opacity:0;transform:scale(1)}35%{opacity:.7;transform:scale(1.1)}62%{opacity:0;transform:scale(1.35)}}
+@media(prefers-reduced-motion:reduce){.mv-discovery-indicator,.mv-discovery-indicator::after{animation:none!important}.mv-discovery-indicator::after{display:none}}
+@media(max-width:760px){.mv-discovery-indicator{width:1.8em;height:1.8em;margin-inline-start:.4em}.mv-discovery-invite{max-width:100%;text-align:center}}

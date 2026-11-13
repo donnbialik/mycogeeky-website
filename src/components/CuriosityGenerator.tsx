@@ -18,7 +18,7 @@ export default function CuriosityGenerator() {
     <p className="curiosity-prompt">{activity.prompt}</p>
     {showInsight && <p className="curiosity-insight"><strong>The science behind it:</strong> {activity.insight}</p>}
     <div className="curiosity-controls">
-      <button type="button" className="button primary" onClick={() => setShowInsight(value => !value)} aria-expanded={showInsight}>{showInsight ? 'Hide the science' : 'Reveal the science'}</button>
+      <button type="button" className={`button primary ${showInsight ? "" : "mv-discovery-invite"}`} onClick={() => setShowInsight(value => !value)} aria-expanded={showInsight}>{showInsight ? 'Hide the science' : <>Reveal the science <span className="mv-discovery-indicator" aria-hidden="true">→</span></>}</button>
       <button type="button" className="button outline" onClick={() => {setIndex(i => (i + 1) % activities.length); setShowInsight(false);}}>Another mystery</button>
     </div>
     <p className="curiosity-disclaimer">No grades. No scores. Just a new way to notice.</p>

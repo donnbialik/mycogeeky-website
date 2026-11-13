@@ -52,7 +52,7 @@ const paths=[
 
   <section class="mv-host-section" aria-labelledby="mv-host-title">
     <div class="mv-host-inner">
-      <div class="mv-host-image"><Image src={connect} alt="Naturalists gathered in the forest, examining a discovery together" widths={[560,900]} sizes="(max-width: 760px) 100vw, 45vw" loading="lazy"/><span>REAL PEOPLE. SHARED QUESTIONS.</span></div>
+      <div class="mv-host-image"><img src="/images/field-photography/mycogeeky-field-curiosity.jpg" alt="MycoGeeky in the field, excitedly comparing two wild mushrooms" loading="lazy" decoding="async" width="1080" height="1440"/><span>STAY CURIOUS. STAY CULTIVATING.</span></div>
       <div class="mv-host-copy"><p class="mv-kicker">MEET YOUR GUIDE</p><h2 id="mv-host-title">Hi, I'm MycoGeeky.</h2><p class="mv-host-quote">I spend an unreasonable amount of time asking questions about fungi, chasing mushrooms through forests, and talking to people who know considerably more than I do.</p><p>This is where I share what we're discovering, build tools to help us investigate, and invite you to join the adventure. The best part isn't collecting answers. It's finding people worth asking questions with.</p><div class="mv-host-links"><a class="mv-inline-link" href="/about/">Get to know your guide →</a><a class="mv-inline-link" href="/connect/">Find your people →</a></div></div>
     </div>
   </section>
@@ -72,3 +72,12 @@ const paths=[
   </section>
 </div>
 </Base>
+<style is:global>
+/* Homepage guide portrait: preserve the expression and both mushrooms instead of clipping into a landscape strip. */
+.mv-home .mv-host-inner { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); align-items:center; }
+.mv-home .mv-host-image img { width:100%; height:clamp(460px, 43vw, 600px); object-fit:cover; object-position:50% 47%; }
+@media (max-width:760px) {
+  .mv-home .mv-host-inner {grid-template-columns:1fr;}
+  .mv-home .mv-host-image img {height:clamp(390px, 110vw, 580px);object-position:50% 42%;}
+}
+</style>

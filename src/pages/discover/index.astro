@@ -8,7 +8,26 @@ import connect from '../../assets/pathways/connect.jpg';
 <Base title="Discover"><div class="station-page">
 <section class="station-hero station-hero-split"><div class="station-hero-copy"><p class="eyebrow">DISCOVER / FIELD NOTES & STORIES</p><h1>The forest has <em>questions.</em></h1><p class="lead">Strange finds, beautiful fungi, memorable conversations, and the people who make the search worthwhile.</p><div class="station-actions"><a class="station-button" href="#discover-stories">Explore stories ↓</a><a class="station-text-link" href="/investigate/learn/">My path into research →</a></div></div><Image src={explore} alt="Landscape encountered on a field adventure" widths={[500,850]} sizes="(max-width:760px) 100vw,48vw"/></section>
 <section class="station-content" id="discover-stories"><div class="station-section-head"><h2>STORIES WORTH FOLLOWING</h2><span>PEOPLE / PLACES / QUESTIONS</span></div><div class="station-editorial-grid">
-<a class="station-editorial-card" href="/investigate/learn/#my-inat"><img src="/images/field-photography/field-specimen-color-reference.jpg" alt="Wild mushroom with field measurement scale and color reference card" loading="lazy" decoding="async" style="height:290px;object-fit:cover;object-position:center;"/><span class="station-card-body"><small>FIELD TO LAB</small><strong>From an observation to a research question</strong><span>How field notes, sequences, and collaborators change what we think we know.</span><b>Read the story →</b></span></a>
-<a class="station-editorial-card" href="/about/"><img src="/images/field-photography/mycoview-curiosity-in-action.jpg" alt="Naturalists working together to examine a specimen" loading="lazy" decoding="async" style="height:290px;object-fit:cover;object-position:center 44%;"/><span class="station-card-body"><small>THE MYCOVIEW / VIDEO & DISCOVERY</small><strong>From curiosity to confidence.</strong><span>Follow the questions, explore the evidence, and discover how much more there is to learn about fungi—together.</span><b>Explore The MycoView →</b></span></a>
-<a class="station-editorial-card" href="/learn/"><img src="/images/field-photography/young-mycologist-oyster-harvest.jpg" alt="Young grower displaying a large oyster mushroom harvest" loading="lazy" decoding="async" style="height:290px;object-fit:cover;object-position:center 42%;"/><span class="station-card-body"><small>CULTIVATION / GROW &amp; EXPERIMENT</small><strong>Grow something. Learn something.</strong><span>Discover how growing mushrooms opens a window into fungal biology, experimentation, and the extraordinary ways fungi respond to their environment.</span><b>Explore cultivation →</b></span></a>
+<a class="station-editorial-card" href="/investigate/learn/#my-inat"><img src="/images/field-photography/field-specimen-color-reference.jpg" alt="Wild mushroom with field measurement scale and color reference card" loading="lazy" decoding="async" class="discover-photo discover-photo-specimen"/><span class="station-card-body"><small>FIELD TO LAB</small><strong>From an observation to a research question</strong><span>How field notes, sequences, and collaborators change what we think we know.</span><b>Read the story →</b></span></a>
+<a class="station-editorial-card" href="/about/"><img src="/images/field-photography/mycoview-curiosity-in-action.jpg" alt="Naturalists working together to examine a specimen" loading="lazy" decoding="async" class="discover-photo discover-photo-mycoview"/><span class="station-card-body"><small>THE MYCOVIEW / VIDEO & DISCOVERY</small><strong>From curiosity to confidence.</strong><span>Follow the questions, explore the evidence, and discover how much more there is to learn about fungi—together.</span><b>Explore The MycoView →</b></span></a>
+<a class="station-editorial-card" href="/learn/"><img src="/images/field-photography/young-mycologist-oyster-harvest.jpg" alt="Young grower displaying a large oyster mushroom harvest" loading="lazy" decoding="async" class="discover-photo discover-photo-harvest"/><span class="station-card-body"><small>CULTIVATION / GROW &amp; EXPERIMENT</small><strong>Grow something. Learn something.</strong><span>Discover how growing mushrooms opens a window into fungal biology, experimentation, and the extraordinary ways fungi respond to their environment.</span><b>Explore cultivation →</b></span></a>
 </div></section></div></Base>
+<style>
+/* Preserve the complete field-story compositions, especially the face and mushroom harvest.
+   Apply the same photo height across all three cards to maintain a balanced editorial grid. */
+.station-editorial-card > img.discover-photo {
+  display:block;
+  width:100%;
+  height:clamp(340px, 26vw, 445px);
+  object-fit:cover;
+}
+.station-editorial-card > img.discover-photo-specimen {object-position:center center;}
+.station-editorial-card > img.discover-photo-mycoview {object-position:center 44%;}
+.station-editorial-card > img.discover-photo-harvest {object-position:center 50%;}
+@media(max-width:900px){
+  .station-editorial-card > img.discover-photo {height:clamp(310px, 44vw, 430px);}
+}
+@media(max-width:600px){
+  .station-editorial-card > img.discover-photo {height:clamp(300px, 88vw, 430px);}
+}
+</style>

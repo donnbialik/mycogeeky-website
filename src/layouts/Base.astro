@@ -49,7 +49,8 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
         <span class="mycoview-brand-symbol" aria-hidden="true">◉</span>
         <span>MycoView<small>SEE FUNGI DIFFERENTLY.</small></span>
       </a>
-      <nav aria-label="Primary navigation">
+      <details class="mv-mobile-menu"><summary aria-label="Open navigation menu"><span class="mv-menu-label">Menu</span><span class="mv-menu-bars" aria-hidden="true">☰</span></summary><nav aria-label="Mobile navigation">{nav.map(([label,url]) => <a href={url} aria-current={Astro.url.pathname === url ? "page" : undefined}>{label}<span aria-hidden="true">↗</span></a>)}</nav></details>
+      <nav class="mv-desktop-nav" aria-label="Primary navigation">
         {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname === url ? 'page' : undefined}>{label}</a>)}
       </nav>
     </div>

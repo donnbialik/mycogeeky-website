@@ -586,3 +586,195 @@
  .mv-tool-status-row{gap:5px}
 }
 @media(prefers-reduced-motion:reduce){.mv-nav .mv-nav-meter>span{transition:none}}
+
+
+/* Mobile-first refinement — scoped to the homepage except for shared mobile header.
+   Desktop editorial layout and existing feature functionality remain unchanged. */
+.mv-mobile-menu{display:none}
+@media(max-width:760px){
+  .site-header{position:sticky;top:0;z-index:80;background:#103a2e;border-bottom:1px solid #d6e9a326}
+  .site-header .header-inner{width:calc(100% - 36px);max-width:none;min-height:66px;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+  .site-header .brand{font-size:1.43rem;gap:9px;min-width:0}
+  .site-header .mycoview-brand-symbol{width:35px;height:35px;font-size:1.85rem}
+  .site-header .brand small{font-size:.48rem;letter-spacing:.105em;margin-top:0}
+  .site-header .mv-desktop-nav{display:none}
+  .mv-mobile-menu{display:block;position:relative;flex:none}
+  .mv-mobile-menu summary{list-style:none;display:flex;align-items:center;gap:9px;min-height:44px;padding:6px 8px;color:#f8f9ef;cursor:pointer;font:600 .84rem 'IBM Plex Sans',sans-serif}
+  .mv-mobile-menu summary::-webkit-details-marker{display:none}
+  .mv-menu-bars{font-size:1.4rem;line-height:1}
+  .mv-mobile-menu[open] .mv-menu-bars{font-size:0}
+  .mv-mobile-menu[open] .mv-menu-bars:after{content:'×';font-size:1.65rem}
+  .mv-mobile-menu nav{position:absolute;right:-18px;top:calc(100% + 8px);width:min(310px,calc(100vw - 28px));display:flex;flex-direction:column;gap:0;padding:12px 18px 17px;background:#103a2e;border:1px solid #d6e9a34d;box-shadow:0 20px 38px #061b1580;border-radius:0 0 8px 8px}
+  .mv-mobile-menu nav a{display:flex;justify-content:space-between;align-items:center;padding:14px 5px;color:#f7f9f0;font-size:1rem;border-bottom:1px solid #ffffff25;text-decoration:none}
+  .mv-mobile-menu nav a:last-child{border-bottom:0}
+  .mv-mobile-menu nav a[aria-current=page]{color:#d9ec86}
+  .mv-mobile-menu :is(summary,a):focus-visible{outline:3px solid #e7c276;outline-offset:2px}
+  .mv-home{overflow-x:clip}
+  .mv-home .mv-hero{display:flex;flex-direction:column;min-height:0;background:#103a2e}
+  .mv-home .mv-hero-image{height:clamp(255px,78vw,390px);min-height:0;position:relative}
+  .mv-home .mv-hero-image:after{content:'';position:absolute;inset:35% 0 0;pointer-events:none;background:linear-gradient(180deg,transparent,#103a2e 94%)}
+  .mv-home .mv-hero-image img{object-position:center 46%}
+  .mv-home .mv-hero-copy{position:relative;z-index:2;margin-top:-64px;padding:0 21px 29px;background:transparent}
+  .mv-home .mv-hero .mv-kicker{font-size:.63rem;line-height:1.45;letter-spacing:.09em;margin:0 0 12px;max-width:33ch}
+  .mv-home .mv-hero h1{font-size:clamp(2.65rem,10vw,3.8rem);line-height:1.02;margin:0 0 14px;max-width:12ch}
+  .mv-home .mv-hero-lead{font-size:1rem;line-height:1.5;max-width:39ch}
+  .mv-home .mv-hero-actions{flex-direction:row;align-items:center;gap:14px;margin-top:20px}
+  .mv-home .mv-hero-actions .mv-primary{min-height:46px;padding:12px 16px;font-size:.88rem}
+  .mv-home .mv-hero-actions .mv-secondary{font-size:.85rem}
+  .mv-home .mv-hero-aside{font-size:.94rem;margin:16px 0 0}
+  .mv-home .mv-pathways{padding:0 12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mv-home .mv-pathway{min-height:114px;gap:8px;padding:17px 10px;align-items:flex-start}
+  .mv-home .mv-pathway-icon{font-size:1.45rem;line-height:1.1}
+  .mv-home .mv-pathway strong{font-size:1.12rem}
+  .mv-home .mv-pathway small{font-size:.72rem;line-height:1.35}
+  .mv-home .mv-pathway-arrow{display:block;font-size:.85rem;position:absolute;right:7px;top:12px}
+  .mv-home .mv-section{padding:38px 20px}
+  .mv-home .mv-section h2,.mv-home .mv-host-section h2{font-size:clamp(1.95rem,7.5vw,2.55rem);line-height:1.12;margin-bottom:13px}
+  .mv-home .mv-section :is(p:not(.mv-kicker),.mv-host-copy>p){line-height:1.52}
+  .mv-home .mv-opening{gap:18px}
+  .mv-home .mv-opening-intro>p:not(.mv-kicker){font-size:1rem;max-width:54ch}
+  .mv-home .mv-opening-image img{height:235px}
+  .mv-home .mv-opening-image>span,.mv-home .mv-host-image>span{font-size:.58rem;max-width:calc(100% - 28px)}
+  .mv-home .mv-section-head{gap:9px;margin-bottom:18px}
+  .mv-home .mv-story-image img{height:205px}
+  .mv-home .mv-story-copy{padding:20px}
+  .mv-home .mv-story-copy h3,.mv-home .mv-play h3{font-size:clamp(1.6rem,6.5vw,2.05rem);line-height:1.14}
+  .mv-home .mv-story-copy p:not(.mv-kicker),.mv-home .mv-play>p:not(.mv-kicker){font-size:.94rem}
+  .mv-home .mv-play{padding:20px 17px}
+  .mv-home .mv-play .curiosity-generator{margin:12px 0;padding:17px;border:1px solid #d6c6db}
+  .mv-home .mv-play .curiosity-generator h3{font-size:1.3rem}
+  .mv-home .mv-play .curiosity-controls{gap:9px}
+  .mv-home .mv-play .curiosity-controls button{min-height:44px}
+  .mv-home .mv-host-section{padding:36px 20px}
+  .mv-home .mv-host-inner{gap:23px}
+  .mv-home .mv-host-image img{height:230px}
+  .mv-home .mv-host-quote{font-size:1.24rem;line-height:1.38}
+  .mv-home .mv-host-copy>p:not(.mv-kicker):not(.mv-host-quote){font-size:.94rem}
+  .mv-home .mv-host-links{gap:14px}
+  .mv-home .mv-study-feature{padding:18px;gap:13px}
+  .mv-home .mv-study-feature h3{font-size:1.65rem}
+  .mv-home .mv-study-feature .mv-primary{white-space:normal;min-height:44px;font-size:.86rem}
+  .mv-home .mv-research-grid{gap:12px}
+  .mv-home .mv-research-card{padding:17px 18px;border-top-width:3px}
+  .mv-home .mv-research-card h3{font-size:1.42rem;margin:9px 0 5px}
+  .mv-home .mv-research-card p{font-size:.88rem;margin:5px 0}
+  .mv-home .mv-research-card>span:last-child{padding-top:9px;font-size:.82rem}
+  .mv-home .mv-survey-card{padding:17px 14px}
+  .mv-home .mv-survey-card .survey-dashboard{padding:0!important}
+  .mv-home .mv-survey-card .survey-metrics{gap:7px}
+  .mv-home .mv-survey-card .survey-metrics strong{font-size:1.3rem}
+  .mv-home .mv-community-image img{height:220px}
+  .mv-home .mv-community-copy{padding:29px 21px 38px}
+  .mv-home .mv-community p:not(.mv-kicker){font-size:.95rem;line-height:1.55}
+  .mv-home .mv-community .mv-primary{margin-top:13px}
+}
+@media(max-width:370px){
+ .mv-menu-label{display:none}
+ .mv-home .mv-hero-actions{align-items:flex-start;flex-direction:column;gap:10px}
+ .mv-home .mv-pathway{padding:14px 7px}
+ .mv-home .mv-pathway small{font-size:.68rem}
+}
+
+
+/* Mobile editorial rhythm, second review: content-height sections, no forced scroll snap. */
+@media(max-width:760px){
+  /* Keep the observation CTA attached to the photograph, not the welcome copy. */
+  .mv-home .mv-hero-image{height:clamp(265px,72vw,350px);overflow:visible}
+  .mv-home .mv-hero-image:after{display:none}
+  .mv-home .mv-hero-copy{margin-top:0;padding:23px 21px 26px;background:#103a2e}
+  .mv-home .mv-observation-widget{bottom:10px;left:12px;right:12px;max-width:none;z-index:4}
+  .mv-home .mv-observation-trigger{width:100%;min-height:50px;display:flex;gap:10px;align-items:center;padding:9px 12px;background:#103a2eea;box-shadow:0 2px 10px #061b1540}
+  .mv-home .mv-observation-trigger .mv-observation-dot{font-size:1.35rem;flex:none}
+  .mv-home .mv-observation-trigger small{font-size:.53rem;letter-spacing:.1em}
+  .mv-home .mv-observation-trigger strong{font-size:.78rem;line-height:1.25}
+  .mv-home .mv-hero .mv-kicker{margin-bottom:9px}
+  .mv-home .mv-hero h1{font-size:clamp(2.45rem,9.5vw,3.4rem)}
+  .mv-home .mv-hero-lead{font-size:.95rem;line-height:1.43}
+  .mv-home .mv-hero-actions{margin-top:15px}
+  .mv-home .mv-hero-aside{margin-top:12px}
+  /* Make the four route choices compact rather than tall blank tiles. */
+  .mv-home .mv-pathway{min-height:92px;padding:12px 10px}
+  .mv-home .mv-pathway small{max-width:24ch}
+  /* Distinct section boundaries and smaller vertical padding; no viewport locking. */
+  .mv-home .mv-section{padding-top:31px;padding-bottom:31px}
+  .mv-home .mv-section-head{margin-bottom:13px}
+  .mv-home .mv-section h2{margin-bottom:9px}
+  .mv-home .mv-opening{gap:13px}
+  .mv-home .mv-opening-image img{height:205px}
+  .mv-home .mv-story-image img{height:180px}
+  .mv-home .mv-story-copy{padding:16px 18px}
+  .mv-home .mv-story-copy h3{margin:7px 0}
+  .mv-home .mv-story-copy .mv-inline-link{padding-top:9px}
+  .mv-home .mv-play{padding:17px 16px}
+  .mv-home .mv-play .curiosity-generator{padding:13px;margin:9px 0}
+  .mv-home .mv-host-section{padding-top:30px;padding-bottom:30px}
+  .mv-home .mv-host-inner{gap:15px}
+  .mv-home .mv-host-image img{height:205px}
+  .mv-home .mv-study-feature{padding:16px}
+  .mv-home .mv-research-grid{gap:10px}
+  .mv-home .mv-research-card{padding:15px 17px}
+  /* Mobile survey: preserve the live data, reduce nesting and make metadata unobtrusive. */
+  .mv-home .mv-survey-card{padding:15px 16px}
+  .mv-home .mv-survey-card .survey-dashboard{border:0!important;box-shadow:none!important;padding:0!important;margin:0!important;background:transparent!important}
+  .mv-home .mv-survey-card .survey-dashboard-heading{margin:0 0 12px!important;padding:0!important}
+  .mv-home .mv-survey-card .survey-dashboard-heading h3{font-size:1.32rem!important;line-height:1.13;margin:6px 0!important}
+  .mv-home .mv-survey-card .survey-dashboard-heading p{display:none}
+  .mv-home .mv-survey-card .survey-dashboard-heading a{font-size:.82rem}
+  .mv-home .mv-survey-card .survey-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .mv-home .mv-survey-card .survey-metrics>div{min-width:0;padding:9px 5px!important;text-align:center}
+  .mv-home .mv-survey-card .survey-metrics span{font-size:.61rem;line-height:1.2}
+  .mv-home .mv-survey-card .survey-metrics strong{font-size:1.05rem;line-height:1.2;white-space:nowrap}
+  .mv-home .mv-survey-card .survey-metrics .survey-date{font-size:.82rem}
+  .mv-home .mv-survey-card .mv-survey-feedback{margin:9px 0!important;padding:7px 9px!important;gap:6px;align-items:start;border-radius:5px}
+  .mv-home .mv-survey-card .mv-survey-feedback>span{font-size:.8rem}
+  .mv-home .mv-survey-card .mv-survey-feedback p{font-size:.65rem!important;line-height:1.3;margin:0}
+  .mv-home .mv-survey-card>.mv-inline-link{font-size:.85rem}
+  .mv-home .mv-community-image img{height:195px}
+  .mv-home .mv-community-copy{padding:24px 21px 31px}
+}
+@media(max-width:400px){
+ .mv-home .mv-survey-card .survey-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mv-home .mv-survey-card .survey-metrics>div{padding:7px!important}
+}
+
+
+/* Mobile composition pass 3 — photograph-first hero and tighter editorial hierarchy. */
+@media(max-width:760px){
+  /* Top-left field-note card, leaving the lower mushroom cluster unobstructed. */
+  .mv-home .mv-hero-image{height:clamp(290px,85vw,405px);overflow:hidden}
+  .mv-home .mv-hero-image img{object-position:53% 59%}
+  .mv-home .mv-observation-widget{top:13px;bottom:auto;left:13px;right:auto;width:min(178px,43vw);max-width:none}
+  .mv-home .mv-observation-trigger{min-height:125px;width:100%;padding:13px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:7px;text-align:left;background:#103a2ee8;border:1px solid #d5e6aa7a;border-radius:9px;box-shadow:0 4px 20px #0a281d42}
+  .mv-home .mv-observation-trigger .mv-observation-dot{font-size:1.35rem;line-height:1}
+  .mv-home .mv-observation-trigger small{display:block;font-size:.53rem;line-height:1.35;letter-spacing:.075em}
+  .mv-home .mv-observation-trigger strong{display:block;font-size:.78rem;line-height:1.25}
+  .mv-home .mv-hero-copy{padding-top:19px}
+  /* More of the actual experiment, less of the wrapper. */
+  .mv-home .mv-play>p:not(.mv-kicker){font-size:.84rem;line-height:1.4;margin:7px 0 10px}
+  .mv-home .mv-play h3{margin-bottom:6px}
+  .mv-home .mv-play .curiosity-generator{margin:8px 0 11px;padding:12px}
+  .mv-home .mv-play .curiosity-generator p{line-height:1.4}
+  /* Keep the research introduction concise and make the navigator the primary entry. */
+  .mv-home .mv-research>.mv-section-head{gap:7px;margin-bottom:11px}
+  .mv-home .mv-research>.mv-section-head p:not(.mv-kicker){font-size:.89rem;line-height:1.4;margin:7px 0}
+  .mv-home .mv-study-feature{gap:9px}
+  .mv-home .mv-study-feature p:not(.mv-kicker){font-size:.87rem;line-height:1.4}
+  /* Let the final image earn its place without lengthening the entire section. */
+  .mv-home .mv-community-image img{height:235px;object-position:center 42%}
+  .mv-home .mv-community-copy{padding-top:20px}
+  .mv-home .mv-community-copy h2{margin-bottom:10px}
+}
+
+
+/* Mobile hero correction: observation is a photograph caption, not a floating card. */
+@media(max-width:760px){
+ .mv-home .mv-hero-image{height:auto!important;overflow:visible!important;display:flex;flex-direction:column;background:#103a2e}
+ .mv-home .mv-hero-image>picture,.mv-home .mv-hero-image>img{display:block;width:100%}
+ .mv-home .mv-hero-image img{display:block;width:100%;height:clamp(275px,78vw,360px)!important;object-fit:cover;object-position:53% 58%}
+ .mv-home .mv-observation-widget{position:relative!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;width:auto!important;max-width:none!important;margin:0!important;z-index:1}
+ .mv-home .mv-observation-trigger{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:11px!important;min-height:55px!important;width:100%!important;padding:10px 20px!important;border:0!important;border-top:1px solid #d5e6aa44!important;border-bottom:1px solid #d5e6aa44!important;border-radius:0!important;box-shadow:none!important;background:#1b4b3b!important;text-align:left!important}
+ .mv-home .mv-observation-trigger .mv-observation-dot{font-size:1.4rem!important;flex:none}
+ .mv-home .mv-observation-trigger small{font-size:.53rem!important;margin:0 0 2px!important}
+ .mv-home .mv-observation-trigger strong{font-size:.79rem!important;line-height:1.2!important}
+ .mv-home .mv-hero-copy{margin-top:0!important;padding-top:20px!important}
+}

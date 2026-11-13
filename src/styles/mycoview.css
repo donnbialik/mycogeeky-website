@@ -778,3 +778,87 @@
  .mv-home .mv-observation-trigger strong{font-size:.79rem!important;line-height:1.2!important}
  .mv-home .mv-hero-copy{margin-top:0!important;padding-top:20px!important}
 }
+
+/* Sitewide mobile reading and scroll pass — all editorial and research routes.
+   Content follows its natural height; no mandatory scroll snapping. */
+@media(max-width:760px){
+  html{scroll-padding-top:88px;overscroll-behavior-y:auto}
+  body{min-width:0}
+  main{min-width:0}
+  main :is(section,article,figure,form,fieldset,blockquote,aside){min-width:0}
+  main :is(h1,h2,h3,h4,p,li,dd,figcaption){overflow-wrap:break-word}
+  main :is(img,video,canvas,svg){max-width:100%}
+  main :is(input,select,textarea){max-width:100%;min-width:0}
+  main :is(pre,code){overflow-wrap:anywhere}
+  main pre{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  main :is([id],section[id],article[id]){scroll-margin-top:88px}
+  main :is(button,[role=button],a.button){touch-action:manipulation}
+  .site-header .mv-mobile-menu nav{max-height:calc(100dvh - 84px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .site-header .mv-mobile-menu nav a{min-height:48px}
+  .station-page{padding-bottom:12px}
+  .station-hero-split{min-height:0}
+  .station-hero-copy{padding:27px 21px 25px}
+  .station-hero h1{font-size:clamp(2.15rem,9vw,2.75rem);line-height:1.08;overflow-wrap:break-word}
+  .station-hero .lead{font-size:.98rem;line-height:1.5;margin:8px 0 11px}
+  .station-hero>img{height:clamp(190px,54vw,270px);min-height:0;object-fit:cover}
+  .station-actions{gap:12px;margin-top:10px}
+  .station-button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;max-width:100%;white-space:normal;line-height:1.3;text-align:center}
+  .station-content{width:calc(100% - 36px);padding:24px 0}
+  .station-content h2{overflow-wrap:break-word}
+  .station-editorial-grid,.station-tool-grid{gap:13px}
+  .station-editorial-card>img,.station-card-symbol{height:clamp(155px,47vw,210px)}
+  .station-card-body{padding:17px 18px;gap:8px}
+  .station-card-body strong{font-size:clamp(1.35rem,6vw,1.75rem)}
+  .station-card-body>span{font-size:.9rem;line-height:1.5}
+  .station-link-grid a{padding:17px 18px;font-size:1.15rem;min-height:56px}
+  .station-data{padding:25px 18px}
+  .station-data-grid h2,.station-learning-grid h2{font-size:clamp(1.8rem,7vw,2.35rem)}
+  .station-learning-grid{gap:16px}
+  .page-hero{padding:30px 18px!important;margin-top:0!important}
+  .page-hero h1{font-size:clamp(2.2rem,9vw,3rem);line-height:1.08}
+  .page-hero .lead{font-size:1rem;line-height:1.55}
+  .section{padding-top:30px;padding-bottom:30px}
+  .section .container,.container.narrow{width:calc(100% - 36px)}
+  .section h2{font-size:clamp(1.7rem,7vw,2.4rem);line-height:1.15}
+  .narrative-split{gap:16px}
+  .narrative-photo img{height:clamp(190px,58vw,280px)}
+  .resource-nav{gap:7px;margin:17px 0 23px}
+  .resource-nav a{padding:10px 13px;min-height:44px;display:inline-flex;align-items:center}
+  .resource-group{margin-bottom:28px;scroll-margin-top:88px}
+  .research-workflows{padding:15px}
+  .research-workflow-choice{min-height:44px}
+  .survey-project-grid{gap:12px}
+  .story-dialog{max-height:calc(100dvh - 24px);max-width:calc(100vw - 24px)}
+  .story-dialog-inner{padding:22px 18px}
+  .story-dialog-inner h2{margin-right:32px}
+  .mv-study-hero{padding:28px 18px}
+  .mv-study-hero h1{font-size:clamp(2.1rem,8vw,2.75rem);line-height:1.08}
+  .mv-study-workspace,.mv-study-follow{padding:23px 16px}
+  .mv-case-hero{min-height:0}
+  .mv-case-hero-copy{padding:28px 20px}
+  .mv-case-hero h1{font-size:clamp(2.15rem,8.8vw,3rem);line-height:1.07}
+  .mv-case-workspace{padding:19px 13px 30px}
+  .mv-case-chapters{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .mv-case-chapters button{flex:0 0 auto;min-width:122px;min-height:50px}
+  .mv-case-content{padding:19px 16px}
+  .mv-neo-membership{padding:19px}
+  .mv-neo-footer{padding-bottom:30px}
+  .mv-home .mv-research-card,.mv-home .mv-study-feature,.mv-home .mv-story-card{min-width:0}
+  .mv-home .mv-study-feature .mv-primary{max-width:100%;overflow-wrap:anywhere}
+  .mv-home .mv-observation-dialog{max-height:calc(100dvh - 24px);max-width:calc(100vw - 24px);overflow-y:auto}
+  .xp{padding:20px 0 42px}
+  .xp .xp-panel{padding:16px 13px}
+  .xp .xp-scroll{max-width:100%;overscroll-behavior-x:contain;scrollbar-width:thin}
+  .xp table{min-width:540px}
+  .xp .xp-filters{gap:8px}
+  .xp .xp-sub{gap:8px 13px}
+  .xp .xp-seq{font-size:.74rem;line-height:1.55}
+}
+@media(max-width:390px){
+ .station-hero-copy{padding-inline:17px}
+ .station-content{width:calc(100% - 30px)}
+ .station-card-body{padding:15px}
+ .mv-case-content{padding:17px 13px}
+ .mv-study-workspace,.mv-study-follow{padding-inline:13px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

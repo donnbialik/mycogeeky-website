@@ -67,7 +67,7 @@ const paths=[
   </section>
 
   <section class="mv-section mv-community" aria-labelledby="mv-community-title">
-    <div class="mv-community-image"><img src="/images/field-photography/crane-hollow-1.jpg" alt="Field adventurers beneath a dramatic sandstone overhang at Crane Hollow" loading="lazy" decoding="async"/></div>
+    <div class="mv-community-image"><img src="/images/field-photography/crane-hollow-1.jpg" alt="Field adventurers standing beneath the sandstone overhang at Crane Hollow" loading="lazy" decoding="async" class="mv-community-crane-hollow"/></div>
     <div class="mv-community-copy"><p class="mv-kicker">THE CONVERSATION CONTINUES</p><h2 id="mv-community-title">Come for the mushrooms. Stay for the people.</h2><p>The MycoView brings conversations, field stories and science to video. Neo Myco turns shared questions into collaborative research. And MycoGeeky's podcast history is proof that a good conversation can grow into a lasting friendship.</p><a href="/neo-myco/" class="mv-primary">Explore Neo Myco →</a></div>
   </section>
 </div>
@@ -79,5 +79,20 @@ const paths=[
 @media (max-width:760px) {
   .mv-home .mv-host-inner {grid-template-columns:1fr;}
   .mv-home .mv-host-image img {height:clamp(390px, 110vw, 580px);object-position:50% 42%;}
+}
+</style>
+
+<style is:global>
+/* Crane Hollow: frame the actual people, not the cliff face. Keep their heads in view at every breakpoint. */
+.mv-home .mv-community-image img.mv-community-crane-hollow {
+  height:clamp(400px, 30vw, 500px);
+  object-fit:cover;
+  object-position:50% 0%;
+}
+@media (max-width:760px) {
+  .mv-home .mv-community-image img.mv-community-crane-hollow {
+    height:clamp(270px, 66vw, 400px);
+    object-position:50% 0%;
+  }
 }
 </style>

@@ -79,5 +79,10 @@ const isProvisional = /\bsp\.|['‘’"]/.test(taxonName);
  .mv-home .mv-observation-trigger strong{font-size:1rem!important;line-height:1.3!important;color:#fff!important}
  .mv-home .mv-observation-go{width:38px;height:38px}
 }
-@media(prefers-reduced-motion:reduce){.mv-observation-go{transition:none}}
+/* A gentle, intermittent beacon on the arrow, not a flashing banner. */
+.mv-observation-go{position:relative;isolation:isolate;animation:mv-observation-breathe 3.4s ease-in-out infinite}
+.mv-observation-go:after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid #d9ec86;opacity:0;pointer-events:none;animation:mv-observation-ring 3.4s ease-out infinite}
+@keyframes mv-observation-breathe{0%,18%,75%,100%{box-shadow:0 0 0 0 #d9ec8600}38%,53%{box-shadow:0 0 13px 3px #d9ec8670}}
+@keyframes mv-observation-ring{0%,17%,70%,100%{opacity:0;transform:scale(1)}35%{opacity:.65;transform:scale(1.12)}62%{opacity:0;transform:scale(1.4)}}
+@media(prefers-reduced-motion:reduce){.mv-observation-go{transition:none;animation:none}.mv-observation-go:after{animation:none;display:none}}
 </style>

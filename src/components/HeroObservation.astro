@@ -46,7 +46,7 @@ const isProvisional = /\bsp\.|['‘’"]/.test(taxonName);
       </dl>
       {isProvisional && <p class="mv-observation-notice">This is an informal identification, not necessarily a formally described species.</p>}
       <p><strong>Field note:</strong> {feature.fieldNote}</p>
-      <p class="mv-observation-question"><a href="https://www.inaturalist.org/projects/one-place-a-thousand-questions-my-home-biodiversity-inventory" target="_blank" rel="noopener noreferrer"><span>{feature.question}</span><small>Explore the One-Place Biodiversity Inventory <span aria-hidden="true">↗</span></small></a></p>
+      <p class="mv-observation-question"><a href="/one-place/"><span>{feature.question}</span><small>Discover the One-Place Biodiversity Project <span aria-hidden="true">↗</span></small></a></p>
       {!observation && <p class="mv-observation-notice">Live observation details were unavailable when this page was built. Use the original observation to see the current identification and metadata.</p>}
       <a class="mv-primary" href={observationUrl} target="_blank" rel="noopener noreferrer">View original iNaturalist record ↗</a>
     </div>

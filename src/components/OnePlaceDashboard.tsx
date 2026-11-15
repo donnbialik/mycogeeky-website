@@ -50,7 +50,7 @@ async function speciesCount(query: string): Promise<number> {
 async function topGenera(query: string): Promise<{top: GenusCount[]; count: number}> {
   // Count observations, not species. Only observations identified to genus
   // or below contribute. Higher taxa have no defensible genus assignment.
-  const url = '/observations?' + query + '&per_page=200&order_by=id&order=asc';
+  const url = '/observations?' + query + '&per_page=200';
   const first = await get(url + '&page=1');
   const total = first.total_results;
   if (!Number.isInteger(total) || total < 0) throw new Error('Invalid observations response');

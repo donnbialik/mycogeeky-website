@@ -14,7 +14,7 @@ import fieldPhoto from '../../assets/pathways/explore.jpg';
     <img src="/images/field-photography/learning-man-1.jpg" alt="A naturalist closely documenting fungi with field equipment" loading="eager" decoding="async"/>
   </section>
   <section class="station-content" aria-labelledby="station-questions"><div class="station-section-head"><h2 id="station-questions">START WITH A QUESTION</h2><span>THREE WAYS INTO THE EVIDENCE</span></div><div class="station-editorial-grid">
-    <a class="station-editorial-card" href="/investigate/learn/"><img src="/images/field-photography/mycogeeky-microscopy-research.jpeg" alt="MycoGeeky working at a microscope and laptop during fungal research" loading="lazy" decoding="async" style="object-position:center 42%;"/><span class="station-card-body"><small>01 / SCIENTIFIC PRACTICE</small><strong>What does fungal research actually look like?</strong><span>Explore six research disciplines and how ordinary observations become lasting evidence.</span><b>Explore the guide →</b></span></a>
+    <a class="station-editorial-card" href="/investigate/learn/"><img src="/images/field-photography/mycogeeky-microscopy-research.jpeg" alt="MycoGeeky working at a microscope and laptop during fungal research" loading="lazy" decoding="async" class="mv-investigate-practice-photo"/><span class="station-card-body"><small>01 / SCIENTIFIC PRACTICE</small><strong>What does fungal research actually look like?</strong><span>Explore six research disciplines and how ordinary observations become lasting evidence.</span><b>Explore the guide →</b></span></a>
     <a class="station-editorial-card" href="/investigate/resources/"><img src="/images/field-photography/fungal-microscopy-reference-slides.jpeg" alt="Labeled fungal microscopy reference preparations organized in a slide case" loading="lazy" decoding="async"/><span class="station-card-body"><small>02 / REFERENCE MATERIAL</small><strong>Where do we find the original evidence?</strong><span>Sequence databases, herbarium records, literature, and tools to evaluate a claim.</span><b>Browse resources →</b></span></a>
     <a class="station-editorial-card" href="/investigate/tools/"><img src="/images/field-photography/mycology-research-workbench.jpeg" alt="Mycology research workstation with microscopes and protected work enclosure" loading="lazy" decoding="async"/><span class="station-card-body"><small>03 / RESEARCH WORKBENCH</small><strong>What can we test ourselves?</strong><span>Workbenches for molecular, ecological, and field questions. Tool maturity and scientific validation are labeled separately.</span><b>Inspect tools →</b></span></a>
   </div></section>
@@ -24,3 +24,22 @@ import fieldPhoto from '../../assets/pathways/explore.jpg';
   <section class="station-content" id="workbench"><div class="station-section-head"><h2>THE RESEARCH WORKBENCH</h2><span>TOOLS / METHODS / LIMITATIONS</span></div><p class="station-tool-intro">Explore the tools we are building to investigate fungal ecology, molecular evidence, and field observations. Availability, software maturity, and independent scientific validation are different questions, and each tool should make those distinctions clear.</p><div class="station-tool-grid">{activeTools.map(tool=><ToolCard tool={tool}/>)}</div><p class="station-footnote">These tools are experimental or planned; none should be treated as a validated species-identification service.</p></section>
 </div>
 </Base>
+<style is:global>
+/* More room for the portrait-format microscopy photograph without disrupting the three-card rhythm. */
+.station-page .station-editorial-grid .station-editorial-card > img {
+  height: clamp(290px, 25vw, 370px);
+  width: 100%;
+  object-fit: cover;
+}
+.station-page .station-editorial-grid .station-editorial-card > img.mv-investigate-practice-photo {
+  object-position: 50% 32%;
+}
+@media (max-width: 760px) {
+  .station-page .station-editorial-grid .station-editorial-card > img {
+    height: clamp(270px, 74vw, 370px);
+  }
+  .station-page .station-editorial-grid .station-editorial-card > img.mv-investigate-practice-photo {
+    object-position: 50% 30%;
+  }
+}
+</style>

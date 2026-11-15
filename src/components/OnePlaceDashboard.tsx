@@ -43,16 +43,16 @@ export default function OnePlaceDashboard() {
   useEffect(()=>{
     let active=true;
     setLoading(true);setError(false);
-    // Use the project's own headline count rather than the broader observation
-    // search, which can disagree with the Traditional Project overview.
+    // All displayed counts use the public observations API, with matching project_id.
+    // These search totals may differ from the Traditional Project overview.
     const base='?project_id='+encodeURIComponent(PROJECT);
     const run=async()=>{
       const [projectResult, fungusResult, classResult]=await Promise.allSettled([
-        get('/projects/'+PROJECT),
+        get('/observations'+base+'&per_page=0'),
         get('/observations'+base+'&iconic_taxa=Fungi&per_page=0'),
         findMushroomClass()
       ]);
-      const project=projectResult.status==='fulfilled' ? projectResult.value.results?.[0] : null;
+      const totalObservations=projectResult.status==='fulfilled' ? projectResult.value.total_results??null : null;
       const fungalObservations=fungusResult.status==='fulfilled' ? fungusResult.value.total_results??null : null;
       const taxonId=classResult.status==='fulfilled' ? classResult.value : null;
       const mushroomResult=taxonId==null ? null : await Promise.allSettled([
@@ -65,11 +65,11 @@ export default function OnePlaceDashboard() {
       // project dominated by fungi; flag it for review instead.
       const suspicious=typeof fungalObservations==='number' && fungalObservations>50 &&
         typeof mushroomObservations==='number' && mushroomObservations<=1;
-      const officialCount=project?.project_observations_count ?? project?.observations_count ?? project?.observation_count ?? null;
+      
       const warning=suspicious ? 'The mushroom-specific filter returned an unexpectedly low count. That figure has been withheld pending verification.' :
         taxonId==null ? 'Mushroom-group taxonomy could not be retrieved. Those counts are unavailable.' :
-        !project ? 'Project summary could not be retrieved. Its headline observation count is unavailable.' : null;
-      return {observations:typeof officialCount==='number'?officialCount:null,
+        totalObservations==null ? 'The full project observation search could not be retrieved.' : null;
+      return {observations:typeof totalObservations==='number'?totalObservations:null,
         mushroomObservations:suspicious?null:mushroomObservations,
         mushroomSpecies:suspicious?null:mushroomSpecies,
         fungalObservations,updated:new Date().toLocaleString(),warning} as Stats;
@@ -79,13 +79,13 @@ export default function OnePlaceDashboard() {
     return ()=>{active=false};
   },[refresh]);
   return <section className="one-place-dashboard" aria-label="Home biodiversity inventory statistics">
-    <div className="opd-top"><div><p className="opd-eyebrow">A LIVING EXAMPLE · INATURALIST DATA</p><h2>One property. An expanding record.</h2><p>My own Northeast Ohio home inventory, curated observation by observation.</p></div><span className="opd-live">LIVE DATA</span></div>
+    <div className="opd-top"><div><p className="opd-eyebrow">A LIVING EXAMPLE · INATURALIST DATA</p><h2>One property. An expanding record.</h2><p>My Northeast Ohio home fungal inventory, curated observation by observation.</p></div><span className="opd-live">LIVE DATA</span></div>
     <div className="opd-metrics">
-      <div><span>Project observations</span><strong>{display(stats?.observations)}</strong><small>Count reported by the iNaturalist project summary</small></div>
+      <div><span>Project observations (API)</span><strong>{display(stats?.observations)}</strong><small>Records returned by the project's observation search</small></div>
       <div><span>Mushroom-group species</span><strong>{display(stats?.mushroomSpecies)}</strong><small>Species-ranked taxa within Agaricomycetes</small></div>
       <div><span>Mushroom-group observations</span><strong>{display(stats?.mushroomObservations)}</strong><small>Observations in Agaricomycetes, including broader IDs</small></div>
-      <div><span>Fungal observations</span><strong>{display(stats?.fungalObservations)}</strong><small>Fungi across the project, including lichens</small></div>
+      <div><span>Fungal observations (API)</span><strong>{display(stats?.fungalObservations)}</strong><small>Fungi across the project, including lichens</small></div>
     </div>
-    <div className="opd-foot" aria-live="polite" role="status"><p>{loading?'Loading iNaturalist project totals…':error?'Could not retrieve project statistics. Counts are unavailable.':'Retrieved '+stats?.updated+'. '+(stats?.warning??'Counts change as observations and identifications change.')} Mushroom-group figures cover Agaricomycetes, not every mushroom-forming lineage. Species-ranked names are not necessarily independently confirmed.</p>{!loading&&(error||stats?.warning)&&<button type="button" onClick={()=>setRefresh(n=>n+1)}>Retry loading ↻</button>}</div>
+    <div className="opd-foot" aria-live="polite" role="status"><p>{loading?'Loading iNaturalist project totals…':error?'Could not retrieve project statistics. Counts are unavailable.':'Retrieved '+stats?.updated+'. '+(stats?.warning??'Search totals may differ from iNaturalist's project overview because the two views use different counting or indexing rules. Counts change as records and identifications change.')} Mushroom-group figures cover Agaricomycetes, not every mushroom-forming lineage. Species-ranked names are not necessarily independently confirmed.</p>{!loading&&(error||stats?.warning)&&<button type="button" onClick={()=>setRefresh(n=>n+1)}>Retry loading ↻</button>}</div>
   </section>;
 }

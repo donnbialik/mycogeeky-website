@@ -1,0 +1,39 @@
+---
+/**
+ * <Photo src="file-name.jpg" alt="…" />
+ * Shows a photo from src/assets/photos/ resized and converted to WebP at build time.
+ * `src` is just the file name (a leading path is ignored). A missing file stops the build
+ * with a clear error instead of publishing a broken image.
+ * `display` is the widest the photo appears on desktop, in CSS pixels (default 700);
+ * pass a smaller number for thumbnails and logos so phones download less.
+ * A full web address (https://…) is shown as-is: it is not ours to resize.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+const photos = import.meta.glob<{ default: ImageMetadata }>('/src/assets/photos/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG}', { eager: true });
+
+interface Props {
+  src: string;
+  alt: string;
+  display?: number;
+  quality?: number;
+  [attr: string]: unknown;
+}
+const { src, alt, display = 700, quality = 78, width: _w, height: _h, ...attrs } = Astro.props;
+const external = /^https?:\/\//.test(String(src));
+const name = String(src).split('/').pop();
+const entry = external ? undefined : photos[`/src/assets/photos/${name}`];
+if (!external && !entry) throw new Error(`Photo "${name}" was not found in src/assets/photos/`);
+const image = entry?.default ?? { width: 0 };
+const widths = [...new Set([Math.min(400, display), display, display * 2])]
+  .filter((w) => w <= image.width)
+  .concat(display * 2 > image.width ? [image.width] : [])
+  .filter((w, i, all) => all.indexOf(w) === i)
+  .sort((a, b) => a - b);
+// Thumbnails and logos stay the same size on every screen; larger photos fill a phone's width.
+const sizes = display < 300 ? `${display}px` : `(max-width: 700px) 100vw, ${display}px`;
+---
+{external
+  ? <img src={src} alt={alt} referrerpolicy="no-referrer" {...attrs} />
+  : <Image src={entry!.default} alt={alt} widths={widths} sizes={sizes} format="webp" quality={quality} {...attrs} />}

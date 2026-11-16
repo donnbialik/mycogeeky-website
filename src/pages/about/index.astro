@@ -3,7 +3,7 @@ import Photo from '../../components/Photo.astro';
 import Base from '../../layouts/Base.astro';
 const email = 'mycogeeky@mycogeeky.com';
 const inquiry = (subject: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}`;
-const bio = 'Donn Bialik, known as MycoGeeky, is an independent mycology researcher, educator, and community builder based in Northeast Ohio. He hosted more than 130 episodes of The MycoGeeky Podcast over four years, sharing in-depth conversations about mushrooms and helping enthusiasts develop practical skills. His current work includes collaborative species descriptions and permitted fungal surveys. Through MycoView and the developing Northeast Ohio Mycology Collaborative (NeoMyco), he brings together scientific storytelling, accessible research tools, and opportunities to learn and contribute. His guiding question: what could people who love mushrooms discover together?';
+const bio = 'Donn Bialik, known as MycoGeeky, is an independent mycology researcher, educator, and community builder based in Northeast Ohio. He hosted more than 130 episodes of The MycoGeeky Podcast over four years, sharing in-depth conversations about mushrooms and helping enthusiasts develop practical skills. His current work includes collaborative species descriptions and permitted fungal surveys. Through MycoView and the developing Northeast Ohio Mycology Collaborative (NEO Myco), he brings together scientific storytelling, accessible research tools, and opportunities to learn and contribute. His guiding question: what could people who love mushrooms discover together?';
 const talks = [
   { title: 'A Closer Look at Fungi', text: 'How slowing down, noticing details, and sharing observations can deepen your understanding of fungi—and give you a practical place to begin.' },
   { title: 'From Mushroom Walk to Meaningful Research', text: 'How clubs can build achievable projects, document useful observations, and connect members with research opportunities.' },
@@ -22,7 +22,7 @@ const talks = [
       <figure class="about-portrait"><Photo src="mycogeeky-1.jpg" alt="Donn Bialik, MycoGeeky, holding two mushrooms with an exuberant expression" loading="eager" fetchpriority="high" /></figure>
     </section>
 
-    <nav class="about-nav" aria-label="On this page"><a href="#story">My story</a><a href="#research">Research</a><a href="#together">NeoMyco &amp; community</a><a href="#speaking">Speaking</a><a href="#press">Press resources</a></nav>
+    <nav class="about-nav" aria-label="On this page"><a href="#story">My story</a><a href="#research">Research</a><a href="#together">NEO Myco &amp; community</a><a href="#speaking">Speaking</a><a href="#press">Press resources</a></nav>
 
     <section class="about-section about-story" id="story" aria-labelledby="story-title">
       <div class="about-section-label"><p class="mv-kicker">01 / MY STORY</p><h2 id="story-title">One question. <br/>Then a few <br/><em>more people.</em></h2><p class="about-margin-note">130+ podcast episodes. <br/>Four years of conversations. <br/>Friendships that keep growing.</p></div>
@@ -50,8 +50,8 @@ const talks = [
     </section>
 
     <section class="about-vision" id="together" aria-labelledby="vision-title"><div class="about-section about-vision-grid">
-      <div><p class="mv-kicker">04 / THE NEXT CHAPTER</p><h2 id="vision-title">What could we <br/>discover <em>together?</em></h2><a class="mv-primary" href="/neo-myco/">Explore NeoMyco →</a></div>
-      <div class="about-prose"><p>I’m helping build NeoMyco—the Northeast Ohio Mycology Collaborative—around that question. My hope is to develop a model that helps interested clubs turn shared curiosity into well-documented observations, achievable research projects, and lasting contributions.</p><p>Many clubs already do valuable scientific work. I want to learn from that tradition and help more people participate: through careful iNaturalist records, local surveys, shared methods, and relationships with researchers.</p><p>The pleasure of getting together and romping around the woods belongs at the center. Nobody needs to pursue a publication to belong. But when someone wants to go deeper, I want there to be a welcoming way in.</p><p>MycoView is where I bring these interests together through stories, learning, and research tools. The MycoView carries the conversation into video; MycoGeeky is the person you’ll meet along the way.</p></div>
+      <div><p class="mv-kicker">04 / THE NEXT CHAPTER</p><h2 id="vision-title">What could we <br/>discover <em>together?</em></h2><a class="mv-primary" href="/neo-myco/">Explore NEO Myco →</a></div>
+      <div class="about-prose"><p>I’m helping build NEO Myco—the Northeast Ohio Mycology Collaborative—around that question. My hope is to develop a model that helps interested clubs turn shared curiosity into well-documented observations, achievable research projects, and lasting contributions.</p><p>Many clubs already do valuable scientific work. I want to learn from that tradition and help more people participate: through careful iNaturalist records, local surveys, shared methods, and relationships with researchers.</p><p>The pleasure of getting together and romping around the woods belongs at the center. Nobody needs to pursue a publication to belong. But when someone wants to go deeper, I want there to be a welcoming way in.</p><p>MycoView is where I bring these interests together through stories, learning, and research tools. The MycoView carries the conversation into video; MycoGeeky is the person you’ll meet along the way.</p></div>
     </div></section>
 
     <aside class="about-philosophy"><p>You can take science seriously without taking yourself too seriously. You can respect expertise without worshipping authority. And you can contribute to mycology without waiting for someone to invite you.</p></aside>
@@ -67,7 +67,7 @@ const talks = [
       <div class="about-press-materials">
         <details open><summary>Short biography</summary><p id="short-bio">{bio}</p><button id="copy-bio" type="button" hidden>Copy biography</button><span id="copy-status" role="status" aria-live="polite"></span></details>
         <details><summary>Photographs &amp; event materials</summary><p>Email me for a portrait, the appropriate photographer credit, and a biography or topic description tailored to your event.</p><a class="mv-inline-link" href={inquiry('Photo and event materials request')}>Request materials ↗</a></details>
-        <details><summary>Explore the work</summary><ul><li><a href="https://www.inaturalist.org/people/mycogeekyohio">Field observations on iNaturalist</a></li><li><a href="https://www.youtube.com/@TheMycoView">The MycoView on YouTube</a></li><li><a href="https://www.buzzsprout.com/2269786">The MycoGeeky Podcast archive</a></li><li><a href="/investigate/">MycoView research tools &amp; methods</a></li><li><a href="/neo-myco/">NeoMyco: the community taking shape</a></li></ul></details>
+        <details><summary>Explore the work</summary><ul><li><a href="https://www.inaturalist.org/people/mycogeekyohio">Field observations on iNaturalist</a></li><li><a href="https://www.youtube.com/@TheMycoView">The MycoView on YouTube</a></li><li><a href="https://www.buzzsprout.com/2269786">The MycoGeeky Podcast archive</a></li><li><a href="/investigate/">MycoView research tools &amp; methods</a></li><li><a href="/neo-myco/">NEO Myco: the community taking shape</a></li></ul></details>
       </div>
     </section>
   </div>

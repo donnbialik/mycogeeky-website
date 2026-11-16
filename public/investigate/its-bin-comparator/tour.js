@@ -106,6 +106,79 @@
       end: true },
   ];
 
+
+  /* ---------------- section tours: one per optional section ---------------- */
+  const openCard = (sel) => { const d = $(sel); if (d && d.tagName === 'DETAILS' && !d.open) d.open = true; };
+  const firstOption = (sel, pred) => { const o = [...(($(sel) || {}).options || [])].find((x) => pred(x.value || x.textContent)); return o ? (o.value || o.textContent) : ''; };
+  const hasText = (sel, re) => { const e = $(sel); return !!e && re.test(e.innerText || ''); };
+  const LT = 'Laetiporus';
+  const SECTIONS = {
+    hap: { label: 'Identical sequences within a group', where: () => $('.hap'), steps: [
+      { title: 'Identical sequences within a group', target: () => $('.hap'),
+        body: 'This splits one group by <b>haplotype</b>: sequences that are identical to each other. Use it when a group may hold more than one sequence type, for example a provisional bin assembled from many collectors, or when you want to know whether a few odd sequences are pulling the comparison. It needs at least 3 sequences in the group.' },
+      { title: 'Choose the group and how to split it', target: () => $('.hap'),
+        body: '<b>Group</b>: the group to split. <b>Split into</b>: <b>Main haplotype vs the rest</b> (the largest set of identical sequences against everything else) or <b>Each shared haplotype separately</b>. <b>Exact match only</b> (on) keeps haplotypes strictly identical. With the example data, choose “Example provisional bin”.',
+        fill: () => { const g = firstOption('#hapGroup', (v) => !/\[/.test(v)); if (g) setVal('#hapGroup', g); setVal('#hapMode', 'core'); setVal('#hapStrict', true); } },
+      { title: 'Run the split', target: () => $('.hap'),
+        prep: () => { runMark = ($('#hapResult') || {}).innerText || ''; },
+        body: 'Press <b>Find haplotypes and compare</b>. The tool splits the group, sets the two pieces as Group A and Group B, and runs the analysis for you.',
+        wait: () => idle('#hapGo') && hasText('#hapResult', /haplotype/i) && (($('#hapResult') || {}).innerText || '') !== runMark, waitText: 'Waiting for you to press Find haplotypes and compare…' },
+      { title: 'Read the split', target: () => $('#hapResult') && visible($('#hapResult')) ? $('.hap') : $('.hap'),
+        body: 'The result says how many haplotypes the group holds, which sequences share the main one, and how many are unique. The groups now include “<i>[main haplotype]</i>” and “<i>[other haplotypes]</i>”, and the takeaway compares them. If the other haplotypes differ from the main one by about as much as the group differs from another species, the group may be mixed. Press <b>Undo haplotype split</b> to put the group back.' },
+      { title: 'See it in the takeaway', target: () => $('#takeawayCard'), end: true,
+        body: 'The quick takeaway now compares the main haplotype with the rest. Small differences (a base or two) usually mean ordinary variation within one species; a gap similar to the one between species is a warning sign worth following up with more genes or morphology.' } ] },
+
+    prof: { label: 'Provisional profile', where: () => $('#profCard'), steps: [
+      { title: 'Provisional profile', prep: () => openCard('#profCard'), target: () => $('#profCard'),
+        body: 'Builds a short report about one provisional name from its iNaturalist records: how many records and observers, range, season, habitat from the notes, how variable its ITS is, a good reference sequence, and suggested next steps. It is written to paste into an observation or a discussion.' },
+      { title: 'Enter the provisional name', prep: () => openCard('#profCard'), target: () => $('#profCard'),
+        body: `Type the provisional name exactly as it appears on iNaturalist, for example <b>${esc(EX.prov)}</b>. Optionally add a second provisional in the same genus to <b>Compare with</b>; <b>List other provisionals in this genus</b> shows the names in use, with counts, and clicking one fills it in. <b>Your observation</b> (an iNat number or link) places one record in context.`,
+        fill: () => { openCard('#profCard'); setVal('#profA', EX.prov); } },
+      { title: 'Build the profile', prep: () => { openCard('#profCard'); runMark = ($('#profOut') || {}).innerText || ''; }, target: () => $('#profCard'),
+        body: 'Press <b>Build profile</b>. It reads the provisional’s iNaturalist records and usually takes well under a minute.',
+        wait: () => idle('#profGo') && hasText('#profOut', /Records|Range|Season/) && (($('#profOut') || {}).innerText || '') !== runMark, waitText: 'Waiting for the profile to finish…' },
+      { title: 'Read and copy the report', target: () => $('#profOut'), end: true,
+        body: `The report opens with a headline judgement, then the key facts: records, range, season, habitat, ITS variation (largest and typical difference, number of haplotypes), a reference sequence chosen for quality, and next steps. <b>Details</b> adds sequencing technologies, current iNaturalist identifications and the full distribution. Choose a <b>Format</b> (Markdown for iNaturalist, or plain text) and <b>Length</b>, then <b>Copy report</b>. When this tour was written, ${esc(EX.prov)} came out as “Possibly more than one species”: its sequences differ by up to 13 bases (1.8%), above the common 1.5% yardstick.` } ] },
+
+    cal: { label: 'Genus ITS standard', where: () => $('#calCard'), steps: [
+      { title: 'Genus ITS standard', prep: () => openCard('#calCard'), target: () => $('#calCard'),
+        body: 'One cutoff does not fit every genus: some species differ by many bases, others by one or two. This builds a yardstick for one genus from good, named, vouchered ITS: how much each species varies inside, how far each is from its closest relative, and the cutoff that best separates the two. The quick takeaway then judges comparisons in that genus against it.' },
+      { title: 'Choose the genus and limits', prep: () => openCard('#calCard'), target: () => $('#calCard'),
+        body: `<b>Genus</b>: we will use <b>${LT}</b>, which builds in about half a minute (large genera such as <i>${EX.genus}</i> take several minutes). <b>Sequences per species</b> (5) and <b>Species</b> (80) cap the download. Keep <b>Vouchered or type sequences only</b> on for a cleaner standard; <b>Add iNaturalist research-grade sequences</b> adds more data of mixed quality.`,
+        fill: () => { openCard('#calCard'); setVal('#calGenus', LT); setVal('#calPer', '5'); setVal('#calMaxSp', '80'); setVal('#calVoucher', true); setVal('#calINat', false); } },
+      { title: 'Build it', prep: () => { openCard('#calCard'); runMark = ($('#calResult') || {}).innerText || ''; }, target: () => $('#calCard'),
+        body: 'Press <b>Build genus standard</b>. Progress shows in the bar below and under Activity.',
+        wait: () => idle('#calGo') && hasText('#calResult', /standard built/i) && (($('#calResult') || {}).innerText || '') !== runMark, waitText: 'Waiting for the genus standard to finish…' },
+      { title: 'Read the standard', target: () => $('#calResult'),
+        body: `The chart compares variation <b>within a species</b> with the distance to the <b>closest species</b>, and marks the best <b>cutoff</b>. The sentences give the typical distance between neighbouring species, how much one species usually varies (95th percentile), the cutoff and how often it misplaces comparisons, and how many species show a clear <b>barcode gap</b>. When this tour was written, ${LT} gave 14 species, a cutoff of 0.55% (about 3 bases), and 7 of 13 species with a clear gap.` },
+      { title: 'Species without a gap', target: () => $('#calResult'), end: true,
+        body: 'Species listed <b>without a gap</b> vary inside about as much as they differ from a neighbour. They may be species complexes, contain misidentified sequences, or be genuinely hard to separate on ITS, so treat ITS results in them with extra caution. The <b>Species table</b> and <b>Export species table (CSV)</b> give the numbers per species. The standard is saved in this browser and the quick takeaway uses it whenever your groups are in that genus; <b>Delete this standard</b> removes it.' } ] },
+
+    type: { label: 'Find type sequences', where: () => $('#typeCard'), steps: [
+      { title: 'Find type sequences', prep: () => openCard('#typeCard'), target: () => $('#typeCard'),
+        body: 'A species name is defined by its <b>type specimen</b>. An ITS sequence from the holotype (or an isotype, epitype, neotype…) is the strongest anchor for a comparison. This searches GenBank and GBIF for type-specimen ITS for the names you give.' },
+      { title: 'Enter the names', prep: () => openCard('#typeCard'), target: () => $('#typeCard'),
+        body: `Enter species names, one per line or separated by commas, for example <b>${esc(EX.species)}</b>. <b>Use names of loaded groups</b> fills in the names of your current groups. The options (all on) also search record wording for type words, look up type specimens on GBIF and match their catalogue numbers to GenBank vouchers, search synonyms, and check iNaturalist. Turning options off makes the search faster but less thorough.`,
+        fill: () => { openCard('#typeCard'); setVal('#tfNames', EX.species); } },
+      { title: 'Search', prep: () => { openCard('#typeCard'); runMark = ($('#tfResults') || {}).innerText || ''; }, target: () => $('#typeCard'),
+        body: 'Press <b>Find type material</b>. It runs several searches per name and usually takes under a minute.',
+        wait: () => idle('#tfGo') && hasText('#tfResults', /Found|No |type/i) && (($('#tfResults') || {}).innerText || '') !== runMark, waitText: 'Waiting for the type search to finish…' },
+      { title: 'Read the result', target: () => $('#tfResults'), end: true,
+        body: `Each name gets a one-line verdict, then a table of candidates: accession, kind of type (holotype, isotype…), the <b>evidence</b> (NCBI-verified or a matching herbarium type record on GBIF are strong; a record’s own wording or an iNaturalist note is weaker and worth checking against the publication), voucher, country, length and publication. Tick rows and press <b>Add selected sequences</b> to put them in a group for comparison. <b>Search details</b> shows every search and how many records it found. When this tour was written, ${esc(EX.species)} returned its holotype ITS (MICH 10063), verified by NCBI and filed under var. <i>fagicola</i>.` } ] },
+
+    cov: { label: 'Genus type coverage', where: () => $('#gsCard'), steps: [
+      { title: 'Genus type coverage', prep: () => openCard('#gsCard'), target: () => $('#gsCard'),
+        body: 'How many species in a genus have ITS from their holotype or isotype? This matters when you read a comparison: in a genus where few species have type sequences, “no type sequence matches” says very little, because the right species may simply never have been sequenced from its type.' },
+      { title: 'Choose the genus and scope', prep: () => openCard('#gsCard'), target: () => $('#gsCard'),
+        body: `<b>Genus</b>: we will use <b>${LT}</b> (about one to two minutes). <b>Region</b> and <b>Country code</b> limit the species list to those recorded there. The options match GenBank vouchers to herbarium type specimens on GBIF, search synonyms filed in other genera, count records whose wording names a type, and check iNaturalist. If you already know type accessions, list them (e.g. “MK123456 isotype”).`,
+        fill: () => { openCard('#gsCard'); setVal('#gsGenus', LT); const r = $('#gsRegion'); if (r && r.options.length) setVal('#gsRegion', r.options[0].value); } },
+      { title: 'Survey the genus', prep: () => { openCard('#gsCard'); runMark = ($('#gsResults') || {}).innerText || ''; }, target: () => $('#gsCard'),
+        body: 'Press <b>Survey genus</b>. It searches GenBank, GBIF and iNaturalist; progress shows under Activity.',
+        wait: () => idle('#gsGo') && hasText('#gsResults', /species/i) && (($('#gsResults') || {}).innerText || '') !== runMark, waitText: 'Waiting for the survey to finish…' },
+      { title: 'Read the coverage', target: () => $('#gsResults'), end: true,
+        body: `The headline gives the share of species with holotype or isotype ITS, then the breakdown (holotype, isotype only, other type only, none) with the species in each list. <b>How sure are these?</b> separates NCBI’s own type tags and herbarium matches (strong) from records that rely on their wording (check them). The species with no type ITS are a ready list of what still needs sequencing from types; <b>Send species without type ITS to the type finder</b> passes them to Find type sequences for a deeper search. When this tour was written, ${LT} had 4 of 17 accepted species (24%) with holotype ITS.` } ] },
+  };
+
   /* ---------------- tour engine ---------------- */
   const css = `
   .mvt-shade{position:fixed;inset:0;z-index:9998;background:rgba(5,10,8,.55)}
@@ -130,6 +203,12 @@
   .mvt-pop a{color:var(--accent,#1D6B55);font-weight:600}
   .mvt-pop .mvt-video{display:inline-block;margin:0 0 12px}
   .mvt-start{margin-left:8px}
+  .mvt-pop .mvt-sub{margin:0 0 6px;font-size:13px;color:var(--muted,#56655E)}
+  .mvt-pop .mvt-secs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+  .mvt-pop .mvt-secs button{font-size:12.5px;padding:6px 10px;min-height:30px}
+  .mvt-sec-btn{font:600 12.5px var(--f-body,system-ui,sans-serif);margin-left:10px;padding:4px 10px;border-radius:999px;border:1px solid var(--accent,#1D6B55);background:transparent;color:var(--accent,#1D6B55);cursor:pointer;vertical-align:middle;white-space:nowrap}
+  .mvt-sec-btn:hover{background:var(--accent,#1D6B55);color:var(--accent-ink,#fff)}
+  .mvt-sec-btn:focus-visible{outline:3px solid var(--spore,#8A5A2B);outline-offset:2px}
   #tourBtn.mvt-start{background:var(--accent,#1D6B55)!important;border-color:var(--accent,#1D6B55)!important;color:var(--accent-ink,#fff)!important;font-weight:600}
   .mvt-hint{margin:8px 0 0;font:600 14px var(--f-body,system-ui,sans-serif)}
   .mvt-hint button{font:inherit;color:var(--accent,#1D6B55);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
@@ -194,7 +273,8 @@
     const waiting = render();
     if (el && visible(el)) {
       const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      const tall = el.getBoundingClientRect().height > innerHeight * 0.7;   // long results: show their top, where the headline is
+      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: tall ? 'start' : 'center' });
       setTimeout(place, reduce ? 0 : 380);
     }
     const focusBtn = pop.querySelector('.mvt-primary:not([disabled])') || pop.querySelector('[data-act="fill"]') || pop.querySelector('button');
@@ -221,10 +301,11 @@
     pop.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act]'); if (!a || a.disabled) return;
       const act = a.dataset.act;
-      if (act === 'overview' || act === 'example' || act === 'end') markSeen();
+      if (act === 'overview' || act === 'example' || act === 'sec' || act === 'end') markSeen();
       if (act === 'next') show(i + 1); else if (act === 'back') show(i - 1); else if (act === 'end') end();
       else if (act === 'fill') { try { steps[i].fill(); } catch { /* ignore */ } setTimeout(() => render(), 50); }
       else if (act === 'overview') begin(OVERVIEW); else if (act === 'example') begin(EXAMPLE);
+      else if (act === 'sec' && SECTIONS[a.dataset.sec]) begin(SECTIONS[a.dataset.sec].steps);
     });
     shade.addEventListener('click', () => { markSeen(); end(); });
     document.body.append(shade, spot, pop);
@@ -240,7 +321,7 @@
         <button type="button" class="mvt-primary" data-act="overview">Quick tour<small style="color:inherit;opacity:.85">About 3 minutes: what each part of the page does and when to use it.</small></button>
         <button type="button" data-act="example">Walk through a real example<small>About 5 minutes, live data: compare ${esc(EX.prov)} with the type sequences of ${esc(EX.species)}.</small></button>
         ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : ''}
-      </div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
+      </div><p class="mvt-sub">Or learn one section:</p><div class="mvt-secs">${Object.entries(SECTIONS).map(([k, v]) => `<button type="button" data-act="sec" data-sec="${k}">${esc(v.label)}</button>`).join('')}</div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
     place();
     pop.querySelector('[data-act="overview"]').focus({ preventScroll: true });
   }
@@ -265,6 +346,15 @@
     const stepsBar = $("nav.steps");
     if (stepsBar) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
       h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
+    for (const [k, v] of Object.entries(SECTIONS)) {
+      const host = v.where(); if (!host) continue;
+      const head = host.matches('details') ? host.querySelector('summary h2') : host.querySelector('h3, h2');
+      if (!head) continue;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = '▶ Tour this section';
+      b.setAttribute('aria-label', `Guided tour of ${v.label}`);
+      b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pop) end(); markSeen(); if (!pop) open(); begin(v.steps); });
+      head.appendChild(b);
+    }
     if (!seen()) setTimeout(menu, 900);                    // offer the tours once, after the page has drawn
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

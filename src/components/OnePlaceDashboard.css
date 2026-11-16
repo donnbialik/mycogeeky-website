@@ -5,7 +5,8 @@
 .one-place-dashboard .opd-eyebrow{font:600 .69rem/1.5 'IBM Plex Mono',monospace;letter-spacing:.11em;color:#637d64;margin:0 0 7px}
 .one-place-dashboard .opd-header h3{font:700 clamp(1.55rem,2.2vw,2rem)/1.12 'Source Serif 4',serif;color:#173b30;margin:0 0 8px}
 .one-place-dashboard .opd-header p:not(.opd-eyebrow){color:#416351;font-size:.9rem;margin:0;line-height:1.55}
-.one-place-dashboard .opd-live{font:600 .66rem 'IBM Plex Mono',monospace;color:#57715d;border:1px solid #bfd0b9;border-radius:25px;padding:7px 11px;white-space:nowrap}
+.one-place-dashboard .opd-live{display:inline-flex;align-items:center;gap:8px;font:700 .68rem 'IBM Plex Mono',monospace;letter-spacing:.055em;color:#79380e;background:#ffe6cb;border:1px solid #e8a15f;border-radius:25px;padding:9px 13px;white-space:nowrap;box-shadow:0 0 0 3px rgba(255,153,67,.12),0 0 15px 3px rgba(245,123,34,.24);animation:none}
+.one-place-dashboard .opd-live::before{content:'';width:7px;height:7px;border-radius:50%;background:#e76f22;box-shadow:0 0 7px rgba(231,111,34,.6);flex:none}
 .one-place-dashboard .opd-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0 34px 28px;border:1px solid #dbe4d6;border-radius:7px;background:#fff;overflow:hidden}
 .one-place-dashboard .opd-stat{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:23px 24px 20px;min-width:0;border-left:1px solid #dbe4d6}
 .one-place-dashboard .opd-stat:first-child{border-left:0}

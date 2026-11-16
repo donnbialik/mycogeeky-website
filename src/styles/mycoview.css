@@ -862,3 +862,7 @@
  .mv-study-workspace,.mv-study-follow{padding-inline:13px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* 404 page */
+.not-found{padding-block:clamp(64px,10vw,120px)}
+.not-found-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}

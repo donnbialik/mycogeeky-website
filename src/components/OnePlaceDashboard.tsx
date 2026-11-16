@@ -63,7 +63,7 @@ async function topGenera(query: string): Promise<GenusCount[]> {
       if (taxon?.rank !== 'species' || typeof taxon.id !== 'number' || !taxon.name || seen.has(taxon.id)) continue;
       // Species-ranked iNaturalist scientific names are binomials; the
       // first word identifies the genus without assigning unknown taxa.
-      const parts = taxon.name.trim().split(/\\s+/);
+      const parts = taxon.name.trim().split(/\s+/);
       if (parts.length < 2 || !/^[A-Z][a-zA-Z-]+$/.test(parts[0])) continue;
       seen.add(taxon.id);
       genera.set(parts[0], (genera.get(parts[0]) ?? 0) + 1);

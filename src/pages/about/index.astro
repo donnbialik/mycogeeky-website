@@ -1,6 +1,123 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { Image } from 'astro:assets';
-import connect from '../../assets/pathways/connect.jpg';
+const email = 'mycogeeky@mycogeeky.com';
+const inquiry = (subject: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+const bio = 'Donn Bialik, known as MycoGeeky, is an independent mycology researcher, educator, and community builder based in Northeast Ohio. He hosted more than 130 episodes of The MycoGeeky Podcast over four years, sharing in-depth conversations about mushrooms and helping enthusiasts develop practical skills. His current work includes collaborative species descriptions and permitted fungal surveys. Through MycoView and the developing Northeast Ohio Mycology Collaborative (NeoMyco), he brings together scientific storytelling, accessible research tools, and opportunities to learn and contribute. His guiding question: what could people who love mushrooms discover together?';
+const talks = [
+  { title: 'The Mushroom Question', text: 'What we still don’t know about fungi, why those questions matter, and where curious people can begin investigating.' },
+  { title: 'From Mushroom Walk to Meaningful Research', text: 'How clubs can build achievable projects, document useful observations, and connect members with research opportunities.' },
+  { title: 'Beyond the Mushroom Photo', text: 'What observations, specimens, microscopy, and DNA can each tell us—and how to recognize the limits of the evidence.' },
+];
 ---
-<Base title="About MycoGeeky"><div class="station-page"><section class="station-hero station-hero-split"><div class="station-hero-copy"><p class="eyebrow">ABOUT / WHY THIS EXISTS</p><h1>Stay curious. <em>Stay cultivating.</em></h1><p class="lead">You can take science seriously without taking yourself too seriously. Respect expertise without worshipping authority. And contribute to mycology without waiting for someone to invite you.</p><a class="station-button" href="/connect/">Find your people →</a></div><img src="/images/field-photography/mycogeeky-1.jpg" alt="The MycoGeeky host showing a mushroom with humor and enthusiasm" loading="eager" decoding="async"/></section><section class="station-content"><div class="station-section-head"><h2>THE IDEAS BEHIND MYCOGEEKY</h2><span>CURIOSITY / COOPERATION / INTEGRITY</span></div><div class="station-editorial-grid"><article class="tool-card"><p class="eyebrow">01 / LEARN TOGETHER</p><h3>Curiosity over credentials</h3><p>Expertise matters. So does the willingness to ask a good question and do careful work.</p></article><article class="tool-card"><p class="eyebrow">02 / MAKE CONNECTIONS</p><h3>Cooperation over competition</h3><p>Share methods, observations, interpretations, and credit. Help other people contribute.</p></article><article class="tool-card"><p class="eyebrow">03 / KEEP IT OPEN</p><h3>Integrity over opportunity</h3><p>Evidence comes before certainty, and people come before personal branding.</p></article></div></section></div></Base>
+<Base title="Donn Bialik · Meet MycoGeeky" description="Meet Donn Bialik, known as MycoGeeky: mycology researcher, educator, and community builder connecting fungal curiosity with meaningful participation. Explore his research, story, and speaking topics.">
+  <div class="about-page">
+    <section class="about-hero" aria-labelledby="about-title">
+      <div class="about-hero-copy">
+        <p class="mv-kicker">DONN BIALIK / KNOWN AS MYCOGEEKY</p>
+        <h1 id="about-title">Curiosity is<br/>better <em>shared.</em></h1>
+        <p class="about-intro">I’m Donn. I investigate fungi, tell their stories, and bring curious people together to see what we can discover.</p>
+        <p>Based in Northeast Ohio. Usually following a question into the woods—or introducing two people who really ought to know each other.</p>
+        <div class="about-actions"><a class="mv-primary" href="#research">Explore my work ↓</a><a class="mv-secondary" href="#speaking">Speaking &amp; press ↗</a></div>
+      </div>
+      <figure class="about-portrait"><img src="/images/field-photography/mycogeeky-1.jpg" alt="Donn Bialik, MycoGeeky, holding two mushrooms with an exuberant expression" width="1290" height="1675" loading="eager" fetchpriority="high"/><figcaption>Serious about the science. Delighted by the mushrooms.</figcaption></figure>
+    </section>
+
+    <nav class="about-nav" aria-label="On this page"><a href="#story">My story</a><a href="#research">Research</a><a href="#together">NeoMyco &amp; community</a><a href="#speaking">Speaking</a><a href="#press">Press resources</a></nav>
+
+    <section class="about-section about-story" id="story" aria-labelledby="story-title">
+      <div class="about-section-label"><p class="mv-kicker">01 / MY STORY</p><h2 id="story-title">One question.<br/>Then a few<br/><em>more people.</em></h2><p class="about-margin-note">130+ podcast episodes.<br/>Four years of conversations.<br/>Friendships that keep growing.</p></div>
+      <div class="about-prose">
+        <p class="about-standfirst">My path into mycology has been shaped by people willing to share what they know—and by the questions that kept me coming back.</p>
+        <p>I began in mushroom cultivation. Wanting to understand more led me to host The MycoGeeky Podcast: more than 130 episodes over four years of long conversations with growers, researchers, and other people absorbed in fungi. Those conversations deepened my own expertise and helped others take their next steps, from growing unfamiliar species to using a microscope.</p>
+        <p>As I attended more forays and presentations, I noticed something familiar. People were fascinated by what experts knew, but some left unsure how to turn their enthusiasm into understanding. A great talk could open a whole new world. Finding a way into that world was another question.</p>
+        <p>I was finding my own way, too: doing more fieldwork, becoming an iNaturalist ambassador, and learning through Scott Ostuni’s Amateur Mycology Publishing Group. Working alongside passionate amateur and professional mycologists helped me begin contributing to research—and appreciate the care it takes.</p>
+        <p>Gradually, I recognized something I could offer: practical teaching, honest conversations, and connections that help people find their footing. I’m still learning. Sharing that process is part of the work.</p>
+      </div>
+    </section>
+
+    <section class="about-research-band" id="research" aria-labelledby="research-title"><div class="about-section">
+      <div class="about-heading"><p class="mv-kicker">02 / QUESTIONS I’M WORKING ON</p><h2 id="research-title">Out in the woods.<br/><em>Into the evidence.</em></h2><p>Field observations become more useful when we document them carefully, compare evidence, and bring other people into the investigation.</p></div>
+      <div class="about-projects">
+        <article><p class="mv-kicker">TAXONOMY / WORK IN PROGRESS</p><h3>Helping describe two new species</h3><p>Through connections made in the Amateur Mycology Publishing Group, I’m collaborating on descriptions of two potentially new mushroom species. The work brings together careful observation, comparison, and discussion with experienced mycologists. These descriptions are in progress, not yet published.</p></article>
+        <article><p class="mv-kicker">FIELD SURVEYS / NORTHEAST OHIO</p><h3>Returning to a changing landscape</h3><p>My collecting permit with Cleveland Metroparks focuses on fungal diversity at Hinckley Reservation, where lake drainage for dam repairs changed local water conditions. I’m documenting fungi over time to help investigate what that change may mean. Repeated records can reveal patterns; establishing their causes takes further evidence.</p><p>My wider survey work includes permitted collecting in Summit Metro Parks and Cuyahoga Valley National Park, and collaboration with my friend Jessica Williams.</p></article>
+      </div>
+      <div class="about-resource-links"><a href="https://www.inaturalist.org/people/mycogeekyohio" class="mv-inline-link">See my field observations ↗</a><a href="/investigate/learn/#surveys" class="mv-inline-link">Explore the surveys →</a><a href="/investigate/" class="mv-inline-link">Visit the research workbench →</a></div>
+    </div></section>
+
+    <section class="about-section about-connection" aria-labelledby="connection-title">
+      <figure><img src="/images/field-photography/mycogeeky-2.jpg" alt="Donn kneeling on the forest floor to share a mushroom discovery with two children" width="1536" height="727" loading="lazy" decoding="async"/><figcaption>There’s always something worth looking at together.</figcaption></figure>
+      <div><p class="mv-kicker">03 / OPENING DOORS</p><h2 id="connection-title">Sometimes the next step<br/>is an <em>introduction.</em></h2><p>One of my favorite things is connecting people who might inspire each other. A cultivator joins a fungal survey and discovers a love of fieldwork. Someone picks up a microscope and starts asking questions they couldn’t ask before.</p><p>Those moments matter to me. I want people to find friendships, develop confidence, and recognize something they can contribute. Sometimes that leads toward research. Sometimes it simply makes a walk through the woods richer. Both count.</p></div>
+    </section>
+
+    <section class="about-vision" id="together" aria-labelledby="vision-title"><div class="about-section about-vision-grid">
+      <div><p class="mv-kicker">04 / THE NEXT CHAPTER</p><h2 id="vision-title">What could we<br/>discover <em>together?</em></h2><a class="mv-primary" href="/neo-myco/">Explore NeoMyco →</a></div>
+      <div class="about-prose"><p>I’m helping build NeoMyco—the Northeast Ohio Mycology Collaborative—around that question. My hope is to develop a model that helps interested clubs turn shared curiosity into well-documented observations, achievable research projects, and lasting contributions.</p><p>Many clubs already do valuable scientific work. I want to learn from that tradition and help more people participate: through careful iNaturalist records, local surveys, shared methods, and relationships with researchers.</p><p>The pleasure of getting together and romping around the woods belongs at the center. Nobody needs to pursue a publication to belong. But when someone wants to go deeper, I want there to be a welcoming way in.</p><p>MycoView is where I bring these interests together through stories, learning, and research tools. The MycoView carries the conversation into video; MycoGeeky is the person you’ll meet along the way.</p></div>
+    </div></section>
+
+    <aside class="about-philosophy"><p>You can take science seriously without taking yourself too seriously. You can respect expertise without worshipping authority. And you can contribute to mycology without waiting for someone to invite you.</p></aside>
+
+    <section class="about-section" id="speaking" aria-labelledby="speaking-title">
+      <div class="about-heading"><p class="mv-kicker">05 / SPEAKING &amp; CONVERSATION</p><h2 id="speaking-title">Bring your curiosity.<br/><em>Let’s put it to work.</em></h2><p>Invite me to your mushroom club, festival, or community event for accessible science, lively stories, and practical next steps. Let’s discuss a talk, workshop, or conversation suited to your audience.</p></div>
+      <div class="about-talks">{talks.map((talk, i) => <article><span class="mv-kicker">0{i + 1} / TOPIC TO EXPLORE</span><h3>{talk.title}</h3><p>{talk.text}</p></article>)}</div>
+      <div class="about-booking"><a class="mv-primary" href={inquiry('Speaking inquiry for Donn / MycoGeeky')}>Invite Donn to speak ↗</a><p>Tell me about your audience, location, dates, and the questions you’d like to explore.</p></div>
+    </section>
+
+    <section class="about-section about-press" id="press" aria-labelledby="press-title">
+      <div><p class="mv-kicker">06 / FOR PRESS &amp; ORGANIZERS</p><h2 id="press-title">A few useful details.</h2><p>For interviews, event introductions, photographs, and research inquiries.</p><a class="mv-inline-link" href={inquiry('Press inquiry for Donn / MycoGeeky')}>{email}</a></div>
+      <div class="about-press-materials">
+        <details open><summary>Short biography</summary><p id="short-bio">{bio}</p><button id="copy-bio" type="button" hidden>Copy biography</button><span id="copy-status" role="status" aria-live="polite"></span></details>
+        <details><summary>Photographs &amp; event materials</summary><p>Email me for a portrait, the appropriate photographer credit, and a biography or topic description tailored to your event.</p><a class="mv-inline-link" href={inquiry('Photo and event materials request')}>Request materials ↗</a></details>
+        <details><summary>Explore the work</summary><ul><li><a href="https://www.inaturalist.org/people/mycogeekyohio">Field observations on iNaturalist</a></li><li><a href="https://www.buzzsprout.com/2269786">The MycoGeeky Podcast archive</a></li><li><a href="/investigate/">MycoView research tools &amp; methods</a></li><li><a href="/neo-myco/">NeoMyco: the community taking shape</a></li></ul></details>
+      </div>
+    </section>
+  </div>
+</Base>
+<script>
+  const button = document.querySelector<HTMLButtonElement>('#copy-bio');
+  const status = document.querySelector<HTMLElement>('#copy-status');
+  if (button && status && navigator.clipboard) {
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(document.querySelector('#short-bio')?.textContent?.trim() ?? '');
+        status.textContent = 'Biography copied.';
+      } catch {
+        status.textContent = 'Please select and copy the biography above.';
+      }
+    });
+  }
+</script>
+<style>
+  .about-page{background:var(--mv-cream);color:var(--mv-ink)}
+  .about-page h1,.about-page h2,.about-page h3{font-family:var(--mv-serif);letter-spacing:-.035em;color:inherit}
+  .about-page h2{font-size:clamp(2rem,3.3vw,3.6rem);line-height:1.09;margin:0 0 22px}
+  .about-page h3{font-size:1.65rem;line-height:1.15;margin:12px 0 16px}
+  .about-page p{line-height:1.7}.about-page em{font-weight:500}
+  .about-page section[id]{scroll-margin-top:100px}
+  .about-page a:focus-visible,.about-page button:focus-visible,.about-page summary:focus-visible{outline:3px solid #65862d;outline-offset:5px}
+  .about-hero{display:grid;grid-template-columns:1.15fr 1fr;background:var(--mv-dark);color:#f8f7f1}
+  .about-hero-copy{padding:clamp(32px,5vw,80px);align-self:center;max-width:800px;justify-self:end}
+  .about-hero .mv-kicker{color:#d7e6bd}.about-hero h1{font-size:clamp(3.3rem,6.5vw,6.6rem);line-height:1;margin:18px 0 26px}.about-hero h1 em{color:#d8ec9b}
+  .about-hero-copy>p:not(.mv-kicker){max-width:47ch;color:#e0e9dd}.about-intro{font-size:clamp(1.16rem,1.6vw,1.5rem)}
+  .about-actions{display:flex;flex-wrap:wrap;gap:22px;align-items:center;margin-top:30px}
+  .about-portrait{margin:0;position:relative;min-width:0}.about-portrait img{width:100%;height:100%;max-height:720px;min-height:600px;object-fit:cover;object-position:50% 44%;display:block}
+  .about-portrait figcaption{position:absolute;bottom:18px;left:18px;right:18px;background:#10382ce8;padding:10px 14px;color:#fff;font:500 .7rem var(--mv-mono)}
+  .about-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 32px;padding:20px;border-bottom:1px solid #d3dccd}.about-nav a{font-size:.82rem;text-underline-offset:5px;font-weight:600}
+  .about-section{max-width:1240px;margin:auto;padding:64px 32px}.about-story{display:grid;grid-template-columns:.8fr 1.3fr;gap:clamp(30px,6vw,90px)}
+  .about-prose>p:first-child{margin-top:0}.about-prose>p:last-child{margin-bottom:0}.about-prose p{max-width:68ch}.about-standfirst{font:500 1.45rem/1.5 var(--mv-serif)}
+  .about-margin-note{border-left:2px solid #a8bd88;padding-left:18px;margin-top:30px;font:500 .8rem/1.8 var(--mv-mono);color:#52674f}
+  .about-heading{max-width:740px;margin-bottom:30px}.about-heading>p:last-child{max-width:65ch}
+  .about-research-band{background:#e9eee3;border-block:1px solid #d6dfcf}
+  .about-projects{display:grid;grid-template-columns:1fr 1fr;gap:36px}.about-projects article{border-top:1px solid #aebea3;padding-top:24px}.about-projects p:not(.mv-kicker){font-size:.96rem}
+  .about-resource-links{display:flex;flex-wrap:wrap;gap:20px 32px;margin-top:28px}
+  .about-connection{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}.about-connection figure{margin:0}.about-connection img{width:100%;height:auto;display:block;border-radius:3px}.about-connection figcaption{font:500 .72rem/1.5 var(--mv-mono);margin-top:12px;color:#52674f}
+  .about-vision{background:var(--mv-dark);color:#f4f6ee}.about-vision .mv-kicker{color:#d7e6bd}.about-vision em{color:#d8ec9b}.about-vision-grid{display:grid;grid-template-columns:.9fr 1.2fr;gap:60px}.about-vision .mv-primary{margin-top:10px}
+  .about-philosophy{max-width:1060px;margin:0 auto;padding:35px 32px;border-bottom:1px solid #d6dfcf;text-align:center}.about-philosophy p{font:500 clamp(1.25rem,2.1vw,1.75rem)/1.5 var(--mv-serif);margin:0}
+  .about-talks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.about-talks article{border-top:2px solid #a6b58b;padding-top:20px}.about-talks p{font-size:.94rem}
+  .about-booking{margin-top:28px;display:flex;align-items:center;gap:26px}.about-booking p{font-size:.87rem;max-width:48ch}.about-booking a{flex-shrink:0}
+  .about-press{display:grid;grid-template-columns:.85fr 1.2fr;gap:50px;border-top:1px solid #cbd5c3}.about-press h2{font-size:2.2rem}.about-press-materials{min-width:0}
+  .about-press details{border-bottom:1px solid #cbd5c3;padding:0 0 18px;margin-bottom:18px}.about-press summary{font-weight:600;cursor:pointer;padding:8px 0}.about-press details p,.about-press li{font-size:.92rem}.about-press li{margin:10px 0}.about-press a{overflow-wrap:anywhere}
+  #copy-bio{font:600 .8rem inherit;background:#e5ecd9;color:#17372e;border:1px solid #8ca17d;border-radius:4px;padding:9px 14px;cursor:pointer}#copy-bio[hidden]{display:none}#copy-status{display:inline-block;font-size:.8rem;margin:8px 0 0 12px}
+  @media(max-width:900px){.about-hero-copy{padding:34px}.about-portrait img{min-height:560px}.about-connection,.about-story,.about-vision-grid{gap:30px}.about-talks{gap:18px}.about-press{gap:30px}}
+  @media(max-width:680px){.about-hero{grid-template-columns:1fr}.about-hero-copy{padding:38px 24px}.about-hero h1{font-size:clamp(3.3rem,13vw,5rem)}.about-portrait{max-width:none}.about-portrait img{min-height:0;max-height:none;height:auto;aspect-ratio:1/1;object-position:50% 42%}.about-section{padding:42px 24px}.about-nav{justify-content:flex-start;gap:14px 22px;padding:20px 24px}.about-story,.about-projects,.about-connection,.about-vision-grid,.about-talks,.about-press{grid-template-columns:1fr;gap:24px}.about-margin-note{margin-top:20px}.about-connection figure{order:2}.about-booking{align-items:flex-start;flex-direction:column;gap:10px}.about-philosophy{padding:30px 24px}.about-talks article{padding-top:18px}.about-talks h3{font-size:1.5rem}.about-hero-copy>p{max-width:none}}
+</style>

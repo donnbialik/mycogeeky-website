@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import { links } from '../data/links';
 ---
 <Base title="Page not found" description="This page doesn't exist on MycoView.">
   <section class="page-hero container not-found">
@@ -10,7 +9,6 @@ import { links } from '../data/links';
     <p class="not-found-links">
       <a class="button primary" href="/">Back to MycoView →</a>
       <a class="button" href="/investigate/">Explore the research</a>
-      <a class="button" href={links.youtube.url} target="_blank" rel="noopener noreferrer">Watch The MycoView ↗</a>
     </p>
   </section>
 </Base>

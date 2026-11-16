@@ -6,3 +6,9 @@
   Referrer-Policy: same-origin
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
+
+# ITS Bin Comparator: a self-contained page; allow normal caching but never framing.
+/investigate/its-bin-comparator/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

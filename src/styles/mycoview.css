@@ -564,6 +564,7 @@
 .mv-tool-status-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px}
 .mv-tool-state{display:inline-flex;align-items:center;font-size:.73rem;line-height:1.35;padding:6px 9px;border:1px solid #759c7e;background:#e8f2e8;color:#205539;border-radius:5px;font-weight:700}
 .mv-tool-state[data-state=planned]{border-color:#aebdb4;background:#f0f2f0;color:#51665a}
+.mv-tool-state[data-state=invitation]{border-color:#d9c27a;background:#fbf5e2;color:#6b5414}
 .mv-tool-state.is-neutral{border-color:#c5d3c8;background:#f6f8f5;color:#526b59}
 .mv-tool-science{font-size:.83rem;line-height:1.48;color:#425e4d}
 .mv-tool-limits{font-size:.82rem;margin:0 0 6px}

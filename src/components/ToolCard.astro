@@ -2,6 +2,9 @@
 import type {ResearchTool} from '../data/tools';
 const {tool}=Astro.props as {tool:ResearchTool};
 const available=Boolean(tool.href);
+const invitation=available&&tool.access==='invitation';
+const state=invitation?'invitation':available?'available':'planned';
+const stateLabel={available:'✓ Available to explore',invitation:'◐ Preview / by invitation',planned:'◷ Not yet available'}[state];
 const maturity:Record<ResearchTool['lifecycle'],string>={
  experimental:'Experimental',beta:'Beta',stable:'Stable',archived:'Archived'
 };
@@ -11,15 +14,15 @@ const validation:Record<ResearchTool['validation'],string>={
  'validated-for-scope':'Validated for stated scope'
 };
 ---
-<article class="tool-card mv-tool-card" data-availability={available?'available':'planned'}>
+<article class="tool-card mv-tool-card" data-availability={state}>
  <div class="eyebrow">{tool.category}</div>
  <h3>{tool.name}</h3>
  <p>{tool.description}</p>
  <div class="mv-tool-status-row" aria-label="Tool status">
-  <span class="mv-tool-state" data-state={available?'available':'planned'}>{available?'✓ Available to explore':'◷ Not yet available'}</span>
-  <span class="mv-tool-state is-neutral">{maturity[tool.lifecycle]}</span>
+  <span class="mv-tool-state" data-state={state}>{stateLabel}</span>
+  {available&&<span class="mv-tool-state is-neutral">{maturity[tool.lifecycle]}</span>}
  </div>
- <p class="mv-tool-science"><strong>Scientific status:</strong> {validation[tool.validation]}. This is separate from whether the software can be opened.</p>
+ <p class="mv-tool-science"><strong>Scientific status:</strong> {validation[tool.validation]}.</p>
  {tool.limitations.length>0&&<details class="mv-tool-limits"><summary>What this tool cannot establish</summary><ul>{tool.limitations.map(limit=><li>{limit}</li>)}</ul></details>}
- {available?<a class="text-link mv-tool-open" href={tool.href}>Explore {tool.name} →</a>:<p class="mv-tool-unavailable">This tool is on the development roadmap. No working application is linked yet.</p>}
+ {invitation?<a class="text-link mv-tool-open" href={tool.href}>About the {tool.name} →</a>:available?<a class="text-link mv-tool-open" href={tool.href}>Open the {tool.name} →</a>:<p class="mv-tool-unavailable">This tool is on the development roadmap. No working application is linked yet.</p>}
 </article>

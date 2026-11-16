@@ -2492,7 +2492,7 @@ function profStats(P,bin){
     if(pp.lat!=null&&pp.lng!=null&&Number.isFinite(pp.lat)&&Number.isFinite(pp.lng))pts.push({lat:pp.lat,lng:pp.lng,st:st?st.name:''});
     for(const f of o.ofvs||[]){const n=ofvName(f).trim(),v=String(f.value??'').trim();if(!n||!v||SKIP.test(n))continue;
       if(/elevation|altitude/i.test(n)){const x=parseFloat(v);if(Number.isFinite(x))elev.push(x);continue;}
-      if(!ECO.test(n)||v.length>80)continue;
+      if(!ECO.test(n)||v.length>80||/^\s*(https?:\/\/|www\.)/i.test(v))continue;
       if(!fields.has(n))fields.set(n,new Map());const fm=fields.get(n),key=v.toLowerCase(),e=fm.get(key)||{v,c:0};e.c++;fm.set(key,e);}
   }
   let win=null;const T=m12.reduce((a,b)=>a+b,0);
@@ -3086,7 +3086,7 @@ function renderAll(){renderGroups();renderSeqTable();renderResults();}
   checkSources();
 })();
 </script>
-<!-- MycoView website add-on: guided tour (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-06.html (SHA-256 recorded in the engine repository). -->
+<!-- MycoView website add-on: guided tours (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-15.html (SHA-256 recorded in the engine repository). -->
 <script src="tour.js" defer></script>
 </body>
 </html>

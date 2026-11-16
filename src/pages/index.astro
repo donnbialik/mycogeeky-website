@@ -1,4 +1,5 @@
 ---
+import Photo from '../components/Photo.astro';
 import Base from '../layouts/Base.astro';
 import CuriosityGenerator from '../components/CuriosityGenerator';
 import SurveyDashboard from '../components/SurveyDashboard';
@@ -52,7 +53,7 @@ const paths=[
 
   <section class="mv-host-section" aria-labelledby="mv-host-title">
     <div class="mv-host-inner">
-      <div class="mv-host-image"><img src="/images/field-photography/mycogeeky-field-curiosity.jpg" alt="MycoGeeky in the field, excitedly comparing two wild mushrooms" loading="lazy" decoding="async" width="1080" height="1440"/><span>STAY CURIOUS. STAY CULTIVATING.</span></div>
+      <div class="mv-host-image"><Photo src="mycogeeky-field-curiosity.jpg" alt="MycoGeeky in the field, excitedly comparing two wild mushrooms" loading="lazy" decoding="async" /><span>STAY CURIOUS. STAY CULTIVATING.</span></div>
       <div class="mv-host-copy"><p class="mv-kicker">MEET YOUR GUIDE</p><h2 id="mv-host-title">Hi, I'm MycoGeeky.</h2><p class="mv-host-quote">I spend an unreasonable amount of time asking questions about fungi, chasing mushrooms through forests, and talking to people who know considerably more than I do.</p><p>This is where I share what we're discovering, build tools to help us investigate, and invite you to join the adventure. The best part isn't collecting answers. It's finding people worth asking questions with.</p><div class="mv-host-links"><a class="mv-inline-link" href="/about/">Get to know your guide →</a><a class="mv-inline-link" href="/connect/">Find your people →</a></div></div>
     </div>
   </section>
@@ -67,7 +68,7 @@ const paths=[
   </section>
 
   <section class="mv-section mv-community" aria-labelledby="mv-community-title">
-    <div class="mv-community-image"><img src="/images/field-photography/crane-hollow-1.jpg" alt="Field adventurers standing beneath the sandstone overhang at Crane Hollow" loading="lazy" decoding="async" class="mv-community-crane-hollow"/></div>
+    <div class="mv-community-image"><Photo src="crane-hollow-1.jpg" alt="Field adventurers standing beneath the sandstone overhang at Crane Hollow" loading="lazy" decoding="async" class="mv-community-crane-hollow" /></div>
     <div class="mv-community-copy"><p class="mv-kicker">THE CONVERSATION CONTINUES</p><h2 id="mv-community-title">Come for the mushrooms. Stay for the people.</h2><p>The MycoView brings conversations, field stories and science to video. Neo Myco turns shared questions into collaborative research. And MycoGeeky's podcast history is proof that a good conversation can grow into a lasting friendship.</p><a href="/neo-myco/" class="mv-primary">Explore Neo Myco →</a></div>
   </section>
 </div>

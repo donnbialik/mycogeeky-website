@@ -1,4 +1,5 @@
 ---
+import Photo from '../../components/Photo.astro';
 import Base from '../../layouts/Base.astro';
 const email = 'mycogeeky@mycogeeky.com';
 const inquiry = (subject: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}`;
@@ -18,7 +19,7 @@ const talks = [
         <p>Based in Northeast Ohio. Usually following a question into the woods—or introducing two people who really ought to know each other.</p>
         <div class="about-actions"><a class="mv-primary" href="#research">Explore my work ↓</a><a class="mv-secondary" href="#speaking">Speaking &amp; press ↗</a></div>
       </div>
-      <figure class="about-portrait"><img src="/images/field-photography/mycogeeky-1.jpg" alt="Donn Bialik, MycoGeeky, holding two mushrooms with an exuberant expression" width="1290" height="1675" loading="eager" fetchpriority="high"/></figure>
+      <figure class="about-portrait"><Photo src="mycogeeky-1.jpg" alt="Donn Bialik, MycoGeeky, holding two mushrooms with an exuberant expression" loading="eager" fetchpriority="high" /></figure>
     </section>
 
     <nav class="about-nav" aria-label="On this page"><a href="#story">My story</a><a href="#research">Research</a><a href="#together">NeoMyco &amp; community</a><a href="#speaking">Speaking</a><a href="#press">Press resources</a></nav>
@@ -44,7 +45,7 @@ const talks = [
     </div></section>
 
     <section class="about-section about-connection" aria-labelledby="connection-title">
-      <figure><img src="/images/field-photography/mycogeeky-opening-doors.jpeg" alt="Friends gathered in the woods with two large mushrooms" width="1536" height="1152" loading="lazy" decoding="async"/><figcaption>There’s always something worth looking at together.</figcaption></figure>
+      <figure><Photo src="mycogeeky-opening-doors.jpeg" alt="Friends gathered in the woods with two large mushrooms" loading="lazy" decoding="async" /><figcaption>There’s always something worth looking at together.</figcaption></figure>
       <div><p class="mv-kicker">03 / OPENING DOORS</p><h2 id="connection-title">Sometimes the next step<br/>is an <em>introduction.</em></h2><p>One of my favorite things is connecting people who might inspire each other. A cultivator joins a fungal survey and discovers a love of fieldwork. Someone picks up a microscope and starts asking questions they couldn’t ask before.</p><p>Those moments matter to me. I want people to find friendships, develop confidence, and recognize something they can contribute. Sometimes that leads toward research. Sometimes it simply makes a walk through the woods richer. Both count.</p></div>
     </section>
 

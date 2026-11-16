@@ -17,6 +17,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // Preview image used when a page is shared on Facebook, iNaturalist forums, Discord, etc.
 const shareImage = await getImage({ src: shareImageSource, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
 const shareImageUrl = new URL(shareImage.src, Astro.site);
+import { links } from '../data/links';
+const channels = [links.youtube, links.podcast, links.inaturalist];
 ---
 <!doctype html>
 <html lang="en">
@@ -59,6 +61,9 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
   <footer>
     <div class="container footer-inner">
       <span>MycoView · Curiosity, evidence, and connection.</span>
+      <nav class="footer-channels" aria-label="MycoView channels">
+        {channels.map((c) => <a href={c.url} target="_blank" rel="noopener noreferrer" aria-label={c.label}>{c.short} <span aria-hidden="true">↗</span></a>)}
+      </nav>
       <span>Guided by MycoGeeky. Built for curious people.</span>
     </div>
   </footer>

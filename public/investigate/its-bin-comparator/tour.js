@@ -9,7 +9,7 @@
 (() => {
   'use strict';
   const VIDEO_URL = '';                       // e.g. 'https://www.youtube.com/watch?v=…' when the video exists
-  const SEEN_KEY = 'mycoview-its-comparator-tour-seen-v1';
+  const SEEN_KEY = 'mycoview-its-comparator-tour-seen-v2';   // v2: everyone sees the new start menu once
   const EX = { prov: "Boletus sp. 'variipes-IN02'", species: 'Boletus variipes', genus: 'Boletus' };
 
   const $ = (s) => document.querySelector(s);
@@ -130,6 +130,9 @@
   .mvt-pop a{color:var(--accent,#1D6B55);font-weight:600}
   .mvt-pop .mvt-video{display:inline-block;margin:0 0 12px}
   .mvt-start{margin-left:8px}
+  #tourBtn.mvt-start{background:var(--accent,#1D6B55)!important;border-color:var(--accent,#1D6B55)!important;color:var(--accent-ink,#fff)!important;font-weight:600}
+  .mvt-hint{margin:8px 0 0;font:600 14px var(--f-body,system-ui,sans-serif)}
+  .mvt-hint button{font:inherit;color:var(--accent,#1D6B55);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   @media (max-width:640px){.mvt-pop{left:16px!important;right:16px;width:auto;bottom:16px;top:auto!important;max-height:55vh}}
   @media (prefers-reduced-motion:reduce){.mvt-spot{transition:none}}`;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
@@ -203,7 +206,7 @@
     if (!pop) return;
     const st = steps[i]; const blocked = !!(st && st.wait && !st.wait());
     const inForm = e.target && e.target.closest && !e.target.closest('.mvt-pop') && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
-    if (e.key === 'Escape') { e.preventDefault(); end(); }
+    if (e.key === 'Escape') { e.preventDefault(); markSeen(); end(); }
     else if (inForm) return;                                // let people type into the page's fields
     else if (e.key === 'ArrowRight' && !blocked && steps.length) { e.preventDefault(); if (i < steps.length - 1) show(i + 1); }
     else if (e.key === 'ArrowLeft' && steps.length) { e.preventDefault(); if (i > 0) show(i - 1); }
@@ -218,11 +221,12 @@
     pop.addEventListener('click', (e) => {
       const a = e.target.closest('[data-act]'); if (!a || a.disabled) return;
       const act = a.dataset.act;
+      if (act === 'overview' || act === 'example' || act === 'end') markSeen();
       if (act === 'next') show(i + 1); else if (act === 'back') show(i - 1); else if (act === 'end') end();
       else if (act === 'fill') { try { steps[i].fill(); } catch { /* ignore */ } setTimeout(() => render(), 50); }
       else if (act === 'overview') begin(OVERVIEW); else if (act === 'example') begin(EXAMPLE);
     });
-    shade.addEventListener('click', end);
+    shade.addEventListener('click', () => { markSeen(); end(); });
     document.body.append(shade, spot, pop);
     document.addEventListener('keydown', onKey, true);
     addEventListener('resize', place); addEventListener('scroll', place, true);
@@ -237,7 +241,7 @@
         <button type="button" data-act="example">Walk through a real example<small>About 5 minutes, live data: compare ${esc(EX.prov)} with the type sequences of ${esc(EX.species)}.</small></button>
         ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : ''}
       </div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
-    place(); markSeen();
+    place();
     pop.querySelector('[data-act="overview"]').focus({ preventScroll: true });
   }
 
@@ -256,9 +260,12 @@
     const theme = $('#themeBtn');
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = (theme ? theme.className + ' ' : '') + 'mvt-start'; btn.id = 'tourBtn';
-    btn.textContent = 'Guided tour'; btn.addEventListener('click', () => { if (pop) end(); menu(); });
+    btn.textContent = '▶ Guided tour'; btn.setAttribute('aria-label', 'Guided tour'); btn.addEventListener('click', () => { if (pop) end(); menu(); });
     if (theme && theme.parentNode) theme.parentNode.insertBefore(btn, theme); else document.body.prepend(btn);
-    if (!seen()) setTimeout(menu, 600);                    // offer the tours once, after the page has drawn
+    const stepsBar = $("nav.steps");
+    if (stepsBar) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
+      h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
+    if (!seen()) setTimeout(menu, 900);                    // offer the tours once, after the page has drawn
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

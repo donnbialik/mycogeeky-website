@@ -1,0 +1,19 @@
+---
+import type {ResearchPath} from '../data/tools';
+import {tools} from '../data/tools';
+const {path}=Astro.props as {path:ResearchPath};
+const steps=path.steps.map(s=>({...s,tool:tools.find(t=>t.id===s.toolId)})).filter(s=>s.tool);
+---
+<nav class="mv-research-path" aria-labelledby={`path-${path.id}`}>
+ <p class="eyebrow">For {path.audience.toLowerCase()}</p>
+ <h3 id={`path-${path.id}`}>{path.title}</h3>
+ <p class="mv-research-path-intro">{path.intro}</p>
+ <ol>
+  {steps.map((s,i)=>{const live=Boolean(s.tool!.href);return <li class={live?'':'is-planned'}>
+   <a href={`#tool-${s.toolId}`}>
+    <span class="mv-path-n" aria-hidden="true">{i+1}</span>
+    <span class="mv-path-text"><strong>{s.label}</strong><span class="mv-path-tool">{s.tool!.name}{!live&&' (planned)'}{s.tool!.access==='invitation'&&' (by invitation)'}</span><span class="mv-path-q">{s.question}</span></span>
+   </a>
+  </li>})}
+ </ol>
+</nav>

@@ -12,3 +12,9 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# iNat Seasonality Explorer: a self-contained page that calls the public iNaturalist API from the browser.
+/investigate/seasonality-explorer/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

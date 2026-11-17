@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iNat Seasonality Explorer</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f0efec;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --series: #2a78d6; --series-wash: rgba(42,120,214,0.10); --series-b: #eb6834; --wash-b: rgba(235,104,52,0.12);
+  --now: #0b0b0b; --whisk: #52514e; --warn-bg: #fff6df; --warn-ink: #5c4300; --warn-border: #fab219;
+  --h0: #f0efec; --h1: #cde2fb; --h2: #86b6ef; --h3: #3987e5; --h4: #1c5cab; --h5: #0d366b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #2c2c2a;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --series: #3987e5; --series-wash: rgba(57,135,229,0.14); --series-b: #d95926; --wash-b: rgba(217,89,38,0.18);
+    --now: #f0efec; --whisk: #c3c2b7; --warn-bg: #2e2610; --warn-ink: #f6dc9a; --warn-border: #fab219;
+    --h0: #262624; --h1: #0d366b; --h2: #1c5cab; --h3: #3987e5; --h4: #86b6ef; --h5: #cde2fb;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 48px; }
+header.top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+h1 { font-size: 20px; margin: 0; }
+header.top span { color: var(--ink-2); font-size: 14px; }
+h2 { font-size: 16px; margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+
+/* filters */
+.main3 { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr; gap: 14px; }
+.opts { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: flex-end; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--grid); }
+@media (max-width: 760px) { .main3 { grid-template-columns: 1fr; } }
+.f { min-width: 0; }
+label.lab, .lab { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 4px; }
+input[type=text], input[type=number], select {
+  width: 100%; height: 38px; padding: 0 10px; font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--axis); border-radius: 6px; }
+input:focus, select:focus, button:focus-visible { outline: 2px solid var(--series); outline-offset: 1px; }
+.combo { position: relative; }
+.sel { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: 38px; padding: 0 10px;
+  font: inherit; color: var(--ink); text-align: left; background: var(--surface-2); border: 1px solid var(--axis); border-radius: 6px; cursor: pointer; }
+.sel .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.sel .chg { flex: none; font-size: 12px; color: var(--ink-2); }
+.row { display: flex; gap: 8px; align-items: center; }
+.row > * { min-width: 0; }
+.ac { position: absolute; z-index: 20; left: 0; right: 0; top: 100%; margin-top: 2px; background: var(--surface);
+  border: 1px solid var(--axis); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18); max-height: 280px; overflow: auto; }
+.ac div { padding: 7px 10px; cursor: pointer; }
+.ac div.on, .ac div:hover { background: var(--surface-2); }
+.ac small { color: var(--muted); }
+.picked { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.picked:empty { display: none; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--surface-2); border-radius: 999px; padding: 3px 4px 3px 10px; font-size: 13px; }
+.chip button { border: 0; background: transparent; color: var(--ink-2); cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 6px; border-radius: 999px; }
+.chip button:hover { background: var(--border); }
+.opt select { width: auto; min-width: 190px; }
+.opt input[type=number] { width: 78px; }
+/* switch */
+.switch { display: flex; align-items: center; gap: 9px; cursor: pointer; height: 38px; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch .tr { flex: none; width: 36px; height: 20px; border-radius: 999px; background: var(--axis); position: relative; transition: background .15s; }
+.switch .tr::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.switch input:checked + .tr { background: var(--series); }
+.switch input:checked + .tr::after { transform: translateX(16px); }
+.switch input:focus-visible + .tr { outline: 2px solid var(--series); outline-offset: 2px; }
+.switch .tx { font-size: 14px; line-height: 1.2; }
+.switch .tx small { display: block; font-size: 12px; color: var(--muted); }
+
+#status { min-height: 20px; font-size: 13px; color: var(--ink-2); margin: -4px 2px 10px; display: flex; align-items: center; gap: 8px; }
+.spin { width: 14px; height: 14px; border: 2px solid var(--axis); border-top-color: var(--series); border-radius: 50%; animation: sp .8s linear infinite; }
+@keyframes sp { to { transform: rotate(360deg); } }
+#results { transition: opacity .15s; }
+#results.loading { opacity: .45; pointer-events: none; }
+
+/* answer */
+.answer { padding: 18px 20px; }
+.answer .big { font-size: 22px; line-height: 1.3; margin: 0; font-weight: 400; }
+.answer .big b { font-weight: 650; }
+.answer .nowline { margin: 8px 0 0; font-size: 16px; }
+.answer .basis { margin: 10px 0 0; font-size: 13px; color: var(--ink-2); }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+.badge.warn { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-border); }
+.badge.ok { background: var(--surface-2); color: var(--ink-2); }
+.pm { font-size: 16px; color: var(--ink-2); }
+.conf { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; margin-top: 12px; padding: 9px 12px; border-radius: 8px; background: var(--surface-2); font-size: 14px; }
+.conf .why { color: var(--ink-2); font-size: 13px; flex: 1 1 320px; }
+.meter { display: inline-flex; gap: 3px; }
+.meter i { width: 16px; height: 8px; border-radius: 2px; background: var(--axis); }
+.conf.lv1 .meter i:nth-child(-n+1), .conf.lv2 .meter i:nth-child(-n+2), .conf.lv3 .meter i:nth-child(-n+3) { background: var(--series); }
+.conf.lv0, .conf.lv1 { background: var(--warn-bg); color: var(--warn-ink); box-shadow: inset 4px 0 0 var(--warn-border); }
+.conf.lv0 .why, .conf.lv1 .why { color: inherit; }
+.hintbar { margin-top: 8px; font-size: 13px; color: var(--ink-2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pill { display: inline-block; font-weight: 650; padding: 1px 10px; border-radius: 999px; background: var(--surface-2); }
+.pill.in { background: var(--series); color: #fff; }
+
+.head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.ctl { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 10px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button.on { background: var(--series); color: #fff; font-weight: 600; }
+.seg button:disabled { opacity: .45; cursor: default; }
+.explain { font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 7px 10px; margin: 6px 0 4px; }
+svg { display: block; width: 100%; }
+svg text { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--muted); }
+svg text.strong { fill: var(--ink-2); font-weight: 600; }
+.bar { fill: var(--c, var(--series)); }
+.panel + .panel { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--grid); }
+.panel h3, .ablock h3 { font-size: 14px; margin: 0 0 4px; display: flex; align-items: center; gap: 7px; font-weight: 650; }
+.dot { width: 12px; height: 12px; border-radius: 3px; background: var(--c, var(--series)); flex: none; display: inline-block; }
+.ablock + .ablock { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--grid); }
+.diff { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 16px; }
+.stamp { margin: 14px 0 0; font-size: 12px; color: var(--muted); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.stamp button { font-size: 12px; padding: 3px 8px; }
+.warnbar { margin-top: 8px; padding: 9px 12px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink); box-shadow: inset 4px 0 0 var(--warn-border); font-size: 13px; display: flex; gap: 8px 10px; align-items: center; flex-wrap: wrap; }
+.warnbar button { color: inherit; border-color: currentColor; }
+.more { margin-top: 12px; }
+.more summary { font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.more .opts { border-top: 0; padding-top: 4px; margin-top: 6px; align-items: flex-start; }
+.opt small { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.cmp { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--grid); }
+.cmp .lab { margin: 0; }
+.cmp select { width: auto; }
+.cmp .combo { flex: 1 1 260px; max-width: 420px; }
+.cmp input[type=number] { width: 78px; }
+#baseSel { width: auto; height: 30px; font-size: 13px; }
+.queries { font-size: 12px; color: var(--ink-2); word-break: break-all; margin: 8px 0; }
+.queries a { color: inherit; }
+.hit { fill: transparent; cursor: pointer; }
+.hit:hover { fill: var(--border); }
+#tip { position: fixed; z-index: 50; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12px; padding: 6px 9px; border-radius: 6px; max-width: 260px; display: none; }
+.legend { display: flex; align-items: center; gap: 6px 14px; font-size: 12px; color: var(--ink-2); margin-top: 6px; flex-wrap: wrap; }
+.legend span.k { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--grid); }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+details summary { cursor: pointer; font-weight: 600; }
+button.ghost, a.ghost { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--axis); background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; display: inline-block; }
+.notes { font-size: 13px; color: var(--ink-2); }
+.notes li { margin-bottom: 4px; }
+i.sci { font-style: italic; }
+#tourBlock { position: fixed; inset: 0; z-index: 90; }
+#tourSpot { position: fixed; z-index: 91; border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,.58), 0 0 0 2px var(--series); }
+#tourSpot.none { box-shadow: 0 0 0 9999px rgba(0,0,0,.58); width: 0; height: 0; left: 50%; top: 50%; }
+#tourCard { position: fixed; z-index: 92; width: min(380px, calc(100vw - 24px)); background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+#tourCard h2 { font-size: 17px; margin: 2px 0 6px; }
+#tourCard p { margin: 0 0 14px; font-size: 14px; color: var(--ink-2); }
+.tstep { font-size: 12px; color: var(--muted); font-weight: 600; }
+.tnav { display: flex; gap: 8px; align-items: center; }
+button.primary { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: 0; background: var(--series); color: #fff; cursor: pointer; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <a id="siteHome" class="hidden" href="/investigate/tools/" style="display:inline-block;margin-bottom:10px;font-size:13px;color:var(--ink-2);text-decoration:none">← MycoView Research Workbench</a>
+  <header class="top">
+    <h1>iNat Seasonality Explorer</h1>
+    <span>When is it actually being found where you hunt? Live data from iNaturalist.</span>
+    <button type="button" class="ghost" id="guideBtn" style="margin-left:auto">Guide</button>
+  </header>
+
+  <section class="card">
+    <div class="main3">
+      <div class="f">
+        <label class="lab" for="taxonQ">What</label>
+        <div class="combo">
+          <input type="text" id="taxonQ" autocomplete="off" placeholder="Search a species, genus, family…">
+          <button type="button" class="sel hidden" id="taxonSel" title="Change taxon"><span class="nm"></span><span class="chg">Change</span></button>
+        </div>
+      </div>
+      <div class="f">
+        <label class="lab" for="placeMode">Where</label>
+        <div class="row">
+          <select id="placeMode" style="flex:0 0 132px">
+            <option value="place">In a place</option>
+            <option value="radius">Near a point</option>
+            <option value="any">Worldwide</option>
+          </select>
+          <div class="combo" id="placeBox" style="flex:1">
+            <input type="text" id="placeQ" autocomplete="off" placeholder="State, county, park…">
+            <button type="button" class="sel hidden" id="placeSel" title="Change place"><span class="nm"></span><span class="chg">Change</span></button>
+          </div>
+          <div id="radiusBox" class="row hidden" style="flex:1">
+            <input type="number" id="lat" step="any" placeholder="Lat" aria-label="Latitude" style="flex:1">
+            <input type="number" id="lng" step="any" placeholder="Long" aria-label="Longitude" style="flex:1">
+            <input type="number" id="radius" min="1" max="500" placeholder="mi" aria-label="Radius in miles" title="Radius in miles" style="flex:0 0 68px">
+          </div>
+        </div>
+      </div>
+      <div class="f">
+        <label class="lab" for="userQ">Whose observations</label>
+        <div class="combo">
+          <input type="text" id="userQ" autocomplete="off" placeholder="Everyone — search to pick people">
+        </div>
+        <div class="picked" id="userPicked"></div>
+      </div>
+    </div>
+
+    <div class="opts" id="optsMain">
+      <label class="switch" title="Keeps only observations that have the DNA Barcode ITS observation field filled in.">
+        <input type="checkbox" id="seqOnly"><span class="tr"></span>
+        <span class="tx">DNA-sequenced only<small>has an ITS barcode</small></span>
+      </label>
+      <label class="switch" title="Drops any observation whose location is obscured or private, whether the observer chose that or iNat applied it because the species is threatened.">
+        <input type="checkbox" id="noObscured"><span class="tr"></span>
+        <span class="tx">Hide obscured<small>exact locations only</small></span>
+      </label>
+      <div class="opt">
+        <label class="lab" for="quality">Quality</label>
+        <select id="quality">
+          <option value="verifiable">Research grade + needs ID</option>
+          <option value="research">Research grade only</option>
+          <option value="any">Everything, incl. casual</option>
+        </select>
+      </div>
+      <div class="opt">
+        <span class="lab">Years</span>
+        <div class="row">
+          <input type="number" id="y1" min="1950" max="2100" aria-label="From year">
+          <span style="color:var(--muted)">to</span>
+          <input type="number" id="y2" min="1950" max="2100" aria-label="To year">
+        </div>
+      </div>
+    </div>
+
+    <details class="more" id="more">
+      <summary>More filters</summary>
+      <div class="opts">
+        <div class="opt">
+          <span class="lab">Latitude band</span>
+          <div class="row">
+            <input type="number" id="latS" min="-90" max="90" step="any" placeholder="South" aria-label="Southern latitude limit">
+            <span style="color:var(--muted)">to</span>
+            <input type="number" id="latN" min="-90" max="90" step="any" placeholder="North" aria-label="Northern latitude limit">
+          </div>
+          <small>For example 0 to 90 keeps the Northern Hemisphere.</small>
+        </div>
+        <div class="opt" style="flex:1 1 320px">
+          <label class="lab" for="prov">Provisional species name</label>
+          <input type="text" id="prov" autocomplete="off" placeholder="Exact name as written in the observation field">
+          <small>Matches the &ldquo;Provisional Species Name&rdquo; field exactly (capitals don't matter). Keep &ldquo;What&rdquo; on its genus, or on Fungi.</small>
+        </div>
+      </div>
+    </details>
+
+    <div class="cmp">
+      <label class="lab" for="cmpMode">Compare with</label>
+      <select id="cmpMode">
+        <option value="none">Nothing</option>
+        <option value="taxon">Another species or group</option>
+        <option value="place">Another place</option>
+        <option value="years">Another span of years</option>
+      </select>
+      <div class="combo hidden" id="cmpTaxonBox">
+        <input type="text" id="cmpTaxonQ" autocomplete="off" placeholder="Search the second species or group…">
+        <button type="button" class="sel hidden" id="cmpTaxonSel" title="Change"><span class="nm"></span><span class="chg">Change</span></button>
+      </div>
+      <div class="combo hidden" id="cmpPlaceBox">
+        <input type="text" id="cmpPlaceQ" autocomplete="off" placeholder="Search the second place…">
+        <button type="button" class="sel hidden" id="cmpPlaceSel" title="Change"><span class="nm"></span><span class="chg">Change</span></button>
+      </div>
+      <div class="row hidden" id="cmpYearsBox">
+        <input type="number" id="cy1" min="1950" max="2100" aria-label="Second span, from year">
+        <span style="color:var(--muted)">to</span>
+        <input type="number" id="cy2" min="1950" max="2100" aria-label="Second span, to year">
+      </div>
+    </div>
+  </section>
+
+  <div id="status" role="status"></div>
+
+  <div id="results" class="hidden">
+    <section class="card answer" id="answer"></section>
+
+    <div id="charts">
+    <section class="card" id="barsCard">
+      <div class="head">
+        <div>
+          <h2>Through the year</h2>
+          <div class="sub" id="c1sub"></div>
+        </div>
+        <div class="ctl">
+          <div class="seg" id="resSeg" role="group" aria-label="Bar size">
+            <button data-r="week">Weekly</button>
+            <button data-r="month">Monthly</button>
+          </div>
+          <div class="seg" id="metricSeg" role="group" aria-label="Measure">
+            <button data-m="raw">Counts</button>
+            <button data-m="share">Adjusted for effort</button>
+          </div>
+          <select id="baseSel" class="hidden" aria-label="Group to compare against"></select>
+        </div>
+      </div>
+      <div class="explain" id="explain"></div>
+      <div id="bars"></div>
+      <div class="legend">
+        <span class="k"><span class="sw" style="background:var(--series-wash);border:1px solid var(--border)"></span> Main season or flush (middle 80%), paler where the edges are uncertain</span>
+        <span class="k"><span style="border-left:1.5px solid var(--whisk);height:14px;display:inline-block"></span> Plausible range for each bar</span>
+        <span class="k"><span style="border-left:2px solid var(--now);height:14px;display:inline-block"></span> Today</span>
+        <span>Click a bar to see those observations on iNaturalist.</span>
+      </div>
+    </section>
+
+    <section class="card" id="heatCard">
+      <div class="head">
+        <div>
+          <h2>Year by year</h2>
+          <div class="sub" id="c2sub"></div>
+        </div>
+      </div>
+      <div id="heats"></div>
+      <div class="legend">
+        <span class="k">Fewer <span class="sw" style="background:var(--h1)"></span><span class="sw" style="background:var(--h2)"></span><span class="sw" style="background:var(--h3)"></span><span class="sw" style="background:var(--h4)"></span><span class="sw" style="background:var(--h5)"></span> More</span>
+        <span>Shading is relative to each year's own busiest period. Years with under 5 observations are faded.</span>
+      </div>
+    </section>
+
+    <section class="card" id="tableCard">
+      <details>
+        <summary>Data table and export</summary>
+        <div style="margin:10px 0"><button class="ghost" id="csv">Download CSV</button> <a class="ghost" id="inatLink" target="_blank" rel="noopener">Open this search on iNaturalist</a></div>
+        <div class="queries" id="queries"></div>
+        <div id="table"></div>
+      </details>
+    </section>
+    </div>
+  </div>
+
+  <section class="card notes" id="notesCard">
+    <details>
+      <summary>How to read this, and what it can't tell you</summary>
+      <ul>
+        <li>These are counts of observations, not of mushrooms. They show when people photograph a species, which follows fruiting but also follows weekends, weather and how many observers are out.</li>
+        <li><b>Adjusted for effort</b> divides by every observation in a comparison group made in the same place and period, with the same filters. For fungi the default group is all fungi with the main lichen groups left out (Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Verrucariales, Pyrenulales, Trypetheliales), because lichens are photographed all year. You can switch the group to the taxon's own order or class.</li>
+        <li><b>Two flushes</b> are reported when a second peak is at least 15% as tall as the main one, the dip between them falls below half the smaller peak, the peaks are at least 8 weeks apart, and each side has 20 or more observations and at least a tenth of the total. These cutoffs are rules of thumb.</li>
+        <li><b>Latitude warnings</b> use the bounding box of the chosen place, so a place with outlying territory can trigger one. The hemisphere check counts the actual observations south of the equator.</li>
+        <li><b>Confidence</b> is a rule of thumb, not a guarantee. Under 30 observations no season is stated, because the start and end dates would each rest on fewer than three records. Above that, the tool rebuilds the data 400 times from randomly re-picked years (or with random counting noise when there are under 5 years) and reports how far the season edges move. It is also held back when there are fewer than 100 observations, fewer than 5 observers, one observer supplying over half, fewer than 3 years, or one year supplying over 60%.</li>
+        <li><b>Plausible range</b> lines on the bars are 90% ranges from counting noise alone: a bar of 4 could easily have been 1 or 9. Real data is lumpier than that (one foray can add ten records), so treat the ranges as the minimum uncertainty.</li>
+        <li><b>DNA-sequenced only</b> checks that the DNA Barcode ITS field is filled in. It does not check that the sequence was reviewed or that the identification matches it.</li>
+        <li>Identifications on iNaturalist can be wrong, especially for species that need microscopy or sequencing. Research grade means two people agreed, not that it was verified.</li>
+      </ul>
+    </details>
+  </section>
+</main>
+<div id="tip"></div>
+<div id="tourBlock" class="hidden"></div>
+<div id="tourSpot" class="hidden"></div>
+<div id="tourCard" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+  <div class="tstep" id="tourStep"></div>
+  <h2 id="tourTitle"></h2>
+  <p id="tourBody"></p>
+  <div class="tnav">
+    <button type="button" class="ghost" id="tourSkip">Skip</button>
+    <span style="flex:1"></span>
+    <button type="button" class="ghost" id="tourBack">Back</button>
+    <button type="button" class="primary" id="tourNext">Next</button>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+const API = 'https://api.inaturalist.org/v1';
+const MIN_GAP_MS = 1100;          // stay near 1 request/second
+const BASE_MIN = 50;              // baseline observations needed before an adjusted value is shown
+const MIN_N = 30;                 // below this the 10% and 90% points each rest on fewer than 3 observations
+const FUNGI = 47170;
+const LICHENS = [54743, 152028, 152030, 117869, 117881, 152541];   // Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Verrucariales, Pyrenulales, Trypetheliales
+const PROV_FIELD = 'Provisional Species Name';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => Number(n).toLocaleString('en-US');
+const plural = (k, w) => fmt(k) + ' ' + w + (k === 1 ? '' : 's');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const now = new Date();
+const NOW_UTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+const THIS_YEAR = now.getFullYear();
+
+/* ---------- state ---------- */
+const state = {
+  taxon: { id: 53713, name: 'Laetiporus sulphureus', common: 'chicken of the woods', rank: 'species', iconicId: FUNGI, iconicName: 'Fungi' },
+  placeMode: 'place',
+  place: { id: 31, name: 'Ohio, US', bbox: [38.4, 42.33] },
+  lat: '', lng: '', radius: 50,
+  users: [],
+  quality: 'verifiable', res: 'week', y1: 2010, y2: THIS_YEAR,
+  noObscured: false, seqOnly: false, latS: '', latN: '', prov: '',
+  baseline: 'nolichen', metric: 'raw',
+  cmp: { mode: 'none', taxon: null, place: null, y1: 2010, y2: 2018 }
+};
+let datasets = [];    // one per series: the main one, plus the comparison if any
+let runToken = 0;
+const fetchedAt = new Map();
+
+/* ---------- rate-limited, cached API ---------- */
+const cache = new Map();
+let chain = Promise.resolve();
+let lastCall = 0;
+function api(path, isStale) {
+  const url = API + path;
+  if (cache.has(url)) return Promise.resolve(cache.get(url));
+  const run = async () => {
+    if (isStale && isStale()) { const e = new Error('stale'); e.stale = true; throw e; }
+    if (cache.has(url)) return cache.get(url);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const wait = lastCall + MIN_GAP_MS - Date.now();
+      if (wait > 0) await sleep(wait);
+      lastCall = Date.now();
+      const ctl = new AbortController(), kill = setTimeout(() => ctl.abort(), 30000);
+      let r;
+      try { r = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: ctl.signal }); }
+      catch (e) { throw new Error(ctl.signal.aborted ? 'the request timed out' : 'the network request failed'); }
+      finally { clearTimeout(kill); }
+      if (r.status === 429) { await sleep(6000 * (attempt + 1)); continue; }
+      if (!r.ok) throw new Error('iNaturalist returned ' + r.status);
+      const j = await r.json();
+      cache.set(url, j); fetchedAt.set(url, new Date());
+      return j;
+    }
+    throw new Error('iNaturalist is rate-limiting requests. Wait a minute and try again.');
+  };
+  const p = chain.then(run, run);
+  chain = p.catch(() => {});
+  return p;
+}
+
+/* ---------- date helpers (ISO weeks, as iNaturalist uses) ---------- */
+function isoInfo(d) {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const dow = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - dow + 3);
+  const y = t.getUTCFullYear();
+  const jan4 = new Date(Date.UTC(y, 0, 4));
+  const w = 1 + Math.round(((t - jan4) / 864e5 - 3 + ((jan4.getUTCDay() + 6) % 7)) / 7);
+  return { year: y, week: w, dow };
+}
+function isoWeekStart(y, w) {
+  const jan4 = new Date(Date.UTC(y, 0, 4));
+  const d = new Date(jan4);
+  d.setUTCDate(jan4.getUTCDate() - ((jan4.getUTCDay() + 6) % 7) + (w - 1) * 7);
+  return d;
+}
+const md = d => MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate();
+const ymd = d => d.toISOString().slice(0, 10);
+function addDays(d, n) { const x = new Date(d); x.setUTCDate(x.getUTCDate() + n); return x; }
+
+function periodLabel(i, res) {
+  if (res === 'month') return MONTHS_LONG[i];
+  const s = isoWeekStart(THIS_YEAR, i + 1);
+  return 'Week ' + (i + 1) + ' (~' + md(s) + '–' + md(addDays(s, 6)) + ')';
+}
+function periodStart(i, res) { return res === 'month' ? MONTHS[i] + ' 1' : md(isoWeekStart(THIS_YEAR, i + 1)); }
+function periodEnd(i, res) {
+  if (res === 'month') return MONTHS[i] + ' ' + new Date(Date.UTC(2025, i + 1, 0)).getUTCDate();
+  return md(addDays(isoWeekStart(THIS_YEAR, i + 1), 6));
+}
+function nowIndex(res) { return res === 'month' ? now.getMonth() : Math.min(52, isoInfo(NOW_UTC).week - 1); }
+
+/* ---------- which series to load ---------- */
+function specs() {
+  const base = JSON.parse(JSON.stringify(state)); const c = base.cmp; delete base.cmp; delete base.metric;
+  const out = [Object.assign({}, base, { tag: 'A' })];
+  if (c.mode === 'taxon' && c.taxon) out.push(Object.assign({}, base, { tag: 'B', taxon: c.taxon, prov: '' }));
+  if (c.mode === 'place' && c.place) out.push(Object.assign({}, base, { tag: 'B', placeMode: 'place', place: c.place }));
+  if (c.mode === 'years' && c.y1 && c.y2) out.push(Object.assign({}, base, { tag: 'B', y1: c.y1, y2: c.y2 }));
+  return out;
+}
+
+/* ---------- query building ---------- */
+function latBand(s) { return s.latS === '' && s.latN === '' ? null : [s.latS === '' ? -90 : Number(s.latS), s.latN === '' ? 90 : Number(s.latN)]; }
+function latRange(s) {             // rough latitude extent of the search area, or null if unknown / tiny
+  let r;
+  if (s.placeMode === 'radius') return null;
+  if (s.placeMode === 'place') { if (!s.place || !s.place.bbox) return null; r = s.place.bbox.slice(); }
+  else r = [-90, 90];
+  const b = latBand(s);
+  if (b) r = [Math.max(r[0], b[0]), Math.min(r[1], b[1])];
+  return r[1] > r[0] ? r : null;
+}
+function commonParams(s, forBaseline) {
+  const p = new URLSearchParams();
+  if (s.placeMode === 'place' && s.place) p.set('place_id', s.place.id);
+  if (s.placeMode === 'radius') { p.set('lat', s.lat); p.set('lng', s.lng); p.set('radius', (Number(s.radius) * 1.609344).toFixed(1)); }
+  if (s.users.length) p.set('user_id', s.users.map(u => u.id).join(','));
+  if (s.quality === 'research') p.set('quality_grade', 'research');
+  if (s.quality === 'verifiable') p.set('quality_grade', 'research,needs_id');
+  p.set('d1', s.y1 + '-01-01'); p.set('d2', s.y2 + '-12-31');
+  if (s.noObscured) { p.set('geoprivacy', 'open'); p.set('taxon_geoprivacy', 'open'); }
+  if (s.seqOnly) p.set('field:DNA Barcode ITS', '');
+  if (!forBaseline && s.prov) p.set('field:' + PROV_FIELD, s.prov);
+  const b = latBand(s);
+  if (b && s.placeMode !== 'radius') { p.set('swlat', b[0]); p.set('nelat', b[1]); p.set('swlng', -180); p.set('nelng', 180); }
+  return p;
+}
+function taxonParams(s) { const p = commonParams(s, false); if (s.taxon) p.set('taxon_id', s.taxon.id); return p; }
+function baseParams(s, base) { const p = commonParams(s, true); p.set('taxon_id', base.id); if (base.without) p.set('without_taxon_id', base.without.join(',')); return p; }
+function inatUrl(s, extra) {
+  const p = taxonParams(s);
+  if (extra) for (const k in extra) p.set(k, extra[k]);
+  return 'https://www.inaturalist.org/observations?' + p.toString();
+}
+function validate() {
+  if (!state.taxon) return 'Search for a species or group to begin.';
+  if (state.placeMode === 'place' && !state.place) return 'Search for a place, or switch “Where” to Worldwide.';
+  if (state.placeMode === 'radius') {
+    const la = Number(state.lat), lo = Number(state.lng), r = Number(state.radius);
+    if (state.lat === '' || state.lng === '') return 'Enter a latitude and longitude for the centre point.';
+    if (!isFinite(la) || !isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180) return 'That latitude or longitude is out of range.';
+    if (!(r > 0)) return 'Enter a radius in miles.';
+  }
+  const yr = (a, b) => a >= 1900 && b >= a && b <= THIS_YEAR + 1;
+  if (!yr(state.y1, state.y2)) return 'Check the year range.';
+  const b = latBand(state);
+  if (b && !(b[0] >= -90 && b[1] <= 90 && b[0] < b[1])) return 'Latitude band: the south value must be below the north value, both between -90 and 90.';
+  if (state.cmp.mode === 'taxon' && !state.cmp.taxon) return 'Search for the second species or group to compare.';
+  if (state.cmp.mode === 'place' && !state.cmp.place) return 'Search for the second place to compare.';
+  if (state.cmp.mode === 'years' && !yr(state.cmp.y1, state.cmp.y2)) return 'Check the second span of years.';
+  return null;
+}
+
+/* ---------- taxon ancestry, for comparison groups ---------- */
+const metaCache = new Map();
+async function getMeta(t, stale) {
+  if (!t) return { iconicId: FUNGI, iconicName: 'Fungi', order: null, cls: null, lichen: false };
+  if (metaCache.has(t.id)) return metaCache.get(t.id);
+  let m = { iconicId: t.iconicId || null, iconicName: t.iconicName || '', order: null, cls: null, lichen: false };
+  try {
+    const j = await api('/taxa/' + t.id, stale), r = j.results && j.results[0];
+    if (r) {
+      const anc = r.ancestors || [], pick = rank => { const a = anc.find(x => x.rank === rank); return a ? { id: a.id, name: a.name } : null; };
+      m = { iconicId: r.iconic_taxon_id || m.iconicId, iconicName: r.iconic_taxon_name || m.iconicName, order: pick('order'), cls: pick('class'),
+            lichen: anc.map(a => a.id).concat([r.id]).some(id => LICHENS.includes(id)) };
+      metaCache.set(t.id, m);
+    }
+  } catch (e) { if (e && e.stale) throw e; }
+  return m;
+}
+function baseOptions(s, m) {
+  const seq = s.seqOnly ? 'DNA-sequenced ' : '', tid = s.taxon ? s.taxon.id : null, o = [];
+  if (m.iconicId === FUNGI && !m.lichen && tid !== FUNGI) o.push({ key: 'nolichen', id: FUNGI, without: LICHENS, label: seq + 'fungi (lichens excluded)', short: 'vs. fungi, lichens excluded' });
+  if (m.order && m.order.id !== tid) o.push({ key: 'order', id: m.order.id, label: seq + m.order.name, short: 'vs. ' + m.order.name + ' (its order)' });
+  if (m.cls && m.cls.id !== tid) o.push({ key: 'class', id: m.cls.id, label: seq + m.cls.name, short: 'vs. ' + m.cls.name + ' (its class)' });
+  if (m.iconicId && m.iconicId !== tid) {
+    const nm = m.iconicId === FUNGI ? 'fungi (lichens included)' : (m.iconicName || 'its group').toLowerCase();
+    o.push({ key: 'iconic', id: m.iconicId, label: seq + nm, short: 'vs. ' + (m.iconicId === FUNGI ? 'all fungi, lichens included' : 'all ' + nm) });
+  }
+  return o;
+}
+
+/* ---------- load ---------- */
+let loadTimer = null;
+function scheduleLoad(delay) { clearTimeout(loadTimer); loadTimer = setTimeout(load, delay == null ? 450 : delay); }
+
+async function loadOne(s, stale) {
+  const n = s.res === 'month' ? 12 : 53, key = s.res === 'month' ? 'month_of_year' : 'week_of_year';
+  const meta = await getMeta(s.taxon, stale);
+  const opts = baseOptions(s, meta), base = opts.find(o => o.key === s.baseline) || opts[0] || null;
+  const tq = taxonParams(s).toString();
+  const spPath = '/observations/histogram?' + tq + '&interval=' + key;
+  const sp = await api(spPath, stale);
+  const basePath = base ? '/observations/histogram?' + baseParams(s, base) + '&interval=' + key : null;
+  const bs = base ? await api(basePath, stale) : null;
+  const yr = await api('/observations/histogram?' + tq + '&interval=' + s.res, stale);
+  let observers = null, topCount = null;
+  try {
+    const ob = await api('/observations/observers?' + tq + '&per_page=1', stale);
+    if (ob && typeof ob.total_results === 'number') { observers = ob.total_results; topCount = ob.results && ob.results[0] ? ob.results[0].observation_count : null; }
+  } catch (e) { if (e && e.stale) throw e; }
+
+  const toArr = j => { const o = (j && j.results && j.results[key]) || {}; const a = new Array(n).fill(0); for (const k in o) { const i = Number(k) - 1; if (i >= 0 && i < n) a[i] = o[k] || 0; } return a; };
+  const counts = toArr(sp), baseCounts = bs ? toArr(bs) : null;
+  const share = baseCounts ? counts.map((c, i) => baseCounts[i] >= BASE_MIN ? c / baseCounts[i] * 1000 : null) : null;
+  const total = counts.reduce((a, b) => a + b, 0);
+  const grid = {}, yo = (yr && yr.results && yr.results[s.res]) || {};
+  for (const k in yo) {
+    const v = yo[k]; if (!v) continue;
+    const d = new Date(k.slice(0, 10) + 'T00:00:00Z');
+    let y, i;
+    if (s.res === 'month') { y = d.getUTCFullYear(); i = d.getUTCMonth(); }
+    else { const info = isoInfo(d); y = info.year; i = info.week - 1; }
+    (grid[y] = grid[y] || new Array(n).fill(0))[i] += v;
+  }
+  // how much of this is from south of the equator, where the seasons are reversed?
+  const range = latRange(s); let southShare = null;
+  if (total > 0 && range && range[0] < 0 && range[1] > 0) {
+    try {
+      const p = taxonParams(s); p.set('swlat', range[0]); p.set('nelat', 0); p.set('swlng', -180); p.set('nelng', 180);
+      const so = await api('/observations?per_page=0&' + p, stale);
+      if (so && typeof so.total_results === 'number') southShare = Math.min(1, so.total_results / total);
+    } catch (e) { if (e && e.stale) throw e; }
+  }
+  return { s, n, counts, baseCounts, share, grid, total, base, baseOpts: opts, observers, topCount, yearsWithData: Object.keys(grid).length,
+           range, southShare, retrieved: fetchedAt.get(API + spPath) || new Date(), urls: [API + spPath].concat(basePath ? [API + basePath] : []) };
+}
+
+async function load() {
+  readForm();
+  const err = validate();
+  if (err) { runToken++; setStatus(err, false); $('results').classList.remove('loading'); return; }
+  const token = ++runToken, stale = () => token !== runToken;
+  const list = specs();
+  saveHash();
+  $('results').classList.add('loading');
+  try {
+    const out = [];
+    for (let i = 0; i < list.length; i++) {
+      setStatus(list.length > 1 ? 'Getting observations from iNaturalist… (' + (i + 1) + ' of ' + list.length + ')' : 'Getting observations from iNaturalist…', true);
+      out.push(await loadOne(list[i], stale));
+    }
+    if (stale()) return;
+    datasets = out;
+    if (!datasets.some(d => d.share)) state.metric = 'raw';
+    setStatus('', false);
+    $('results').classList.remove('loading');
+    render();
+  } catch (e) {
+    if (e && e.stale) return;
+    $('results').classList.remove('loading');
+    setStatus('Could not reach iNaturalist: ' + (e && e.message ? e.message : e) + '. Change a filter to try again.', false);
+  }
+}
+function setStatus(text, busy) { $('status').innerHTML = (busy ? '<span class="spin"></span>' : '') + esc(text); }
+
+/* ---------- season statistics ---------- */
+function smooth(v, passes) {
+  let a = v.slice(); const n = a.length;
+  for (let p = 0; p < passes; p++) { const b = new Array(n); for (let i = 0; i < n; i++) { let t = 0; for (let j = -2; j <= 2; j++) t += a[(i + j + n) % n]; b[i] = t / 5; } a = b; }
+  return a;
+}
+/* Decide where the year "starts" (its quietest point) and whether there are one or two flushes. */
+function seasonPlan(v, counts) {
+  const n = v.length, weekly = n > 12;
+  const sm = weekly ? smooth(v, 2) : v.slice();
+  const quietFrom = weekly ? sm : smooth(v, 0).map((x, i) => x + v[(i + 1) % n] * 0.5 + v[(i - 1 + n) % n] * 0.5);
+  let minI = 0; for (let i = 1; i < n; i++) if (quietFrom[i] < quietFrom[minI]) minI = i;
+  const start = (minI + 1) % n, r = []; for (let p = 0; p < n; p++) r.push(sm[(start + p) % n]);
+  const single = { start, segs: [[0, n - 1]] };
+  // local peaks in the rotated, smoothed series
+  const peaks = [];
+  for (let p = 0; p < n; p++) { const a = p > 0 ? r[p - 1] : -1, b = p < n - 1 ? r[p + 1] : -1; if (r[p] > 0 && r[p] >= a && r[p] > b) peaks.push(p); }
+  if (peaks.length < 2) return single;
+  let main = peaks[0]; peaks.forEach(p => { if (r[p] > r[main]) main = p; });
+  const minSep = weekly ? 8 : 2;
+  let best = null;
+  peaks.forEach(q => {
+    if (q === main || Math.abs(q - main) < minSep || r[q] < 0.15 * r[main]) return;
+    const a = Math.min(q, main), b = Math.max(q, main);
+    let cut = a + 1; for (let p = a + 1; p < b; p++) if (r[p] < r[cut]) cut = p;
+    if (!(r[cut] <= 0.5 * r[q])) return;
+    const sum = (x, y) => { let t = 0; for (let p = x; p <= y; p++) t += counts[(start + p) % n]; return t; };
+    const s1 = sum(0, cut), s2 = sum(cut + 1, n - 1);
+    if (s1 < 20 || s2 < 20 || Math.min(s1, s2) < 0.1 * (s1 + s2)) return;
+    if (!best || r[q] > r[best.q]) best = { q, cut };
+  });
+  return best ? { start, segs: [[0, best.cut], [best.cut + 1, n - 1]] } : single;
+}
+/* Season = the middle 80% of observations in each flush. */
+function seasonStats(vals, counts, plan) {
+  const n = vals.length, v = vals.map(x => x == null ? 0 : x);
+  const total = v.reduce((a, b) => a + b, 0);
+  if (!(total > 0)) return null;
+  plan = plan || seasonPlan(v, counts);
+  const at = p => v[(plan.start + p) % n];
+  const windows = plan.segs.map(([a, b]) => {
+    let t = 0; for (let p = a; p <= b; p++) t += at(p);
+    let cum = 0, loP = null, hiP = null, pk = a;
+    for (let p = a; p <= b; p++) { cum += at(p); if (loP == null && cum >= t * 0.10 && t > 0) loP = p; if (hiP == null && cum >= t * 0.90 && t > 0) hiP = p; if (at(p) > at(pk)) pk = p; }
+    if (loP == null) loP = a; if (hiP == null) hiP = b;
+    return { loP, hiP, lo: (plan.start + loP) % n, hi: (plan.start + hiP) % n, total: t, peak: (plan.start + pk) % n, peakVal: at(pk) };
+  });
+  let peak = 0; for (let i = 1; i < n; i++) if (v[i] > v[peak]) peak = i;
+  return { n, plan, windows, total, peak, peakVal: v[peak], len: windows.reduce((a, w) => a + w.hiP - w.loP + 1, 0) };
+}
+function inSeason(i, st) { return st.windows.some(w => w.lo <= w.hi ? (i >= w.lo && i <= w.hi) : (i >= w.lo || i <= w.hi)); }
+
+/* How far could the season edges move with different data? Rebuild the data 400 times from randomly
+   re-picked years (or with counting noise when there are under 5 years) and see where the edges land. */
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function poisson(k, r) {
+  if (k <= 0) return 0;
+  if (k > 40) { const u = Math.max(1e-12, r()), z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); return Math.max(0, Math.round(k + Math.sqrt(k) * z)); }
+  const L = Math.exp(-k); let p = 1, x = 0; do { x++; p *= r(); } while (p > L); return x - 1;
+}
+function edgeUncertainty(ds, useShare, st) {
+  const r = rng(12345), B = 400, n = ds.n, base = useShare ? ds.baseCounts : null;
+  const rows = Object.keys(ds.grid).map(k => ds.grid[k]);
+  const los = st.windows.map(() => []), his = st.windows.map(() => []);
+  for (let b = 0; b < B; b++) {
+    let draw;
+    if (rows.length >= 5) { draw = new Array(n).fill(0); for (let k = 0; k < rows.length; k++) { const row = rows[Math.floor(r() * rows.length)]; for (let i = 0; i < n; i++) draw[i] += row[i]; } }
+    else draw = ds.counts.map(c => poisson(c, r));
+    const sim = draw.map((x, i) => base ? (base[i] >= BASE_MIN ? x / base[i] : 0) : x);
+    const t = seasonStats(sim, draw, st.plan); if (!t) continue;
+    t.windows.forEach((w, k) => { if (w.total > 0) { los[k].push(w.loP); his[k].push(w.hiP); } });
+  }
+  const q = (a, p) => { a.sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.max(0, Math.round(p * (a.length - 1))))]; };
+  let hw = 0; const flanks = [];
+  for (let k = 0; k < st.windows.length; k++) {
+    if (los[k].length < 50) return null;
+    const w = st.windows[k], loA = q(los[k], 0.1), loB = q(los[k], 0.9), hiA = q(his[k], 0.1), hiB = q(his[k], 0.9);
+    hw = Math.max(hw, (loB - loA) / 2, (hiB - hiA) / 2);
+    flanks.push({ a: Math.min(loA, w.loP), b: Math.max(hiB, w.hiP) });
+  }
+  return { hw, flanks };
+}
+// 90% range for a single bar, from counting noise alone
+function countRange(k) {
+  const z = 1.645;
+  const lo = k === 0 ? 0 : k * Math.pow(1 - 1 / (9 * k) - z / (3 * Math.sqrt(k)), 3);
+  const k1 = k + 1, hi = k1 * Math.pow(1 - 1 / (9 * k1) + z / (3 * Math.sqrt(k1)), 3);
+  return [Math.max(0, lo), hi];
+}
+function shareRange(c, b) {   // Wilson interval, per 1,000
+  const z = 1.645, p = Math.min(1, c / b), d = 1 + z * z / b, mid = (p + z * z / (2 * b)) / d, h = z * Math.sqrt(p * (1 - p) / b + z * z / (4 * b * b)) / d;
+  return [Math.max(0, mid - h) * 1000, Math.min(1, mid + h) * 1000];
+}
+function barRange(ds, i, useShare) {
+  const c = ds.counts[i];
+  if (useShare) { const b = ds.baseCounts[i]; return b >= BASE_MIN ? shareRange(c, b) : null; }
+  return countRange(c);
+}
+function assess(ds, unc) {
+  const n = ds.total, res = ds.s.res, limits = [];
+  if (n < MIN_N) return { level: 0, label: 'Too few to tell', limits };
+  let level = 3;
+  const cap = (lv, why) => { if (lv < level) level = lv; limits.push(why); };
+  if (unc) {
+    if (res === 'week') { if (unc.hw > 3) cap(1, 'the season edges could move by more than 3 weeks'); else if (unc.hw > 1) cap(2, 'the season edges could move by a few weeks'); }
+    else { if (unc.hw > 1) cap(1, 'the season edges could move by more than a month'); else if (unc.hw >= 0.5) cap(2, 'the season edges could move by about a month'); }
+  }
+  if (n < 100) cap(2, 'fewer than 100 observations');
+  const picked = ds.s.users.length > 0;   // you chose these observers on purpose, so don't flag that there are few
+  if (!picked && ds.observers != null && ds.observers <= 2) cap(1, 'they come from only ' + plural(ds.observers, 'observer'));
+  else if (!picked && ds.observers != null && ds.observers < 5) cap(2, 'they come from only ' + ds.observers + ' observers');
+  if (!picked && ds.topCount != null && ds.topCount / n > 0.5 && !(ds.observers <= 2)) cap(2, 'one observer made ' + Math.round(ds.topCount / n * 100) + '% of them');
+  const yTot = Object.keys(ds.grid).map(k => ds.grid[k].reduce((x, y) => x + y, 0)), yMax = Math.max(0, ...yTot), ySum = yTot.reduce((x, y) => x + y, 0);
+  if (ds.yearsWithData >= 3 && ySum > 0 && yMax / ySum > 0.6) cap(2, Math.round(yMax / ySum * 100) + '% of them are from a single year');
+  if (ds.yearsWithData < 3) cap(2, 'only ' + plural(ds.yearsWithData, 'year') + ' of data');
+  return { level, label: ['', 'Low confidence', 'Moderate confidence', 'Good confidence'][level], limits };
+}
+function analyse(ds) {
+  const useShare = state.metric === 'share' && !!ds.share;
+  const vals = useShare ? ds.share : ds.counts;
+  const st = seasonStats(vals, ds.counts);
+  const tooFew = ds.total < MIN_N;
+  const unc = st && !tooFew ? edgeUncertainty(ds, useShare, st) : null;
+  return { useShare, vals, st, tooFew, unc, conf: st ? assess(ds, unc) : null };
+}
+
+/* ---------- text helpers ---------- */
+const isItalic = t => /^(species|genus|subspecies|variety|form|hybrid|complex|section|subgenus)$/.test(t.rank || '');
+function taxonHtml(t) { return (isItalic(t) ? '<i class="sci">' + esc(t.name) + '</i>' : esc(t.name)) + (t.common ? ' (' + esc(t.common) + ')' : ''); }
+function subjectHtml(s) { return s.prov ? '<b>“' + esc(s.prov) + '”</b> <span class="pm">(provisional name, searched within ' + taxonHtml(s.taxon) + ')</span>' : '<b>' + taxonHtml(s.taxon) + '</b>'; }
+function areaText(s) { return s.placeMode === 'place' ? s.place.name : s.placeMode === 'radius' ? 'within ' + s.radius + ' mi of ' + Number(s.lat).toFixed(3) + ', ' + Number(s.lng).toFixed(3) : 'worldwide'; }
+function whoText(s) { return s.users.length ? s.users.map(u => u.login).join(', ') : 'all observers'; }
+function basisText(s, useShare) {
+  const b = [areaText(s), whoText(s), s.y1 + '–' + s.y2];
+  const band = latBand(s); if (band && s.placeMode !== 'radius') b.push('latitude ' + band[0] + '° to ' + band[1] + '°');
+  if (s.quality === 'research') b.push('research grade only');
+  if (s.quality === 'any') b.push('incl. casual');
+  if (s.seqOnly) b.push('DNA-sequenced only');
+  if (s.noObscured) b.push('obscured hidden');
+  if (useShare) b.push('season worked out from the effort-adjusted view');
+  return b.join(' · ');
+}
+function seriesName(ds) {      // what distinguishes this series when two are compared
+  const m = state.cmp.mode, s = ds.s;
+  if (m === 'place') return esc(areaText(s));
+  if (m === 'years') return s.y1 + '–' + s.y2;
+  return s.prov ? '“' + esc(s.prov) + '”' : taxonHtml(s.taxon);
+}
+function windowText(w, res) {
+  return res === 'month' ? (w.lo === w.hi ? MONTHS_LONG[w.lo] : MONTHS_LONG[w.lo] + ' to ' + MONTHS_LONG[w.hi]) : '~' + periodStart(w.lo, res) + ' to ' + periodEnd(w.hi, res);
+}
+const colorVars = i => i === 1 ? '--c:var(--series-b);--w:var(--wash-b)' : '--c:var(--series);--w:var(--series-wash)';
+
+/* ---------- render ---------- */
+function answerBlock(ds, v, idx, compare) {
+  const s = ds.s, res = s.res, unit = res === 'month' ? 'month' : 'week', ni = nowIndex(res), st = v.st;
+  let a = '<div class="ablock" style="' + colorVars(idx) + '">';
+  if (compare) a += '<h3><span class="dot"></span><span>' + seriesName(ds) + '</span></h3>';
+  if (!st) {
+    a += '<p class="big">No observations of ' + subjectHtml(s) + ' match these filters.</p>' +
+         '<p class="basis">' + esc(basisText(s, false)) + '. Try a wider area, more years, or turning off a filter.</p></div>';
+    return a;
+  }
+  if (v.tooFew) {
+    a += '<p class="big">Too few observations to say when ' + subjectHtml(s) + ' is in season here.</p>' +
+         '<p class="nowline">Only ' + plural(ds.total, 'observation') + ' match. The bars below show when they were made, but with this few the pattern is mostly chance. Try a wider area, more years, the genus, or turning off a filter.</p>';
+  } else {
+    let pm = '';
+    if (v.unc) {
+      const h = Math.round(v.unc.hw);
+      if (res === 'week' && v.unc.hw > 1) pm = ' <span class="pm">(give or take ' + h + ' weeks at each end)</span>';
+      if (res === 'month' && v.unc.hw >= 0.5) pm = ' <span class="pm">(give or take ' + (h <= 1 ? 'a month' : h + ' months') + ' at each end)</span>';
+    }
+    const peakTxt = i => res === 'month' ? MONTHS_LONG[i] : 'the week of ' + periodStart(i, res);
+    if (st.windows.length === 2) {
+      const w1 = st.windows[0], w2 = st.windows[1], big = w2.total > w1.total ? w2 : w1;
+      a += '<p class="big">' + subjectHtml(s) + ' has <b>two flushes</b>: <b>' + esc(windowText(w1, res)) + '</b> and <b>' + esc(windowText(w2, res)) + '</b>' + pm +
+           '. The ' + (big === w2 ? 'later' : 'earlier') + ' one is larger, with about ' + Math.round(big.total / (w1.total + w2.total) * 100) + '% of the ' + (v.useShare ? 'adjusted activity' : 'observations') + ', peaking around <b>' + esc(peakTxt(big.peak)) + '</b>.</p>';
+    } else {
+      const spread = st.len > ds.n * 0.75;
+      a += '<p class="big">' + subjectHtml(s) + ' ' +
+           (spread ? 'turns up through most of the year, most often around <b>' + esc(peakTxt(st.peak)) + '</b>.'
+                   : 'is found mainly from <b>' + esc(windowText(st.windows[0], res)) + '</b>' + pm + ', peaking around <b>' + esc(peakTxt(st.peak)) + '</b>.') + '</p>';
+    }
+    const nowV = v.vals[ni];
+    if (nowV != null) {
+      const r = nowV / st.peakVal, inside = inSeason(ni, st);
+      const label = inside && r >= 0.6 ? 'Peak season' : inside ? 'In season' : r >= 0.1 ? 'Edge of season' : 'Off-season';
+      const pct = Math.round(r * 100);
+      a += '<p class="nowline">Right now: <span class="pill' + (inside ? ' in' : '') + '">' + label + '</span> ' +
+           (pct === 0 ? 'No records at this time of year.' : 'This ' + unit + ' is typically about ' + (pct < 1 ? 'under 1' : pct) + '% as busy as the peak.') + '</p>';
+    }
+  }
+  const who = ds.observers != null ? ' from ' + plural(ds.observers, 'observer') : '';
+  a += '<div class="conf lv' + v.conf.level + '"><span class="meter" aria-hidden="true"><i></i><i></i><i></i></span><b>' + v.conf.label + '</b>' +
+       '<span class="why">' + plural(ds.total, 'observation') + who + ' across ' + plural(ds.yearsWithData, 'year') + '.' +
+       (v.conf.level > 0 && v.conf.limits.length ? ' Held back because ' + esc(v.conf.limits.join('; ')) + '.' : '') + '</span></div>';
+  // latitude warnings
+  if (ds.southShare != null && ds.southShare >= 0.1 && ds.southShare <= 0.9) {
+    a += '<div class="warnbar"><span><b>Mixed hemispheres.</b> About ' + Math.round(ds.southShare * 100) + '% of these observations are from south of the equator, where the seasons are reversed. The graph blends the two.</span>' +
+         '<button class="ghost" data-band="n">Northern Hemisphere only</button><button class="ghost" data-band="s">Southern Hemisphere only</button></div>';
+  } else if (ds.range && ds.range[1] - ds.range[0] > 15) {
+    const span = Math.round(ds.range[1] - ds.range[0]);
+    a += '<div class="hintbar"><span><b>Wide search area.</b> ' + (s.placeMode === 'any' && !latBand(s) ? 'A worldwide search' : 'This search area') + ' covers about ' + span + '° of latitude. If the observations are spread across it, the graph blends places where the season starts at different times; a smaller place or a latitude band (under More filters) gives a sharper answer.</span></div>';
+  }
+  const perBar = ds.total / ds.n;
+  if (res === 'week' && perBar < 5 && ds.total > 0)
+    a += '<div class="hintbar">Weekly bars average ' + (perBar < 1 ? 'under 1 observation' : 'about ' + Math.round(perBar) + ' observations') + ' each, so their heights are mostly chance. <button class="ghost" data-tomonth="1">Switch to monthly</button></div>';
+  a += '<p class="basis">' + esc(basisText(s, v.useShare)) + '</p></div>';
+  return a;
+}
+function diffLine(A, B, vA, vB) {
+  if (!vA.st || !vB.st || vA.tooFew || vB.tooFew || vA.st.windows.length !== 1 || vB.st.windows.length !== 1) return '';
+  const res = A.s.res, n = A.n, unit = res === 'month' ? 'month' : 'week';
+  const d = (x, y) => { let k = (y - x) % n; if (k > n / 2) k -= n; if (k < -n / 2) k += n; return k; };
+  const say = (k, verb) => k === 0 ? verb + ' at about the same time' : verb + ' about ' + plural(Math.abs(k), unit) + (k > 0 ? ' later' : ' earlier');
+  const ds = d(vA.st.windows[0].lo, vB.st.windows[0].lo), dp = d(vA.st.peak, vB.st.peak);
+  const noise = Math.max(vA.unc ? vA.unc.hw : 0, vB.unc ? vB.unc.hw : 0);
+  let t = '<p class="diff">Compared with ' + seriesName(A) + ', ' + seriesName(B) + ' ' + say(ds, 'starts') + ' and ' + say(dp, 'peaks') + '.';
+  if (ds !== 0 && Math.abs(ds) <= Math.max(1, Math.round(noise))) t += ' <span class="pm">The start difference is within the uncertainty of both, so don\'t read much into it.</span>';
+  return t + '</p>';
+}
+
+function render() {
+  if (!datasets.length) return;
+  $('results').classList.remove('hidden');
+  const views = datasets.map(analyse), compare = datasets.length > 1, A = datasets[0], res = A.s.res, unit = res === 'month' ? 'month' : 'week';
+  const anyShare = views.some(v => v.useShare);
+
+  // --- the answer, in words ---
+  let a = datasets.map((ds, i) => answerBlock(ds, views[i], i, compare)).join('');
+  if (compare) a += diffLine(datasets[0], datasets[1], views[0], views[1]);
+  const oldest = datasets.map(d => d.retrieved).sort((x, y) => x - y)[0];
+  a += '<div class="stamp"><span>Data retrieved from iNaturalist on ' + esc(oldest.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })) + '. Counts change as observations are added and re-identified.</span>' +
+       '<button class="ghost" id="copyLink">Copy link to this view</button><span id="copied"></span></div>';
+  $('answer').innerHTML = a;
+  const anyData = views.some(v => v.st);
+  $('charts').classList.toggle('hidden', !anyData);
+  if (!anyData) return;
+
+  // --- chart header ---
+  $('c1sub').textContent = anyShare ? 'Share of the comparison group’s observations, per 1,000' : 'Number of observations in each ' + unit + ' of the year, all years combined';
+  $('explain').classList.toggle('hidden', !anyShare);
+  if (anyShare) {
+    const blanks = datasets.some(d => d.share && d.share.some(x => x == null));
+    const groups = datasets.filter(d => d.base).map(d => d.base.label).filter((x, i, arr) => arr.indexOf(x) === i);
+    $('explain').textContent = 'Adjusted view: each bar is the taxon as a share of every observation of ' + groups.join(' / ') + ' made in the same ' + unit + ' and area. It removes the effect of more people being out at certain times.' +
+      (blanks ? ' Blank ' + unit + 's have fewer than ' + BASE_MIN + ' such observations, too few to compare against.' : '');
+  }
+  const bs = $('baseSel'); bs.classList.toggle('hidden', !anyShare || !A.baseOpts.length);
+  bs.innerHTML = A.baseOpts.map(o => '<option value="' + o.key + '"' + (A.base && o.key === A.base.key ? ' selected' : '') + '>' + esc(o.short) + '</option>').join('');
+  $('c2sub').textContent = 'The same observations split out by year, to show how much the season moves.';
+  document.querySelectorAll('#metricSeg button').forEach(b => { b.classList.toggle('on', b.dataset.m === state.metric); b.disabled = b.dataset.m === 'share' && !datasets.some(d => d.share); });
+  document.querySelectorAll('#resSeg button').forEach(b => b.classList.toggle('on', b.dataset.r === state.res));
+  $('inatLink').href = inatUrl(A.s);
+
+  // --- charts: one panel per series ---
+  const panel = (kind, i) => '<div class="panel" style="' + colorVars(i) + '">' + (compare ? '<h3><span class="dot"></span><span>' + seriesName(datasets[i]) + '</span></h3>' : '') + '<div id="' + kind + i + '"></div></div>';
+  $('bars').innerHTML = datasets.map((d, i) => panel('bar', i)).join('');
+  $('heats').innerHTML = datasets.map((d, i) => panel('heat', i)).join('');
+  datasets.forEach((ds, i) => {
+    if (views[i].st) { drawBars($('bar' + i), ds, views[i]); drawHeat($('heat' + i), ds); }
+    else { $('bar' + i).innerHTML = '<div class="sub">No observations to show.</div>'; $('heat' + i).innerHTML = ''; }
+  });
+  drawTable();
+  tourPlace();
+}
+
+function niceTicks(max) {
+  if (max <= 0) return [0, 1];
+  const raw = max / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(x => x >= raw);
+  const out = []; for (let v = 0; v <= max + step * 0.999; v += step) out.push(Math.round(v * 1e6) / 1e6);
+  return out;
+}
+const tickFmt = v => v >= 10000 ? (v / 1000) + 'K' : v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+function monthTicks(res) {
+  if (res === 'month') return MONTHS.map((m, i) => ({ pos: i + 0.5, label: m, center: true }));
+  return MONTHS.map((m, i) => {
+    const info = isoInfo(new Date(Date.UTC(THIS_YEAR, i, 1)));
+    return { pos: info.year < THIS_YEAR ? 0 : info.week - 1 + info.dow / 7, label: m };
+  });
+}
+
+function drawBars(host, ds, view) {
+  const s = ds.s, res = s.res, vals = view.vals, useShare = view.useShare, st = view.tooFew ? null : view.st, unc = view.unc;
+  const W = Math.max(320, host.clientWidth), H = datasets.length > 1 ? 240 : 300;
+  const m = { l: 44, r: 10, t: 30, b: 28 };
+  const n = vals.length, pw = W - m.l - m.r, ph = H - m.t - m.b, band = pw / n;
+  const max = Math.max(0, ...vals.map(v => v || 0));
+  const ranges = vals.map((v, i) => v ? barRange(ds, i, useShare) : null);
+  const maxHi = Math.max(0, ...ranges.map(r => r ? r[1] : 0));
+  const ticks = niceTicks(Math.max(max, Math.min(maxHi, max * 1.5))), top = ticks[ticks.length - 1];
+  const y = v => m.t + ph - (Math.min(v, top) / top) * ph;
+  const bw = Math.max(2, Math.min(res === 'month' ? 44 : 24, band - 2));
+  let h = '<svg height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Bar chart of observations by ' + res + ' of year">';
+  h += '<text class="strong" x="0" y="11">' + (useShare ? 'Per 1,000 ' + esc(ds.base.label) + ' observations' : 'Observations') + '</text>';
+  // season bands: solid core, lighter flanks where the edges are uncertain
+  if (st) {
+    const span = (pa, pb, op) => {
+      const a = (st.plan.start + pa) % n, b = (st.plan.start + pb) % n;
+      (a <= b ? [[a, b]] : [[a, n - 1], [0, b]]).forEach(([u, v]) => { h += '<rect x="' + (m.l + u * band) + '" y="' + m.t + '" width="' + ((v - u + 1) * band) + '" height="' + ph + '" fill="var(--w)" opacity="' + op + '"/>'; });
+    };
+    st.windows.forEach((w, k) => {
+      const f = unc && unc.flanks[k];
+      if (f && (f.a < w.loP || f.b > w.hiP)) span(f.a, f.b, 0.55);
+      span(w.loP, w.hiP, 1);
+    });
+  }
+  ticks.forEach(t => {
+    h += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="' + (t === 0 ? 'var(--axis)' : 'var(--grid)') + '"/>';
+    h += '<text x="' + (m.l - 6) + '" y="' + (y(t) + 4) + '" text-anchor="end">' + tickFmt(t) + '</text>';
+  });
+  monthTicks(res).forEach(t => {
+    const x = m.l + t.pos * band;
+    if (!t.center) h += '<line x1="' + x + '" x2="' + x + '" y1="' + (m.t + ph) + '" y2="' + (m.t + ph + 4) + '" stroke="var(--axis)"/>';
+    h += '<text x="' + (t.center ? x : x + 3) + '" y="' + (H - 8) + '"' + (t.center ? ' text-anchor="middle"' : '') + '>' + (pw < 420 ? t.label[0] : t.label) + '</text>';
+  });
+  for (let i = 0; i < n; i++) {
+    const v = vals[i], x0 = m.l + i * band;
+    h += '<rect class="hit" data-i="' + i + '" x="' + x0 + '" y="' + m.t + '" width="' + band + '" height="' + ph + '"/>';
+    if (v) {
+      const bh = Math.max(1, (Math.min(v, top) / top) * ph), bx = x0 + (band - bw) / 2, by = m.t + ph - bh, r = Math.min(4, bw / 2, bh), rg = ranges[i];
+      h += '<path class="bar" pointer-events="none" d="M' + bx + ',' + (by + bh) + ' V' + (by + r) + ' Q' + bx + ',' + by + ' ' + (bx + r) + ',' + by + ' H' + (bx + bw - r) + ' Q' + (bx + bw) + ',' + by + ' ' + (bx + bw) + ',' + (by + r) + ' V' + (by + bh) + ' Z"/>';
+      if (rg) h += '<line pointer-events="none" x1="' + (x0 + band / 2) + '" x2="' + (x0 + band / 2) + '" y1="' + y(rg[0]) + '" y2="' + y(rg[1]) + '" stroke="var(--whisk)" stroke-width="1.5"/>';
+    }
+  }
+  const nx = m.l + (nowIndex(res) + 0.5) * band;
+  h += '<line x1="' + nx + '" x2="' + nx + '" y1="' + (m.t - 4) + '" y2="' + (m.t + ph) + '" stroke="var(--now)" stroke-width="1.5" pointer-events="none"/>';
+  h += '<text class="strong" x="' + Math.max(m.l + 60, Math.min(nx, W - m.r - 16)) + '" y="' + (m.t - 8) + '" text-anchor="middle">today</text>';
+  h += '</svg>';
+  host.innerHTML = h;
+  host.querySelectorAll('.hit').forEach(el => {
+    const i = Number(el.dataset.i);
+    el.addEventListener('mousemove', e => {
+      const c = ds.counts[i], b = ds.baseCounts ? ds.baseCounts[i] : null, sh = ds.share ? ds.share[i] : null;
+      const rg = barRange(ds, i, useShare), f = x => x >= 100 ? fmt(Math.round(x)) : x >= 10 ? x.toFixed(0) : x.toFixed(1);
+      let t = '<b>' + esc(periodLabel(i, res)) + '</b><br>' + plural(c, 'observation');
+      if (!useShare && rg) t += '<br>plausible range ' + f(rg[0]) + '–' + f(rg[1]);
+      if (b != null) t += '<br>out of ' + fmt(b) + ' ' + esc(ds.base.label) + ' observations' + (sh != null ? '<br>= ' + sh.toFixed(sh < 10 ? 2 : 1) + ' per 1,000' + (useShare && rg ? ' (plausible ' + f(rg[0]) + '–' + f(rg[1]) + ')' : '') : '<br>(too few to adjust)');
+      showTip(e, t);
+    });
+    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('click', () => { window.open(inatUrl(s, res === 'month' ? { month: i + 1 } : { week: i + 1 }), '_blank', 'noopener'); });
+  });
+}
+
+function drawHeat(host, ds) {
+  const s = ds.s, res = s.res;
+  const years = Object.keys(ds.grid).map(Number).sort((a, b) => a - b);
+  if (!years.length) { host.innerHTML = '<div class="sub">No dated observations to show.</div>'; return; }
+  const all = []; for (let yv = years[0]; yv <= years[years.length - 1]; yv++) all.push(yv);
+  const W = Math.max(320, host.clientWidth), n = ds.n;
+  const m = { l: 44, r: 46, t: 6, b: 24 };
+  const cw = (W - m.l - m.r) / n, rh = Math.max(14, Math.min(22, 360 / all.length)), gap = cw > 8 ? 2 : 1;
+  const H = m.t + all.length * rh + m.b;
+  let h = '<svg height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Heatmap of observations by year and ' + res + '">';
+  all.forEach((yv, r) => {
+    const row = ds.grid[yv] || new Array(n).fill(0), rmax = Math.max(...row), tot = row.reduce((a, b) => a + b, 0);
+    const yy = m.t + r * rh, faint = tot < 5;
+    h += '<text x="' + (m.l - 6) + '" y="' + (yy + rh / 2 + 4) + '" text-anchor="end">' + yv + '</text>';
+    h += '<text x="' + (W - m.r + 6) + '" y="' + (yy + rh / 2 + 4) + '">n=' + fmt(tot) + '</text>';
+    for (let i = 0; i < n; i++) {
+      const v = row[i];
+      const step = v === 0 ? 0 : faint ? 2 : Math.min(5, 1 + Math.floor((v / rmax) * 4.999));
+      h += '<rect class="cell" data-y="' + yv + '" data-i="' + i + '" data-v="' + v + '" x="' + (m.l + i * cw + gap / 2) + '" y="' + (yy + gap / 2) + '" width="' + Math.max(1, cw - gap) + '" height="' + (rh - gap) + '" rx="2" fill="var(--h' + step + ')"' + (faint && v ? ' opacity=".55"' : '') + (v ? ' style="cursor:pointer"' : '') + '/>';
+    }
+  });
+  monthTicks(res).forEach(t => {
+    const x = m.l + t.pos * cw;
+    h += '<text x="' + (t.center ? x : x + 3) + '" y="' + (H - 6) + '"' + (t.center ? ' text-anchor="middle"' : '') + '>' + (W - m.l - m.r < 420 ? t.label[0] : t.label) + '</text>';
+  });
+  const nx = m.l + (nowIndex(res) + 0.5) * cw;
+  h += '<line x1="' + nx + '" x2="' + nx + '" y1="' + m.t + '" y2="' + (H - m.b) + '" stroke="var(--now)" stroke-width="1" opacity=".5" pointer-events="none"/>';
+  h += '</svg>';
+  host.innerHTML = h;
+  host.querySelectorAll('.cell').forEach(el => {
+    const yv = Number(el.dataset.y), i = Number(el.dataset.i), v = Number(el.dataset.v);
+    let d1, d2, lab;
+    if (res === 'month') { d1 = new Date(Date.UTC(yv, i, 1)); d2 = new Date(Date.UTC(yv, i + 1, 0)); lab = MONTHS_LONG[i] + ' ' + yv; }
+    else { d1 = isoWeekStart(yv, i + 1); d2 = addDays(d1, 6); lab = md(d1) + '–' + md(d2) + ', ' + yv; }
+    el.addEventListener('mousemove', e => showTip(e, '<b>' + esc(lab) + '</b><br>' + plural(v, 'observation')));
+    el.addEventListener('mouseleave', hideTip);
+    if (v) el.addEventListener('click', () => window.open(inatUrl(s, { d1: ymd(d1), d2: ymd(d2) }), '_blank', 'noopener'));
+  });
+}
+
+/* ---------- table, export, provenance ---------- */
+const plainName = ds => seriesName(ds).replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+function periodCell(i, res) { return res === 'month' ? MONTHS_LONG[i] : '~' + periodStart(i, res) + '–' + periodEnd(i, res); }
+function drawTable() {
+  const A = datasets[0], res = A.s.res, multi = datasets.length > 1;
+  let h = '<table><thead><tr><th>' + (res === 'month' ? 'Month' : 'Week') + '</th><th>' + (res === 'month' ? 'Name' : 'Approx. dates') + '</th>';
+  datasets.forEach(ds => { const p = multi ? esc(plainName(ds)) + ': ' : ''; h += '<th>' + p + 'observations</th>' + (ds.baseCounts ? '<th>' + p + esc(ds.base.label) + '</th><th>' + p + 'per 1,000</th>' : ''); });
+  h += '</tr></thead><tbody>';
+  for (let i = 0; i < A.n; i++) {
+    h += '<tr><td>' + (i + 1) + '</td><td>' + esc(periodCell(i, res)) + '</td>';
+    datasets.forEach(ds => { h += '<td>' + fmt(ds.counts[i]) + '</td>' + (ds.baseCounts ? '<td>' + fmt(ds.baseCounts[i]) + '</td><td>' + (ds.share[i] == null ? '—' : ds.share[i].toFixed(2)) + '</td>' : ''); });
+    h += '</tr>';
+  }
+  $('table').innerHTML = h + '</tbody></table>';
+  let q = '<b>Exact queries behind this view</b> (retrieved ' + esc(datasets[0].retrieved.toISOString()) + '):';
+  datasets.forEach(ds => ds.urls.forEach((u, k) => { q += '<br>' + (multi ? esc(plainName(ds)) + ', ' : '') + (k === 0 ? 'taxon' : 'comparison group') + ': <a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(u) + '</a>'; }));
+  $('queries').innerHTML = q;
+}
+function downloadCsv() {
+  if (!datasets.length) return;
+  const A = datasets[0], res = A.s.res;
+  const lines = ['# iNat Seasonality Explorer export', '# View: ' + location.href];
+  datasets.forEach(ds => {
+    lines.push('# Series: ' + plainName(ds) + ' | ' + basisText(ds.s, false) + (ds.s.prov ? ' | provisional name: ' + ds.s.prov : ''));
+    lines.push('#   retrieved: ' + ds.retrieved.toISOString());
+    ds.urls.forEach((u, k) => lines.push('#   ' + (k === 0 ? 'taxon query: ' : 'comparison-group query (' + ds.base.label + '): ') + u));
+  });
+  lines.push('# per_1000 = observations / comparison_group_observations * 1000; blank where the group has fewer than ' + BASE_MIN + ' observations');
+  lines.push(['series', res, 'approx_dates', 'observations', 'comparison_group_observations', 'per_1000'].join(','));
+  const qq = x => '"' + String(x).replace(/"/g, '""') + '"';
+  datasets.forEach(ds => { for (let i = 0; i < ds.n; i++) lines.push([qq(plainName(ds)), i + 1, qq(periodCell(i, res)), ds.counts[i], ds.baseCounts ? ds.baseCounts[i] : '', ds.share && ds.share[i] != null ? ds.share[i].toFixed(3) : ''].join(',')); });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  a.download = (plainName(A) + '-' + areaText(A.s) + '-seasonality-' + ymd(new Date())).replace(/[^\w.-]+/g, '_') + '.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------- tooltip ---------- */
+function showTip(e, html) {
+  const t = $('tip'); t.innerHTML = html; t.style.display = 'block';
+  const r = t.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  t.style.left = Math.max(4, x) + 'px'; t.style.top = Math.max(4, y) + 'px';
+}
+function hideTip() { $('tip').style.display = 'none'; }
+
+/* ---------- autocomplete ---------- */
+function autocomplete(input, fetcher, renderItem, onPick) {
+  const box = document.createElement('div'); box.className = 'ac hidden';
+  input.parentNode.appendChild(box);
+  let items = [], on = -1, seq = 0, timer = null;
+  const close = () => { box.classList.add('hidden'); on = -1; };
+  const paint = () => { box.innerHTML = items.length ? items.map((it, i) => '<div data-i="' + i + '" class="' + (i === on ? 'on' : '') + '">' + renderItem(it) + '</div>').join('') : '<div><small>No matches</small></div>'; box.classList.remove('hidden'); };
+  const pick = i => { if (items[i]) { input.value = ''; close(); onPick(items[i]); } };
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = input.value.trim(); const my = ++seq;
+    if (q.length < 2) { close(); return; }
+    box.innerHTML = '<div><small>Searching…</small></div>'; box.classList.remove('hidden');
+    timer = setTimeout(async () => {
+      try { const res = await fetcher(q, () => my !== seq); if (my !== seq) return; items = res; on = items.length ? 0 : -1; paint(); }
+      catch (e) { if (!(e && e.stale)) { items = []; box.innerHTML = '<div><small>Search failed. Try again.</small></div>'; box.classList.remove('hidden'); } }
+    }, 400);
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { close(); input.blur(); return; }
+    if (box.classList.contains('hidden')) return;
+    if (e.key === 'ArrowDown') { on = Math.min(items.length - 1, on + 1); paint(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { on = Math.max(0, on - 1); paint(); e.preventDefault(); }
+    else if (e.key === 'Enter') { pick(on); e.preventDefault(); }
+  });
+  box.addEventListener('mousedown', e => { const d = e.target.closest('[data-i]'); if (d) { e.preventDefault(); pick(Number(d.dataset.i)); } });
+  input.addEventListener('blur', () => setTimeout(() => { seq++; clearTimeout(timer); close(); input.value = ''; paintPicked(); }, 160));
+}
+const taxonFetch = async (q, stale) => (await api('/taxa/autocomplete?per_page=8&is_active=true&q=' + encodeURIComponent(q), stale)).results || [];
+const taxonItem = t => (isItalic(t) ? '<i class="sci">' + esc(t.name) + '</i>' : esc(t.name)) + (t.preferred_common_name ? ' · ' + esc(t.preferred_common_name) : '') + ' <small>' + esc(t.rank) + ' · ' + fmt(t.observations_count || 0) + ' obs</small>';
+const toTaxon = t => ({ id: t.id, name: t.name, common: t.preferred_common_name || '', rank: t.rank, iconicId: t.iconic_taxon_id || null, iconicName: t.iconic_taxon_name || '' });
+const placeFetch = async (q, stale) => {   // countries and states first, larger before smaller
+  const r = (await api('/places/autocomplete?per_page=12&q=' + encodeURIComponent(q), stale)).results || [];
+  const lv = p => p.admin_level == null ? 99 : p.admin_level;
+  return r.sort((x, y) => lv(x) - lv(y) || (y.bbox_area || 0) - (x.bbox_area || 0)).slice(0, 8);
+};
+function toPlace(p) {
+  let bbox = null;
+  try { const lats = p.bounding_box_geojson.coordinates[0].map(c => c[1]); bbox = [Math.round(Math.min(...lats) * 100) / 100, Math.round(Math.max(...lats) * 100) / 100]; } catch (e) { /* no bounding box: latitude checks are skipped */ }
+  return { id: p.id, name: p.display_name || p.name, bbox };
+}
+
+/* The chosen taxon / place is shown inside the field itself; click it to search again. */
+const combos = [
+  ['taxonQ', 'taxonSel', () => state.taxon ? taxonHtml(state.taxon) : ''],
+  ['placeQ', 'placeSel', () => state.place ? esc(state.place.name) : ''],
+  ['cmpTaxonQ', 'cmpTaxonSel', () => state.cmp.taxon ? taxonHtml(state.cmp.taxon) : ''],
+  ['cmpPlaceQ', 'cmpPlaceSel', () => state.cmp.place ? esc(state.cmp.place.name) : '']
+];
+function paintPicked() {
+  combos.forEach(([inp, sel, get]) => {
+    const input = $(inp), btn = $(sel), html = get(), show = !!html && document.activeElement !== input;
+    btn.classList.toggle('hidden', !show); input.classList.toggle('hidden', show);
+    if (html) btn.querySelector('.nm').innerHTML = html;
+  });
+  $('userPicked').innerHTML = state.users.map((u, i) => '<span class="chip">' + esc(u.login) + '<button data-x="user" data-i="' + i + '" aria-label="Remove ' + esc(u.login) + '">×</button></span>').join('');
+  $('userQ').placeholder = state.users.length ? 'Add another person' : 'Everyone — search to pick people';
+  $('placeBox').classList.toggle('hidden', state.placeMode !== 'place');
+  $('radiusBox').classList.toggle('hidden', state.placeMode !== 'radius');
+  $('cmpTaxonBox').classList.toggle('hidden', state.cmp.mode !== 'taxon');
+  $('cmpPlaceBox').classList.toggle('hidden', state.cmp.mode !== 'place');
+  $('cmpYearsBox').classList.toggle('hidden', state.cmp.mode !== 'years');
+}
+combos.forEach(([inp, sel]) => $(sel).addEventListener('click', () => { $(sel).classList.add('hidden'); $(inp).classList.remove('hidden'); $(inp).focus(); }));
+
+/* ---------- form <-> state ---------- */
+function writeForm() {
+  $('placeMode').value = state.placeMode; $('lat').value = state.lat; $('lng').value = state.lng; $('radius').value = state.radius;
+  $('quality').value = state.quality; $('y1').value = state.y1; $('y2').value = state.y2;
+  $('noObscured').checked = state.noObscured; $('seqOnly').checked = state.seqOnly;
+  $('latS').value = state.latS; $('latN').value = state.latN; $('prov').value = state.prov;
+  $('cmpMode').value = state.cmp.mode; $('cy1').value = state.cmp.y1; $('cy2').value = state.cmp.y2;
+  if (state.latS !== '' || state.latN !== '' || state.prov) $('more').open = true;
+  paintPicked();
+}
+function readForm() {
+  state.placeMode = $('placeMode').value; state.lat = $('lat').value.trim(); state.lng = $('lng').value.trim(); state.radius = $('radius').value;
+  state.quality = $('quality').value; state.y1 = Number($('y1').value); state.y2 = Number($('y2').value);
+  state.noObscured = $('noObscured').checked; state.seqOnly = $('seqOnly').checked;
+  state.latS = $('latS').value.trim(); state.latN = $('latN').value.trim(); state.prov = $('prov').value.trim();
+  state.cmp.mode = $('cmpMode').value; state.cmp.y1 = Number($('cy1').value); state.cmp.y2 = Number($('cy2').value);
+}
+const packTaxon = t => [t.id, t.name, t.common || '', t.rank || '', t.iconicId || '', t.iconicName || ''].join('|');
+function unpackTaxon(x) { const t = (x || '').split('|'); return Number(t[0]) ? { id: Number(t[0]), name: t[1] || ('Taxon ' + t[0]), common: t[2] || '', rank: t[3] || '', iconicId: Number(t[4]) || null, iconicName: t[5] || '' } : null; }
+const packPlace = p => [p.id, p.bbox ? p.bbox[0] : '', p.bbox ? p.bbox[1] : '', p.name].join('|');
+function unpackPlace(x) { const a = (x || '').split('|'); if (!Number(a[0])) return null; return { id: Number(a[0]), bbox: a[1] !== '' && a[2] !== '' && isFinite(Number(a[1])) && isFinite(Number(a[2])) ? [Number(a[1]), Number(a[2])] : null, name: a.slice(3).join('|') || ('Place ' + a[0]) }; }
+function saveHash() {
+  try {
+    const p = new URLSearchParams();
+    p.set('t', packTaxon(state.taxon)); p.set('pm', state.placeMode);
+    if (state.placeMode === 'place') p.set('p', packPlace(state.place));
+    if (state.placeMode === 'radius') p.set('ll', [state.lat, state.lng, state.radius].join('|'));
+    if (state.users.length) p.set('u', state.users.map(u => u.id + ':' + u.login).join('|'));
+    p.set('q', state.quality); p.set('r', state.res); p.set('y', state.y1 + '-' + state.y2);
+    if (state.noObscured) p.set('no', '1');
+    if (state.seqOnly) p.set('seq', '1');
+    if (state.latS !== '' || state.latN !== '') p.set('lb', state.latS + '|' + state.latN);
+    if (state.prov) p.set('pv', state.prov);
+    if (state.metric === 'share') p.set('m', 'share');
+    if (state.baseline !== 'nolichen') p.set('b', state.baseline);
+    const c = state.cmp;
+    if (c.mode === 'taxon' && c.taxon) p.set('c', 'taxon|' + packTaxon(c.taxon));
+    if (c.mode === 'place' && c.place) p.set('c', 'place|' + packPlace(c.place));
+    if (c.mode === 'years') p.set('c', 'years|' + c.y1 + '|' + c.y2);
+    history.replaceState(null, '', '#' + p.toString());
+  } catch (e) { /* sandboxed or file context: sharing by URL just isn't available */ }
+}
+function loadHash() {
+  try {
+    const p = new URLSearchParams(location.hash.slice(1)); if (!p.get('t')) return;
+    const t = unpackTaxon(p.get('t')); if (!t) return;
+    state.taxon = t;
+    state.placeMode = ['place', 'radius', 'any'].includes(p.get('pm')) ? p.get('pm') : 'any';
+    if (state.placeMode === 'place') state.place = unpackPlace(p.get('p'));
+    if (state.placeMode === 'radius') { const a = (p.get('ll') || '').split('|'); state.lat = a[0] || ''; state.lng = a[1] || ''; state.radius = a[2] || 50; }
+    state.users = (p.get('u') || '').split('|').filter(Boolean).map(x => { const k = x.indexOf(':'); return { id: Number(x.slice(0, k)), login: x.slice(k + 1) }; }).filter(u => u.id);
+    if (['verifiable', 'research', 'any'].includes(p.get('q'))) state.quality = p.get('q');
+    if (['week', 'month'].includes(p.get('r'))) state.res = p.get('r');
+    const y = (p.get('y') || '').split('-').map(Number); if (y[0] && y[1]) { state.y1 = y[0]; state.y2 = y[1]; }
+    state.noObscured = p.get('no') === '1'; state.seqOnly = p.get('seq') === '1';
+    if (p.get('lb')) { const a = p.get('lb').split('|'); state.latS = a[0] || ''; state.latN = a[1] || ''; }
+    state.prov = p.get('pv') || '';
+    if (p.get('m') === 'share') state.metric = 'share';
+    if (['nolichen', 'order', 'class', 'iconic'].includes(p.get('b'))) state.baseline = p.get('b');
+    const c = (p.get('c') || '').split('|');
+    if (c[0] === 'taxon') { const ct = unpackTaxon(c.slice(1).join('|')); if (ct) { state.cmp.mode = 'taxon'; state.cmp.taxon = ct; } }
+    if (c[0] === 'place') { const cp = unpackPlace(c.slice(1).join('|')); if (cp) { state.cmp.mode = 'place'; state.cmp.place = cp; } }
+    if (c[0] === 'years' && Number(c[1]) && Number(c[2])) { state.cmp.mode = 'years'; state.cmp.y1 = Number(c[1]); state.cmp.y2 = Number(c[2]); }
+  } catch (e) { /* ignore a malformed link and fall back to defaults */ }
+}
+
+/* ---------- wire up ---------- */
+autocomplete($('taxonQ'), taxonFetch, taxonItem, t => { state.taxon = toTaxon(t); $('taxonQ').blur(); paintPicked(); scheduleLoad(0); });
+autocomplete($('cmpTaxonQ'), taxonFetch, taxonItem, t => { state.cmp.taxon = toTaxon(t); $('cmpTaxonQ').blur(); paintPicked(); scheduleLoad(0); });
+autocomplete($('placeQ'), placeFetch, p => esc(p.display_name || p.name), p => { state.place = toPlace(p); $('placeQ').blur(); paintPicked(); scheduleLoad(0); });
+autocomplete($('cmpPlaceQ'), placeFetch, p => esc(p.display_name || p.name), p => { state.cmp.place = toPlace(p); $('cmpPlaceQ').blur(); paintPicked(); scheduleLoad(0); });
+autocomplete($('userQ'),
+  async (q, stale) => (await api('/users/autocomplete?per_page=8&q=' + encodeURIComponent(q), stale)).results || [],
+  u => esc(u.login) + (u.name ? ' · ' + esc(u.name) : '') + ' <small>' + fmt(u.observations_count || 0) + ' obs</small>',
+  u => { if (!state.users.some(x => x.id === u.id)) state.users.push({ id: u.id, login: u.login }); paintPicked(); scheduleLoad(0); });
+
+$('placeMode').addEventListener('change', () => { state.placeMode = $('placeMode').value; paintPicked(); scheduleLoad(0); });
+$('cmpMode').addEventListener('change', () => { state.cmp.mode = $('cmpMode').value; paintPicked(); scheduleLoad(0); });
+['quality', 'seqOnly', 'noObscured'].forEach(id => $(id).addEventListener('change', () => scheduleLoad(0)));
+['lat', 'lng', 'radius', 'y1', 'y2', 'latS', 'latN', 'prov', 'cy1', 'cy2'].forEach(id => $(id).addEventListener('change', () => scheduleLoad()));
+$('prov').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); scheduleLoad(0); } });
+$('csv').addEventListener('click', downloadCsv);
+$('metricSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.disabled) return; state.metric = b.dataset.m; saveHash(); render(); });
+$('resSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b || b.dataset.r === state.res) return; state.res = b.dataset.r; document.querySelectorAll('#resSeg button').forEach(x => x.classList.toggle('on', x === b)); scheduleLoad(0); });
+$('baseSel').addEventListener('change', () => { state.baseline = $('baseSel').value; scheduleLoad(0); });
+document.addEventListener('click', e => {
+  const u = e.target.closest('button[data-x="user"]');
+  if (u) { state.users.splice(Number(u.dataset.i), 1); paintPicked(); scheduleLoad(); return; }
+  const band = e.target.closest('button[data-band]');
+  if (band) { $('latS').value = band.dataset.band === 'n' ? '0' : '-90'; $('latN').value = band.dataset.band === 'n' ? '90' : '0'; $('more').open = true; scheduleLoad(0); return; }
+  if (e.target.closest('button[data-tomonth]')) { state.res = 'month'; scheduleLoad(0); return; }
+  if (e.target.closest('#copyLink')) {
+    const done = ok => { $('copied').textContent = ok ? 'Copied.' : location.href; };
+    try { navigator.clipboard.writeText(location.href).then(() => done(true), () => done(false)); } catch (err) { done(false); }
+  }
+});
+let rz = null; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (datasets.length) render(); }, 150); });
+
+/* ---------- guide: a short first-visit tour ---------- */
+const TOUR = [
+  { title: 'See when a species is really being found',
+    body: 'This tool turns iNaturalist observations into a seasonality graph you can tune to your own area. The tour takes about a minute, and you can reopen it any time with the Guide button.' },
+  { sel: ['.main3'], title: 'Pick what, where and who',
+    body: 'Search any species, genus or family. Choose a state, county or park, or a radius around a point. Leave observers on Everyone, or pick specific people. The graphs update on their own after every change.' },
+  { sel: ['#optsMain'], title: 'Tighten the data',
+    body: '“DNA-sequenced only” keeps observations with an ITS barcode. “Hide obscured” drops records whose location is hidden. Quality and Years limit which observations count.' },
+  { sel: ['#more', '.cmp'], title: 'More filters and comparisons',
+    body: '“More filters” holds a latitude band and a provisional species name search. “Compare with” puts a second species, place or span of years beside the first.' },
+  { sel: ['#answer'], title: 'Read the answer first',
+    body: 'The headline gives the main season and its peak in plain words, then where today falls. The confidence bar says how far to trust it and why. Amber means there is too little data.' },
+  { sel: ['#barsCard'], title: 'Through the year',
+    body: 'Each bar is a week or month, all years combined. The shaded band is the main season, paler where its edges are uncertain, and the thin lines show each bar’s plausible range. “Adjusted for effort” corrects for more people being out at certain times. Click a bar to open those observations on iNaturalist.' },
+  { sel: ['#heatCard'], title: 'Year by year',
+    body: 'One row per year shows how much the season shifts. Darker cells had more observations, relative to that year’s busiest period. Click a cell to see the records.' },
+  { sel: ['#tableCard', '#notesCard'], title: 'Export and fine print',
+    body: '“Data table and export” gives the numbers, a CSV and the exact queries used. “How to read this” explains the limits. The main one: these are counts of observations, not of mushrooms.' }
+];
+let tourAt = -1;
+function tourRect(step) {
+  if (!step.sel) return null;
+  let r = null;
+  step.sel.forEach(q => {
+    const el = document.querySelector(q); if (!el) return;
+    const b = el.getBoundingClientRect(); if (!b.width || !b.height) return;      // hidden, e.g. results not loaded yet
+    r = r ? { l: Math.min(r.l, b.left), t: Math.min(r.t, b.top), r: Math.max(r.r, b.right), b: Math.max(r.b, b.bottom) } : { l: b.left, t: b.top, r: b.right, b: b.bottom };
+  });
+  return r;
+}
+function tourPlace() {
+  if (tourAt < 0) return;
+  const step = TOUR[tourAt], spot = $('tourSpot'), card = $('tourCard'), pad = 6, vw = innerWidth, vh = innerHeight;
+  const r = tourRect(step), ch = card.offsetHeight, cw = card.offsetWidth;
+  if (!r) {                                  // no target: centre the card
+    spot.className = 'none';
+    spot.style.cssText = '';
+    card.style.left = Math.max(12, (vw - cw) / 2) + 'px'; card.style.top = Math.max(12, (vh - ch) / 2) + 'px';
+    return;
+  }
+  spot.className = '';
+  const t = Math.max(4, r.t - pad), b = Math.min(vh - 4, r.b + pad), l = Math.max(4, r.l - pad), rt = Math.min(vw - 4, r.r + pad);
+  spot.style.cssText = 'left:' + l + 'px;top:' + t + 'px;width:' + (rt - l) + 'px;height:' + Math.max(0, b - t) + 'px';
+  let top;
+  if (b + 12 + ch <= vh - 8) top = b + 12;                 // below the target
+  else if (t - 12 - ch >= 8) top = t - 12 - ch;            // above it
+  else top = vh - ch - 12;                                 // target fills the screen: pin to the bottom
+  card.style.top = top + 'px';
+  card.style.left = Math.min(vw - cw - 12, Math.max(12, l + (rt - l) / 2 - cw / 2)) + 'px';
+}
+function tourShow(i) {
+  tourAt = i;
+  const step = TOUR[i];
+  ['tourBlock', 'tourSpot', 'tourCard'].forEach(id => $(id).classList.remove('hidden'));
+  $('tourStep').textContent = 'Step ' + (i + 1) + ' of ' + TOUR.length;
+  $('tourTitle').textContent = step.title; $('tourBody').textContent = step.body;
+  $('tourBack').classList.toggle('hidden', i === 0);
+  $('tourNext').textContent = i === TOUR.length - 1 ? 'Done' : i === 0 ? 'Start' : 'Next';
+  $('tourSkip').classList.toggle('hidden', i === TOUR.length - 1);
+  const r = tourRect(step);
+  if (r) {                                   // bring the target into view, leaving room for the card
+    const h = r.b - r.t, room = innerHeight - $('tourCard').offsetHeight - 40;
+    const want = h <= room ? Math.max(16, (room - h) / 2) : 16;
+    window.scrollBy(0, r.t - want);
+  } else window.scrollTo(0, 0);
+  tourPlace();
+  $('tourNext').focus();
+}
+function tourEnd() {
+  tourAt = -1;
+  ['tourBlock', 'tourSpot', 'tourCard'].forEach(id => $(id).classList.add('hidden'));
+  try { localStorage.setItem('inatSeasonGuideSeen', '1'); } catch (e) { /* storage unavailable: the tour will simply show again next visit */ }
+  window.scrollTo(0, 0);
+  $('guideBtn').focus();
+}
+$('guideBtn').addEventListener('click', () => tourShow(0));
+$('tourNext').addEventListener('click', () => tourAt >= TOUR.length - 1 ? tourEnd() : tourShow(tourAt + 1));
+$('tourBack').addEventListener('click', () => { if (tourAt > 0) tourShow(tourAt - 1); });
+$('tourSkip').addEventListener('click', tourEnd);
+document.addEventListener('keydown', e => {
+  if (tourAt < 0) return;
+  if (e.key === 'Escape') { e.preventDefault(); tourEnd(); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); $('tourNext').click(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); $('tourBack').click(); }
+  else if (e.key === 'Tab') {                // keep focus inside the guide
+    const f = Array.from($('tourCard').querySelectorAll('button:not(.hidden)')), i = f.indexOf(document.activeElement);
+    e.preventDefault(); f[(i + (e.shiftKey ? f.length - 1 : 1) + f.length) % f.length].focus();
+  }
+});
+window.addEventListener('scroll', tourPlace, { passive: true });
+window.addEventListener('resize', tourPlace);
+
+// Link back to the MycoView site, shown only when the page is served from a website (keep in future versions of this tool)
+if (/^https?:$/.test(location.protocol)) $('siteHome').classList.remove('hidden');
+
+loadHash();
+writeForm();
+load();
+let seenGuide = false;
+try { seenGuide = localStorage.getItem('inatSeasonGuideSeen') === '1'; } catch (e) { /* treat as a first visit */ }
+if (!seenGuide) tourShow(0);
+})();
+</script>
+</body>
+</html>

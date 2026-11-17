@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Provisional Finder · MycoView</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script>try{const t=JSON.parse(localStorage.getItem('provfinder.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+:root{
+  /* MycoView Research Workbench palette (same as the ITS Bin Comparator) */
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface-2:#E8EFEB; --ink:#15201B; --muted:#56655E; --line:#D2DCD7;
+  --accent:#1D6B55; --accent-ink:#FFFFFF; --spore:#8A5A2B;
+  --good:#2E7D4F; --warn:#A86E14; --bad:#B4412F;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63;
+  --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63;
+  --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66;
+  color-scheme:dark;
+}
+/* this tool's names for the shared palette */
+:root,:root[data-theme]{
+  --paper:var(--bg); --card:var(--surface); --faint:color-mix(in oklab,var(--muted) 72%,var(--bg));
+  --line2:color-mix(in oklab,var(--line) 80%,var(--ink));
+  --rust:var(--accent); --rust-soft:color-mix(in oklab,var(--accent) 16%,var(--surface));
+  --moss:var(--good); --moss-soft:color-mix(in oklab,var(--good) 15%,var(--surface));
+  --ochre:var(--warn); --ochre-soft:color-mix(in oklab,var(--warn) 16%,var(--surface));
+  --red:var(--bad); --red-soft:color-mix(in oklab,var(--bad) 14%,var(--surface));
+  --shadow:none;
+  --serif:var(--f-display); --sans:var(--f-body); --mono:var(--f-mono);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.5 var(--sans)}
+a{color:var(--rust);text-decoration:none} a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+input{font:inherit;color:inherit}
+.hidden{display:none!important}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+/* Link back to the MycoView site (keep in future versions of this tool) */
+.site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-bottom:2px}
+.site-home:hover,.site-home:focus-visible{text-decoration:underline}
+.sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:var(--surface);white-space:nowrap}
+.srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.srcchip.live .dot{background:var(--good)}
+.srcchip.fail .dot{background:var(--bad)}
+.srcchip .st{color:var(--muted)}
+.steps{background:var(--surface-2);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left))}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px}
+.stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--f-body);margin-right:9px;vertical-align:2px}
+.steps .stepn{margin-right:0;margin-top:-1px}
+.newhere{margin:10px 0 0;font-size:13px}
+.newhere a{font-weight:600}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+main{max-width:1440px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px}
+.search{padding:18px 20px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:22px}
+h2{font-size:17px}
+.search h2{display:flex;align-items:center;margin:0 0 6px}
+.lede{color:var(--muted);margin:0 0 20px;max-width:780px}
+.lede b{color:var(--ink);font-weight:600}
+form{display:grid;grid-template-columns:1.3fr 1fr auto;gap:18px;align-items:start}
+.field label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
+.opt{font-weight:400;color:var(--faint);margin-left:4px}
+.field small{display:block;color:var(--faint);font-size:12px;margin-top:6px}
+.field>input,.chips{width:100%;min-height:42px;border:1px solid var(--line2);border-radius:10px;background:var(--bg);padding:8px 12px;outline:none}
+.field>input:focus,.chips:focus-within{border-color:var(--rust);box-shadow:0 0 0 3px var(--rust-soft)}
+.field>input{font-family:var(--mono);font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:5px 8px;cursor:text}
+.chips input{border:0;outline:0;flex:1;min-width:140px;padding:4px;background:transparent}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--moss-soft);color:var(--moss);border-radius:999px;padding:3px 6px 3px 10px;font-weight:500;font-size:13px}
+.chip.bad{background:var(--red-soft);color:var(--red)}
+.chip.checking{background:var(--surface-2);color:var(--muted)}
+.chip button{border:0;background:transparent;color:inherit;padding:0 4px;font-size:15px;line-height:1;opacity:.7}
+.chip button:hover{opacity:1}
+.actions{padding-top:24px}
+.primary{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:5px;padding:8px 18px;font-weight:600}
+.primary:hover{background:color-mix(in oklab,var(--accent) 86%,var(--ink))}
+.primary:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:5px;padding:6px 12px;color:var(--ink);font-size:13px;font-weight:500}
+.ghost:hover{border-color:var(--accent)}
+.sm{padding:4px 10px;font-size:12.5px}
+.savebar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line2);font-size:13px}
+.savebar .filebtn{display:inline-flex;align-items:center;cursor:pointer}
+.savebar .ghost:disabled{opacity:.45;cursor:default}
+.savebar .vr{width:1px;height:20px;background:var(--line2)}
+.savebar select{font:inherit;border:1px solid var(--line2);border-radius:5px;padding:4px 6px;background:var(--bg);color:var(--ink)}
+.linkbtn{border:0;background:none;color:var(--rust);padding:0;font-size:13px}
+.linkbtn:hover{text-decoration:underline}
+#storageNote{color:var(--muted);font-size:12.5px}
+body.dragging main::after{content:'Drop a saved results file to open it';position:fixed;inset:16px;border:3px dashed var(--rust);border-radius:18px;background:color-mix(in oklab,var(--bg) 92%,transparent);display:flex;align-items:center;justify-content:center;font:600 20px var(--serif);color:var(--rust);z-index:40}
+.msg{margin-top:12px;color:var(--red);font-size:13px;min-height:1px}
+.status{display:flex;align-items:center;gap:16px;margin:16px 0 0;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.statusText{flex:1 1 320px;font-size:13px;min-width:0}
+.bar{flex:0 1 260px;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar div{height:100%;width:0;background:var(--moss);transition:width .3s}
+.statusBtns{display:flex;gap:6px}
+#results{margin-top:22px}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.tile .v{font-family:var(--mono);font-size:22px;font-weight:500;line-height:1.15}
+.tile .l{color:var(--muted);font-size:12.5px;margin-top:4px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line2);margin-bottom:14px}
+.tab{background:none;border:0;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--ink);border-bottom-color:var(--rust)}
+.count{font-weight:500;color:var(--faint);margin-left:4px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.preset{background:var(--card);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-weight:500}
+.preset.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.preset .pc{opacity:.6;margin-left:4px;font-weight:400}
+.presetHint{color:var(--muted);font-size:12.5px;margin:0 0 10px;min-height:18px}
+.filters{background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:14px}
+.filters summary{padding:10px 16px;cursor:pointer;font-weight:600;list-style:none}
+.filters summary::-webkit-details-marker{display:none}
+.filters summary::before{content:'▸';display:inline-block;margin-right:8px;color:var(--faint);transition:transform .15s}
+.filters[open] summary::before{transform:rotate(90deg)}
+#filterCount{font-weight:500;color:var(--rust);margin-left:6px}
+.filterGrid{display:flex;flex-wrap:wrap;gap:12px 18px;padding:4px 16px 16px;align-items:flex-end}
+.filterGrid label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+.filterGrid input[type=number],.filterGrid input[type=text],.filterGrid input:not([type]){border:1px solid var(--line2);border-radius:8px;padding:6px 9px;width:130px;background:var(--bg);color:var(--ink)}
+.filterGrid input[type=number]{width:84px}
+.filterGrid .check{flex-direction:row;align-items:center;gap:6px;color:var(--ink);padding-bottom:6px}
+.tableWrap{background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:72vh}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1080px}
+thead th{position:sticky;top:0;background:var(--surface-2);z-index:2;text-align:left;font-size:12px;font-weight:600;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line2);white-space:nowrap;user-select:none}
+thead th.sortable{cursor:pointer}
+thead th.sortable:hover{color:var(--ink)}
+thead th .arr{color:var(--rust);margin-left:3px}
+thead th .i{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid var(--faint);color:var(--faint);font-size:9.5px;line-height:12px;text-align:center;margin-left:4px;font-style:normal;cursor:help}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:color-mix(in oklab,var(--accent) 7%,var(--surface))}
+tbody tr.pending td{color:var(--faint)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.nm{display:flex;align-items:center;gap:10px;min-width:250px}
+.thumb{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--surface-2);flex:0 0 auto}
+.nmtext{font-family:var(--mono);font-size:12.5px;font-weight:500;line-height:1.35}
+.nmsub{font-family:var(--sans);font-size:11.5px;color:var(--faint);font-weight:400}
+.rar{display:flex;align-items:center;gap:8px}
+.rarbar{width:56px;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.rarbar span{display:block;height:100%;background:var(--spore)}
+.rarn{font-weight:600;min-width:26px;text-align:right}
+.meter{display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle}
+.meter i{width:6px;height:10px;border-radius:2px;background:var(--line)}
+.meter i.on{background:var(--moss)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;margin:1px 3px 1px 0;white-space:nowrap}
+.t-red{background:var(--red-soft);color:var(--red)}
+.t-och{background:var(--ochre-soft);color:var(--warn)}
+.t-moss{background:var(--moss-soft);color:var(--moss)}
+.t-grey{background:var(--surface-2);color:var(--muted)}
+.dim{color:var(--faint)}
+.spark{display:block}
+.tableFoot{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;color:var(--muted);font-size:12.5px}
+.tableFoot .btns{display:flex;gap:8px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.skel{display:inline-block;height:9px;width:44px;border-radius:5px;background:linear-gradient(90deg,var(--surface-2),var(--bg),var(--surface-2));background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+footer{margin-top:28px;color:var(--faint);font-size:12px;line-height:1.6}
+/* hover help */
+[data-help]:not(button):not(a):not(input):not(select):not(th):not(label){cursor:help}
+#tip{position:fixed;z-index:60;max-width:min(330px,calc(100vw - 16px));background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.55;padding:10px 13px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.28);pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
+#tip.on{opacity:1;transform:none}
+#tip b{color:var(--bg);font-weight:600}
+.hbtns{display:flex;gap:8px;align-items:center}
+.toggle{display:inline-flex;align-items:center;gap:7px}
+.toggle .sw{width:28px;height:16px;border-radius:99px;background:var(--line2);position:relative;transition:background .15s}
+.toggle .sw::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--surface);transition:left .15s}
+.toggle.on .sw{background:var(--moss)}
+.toggle.on .sw::after{left:14px}
+.sm{font-size:12.5px}
+/* tour */
+#tourBlock{position:fixed;inset:0;z-index:49}
+#tourHole{position:fixed;z-index:50;border-radius:12px;box-shadow:0 0 0 9999px rgba(18,24,20,.58);outline:2px solid var(--accent);outline-offset:2px;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease;pointer-events:none}
+#tourHole.center{left:50%!important;top:42%!important;width:0!important;height:0!important;outline:none}
+#tourCard{position:fixed;z-index:51;width:370px;max-width:calc(100vw - 24px);background:var(--card);border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.3);padding:18px 20px 14px;transition:left .25s ease,top .25s ease}
+#tourCard .tclose{position:absolute;top:10px;right:10px;width:28px;height:28px;border:0;border-radius:50%;background:var(--surface-2);color:var(--muted);font-size:17px;line-height:1}
+#tourCard .tclose:hover{background:var(--line);color:var(--ink)}
+#tourCard .texit{border:0;background:none;color:var(--muted);font-size:12.5px;padding:4px 2px;text-decoration:underline;text-underline-offset:2px}
+#tourCard .texit:hover{color:var(--rust)}
+#toast{position:fixed;top:78px;right:24px;z-index:55;background:var(--ink);color:var(--bg);font-size:13px;padding:10px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:320px}
+#toast.on{opacity:1;transform:none}
+#tourCard h4{padding-right:30px;font-family:var(--f-display);font-weight:600;font-size:17.5px;margin:0 0 6px;line-height:1.25}
+#tourCard .tb{color:var(--ink);font-size:13.5px;line-height:1.6}
+#tourCard .tb p{margin:0 0 8px}
+#tourCard .tb ul{margin:0 0 8px;padding-left:18px}
+#tourCard .tnav{display:flex;align-items:center;gap:8px;margin-top:12px}
+#tourCard .tcount{color:var(--faint);font-size:12px;margin-right:auto}
+#tourCard .tbar{height:3px;background:var(--surface-2);border-radius:99px;margin:0 0 12px;overflow:hidden}
+#tourCard .tbar span{display:block;height:100%;background:var(--rust);transition:width .25s}
+#tourCard .choice{display:grid;gap:8px;margin-top:10px}
+#tourCard .choice button{text-align:left}
+/* drawer */
+#scrim{position:fixed;inset:0;background:rgba(30,38,32,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:min(760px,100vw);background:var(--paper);box-shadow:-8px 0 30px rgba(0,0,0,.15);transform:translateX(102%);transition:transform .22s ease;z-index:21;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dhead{padding:20px 24px 14px;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:flex-start}
+.dhead h2{font-family:var(--mono);font-size:17px;font-weight:500;margin:0 0 6px;word-break:break-word}
+.dhead .links{font-size:12.5px;display:flex;gap:14px;flex-wrap:wrap}
+.dclose{margin-left:auto;border:0;background:var(--surface-2);color:var(--ink);border-radius:50%;width:32px;height:32px;font-size:18px;line-height:1;flex:0 0 auto}
+.dbody{overflow:auto;padding:18px 24px 40px}
+.dtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.dtiles .tile{padding:11px 13px}
+.dtiles .tile .v{font-size:21px}
+.sec{margin:20px 0 8px;font-family:var(--f-display);font-weight:600;font-size:15.5px}
+.flagbox{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ochre);border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:13px}
+.flagbox.red{border-left-color:var(--red)}
+.flagbox.ok{border-left-color:var(--moss)}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;align-items:end;height:110px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 12px 26px;position:relative}
+.months .mb{background:var(--moss);border-radius:3px 3px 0 0;position:relative;min-height:2px}
+.months .mb.zero{background:var(--line)}
+.months .mb span{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--muted)}
+.months .mb b{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted);font-weight:500}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 0;max-height:220px;overflow:auto}
+.list div{display:flex;justify-content:space-between;padding:5px 14px;font-size:13px}
+.list div:nth-child(odd){background:var(--bg)}
+.obsTools{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ocards{display:grid;gap:10px;margin-top:10px}
+.ocard{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+.ocard .oimg{flex:0 0 auto}
+.ocard .oth{display:block;width:84px;height:84px;border-radius:8px;object-fit:cover;background:var(--surface-2)}
+.nophoto{display:flex!important;align-items:center;justify-content:center;color:var(--faint);font-size:15px;background:repeating-linear-gradient(45deg,var(--surface-2),var(--surface-2) 6px,var(--line) 6px,var(--line) 12px)!important}
+.credit{font-size:11px;color:var(--faint);line-height:1.4;margin:2px 0}
+.ocard .meta{font-size:12.5px;color:var(--muted);line-height:1.6;flex:1;min-width:0}
+.ocard .meta b{color:var(--ink);font-weight:600}
+.ocard .meta .l2{display:flex;flex-wrap:wrap;gap:4px 12px}
+.mine{outline:2px solid var(--moss-soft);border-color:var(--moss)}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:5px 10px;font-size:12.5px}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;border:1px solid var(--line2);border-radius:8px;padding:8px}
+/* help */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:30;background:rgba(30,38,32,.35)}
+.modal .card{max-width:720px;width:calc(100vw - 40px);max-height:86vh;overflow:auto;padding:24px 28px}
+.modal h3{font-family:var(--serif);margin:0 0 10px;font-size:20px}
+.modal dl{margin:0}
+.modal dt{font-weight:600;margin-top:12px}
+.modal dd{margin:2px 0 0;color:var(--muted)}
+@media (hover:none){ #tipToggle{display:none} }
+@media (max-width:640px){
+  .top{flex-wrap:wrap;gap:10px;padding:12px 16px}
+  .brand{font-size:16.5px}
+  .hbtns{flex-wrap:wrap}
+  .search{padding:20px 18px}
+  h1{font-size:22px}
+  .summary{grid-template-columns:1fr 1fr}
+  .tile .v{font-size:22px}
+  .savebar .vr{display:none}
+  .dhead{padding:16px 16px 12px}
+  .dbody{padding:14px 16px 40px}
+  #tourCard{width:auto}
+}
+@media (max-width:900px){
+  form{grid-template-columns:1fr}
+  .actions{padding-top:0}
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .status{flex-wrap:wrap}
+  .two{grid-template-columns:1fr}
+  .dtiles{grid-template-columns:repeat(2,1fr)}
+  main{padding:16px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <a class="site-home" href="/investigate/tools/">← MycoView Research Workbench</a>
+    <h1>Provisional Finder</h1>
+    <p>Find iNaturalist provisional names worth researching: rarity, collectors, vouchers, photos and season for ITS-backed provisionals.</p>
+  </div>
+  <div class="sources hbtns">
+    <span class="srcchip" id="src-inat" data-help="Live connection to the iNaturalist API. Everything on this page comes from iNaturalist; green means it’s answering."><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <button id="tourBtn" class="primary sm" data-help="A step-by-step walk through the page and what each part of the results means. Works with your own results, or with example data if you haven’t searched yet.">▶ Guided tour</button>
+    <button id="tipToggle" class="ghost sm toggle on" data-help="Turns these hover explanations on or off.">Hover help <span class="sw"></span></button>
+    <button id="helpBtn" class="ghost sm" data-help="A one-page glossary of every column and flag.">Glossary</button>
+    <button id="themeBtn" class="ghost sm theme" type="button" data-help="Switch between light and dark.">Theme</button>
+  </div>
+</header>
+<nav class="steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Add usernames</strong>, a provisional name, or both</span></li>
+    <li><span class="stepn">2</span><span><strong>Search</strong>; rows fill in rarest first</span></li>
+    <li><span class="stepn">3</span><span><strong>Narrow down</strong> with Research candidates, Singletons or Filters</span></li>
+    <li><span class="stepn">4</span><span><strong>Click a name</strong> for its full profile; save results to keep or share them</span></li>
+  </ol>
+  <p class="newhere"><strong>New here?</strong> <a href="#" id="newHereTour">Take the guided tour, with example data if you haven’t searched yet →</a></p>
+</nav>
+<main>
+  <section class="search card">
+    <h2><span class="stepn">1</span>Whose collections, which name</h2>
+    <p class="lede">Pulls iNaturalist observations that have <b>both</b> a Provisional Species Name and a DNA Barcode ITS sequence, then sizes up each name across all of iNat: how rare it is, who else has collected it, whether specimens were kept, how well it’s photographed, and when it fruits.</p>
+    <form id="form" autocomplete="off">
+      <div class="field" data-help="<b>Whose collections to look at.</b> Type an iNaturalist username and press Enter; add as many as you like. Green means the account was found; red means it wasn’t and will be skipped. Leave it empty to look at everyone’s observations of one provisional name.">
+        <label for="userInput">iNaturalist usernames</label>
+        <div class="chips" id="chips"><input id="userInput" placeholder="Type a username, then Enter"></div>
+        <small>Add one or several. Leave empty to search everyone (then a provisional name is required).</small>
+      </div>
+      <div class="field" data-help="<b>Narrow to one provisional name (optional).</b> It must match the observation field exactly, quote marks included, e.g. Mycena sp. 'IN10'. With no usernames, you get every sequenced observation of that name on iNat.">
+        <label for="pname">Provisional name <span class="opt">optional</span></label>
+        <input id="pname" placeholder="Mycena sp. 'IN10'">
+        <small>Exact text of the field, quotes included.</small>
+      </div>
+      <div class="actions"><button type="submit" class="primary" id="goBtn" data-help="Starts the search. First it pulls the collections, then it looks up each provisional name across all of iNat, about one second per name. Rows fill in as they arrive, rarest names first.">Search</button></div>
+    </form>
+    <div id="formMsg" class="msg"></div>
+    <div class="savebar">
+      <button id="saveBtn" type="button" class="ghost sm" disabled data-help="Downloads everything from this search (collections, every name’s statistics and sequences) as one file. Open it later or share it; it opens instantly without waiting on iNat.">⤓ Save results to a file</button>
+      <label class="ghost sm filebtn" data-help="Opens a file saved with “Save results to a file”. You can also drag the file anywhere onto the page.">⤒ Open a saved file<input type="file" id="openFile" accept=".gz,.json,application/json,application/gzip" hidden></label>
+      <span class="vr"></span>
+      <label data-help="How long this browser remembers each name’s results. Repeat searches reuse them instead of asking iNat again. Browsers can still clear stored data when space runs low, so save a file for anything you want to keep.">Keep results in this browser for
+        <select id="keepSel"><option value="24">1 day</option><option value="168">1 week</option><option value="720">30 days</option><option value="-1">until I clear them</option></select></label>
+      <button id="clearCache" type="button" class="linkbtn" data-help="Deletes the results this browser has stored. Saved files are not affected.">Clear</button>
+      <span id="storageNote"></span>
+    </div>
+  </section>
+
+  <section id="status" class="status hidden" data-help="Progress of the current search. <b>Pause</b> stops sending requests but keeps everything loaded; <b>Stop</b> ends the search, and names not yet looked up show “…”.">
+    <div class="statusText" id="statusText"></div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div class="statusBtns"><button id="pauseBtn" class="ghost sm">Pause</button><button id="stopBtn" class="ghost sm">Stop</button></div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="summary" id="summary"></div>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="names" data-help="One row per provisional name, with statistics gathered from all of iNat.">Provisional names<span class="count" id="nNames"></span></button>
+      <button class="tab" data-tab="obs" data-help="One row per collection (observation) from the usernames you searched. Sort by photos, date or how rare the name is.">Collections<span class="count" id="nObs"></span></button>
+    </div>
+
+    <div id="namesView">
+      <div class="presets" id="presets"></div>
+      <p class="presetHint" id="presetHint"></p>
+      <details class="filters" id="filters">
+        <summary data-help="Set your own rules: name text, a rarity range, minimum collectors or photos, a region, vouchered only, or hide flagged names. Filters combine with the buttons above.">Filters<span id="filterCount"></span></summary>
+        <div class="filterGrid">
+          <label>Name contains<input id="fText" placeholder="e.g. Russula"></label>
+          <label data-help="Only names with at least this many sequenced observations on iNat.">Sequenced obs ≥<input id="fMin" type="number" min="1"></label>
+          <label data-help="Only names with at most this many sequenced observations: set to 1 for singletons, 10 for rare names.">Sequenced obs ≤<input id="fMax" type="number" min="1"></label>
+          <label data-help="Only names collected by at least this many different iNat accounts.">Collectors ≥<input id="fColl" type="number" min="1"></label>
+          <label data-help="Only names whose observations average at least this many photos.">Photos per obs ≥<input id="fPhotos" type="number" min="0" step="0.5"></label>
+          <label data-help="Only names found in a region, e.g. OH, ON or Mexico.">Found in region<input id="fRegion" placeholder="e.g. OH"></label>
+           <label class="check" data-help="Only names with at least one collection that has a specimen record."><input id="fVouch" type="checkbox">Has a vouchered collection</label>
+           <label class="check" data-help="Hides names listed under “Needs attention”."><input id="fNoFlags" type="checkbox">Hide names with flags</label>
+          <button id="clearFilters" type="button" class="ghost sm">Clear filters</button>
+        </div>
+      </details>
+      <div class="tableWrap"><table id="namesTable"><thead></thead><tbody></tbody></table></div>
+      <div class="tableFoot"><span id="shownCount"></span><span class="btns"><button id="csvNames" class="ghost sm" data-help="Downloads the rows currently shown (after buttons and filters) as a spreadsheet file.">Download CSV</button></span></div>
+    </div>
+
+    <div id="obsView" class="hidden">
+      <div class="tableWrap"><table id="obsTable"><thead></thead><tbody></tbody></table></div>
+      <div class="tableFoot"><span id="obsCount"></span><span class="btns"><button id="csvObs" class="ghost sm" data-help="Downloads all collections as a spreadsheet file.">Download CSV</button></span></div>
+    </div>
+  </section>
+
+  <footer>
+    <p style="margin:0 0 8px;color:var(--muted)"><b>Data and photos from <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a></b>, through its public API. This tool is not affiliated with or endorsed by iNaturalist. Photos belong to their photographers and are shown under their Creative Commons licenses, credited on each photo; photos marked “all rights reserved” are not shown here and can be viewed on iNaturalist.</p>
+    Live data from the iNaturalist API. Only observations with <i>both</i> the “Provisional Species Name” and “DNA Barcode ITS” observation fields are counted. Names are matched exactly as typed in the field.
+    “Collections” means observations uploaded by the usernames you entered. Regions come from iNat’s place records (state or province), falling back to the observation’s place text outside North America. Each name’s results are kept in this browser for as long as you choose (1 day by default); use “Save results to a file” to keep or share a search. Sequence checks are simple screens (length and ambiguous bases), not a quality verdict.
+    Requests are spaced about one per second to stay within iNat’s limits, so large searches take a few minutes.
+  </footer>
+</main>
+
+<div id="scrim"></div>
+<aside id="drawer" class="drawer" aria-hidden="true">
+  <div class="dhead"><div style="min-width:0"><h2 id="dTitle"></h2><div class="links" id="dLinks"></div></div><button class="dclose" id="dClose" aria-label="Close">×</button></div>
+  <div class="dbody" id="dBody"></div>
+</aside>
+
+<div id="help" class="modal hidden"><div class="card">
+  <h3>Glossary</h3>
+  <dl>
+    <dt>Sequenced</dt><dd>How many observations on all of iNat carry this exact provisional name <i>and</i> an ITS sequence. Lower means rarer. The default sort puts the rarest first.</dd>
+    <dt>Yours</dt><dd>How many of those came from the usernames you searched.</dd>
+    <dt>Collectors</dt><dd>Different iNat accounts that uploaded a sequenced collection of this name. Several collectors usually means separate collection events and more material to study.</dd>
+    <dt>Vouchered</dt><dd>Collections with a specimen record: a filled-in voucher, herbarium or fungarium field, or “Voucher Specimen Taken: Yes”. A new species needs a kept specimen for its holotype.</dd>
+    <dt>Photos / obs</dt><dd>Average photos per sequenced observation of the name, as a rough measure of how well the macro features are documented.</dd>
+    <dt>Regions</dt><dd>US states, Canadian provinces, or countries elsewhere, where it has been collected.</dd>
+    <dt>Season</dt><dd>Sequenced observations by month, January to December.</dd>
+    <dt>Sequences</dt><dd>Sequences that may need a look: shorter than 350 bases or more than 2% ambiguous bases. Pasted FASTA headers are ignored. Orange when at least a quarter of a name’s sequences are tagged.</dd>
+    <dt>Flags</dt><dd><b>Taxon differs</b>: some observations are filed under a different species-level taxon than the field says. <b>Likely described</b>: at least half are identified as a formally named species, so the code may already be described (fewer than half shows as “N IDed as named sp.”, usually misidentifications). <b>Taxon inactive</b>: iNat’s provisional taxon was retired or merged. <b>ID update</b>: at least 10% of observations have “ID Update Needed: Yes”.</dd>
+    <dt>Research candidates</dt><dd>Preset: 2–10 sequenced collections, at least one vouchered, at least two collectors. Use the filters to set your own rules.</dd>
+  </dl>
+  <p style="margin-top:18px;text-align:right"><button class="primary" id="helpClose">Got it</button></p>
+</div></div>
+
+<script>
+(() => {
+'use strict';
+const API = 'https://api.inaturalist.org';
+const PNF = 'Provisional Species Name', ITSF = 'DNA Barcode ITS';
+const OBS_FIELDS = '(id:!t,uuid:!t,observed_on:!t,place_guess:!t,place_ids:!t,obscured:!t,quality_grade:!t,user:(id:!t,login:!t),photos:(id:!t,url:!t,attribution:!t,license_code:!t),taxon:(id:!t,name:!t,rank:!t,provisional:!t,is_active:!t,observations_count:!t),ofvs:(name:!t,value:!t))';
+const GAP_MS = 1050;           // spacing between API requests
+const USER_CAP = 5000;         // max collections pulled for the searched users
+const NAME_CAP = 600;          // max observations pulled per name (rare names are far below this)
+const SEQ_MIN = 350, AMBIG_MAX = 0.02;
+const MONTHS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+const MONTHS_L = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pl = (n, w, ws) => `${Number(n).toLocaleString()} ${n === 1 ? w : (ws || w + 's')}`;
+const fmt = n => n == null ? '—' : Number(n).toLocaleString();
+const norm = s => String(s || '').replace(/[‘’‚‛`´′]/g, "'").replace(/[“”„]/g, '"').replace(/\s+/g, ' ').trim();
+const keyOf = s => norm(s).toLowerCase();
+const cacheHours = () => { const v = store.get('pf:cacheHours'); return v == null ? 24 : +v; };
+const keepLabel = () => ({ 24: '1 day', 168: '1 week', 720: '30 days', '-1': 'until cleared' })[cacheHours()] || cacheHours() + ' h';
+const idb = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    try { const r = indexedDB.open('provisional-finder', 1); r.onupgradeneeded = () => r.result.createObjectStore('names'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); }
+  }));
+  return {
+    async get(k) { try { const db = await open(); return await new Promise(res => { const q = db.transaction('names').objectStore('names').get(k); q.onsuccess = () => { const v = q.result; const hrs = cacheHours(); res(v && (hrs < 0 || Date.now() - v.t < hrs * 3600e3) ? v : null); }; q.onerror = () => res(null); }); } catch (e) { return null; } },
+    async set(k, v) { try { const db = await open(); db.transaction('names', 'readwrite').objectStore('names').put({ ...v, t: v.t || Date.now() }, k); } catch (e) {} },
+    async clear() { try { const db = await open(); db.transaction('names', 'readwrite').objectStore('names').clear(); } catch (e) {} },
+  };
+})();
+const store = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- API with spacing + retry ---------- */
+let lastReq = 0;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function api(path) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const wait = lastReq + GAP_MS - Date.now();
+    lastReq = Math.max(Date.now(), lastReq + GAP_MS);
+    if (wait > 0) await sleep(wait);
+    let r;
+    try { r = await fetch(API + path); } catch (e) { await sleep(3000); continue; }
+    if (r.status === 429 || r.status >= 500) { await sleep(5000 * (attempt + 1)); continue; }
+    if (!r.ok) throw new Error('iNaturalist returned ' + r.status);
+    return r.json();
+  }
+  throw new Error('iNaturalist is not responding; try again in a minute.');
+}
+const fieldParams = (name) => `field:${encodeURIComponent(PNF)}=${encodeURIComponent(name || '')}&field:${encodeURIComponent(ITSF)}=`;
+
+async function fetchAll(params, cap, onPage, run) {
+  let idAbove = 0, out = [], total = null;
+  while (true) {
+    if (run && run.stopped) break;
+    if (run) await run.waitIfPaused();
+    const d = await api(`/v2/observations?${params}&per_page=200&order_by=id&order=asc&id_above=${idAbove}&fields=${OBS_FIELDS}`);
+    if (total === null) total = d.total_results;
+    const res = d.results || [];
+    out.push(...res);
+    if (onPage) onPage(out.length, total);
+    if (res.length < 200 || out.length >= cap) break;
+    idAbove = res[res.length - 1].id;
+  }
+  return { total, obs: out };
+}
+
+/* ---------- parsing ---------- */
+const STATES = {alabama:'AL',alaska:'AK',arizona:'AZ',arkansas:'AR',california:'CA',colorado:'CO',connecticut:'CT',delaware:'DE',florida:'FL',georgia:'GA',hawaii:'HI',idaho:'ID',illinois:'IL',indiana:'IN',iowa:'IA',kansas:'KS',kentucky:'KY',louisiana:'LA',maine:'ME',maryland:'MD',massachusetts:'MA',michigan:'MI',minnesota:'MN',mississippi:'MS',missouri:'MO',montana:'MT',nebraska:'NE',nevada:'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY','north carolina':'NC','north dakota':'ND',ohio:'OH',oklahoma:'OK',oregon:'OR',pennsylvania:'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',tennessee:'TN',texas:'TX',utah:'UT',vermont:'VT',virginia:'VA',washington:'WA','west virginia':'WV',wisconsin:'WI',wyoming:'WY','district of columbia':'DC','puerto rico':'PR',alberta:'AB','british columbia':'BC',manitoba:'MB','new brunswick':'NB','newfoundland and labrador':'NL','nova scotia':'NS',ontario:'ON','prince edward island':'PE',quebec:'QC',québec:'QC',saskatchewan:'SK','northwest territories':'NT',nunavut:'NU',yukon:'YT'};
+// iNat place IDs for US states, Canadian provinces/territories and Puerto Rico
+const PLACE_REGION = {"2":"MA","3":"NE","4":"DE","5":"DC","6":"AK","7":"VA","8":"RI","9":"NM","10":"OR","11":"HI","12":"OK","13":"ND","14":"CA","15":"WY","16":"MT","17":"ME","18":"TX","19":"AL","20":"IN","22":"ID","23":"GA","24":"IA","25":"KS","26":"KY","27":"LA","28":"MO","29":"MI","30":"NC","31":"OH","32":"WI","33":"WV","34":"CO","35":"IL","36":"AR","37":"MS","38":"MN","40":"AZ","41":"NH","42":"PA","43":"SC","44":"SD","45":"TN","46":"WA","47":"VT","48":"NY","49":"CT","50":"NV","51":"NJ","52":"UT","6834":"AB","6853":"NS","6883":"ON","7085":"BC","7289":"NL","7539":"FL","7587":"NB","7590":"MB","7953":"SK","9079":"NT","9116":"PE","12835":"MD","13335":"NU","13337":"YT","6848":"PR","13336":"QC"};
+const COUNTRY_IDS = { 1: 'US', 6712: 'Canada' };
+function regionOf(placeIds, pg) {
+  for (const id of placeIds || []) if (PLACE_REGION[id]) return PLACE_REGION[id];
+  const p = String(pg || '').split(',').map(s => s.trim()).filter(Boolean);
+  const last = p[p.length - 1] || '';
+  const m = last.match(/^US-([A-Z]{2})$/); if (m) return m[1];
+  if (STATES[last.toLowerCase()]) return STATES[last.toLowerCase()];
+  for (const id of placeIds || []) if (COUNTRY_IDS[id]) return COUNTRY_IDS[id];
+  if (/^[A-Za-z][A-Za-z .'-]+$/.test(last) && !/^(US|USA|United States)$/i.test(last)) return last;
+  return null;
+}
+const VOUCHER_RE = /voucher number|herbarium|fungarium|csalva|collection identifier|catalog number|specimen number/i;
+const DESCRIBED_RE = /^[A-Z][a-z]+ [a-z][a-z-]+$/;
+function parseObs(o) {
+  const f = {};
+  for (const v of o.ofvs || []) if (v && v.name && !(v.name in f)) f[v.name] = v.value;
+  const raw = norm(f[PNF]);
+  // The field sometimes holds a pasted FASTA header or notes; keep the longest run of DNA letters.
+  const rawSeq = String(f[ITSF] || '').replace(/^>.*$/gm, '').toUpperCase().replace(/\s+/g, '');
+  const runs = rawSeq.match(/[ACGTURYSWKMBDHVN-]+/g) || [];
+  const seq = runs.reduce((a, b) => b.length > a.length ? b : a, '').replace(/-/g, '');
+  const len = seq.length;
+  const ambig = (seq.match(/[RYSWKMBDHVN]/g) || []).length;
+  const seqIssues = [];
+  if (len < SEQ_MIN) seqIssues.push(`short (${len} bp)`);
+  if (len && ambig / len > AMBIG_MAX) seqIssues.push(`${ambig} ambiguous bases (${(100 * ambig / len).toFixed(1)}%)`);
+  let voucher = false, voucherText = '';
+  for (const [n, v] of Object.entries(f)) {
+    const val = String(v || '').trim();
+    if (!val) continue;
+    if (/voucher specimen taken/i.test(n)) { if (/^y/i.test(val)) { voucher = true; voucherText = voucherText || 'specimen kept'; } continue; }
+    if (VOUCHER_RE.test(n) && !/^(no|none|n\/?a|-)$/i.test(val)) { voucher = true; voucherText = `${n}: ${val}`; }
+  }
+  const t = o.taxon || null;
+  // Only show photos that carry an open license; "all rights reserved" photos stay on iNat.
+  const lic = (o.photos || []).find(ph => ph && ph.license_code && ph.url);
+  const photo = lic ? lic.url : '';
+  const d = o.observed_on || '';
+  return {
+    id: o.id, uuid: o.uuid, date: d, month: d ? +d.slice(5, 7) : null, year: d ? +d.slice(0, 4) : null,
+    login: o.user ? o.user.login : '?', uid: o.user ? o.user.id : null,
+    nPhotos: (o.photos || []).length, thumb: photo,
+    credit: lic ? `${lic.attribution || 'iNaturalist user'}` : '', arr: !lic && (o.photos || []).length > 0,
+    place: o.place_guess || '', region: regionOf(o.place_ids, o.place_guess), obscured: !!o.obscured,
+    raw, key: keyOf(raw), seq, len, ambig, seqIssues,
+    ric: f['Reads in Consensus (RiC)'] || '', tech: f['Sequencing technology'] || '',
+    blast: f['MycoMap BLAST Results'] || '', voucher, voucherText,
+    idUpdate: /^y/i.test(String(f['ID Update Needed'] || '')),
+    micro: Object.entries(f).some(([n, v]) => /microscop/i.test(n) && /^y/i.test(String(v || ''))),
+    taxon: t ? { id: t.id, name: t.name, rank: t.rank, provisional: !!t.provisional, active: t.is_active !== false, count: t.observations_count } : null,
+  };
+}
+// Licensed photos live in iNat's open-data bucket; older saved files may lack a credit line.
+const isOpenData = u => /inaturalist-open-data/.test(u || '');
+const showable = o => !!(o && o.thumb && (o.credit || isOpenData(o.thumb)));
+const creditOf = o => o.credit || 'CC-licensed photo from iNaturalist; see the observation for the photographer’s credit';
+function thumbHtml(o, size, cls) {
+  if (showable(o)) return `<img class="${cls}" loading="lazy" src="${esc(thumbUrl(o.thumb, size))}" alt="Photo: ${esc(creditOf(o))}" title="Photo ${esc(creditOf(o))}">`;
+  const why = o && o.nPhotos ? 'The photographer has reserved all rights to these photos, so they’re shown only on iNaturalist.' : 'No photos on this observation.';
+  return `<span class="${cls} nophoto" title="${esc(why)}">${o && o.nPhotos ? '©' : ''}</span>`;
+}
+const thumbUrl = (u, size) => u ? u.replace(/\/(square|small|medium|thumb)\./, `/${size}.`) : '';
+
+/* ---------- name statistics ---------- */
+function summarize(key, all, total) {
+  const s = { seq: total, sampled: all.length < total, collectors: new Map(), vouch: 0, photos: 0, regions: new Map(), months: Array(12).fill(0),
+    seqFlag: 0, idUpdate: 0, micro: 0, mismatch: new Map(), described: new Map(), inactive: false, taxon: null, years: [Infinity, -Infinity], lens: [] };
+  const taxa = new Map();
+  for (const o of all) {
+    s.collectors.set(o.login, (s.collectors.get(o.login) || 0) + 1);
+    if (o.voucher) s.vouch++;
+    s.photos += o.nPhotos;
+    if (o.region) s.regions.set(o.region, (s.regions.get(o.region) || 0) + 1);
+    if (o.month) s.months[o.month - 1]++;
+    if (o.year) { s.years[0] = Math.min(s.years[0], o.year); s.years[1] = Math.max(s.years[1], o.year); }
+    if (o.seqIssues.length) s.seqFlag++;
+    if (o.len) s.lens.push(o.len);
+    if (o.idUpdate) s.idUpdate++;
+    if (o.micro) s.micro++;
+    const t = o.taxon;
+    if (t) {
+      const tk = keyOf(t.name);
+      if (tk === key) { taxa.set(t.id, t); if (!t.active) s.inactive = true; }
+      else if (t.rank === 'species') {
+        if (!t.provisional && DESCRIBED_RE.test(t.name)) s.described.set(t.name, (s.described.get(t.name) || 0) + 1);
+        else s.mismatch.set(t.name, (s.mismatch.get(t.name) || 0) + 1);
+      }
+    }
+  }
+  s.taxon = [...taxa.values()][0] || null;
+  s.n = all.length;
+  s.avgPhotos = all.length ? s.photos / all.length : 0;
+  s.nCollectors = s.collectors.size;
+  s.lens.sort((a, b) => a - b);
+  s.medLen = s.lens.length ? s.lens[Math.floor(s.lens.length / 2)] : null;
+  s.flags = [];
+  s.describedN = [...s.described.values()].reduce((a, b) => a + b, 0);
+  s.likelyDescribed = s.n > 0 && s.describedN / s.n >= 0.5;
+  if (s.likelyDescribed) s.flags.push({ k: 'described', label: 'Likely described', cls: 't-red' });
+  else if (s.describedN / Math.max(1, s.n) >= 0.2) s.flags.push({ k: 'someNamed', label: `${s.describedN} IDed as named sp.`, cls: 't-och' });
+  if (s.mismatch.size) s.flags.push({ k: 'mismatch', label: 'Taxon differs', cls: 't-och' });
+  if (s.inactive) s.flags.push({ k: 'inactive', label: 'Taxon inactive', cls: 't-red' });
+  if (s.idUpdate && s.idUpdate / s.n >= 0.1) s.flags.push({ k: 'idupdate', label: 'ID update', cls: 't-och' });
+  return s;
+}
+
+/* ---------- state ---------- */
+const state = { users: [], run: null, mine: [], names: new Map(), nameOrder: [], analyzed: 0,
+  sort: { k: 'seq', dir: 1 }, osort: { k: 'date', dir: -1 }, preset: 'all', tab: 'names' };
+const nameCache = new Map(); // key -> {total, obs}
+
+/* ---------- username chips ---------- */
+const chipsEl = $('#chips'), userInput = $('#userInput');
+function renderChips() {
+  chipsEl.querySelectorAll('.chip').forEach(c => c.remove());
+  for (const u of state.users) {
+    const c = document.createElement('span');
+    c.className = 'chip' + (u.status === 'bad' ? ' bad' : u.status === 'checking' ? ' checking' : '');
+    c.title = u.status === 'bad' ? 'No iNaturalist user with this name' : u.status === 'ok' ? (u.name ? u.name : u.login) : 'Checking…';
+    c.innerHTML = `${esc(u.login)}${u.status === 'bad' ? ' ⚠' : ''}<button type="button" aria-label="Remove ${esc(u.login)}">×</button>`;
+    c.querySelector('button').onclick = (e) => { e.stopPropagation(); state.users = state.users.filter(x => x !== u); renderChips(); saveInputs(); };
+    chipsEl.insertBefore(c, userInput);
+  }
+}
+async function addUser(login) {
+  login = login.trim().replace(/^@/, '');
+  if (!login || state.users.some(u => u.login.toLowerCase() === login.toLowerCase())) return;
+  const u = { login, status: 'checking', id: null };
+  state.users.push(u); renderChips(); saveInputs();
+  try {
+    const d = await api(`/v1/users/${encodeURIComponent(login)}`);
+    const r = d.results && d.results[0];
+    if (r) { u.id = r.id; u.login = r.login; u.name = r.name; u.status = 'ok'; } else u.status = 'bad';
+  } catch (e) { u.status = 'bad'; }
+  renderChips(); saveInputs();
+}
+userInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab' && userInput.value.trim()) {
+    if (userInput.value.trim()) { e.preventDefault(); userInput.value.split(/[,\s]+/).forEach(addUser); userInput.value = ''; }
+    else if (e.key === 'Enter') { e.preventDefault(); $('#form').requestSubmit(); }
+  } else if (e.key === 'Backspace' && !userInput.value && state.users.length) {
+    state.users.pop(); renderChips(); saveInputs();
+  }
+});
+userInput.addEventListener('paste', e => {
+  const t = (e.clipboardData || window.clipboardData).getData('text');
+  if (/[,\s]/.test(t.trim())) { e.preventDefault(); t.split(/[,\s]+/).forEach(addUser); }
+});
+userInput.addEventListener('blur', () => { if (userInput.value.trim()) { userInput.value.split(/[,\s]+/).forEach(addUser); userInput.value = ''; } });
+chipsEl.addEventListener('click', () => userInput.focus());
+function saveInputs() { store.set('pf:inputs', { users: state.users.map(u => u.login), pname: $('#pname').value }); }
+$('#pname').addEventListener('input', saveInputs);
+
+/* ---------- run control ---------- */
+function newRun() {
+  if (state.run) state.run.stopped = true;
+  const run = { stopped: false, paused: false, async waitIfPaused() { while (this.paused && !this.stopped) await sleep(300); } };
+  state.run = run; return run;
+}
+$('#pauseBtn').onclick = () => { const r = state.run; if (!r) return; r.paused = !r.paused; $('#pauseBtn').textContent = r.paused ? 'Resume' : 'Pause'; if (r.paused) setStatus('Paused. Results so far are shown below.', null); };
+$('#stopBtn').onclick = () => { if (state.run) state.run.stopped = true; finishStatus('Stopped. Names not yet analyzed show “…”.'); };
+function setStatus(text, frac) {
+  $('#status').classList.remove('hidden');
+  $('#statusText').innerHTML = text;
+  if (frac != null) $('#barFill').style.width = Math.round(Math.min(1, frac) * 100) + '%';
+}
+function finishStatus(text) {
+  setStatus(text, 1);
+  $('#pauseBtn').classList.add('hidden'); $('#stopBtn').classList.add('hidden');
+  $('#goBtn').disabled = false;
+}
+
+/* ---------- search ---------- */
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (userInput.value.trim()) { userInput.value.split(/[,\s]+/).forEach(addUser); userInput.value = ''; }
+  const pname = norm($('#pname').value);
+  $('#formMsg').textContent = '';
+  // wait for pending username checks
+  for (let i = 0; i < 40 && state.users.some(u => u.status === 'checking'); i++) await sleep(250);
+  const good = state.users.filter(u => u.status === 'ok');
+  const bad = state.users.filter(u => u.status === 'bad');
+  if (!good.length && !pname) { $('#formMsg').textContent = bad.length ? `No iNaturalist user found for: ${bad.map(u => u.login).join(', ')}.` : 'Enter at least one username or a provisional name.'; return; }
+  if (bad.length) $('#formMsg').textContent = `Skipping unknown username${bad.length > 1 ? 's' : ''}: ${bad.map(u => u.login).join(', ')}.`;
+  saveInputs();
+  runSearch(good, pname);
+});
+
+async function runSearch(users, pname) {
+  if (state.demo) { nameCache.clear(); state.demo = false; }
+  const run = newRun();
+  $('#goBtn').disabled = true;
+  $('#pauseBtn').classList.remove('hidden'); $('#stopBtn').classList.remove('hidden'); $('#pauseBtn').textContent = 'Pause';
+  state.mine = []; state.names = new Map(); state.analyzed = 0; state.searchUsers = users; state.searchName = pname;
+  $('#results').classList.remove('hidden');
+  renderAll();
+  try {
+    const who = users.length ? users.map(u => u.login).join(', ') : 'everyone';
+    setStatus(`Finding sequenced provisional collections for <b>${esc(who)}</b>…`, 0.02);
+    let mineRaw;
+    if (users.length) {
+      const params = `user_id=${users.map(u => u.id).join(',')}&${fieldParams(pname)}`;
+      mineRaw = await fetchAll(params, USER_CAP, (n, t) => setStatus(`Loading collections: <b>${fmt(n)}</b> of ${fmt(t)}…`, 0.05 + 0.15 * n / Math.max(1, t)), run);
+      if (mineRaw.total > USER_CAP) $('#formMsg').textContent = `Showing the first ${fmt(USER_CAP)} of ${fmt(mineRaw.total)} collections. Add a provisional name to narrow it.`;
+    } else {
+      mineRaw = await fetchAll(fieldParams(pname), NAME_CAP, (n, t) => setStatus(`Loading <b>${esc(pname)}</b>: ${fmt(n)} of ${fmt(t)}…`, 0.1 + 0.6 * n / Math.max(1, t)), run);
+      const entry = { total: mineRaw.total, obs: mineRaw.obs.map(parseObs), t: Date.now() };
+      nameCache.set(keyOf(pname), entry);
+      idb.set(pname, entry);
+    }
+    if (run.stopped) return;
+    state.mine = mineRaw.obs.map(parseObs).filter(o => o.key);
+    state.searchedAt = Date.now();
+    groupMine();
+    if (!state.names.size) { finishStatus(users.length ? 'No collections found with both a provisional name and an ITS sequence.' : 'No sequenced observations found with that exact name. Check spelling and quote marks.'); renderAll(); return; }
+    renderAll();
+    // analyze each name across all of iNat
+    const queue = [...state.names.values()].sort((a, b) => a.mine.length - b.mine.length || a.name.localeCompare(b.name));
+    const N = queue.length; let done = 0, cached = 0, t0f = Date.now();
+    for (const g of queue) {
+      if (run.stopped) return;
+      await run.waitIfPaused();
+      if (run.stopped) return;
+      const fetchedSoFar = done - cached;
+      if (fetchedSoFar === 0) t0f = Date.now();
+      const per = fetchedSoFar > 2 ? (Date.now() - t0f) / fetchedSoFar : 1200;
+      const left = Math.max(0, Math.round(per * (N - done) / 1000));
+      setStatus(`Sizing up names across iNat: <b>${done + 1}</b> of ${N} · about ${left > 90 ? Math.round(left / 60) + ' min' : left + ' s'} left`, 0.2 + 0.8 * done / N);
+      try {
+        let c = nameCache.get(g.key) || (state.fresh ? null : await idb.get(g.name));
+        if (c) cached++;
+        else {
+          const r = await fetchAll(fieldParams(g.name), NAME_CAP, null, run);
+          c = { total: r.total, obs: r.obs.map(parseObs), t: Date.now() };
+          idb.set(g.name, c);
+        }
+        nameCache.set(g.key, c);
+        g.all = c.obs; g.stats = summarize(g.key, c.obs, c.total); g.status = 'done';
+      } catch (err) { g.status = 'error'; g.error = err.message; }
+      done++; state.analyzed = done;
+      scheduleRender();
+    }
+    finishStatus(`Done. ${pl(state.mine.length, 'collection')} across ${pl(N, 'provisional name')}${cached ? ` (${fmt(cached)} reused from earlier results, oldest from ${ageText(oldestT())} — <a href="#" id="refreshLink">refresh from iNat</a>)` : ''}. Click any row for details.`);
+    const rl = document.getElementById('refreshLink');
+    if (rl) rl.onclick = (e) => { e.preventDefault(); state.fresh = true; nameCache.clear(); runSearch(users, pname).finally(() => { state.fresh = false; }); };
+    renderAll();
+  } catch (err) {
+    finishStatus(`<span style="color:var(--red)">${esc(err.message)}</span>`);
+  }
+}
+
+function groupMine() {
+  state.names = new Map();
+  for (const o of state.mine) {
+    let g = state.names.get(o.key);
+    if (!g) { g = { key: o.key, variants: new Map(), mine: [], stats: null, status: 'pending' }; state.names.set(o.key, g); }
+    g.mine.push(o); g.variants.set(o.raw, (g.variants.get(o.raw) || 0) + 1);
+  }
+  for (const g of state.names.values()) {
+    g.name = [...g.variants.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    g.thumbObs = g.mine.filter(showable).sort((a, b) => b.nPhotos - a.nPhotos)[0] || g.mine[0];
+  }
+}
+function oldestT() {
+  let t = state.searchedAt || Date.now();
+  for (const g of state.names.values()) { const c = nameCache.get(g.key); if (c && c.t && c.t < t) t = c.t; }
+  return t;
+}
+function ageText(t) {
+  const d = new Date(t), days = Math.floor((Date.now() - t) / 864e5);
+  const when = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  return days < 1 ? `today (${when})` : days === 1 ? `yesterday (${when})` : `${when}, ${days} days ago`;
+}
+
+/* ---------- save / open results files ---------- */
+async function gzip(text) {
+  if (!('CompressionStream' in window)) return { blob: new Blob([text], { type: 'application/json' }), ext: 'json' };
+  const s = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+  return { blob: await new Response(s).blob(), ext: 'json.gz' };
+}
+async function gunzipIfNeeded(buf) {
+  const b = new Uint8Array(buf);
+  if (b[0] === 0x1f && b[1] === 0x8b) {
+    if (!('DecompressionStream' in window)) throw new Error('This browser can’t open compressed files. Try a current Chrome, Edge, Firefox or Safari.');
+    return await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  }
+  return new TextDecoder().decode(buf);
+}
+$('#saveBtn').onclick = async () => {
+  if (!state.mine.length) return;
+  const btn = $('#saveBtn'); btn.disabled = true; btn.textContent = 'Preparing file…';
+  try {
+    const names = [];
+    for (const g of state.names.values()) { const c = nameCache.get(g.key); if (c) names.push({ name: g.name, total: c.total, t: c.t || state.searchedAt, obs: c.obs }); }
+    const snap = { app: 'provisional-finder', version: 1, savedAt: new Date().toISOString(), searchedAt: state.searchedAt,
+      users: (state.searchUsers || []).map(u => ({ login: u.login, id: u.id, name: u.name || '' })), pname: state.searchName || '',
+      mine: state.mine, names };
+    const { blob, ext } = await gzip(JSON.stringify(snap));
+    const who = snap.users.length ? snap.users.map(u => u.login).join('+') : snap.pname.replace(/[^\w-]+/g, '_');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `provisional-finder_${who.slice(0, 60)}_${stamp()}.${ext}`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    $('#storageNote').textContent = `Saved ${(blob.size / 1048576).toFixed(1)} MB file. Open it here any time, or share it with someone who has this tool.`;
+  } catch (e) { $('#storageNote').textContent = 'Couldn’t save: ' + e.message; }
+  btn.disabled = false; btn.textContent = '⤓ Save results to a file';
+};
+async function openSnapshot(file) {
+  $('#formMsg').textContent = '';
+  try {
+    const snap = JSON.parse(await gunzipIfNeeded(await file.arrayBuffer()));
+    loadSnapshotData(snap, `<b>${esc(file.name)}</b>`, false);
+  } catch (e) {
+    $('#formMsg').textContent = e instanceof SyntaxError ? 'That file couldn’t be read. Is it a Provisional Finder results file?' : e.message;
+  }
+}
+function loadSnapshotData(snap, label, demo) {
+    if (!snap || snap.app !== 'provisional-finder' || !Array.isArray(snap.mine)) throw new Error('That file wasn’t saved by Provisional Finder.');
+    if (state.run) state.run.stopped = true;
+    state.demo = !!demo;
+    const snapUsers = snap.users.map(u => ({ ...u, status: 'ok' }));
+    if (!demo) { state.users = snapUsers; renderChips(); $('#pname').value = snap.pname || ''; saveInputs(); }
+    state.searchUsers = snapUsers; state.searchName = snap.pname || '';
+    state.searchedAt = snap.searchedAt || Date.parse(snap.savedAt);
+    state.mine = snap.mine; state.analyzed = 0;
+    nameCache.clear();
+    for (const n of snap.names) { const e = { total: n.total, obs: n.obs, t: n.t }; nameCache.set(keyOf(n.name), e); if (!demo) idb.set(n.name, e); }
+    groupMine();
+    let missing = 0;
+    for (const g of state.names.values()) {
+      const c = nameCache.get(g.key);
+      if (c) { g.all = c.obs; g.stats = summarize(g.key, c.obs, c.total); g.status = 'done'; state.analyzed++; } else missing++;
+    }
+    $('#results').classList.remove('hidden');
+    renderAll();
+    const users = state.searchUsers, pname = state.searchName;
+    if (demo) { finishStatus(`Showing ${label}: ${pl(state.mine.length, 'collection')}, ${pl(state.names.size, 'provisional name')}. Run your own search above to replace it.`); return; }
+    finishStatus(`Opened ${label}: ${pl(state.mine.length, 'collection')}, ${pl(state.names.size, 'provisional name')}. Data from ${ageText(oldestT())}.` +
+      (missing ? ` ${missing} name${missing > 1 ? 's weren’t' : ' wasn’t'} finished when saved — <a href="#" id="finishLink">finish them</a>.` : '') +
+      ` <a href="#" id="updateLink">Update everything from iNat</a>`);
+    const fl = document.getElementById('finishLink'); if (fl) fl.onclick = e => { e.preventDefault(); runSearch(users, pname); };
+    document.getElementById('updateLink').onclick = e => { e.preventDefault(); state.fresh = true; nameCache.clear(); runSearch(users, pname).finally(() => { state.fresh = false; }); };
+}
+$('#openFile').onchange = e => { const f = e.target.files[0]; if (f) openSnapshot(f); e.target.value = ''; };
+let dragDepth = 0;
+document.addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragDepth++; document.body.classList.add('dragging'); } });
+document.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging'); const f = e.dataTransfer?.files?.[0]; if (f) openSnapshot(f); });
+
+/* ---------- how long the browser keeps results ---------- */
+async function storageNote(extra) {
+  let used = '';
+  try { const est = await navigator.storage.estimate(); if (est.usage) used = `${(est.usage / 1048576).toFixed(1)} MB stored. `; } catch (e) {}
+  $('#storageNote').textContent = used + (extra || '');
+}
+$('#keepSel').value = String(cacheHours());
+$('#keepSel').onchange = async () => {
+  store.set('pf:cacheHours', +$('#keepSel').value);
+  if (+$('#keepSel').value === 24) return storageNote('');
+  let msg = 'Your browser may still clear this if it runs low on space, so save a file for anything you want to keep.';
+  try { if (navigator.storage && navigator.storage.persist && await navigator.storage.persist()) msg = 'Your browser agreed not to clear it automatically.'; } catch (e) {}
+  storageNote(msg);
+};
+$('#clearCache').onclick = async () => { await idb.clear(); nameCache.clear(); storageNote('Stored results cleared. The next search will load fresh from iNat.'); };
+storageNote('');
+
+/* ---------- rendering ---------- */
+let renderTimer = null;
+function scheduleRender() { if (renderTimer) return; renderTimer = setTimeout(() => { renderTimer = null; renderAll(); }, 400); }
+function renderAll() { renderSummary(); renderPresets(); renderNames(); renderObs(); }
+
+function renderSummary() {
+  const names = [...state.names.values()], done = names.filter(g => g.stats);
+  const single = done.filter(g => g.stats.seq === 1).length;
+  const vouch = state.mine.filter(o => o.voucher).length;
+  const cand = done.filter(g => PRESETS.candidates.test(g)).length;
+  const tiles = [
+    [fmt(state.mine.length), 'sequenced collections', 'Collections from the searched usernames that have both a provisional name and an ITS sequence.'],
+    [fmt(names.length), 'provisional names', 'Different provisional names among those collections.'],
+    [done.length ? fmt(single) : '…', 'names with only one sequenced obs anywhere', 'Names with a single sequenced observation on all of iNat. Finding a second collection is the first step toward describing one.'],
+    [done.length ? fmt(cand) : '…', 'research candidates (preset)', 'Names that pass the Research candidates rule: 2–10 sequenced collections, at least one vouchered, at least two collectors, not likely described.'],
+    [state.mine.length ? Math.round(100 * vouch / state.mine.length) + '%' : '—', 'of these collections vouchered', 'Share of the searched collections with a specimen record (voucher number, herbarium or fungarium ID, or “Voucher Specimen Taken: Yes”).'],
+  ];
+  $('#summary').innerHTML = tiles.map(([v, l, help]) => `<div class="tile" data-help="${esc(help)}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+  $('#nNames').textContent = names.length ? fmt(names.length) : '';
+  $('#nObs').textContent = state.mine.length ? fmt(state.mine.length) : '';
+  $('#saveBtn').disabled = !state.mine.length;
+}
+
+const PRESETS = {
+  all: { label: 'All names', hint: 'Every provisional name in these collections. Sorted rarest first; click a column to re-sort.', test: () => true },
+  candidates: { label: 'Research candidates', hint: '2–10 sequenced collections on iNat, at least one vouchered, at least two collectors, and not flagged as likely described.', test: g => g.stats && g.stats.seq >= 2 && g.stats.seq <= 10 && g.stats.vouch > 0 && g.stats.nCollectors >= 2 && !g.stats.likelyDescribed },
+  singletons: { label: 'Singletons', hint: 'Only one sequenced collection of this name on all of iNat, so the first job is finding a second.', test: g => g.stats && g.stats.seq === 1 },
+  attention: { label: 'Needs attention', hint: 'Field/taxon disagreements, likely-described codes, retired taxa, ID updates requested, or where at least a quarter of the sequences need a look.', test: g => g.stats && (g.stats.flags.length || g.stats.seqFlag / Math.max(1, g.stats.n) >= 0.25) },
+};
+function renderPresets() {
+  $('#presets').innerHTML = Object.entries(PRESETS).map(([k, p]) => {
+    const n = [...state.names.values()].filter(p.test).length;
+    return `<button class="preset ${state.preset === k ? 'active' : ''}" data-p="${k}" data-help="${esc(p.hint)}">${p.label}<span class="pc">${state.names.size ? n : ''}</span></button>`;
+  }).join('');
+  $('#presetHint').textContent = PRESETS[state.preset].hint;
+  $('#presets').querySelectorAll('button').forEach(b => b.onclick = () => { state.preset = b.dataset.p; renderPresets(); renderNames(); });
+}
+
+/* filters */
+const F = () => ({ text: $('#fText').value.trim().toLowerCase(), min: +$('#fMin').value || null, max: +$('#fMax').value || null,
+  coll: +$('#fColl').value || null, photos: $('#fPhotos').value === '' ? null : +$('#fPhotos').value,
+  region: $('#fRegion').value.trim().toLowerCase(), vouch: $('#fVouch').checked, noFlags: $('#fNoFlags').checked });
+['#fText', '#fMin', '#fMax', '#fColl', '#fPhotos', '#fRegion'].forEach(s => $(s).addEventListener('input', () => renderNames()));
+['#fVouch', '#fNoFlags'].forEach(s => $(s).addEventListener('change', () => renderNames()));
+$('#clearFilters').onclick = () => { ['#fText', '#fMin', '#fMax', '#fColl', '#fPhotos', '#fRegion'].forEach(s => $(s).value = ''); $('#fVouch').checked = $('#fNoFlags').checked = false; renderNames(); };
+function passFilters(g, f) {
+  if (f.text && !g.name.toLowerCase().includes(f.text)) return false;
+  const s = g.stats;
+  const needStats = f.min || f.max || f.coll || f.photos != null || f.region || f.vouch || f.noFlags;
+  if (needStats && !s) return false;
+  if (!s) return true;
+  if (f.min && s.seq < f.min) return false;
+  if (f.max && s.seq > f.max) return false;
+  if (f.coll && s.nCollectors < f.coll) return false;
+  if (f.photos != null && s.avgPhotos < f.photos) return false;
+  if (f.region && ![...s.regions.keys()].some(r => r.toLowerCase().includes(f.region))) return false;
+  if (f.vouch && !s.vouch) return false;
+  if (f.noFlags && PRESETS.attention.test(g)) return false;
+  return true;
+}
+function activeFilterCount(f) { return [f.text, f.min, f.max, f.coll, f.photos != null, f.region, f.vouch, f.noFlags].filter(Boolean).length; }
+
+const NCOLS = [
+  { k: 'name', label: 'Provisional name', help: 'The name as written in the Provisional Species Name field, with a photo from its best-photographed collection and the years it has been collected. <b>Click a row</b> to open the name’s full profile.', v: g => g.name.toLowerCase() },
+  { k: 'seq', label: 'Sequenced', tip: 1, help: '<b>Rarity.</b> How many observations on all of iNat carry this exact name <i>and</i> an ITS sequence. Lower is rarer, and a longer bar means rarer. “taxon:” is the count on iNat’s provisional taxon of the same name, sequenced or not; a big gap means IDs and field values don’t line up.', v: g => g.stats ? g.stats.seq : null },
+  { k: 'mine', label: 'Yours', tip: 1, help: 'How many of this name’s sequenced collections came from the usernames you searched.', v: g => g.mine.length },
+  { k: 'coll', label: 'Collectors', tip: 1, help: 'How many different iNat accounts have a sequenced collection of this name. More collectors usually means separate collection events: more material to compare, and people to contact.', v: g => g.stats ? g.stats.nCollectors : null },
+  { k: 'vouch', label: 'Vouchered', tip: 1, help: 'Sequenced collections with a specimen record: a voucher number, herbarium or fungarium ID, or “Voucher Specimen Taken: Yes”. Describing a new species needs a kept specimen for the holotype.', v: g => g.stats ? g.stats.vouch : null },
+  { k: 'photos', label: 'Photos / obs', tip: 1, help: 'Average photos per sequenced observation, with the total in brackets. A rough measure of how well the fresh features are documented.', v: g => g.stats ? g.stats.avgPhotos : null },
+  { k: 'regions', label: 'Regions', tip: 1, help: 'How many US states, Canadian provinces, or other countries it has been collected in, most frequent first.', v: g => g.stats ? g.stats.regions.size : null },
+  { k: 'season', label: 'Season', tip: 1, help: 'Sequenced observations by month, January to December. The rust bar is the peak month: the best time to look for fresh material. Sorting orders names by peak month.', v: g => g.stats ? peakMonth(g.stats.months) : null },
+  { k: 'seqq', label: 'Sequences', tip: 1, help: `Simple screens for sequences that may need a look: shorter than ${SEQ_MIN} bases or more than 2% ambiguous bases. Grey means a few; orange means at least a quarter of this name’s sequences.`, v: g => g.stats ? g.stats.seqFlag : null },
+  { k: 'flags', label: 'Flags', tip: 1, help: '<b>Likely described</b>: half or more are IDed as a named species. <b>N IDed as named sp.</b>: a fifth or more are. <b>Taxon differs</b>: some are filed under a different provisional taxon. <b>Taxon inactive</b>: iNat retired or merged its taxon. <b>ID update</b>: 10%+ marked “ID Update Needed”. <b>Microscopy</b>: someone recorded microscopy.', v: g => g.stats ? g.stats.flags.length : null },
+];
+const peakMonth = m => { const mx = Math.max(...m); return mx ? m.indexOf(mx) : 99; };
+function sortRows(rows, cols, sort) {
+  const c = cols.find(x => x.k === sort.k) || cols[0];
+  return rows.sort((a, b) => {
+    const va = c.v(a), vb = c.v(b);
+    if (va == null && vb == null) return 0; if (va == null) return 1; if (vb == null) return -1;
+    if (va < vb) return -sort.dir; if (va > vb) return sort.dir;
+    return 0;
+  });
+}
+function headHtml(cols, sort) {
+  return '<tr>' + cols.map(c => `<th class="${c.nosort ? '' : 'sortable'}" data-k="${c.k}"${c.help ? ` data-help="${esc(c.help + (c.nosort ? '' : ' <i>Click to sort.</i>'))}"` : ''}>${c.label}${c.tip ? `<i class="i">i</i>` : ''}${sort.k === c.k ? `<span class="arr">${sort.dir > 0 ? '▲' : '▼'}</span>` : ''}</th>`).join('') + '</tr>';
+}
+function spark(m) {
+  const mx = Math.max(1, ...m), w = 5, gap = 1.5, h = 20;
+  return `<svg class="spark" width="${12 * (w + gap)}" height="${h}" aria-label="months">${m.map((v, i) => { const bh = v ? Math.max(2, h * v / mx) : 1.5; return `<rect x="${i * (w + gap)}" y="${h - bh}" width="${w}" height="${bh}" rx="1" style="fill:${v ? (v === mx ? 'var(--spore)' : 'var(--good)') : 'var(--line)'}"><title>${MONTHS_L[i]}: ${v}</title></rect>`; }).join('')}</svg>`;
+}
+function meter(n, total) {
+  const k = Math.min(5, total); if (!k) return '';
+  const on = total ? Math.round(k * n / total) : 0;
+  return `<span class="meter">${Array.from({ length: k }, (_, i) => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</span>`;
+}
+let maxSeqLog = 1;
+function nameRow(g) {
+  const s = g.stats, sk = '<span class="skel"></span>';
+  const variants = g.variants.size > 1 ? `<span class="nmsub">written ${g.variants.size} ways in these collections</span>` : '';
+  const yrs = s && s.years[0] !== Infinity ? `<span class="nmsub">${s.years[0] === s.years[1] ? s.years[0] : s.years[0] + '–' + s.years[1]}${s.sampled ? ' · stats from first ' + fmt(s.n) : ''}</span>` : '';
+  const nameCell = `<div class="nm">${thumbHtml(g.thumbObs, 'square', 'thumb')}<div><div class="nmtext">${esc(g.name)}</div>${yrs}${variants}</div></div>`;
+  if (g.status === 'error') return `<tr data-k="${esc(g.key)}"><td>${nameCell}</td><td colspan="9" class="dim">Couldn’t load: ${esc(g.error)}</td></tr>`;
+  if (!s) return `<tr class="pending" data-k="${esc(g.key)}"><td>${nameCell}</td><td>${sk}</td><td class="num">${g.mine.length}</td><td>${sk}</td><td>${sk}</td><td>${sk}</td><td>${sk}</td><td>${sk}</td><td>${sk}</td><td></td></tr>`;
+  const w = Math.max(6, 100 - 100 * Math.log10(s.seq) / maxSeqLog);
+  const regs = [...s.regions.entries()].sort((a, b) => b[1] - a[1]);
+  const regTxt = regs.length ? `<b>${regs.length}</b> <span class="dim">${esc(regs.slice(0, 3).map(r => r[0]).join(', '))}${regs.length > 3 ? '…' : ''}</span>` : '<span class="dim">—</span>';
+  const flags = s.flags.map(f => `<span class="tag ${f.cls}">${f.label}</span>`).join('') + (s.micro ? '<span class="tag t-moss">Microscopy</span>' : '');
+  const seqq = s.seqFlag ? `<span class="tag ${s.seqFlag / s.n >= 0.25 ? 't-och' : 't-grey'}">${s.seqFlag} of ${s.n} to check</span>` : `<span class="tag t-moss">OK</span>`;
+  const taxonNote = s.taxon && s.taxon.count != null && s.taxon.count !== s.seq ? `<span class="nmsub" title="Observations on iNat's provisional taxon, sequenced or not">taxon: ${fmt(s.taxon.count)}</span>` : '';
+  return `<tr data-k="${esc(g.key)}">
+    <td>${nameCell}</td>
+    <td><div class="rar"><span class="rarn">${fmt(s.seq)}</span><span class="rarbar" title="Longer bar = rarer"><span style="width:${w}%"></span></span></div>${taxonNote}</td>
+    <td class="num">${g.mine.length}</td>
+    <td class="num" title="${esc([...s.collectors.keys()].join(', '))}">${s.nCollectors}</td>
+    <td class="num">${s.vouch} <span class="dim">of ${s.n}</span>${meter(s.vouch, s.n)}</td>
+    <td class="num">${s.avgPhotos.toFixed(1)} <span class="dim">(${fmt(s.photos)})</span></td>
+    <td>${regTxt}</td>
+    <td>${spark(s.months)}</td>
+    <td>${seqq}</td>
+    <td>${flags || '<span class="dim">—</span>'}</td></tr>`;
+}
+function filteredNames() {
+  const f = F();
+  $('#filterCount').textContent = activeFilterCount(f) ? `${activeFilterCount(f)} active` : '';
+  return [...state.names.values()].filter(PRESETS[state.preset].test).filter(g => passFilters(g, f));
+}
+function renderNames() {
+  const thead = $('#namesTable thead'), tbody = $('#namesTable tbody');
+  thead.innerHTML = headHtml(NCOLS, state.sort);
+  thead.querySelectorAll('th.sortable').forEach(th => th.onclick = () => {
+    const k = th.dataset.k; state.sort = { k, dir: state.sort.k === k ? -state.sort.dir : (k === 'seq' || k === 'name' ? 1 : -1) }; renderNames();
+  });
+  const all = [...state.names.values()];
+  maxSeqLog = Math.max(1, ...all.filter(g => g.stats).map(g => Math.log10(Math.max(1, g.stats.seq)) + 0.3));
+  const rows = sortRows(filteredNames(), NCOLS, state.sort);
+  tbody.innerHTML = rows.length ? rows.map(nameRow).join('') : `<tr><td colspan="10" class="empty">${state.names.size ? 'No names match these filters.' : 'Results will appear here.'}</td></tr>`;
+  tbody.querySelectorAll('tr[data-k]').forEach(tr => tr.onclick = () => openName(tr.dataset.k));
+  $('#shownCount').textContent = state.names.size ? `Showing ${fmt(rows.length)} of ${fmt(all.length)} names` + (state.analyzed < all.length ? ` · ${fmt(all.length - state.analyzed)} still loading` : '') : '';
+}
+
+const OCOLS = [
+  { k: 'photo', label: '', nosort: true, v: () => 0 },
+  { k: 'name', label: 'Provisional name', v: o => o.raw.toLowerCase() },
+  { k: 'rarity', label: 'Name rarity', tip: 1, help: 'How many sequenced observations this collection’s name has on all of iNat. Lower is rarer.', v: o => { const g = state.names.get(o.key); return g && g.stats ? g.stats.seq : null; } },
+  { k: 'date', label: 'Date', v: o => o.date || null },
+  { k: 'place', label: 'Place', v: o => o.place.toLowerCase() },
+  { k: 'login', label: 'Collector', v: o => o.login.toLowerCase() },
+  { k: 'photos', label: 'Photos', help: 'Number of photos on the observation.', v: o => o.nPhotos },
+  { k: 'voucher', label: 'Voucher', help: 'Whether the observation has a specimen record. Hover “Yes” to see which field.', v: o => o.voucher ? 1 : 0 },
+  { k: 'seq', label: 'Sequence', tip: 1, help: 'Length of the ITS sequence in bases, tagged “check” if it’s short or has many ambiguous bases.', v: o => o.len },
+  { k: 'links', label: '', nosort: true, v: () => 0 },
+];
+function renderObs() {
+  const thead = $('#obsTable thead'), tbody = $('#obsTable tbody');
+  thead.innerHTML = headHtml(OCOLS, state.osort);
+  thead.querySelectorAll('th.sortable').forEach(th => th.onclick = () => {
+    const k = th.dataset.k; state.osort = { k, dir: state.osort.k === k ? -state.osort.dir : (k === 'rarity' || k === 'name' ? 1 : -1) }; renderObs();
+  });
+  const rows = sortRows(state.mine.slice(), OCOLS, state.osort).slice(0, 2000);
+  tbody.innerHTML = rows.length ? rows.map(o => {
+    const g = state.names.get(o.key);
+    return `<tr data-k="${esc(o.key)}">
+      <td>${thumbHtml(o, 'square', 'thumb')}</td>
+      <td><span class="nmtext">${esc(o.raw)}</span></td>
+      <td class="num">${g && g.stats ? fmt(g.stats.seq) : '<span class="skel"></span>'}</td>
+      <td class="num">${esc(o.date || '—')}</td>
+      <td style="max-width:240px">${esc(o.place || '—')}${o.obscured ? ' <span class="tag t-grey">obscured</span>' : ''}</td>
+      <td>${esc(o.login)}</td>
+      <td class="num">${o.nPhotos}</td>
+      <td>${o.voucher ? `<span class="tag t-moss" title="${esc(o.voucherText)}">Yes</span>` : '<span class="dim">—</span>'}</td>
+      <td class="num">${o.len} bp ${o.seqIssues.length ? `<span class="tag t-och" title="${esc(o.seqIssues.join(', '))}">check</span>` : ''}</td>
+      <td style="white-space:nowrap"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener" onclick="event.stopPropagation()">iNat ↗</a></td></tr>`;
+  }).join('') : `<tr><td colspan="10" class="empty">Results will appear here.</td></tr>`;
+  tbody.querySelectorAll('tr[data-k]').forEach(tr => tr.onclick = () => openName(tr.dataset.k));
+  $('#obsCount').textContent = state.mine.length ? `${pl(state.mine.length, 'collection')}${state.mine.length > 2000 ? ' (first 2,000 shown; CSV has all)' : ''}` : '';
+}
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  state.tab = t.dataset.tab;
+  $('#namesView').classList.toggle('hidden', state.tab !== 'names');
+  $('#obsView').classList.toggle('hidden', state.tab !== 'obs');
+});
+
+/* ---------- drawer ---------- */
+const inatSearch = (name) => `https://www.inaturalist.org/observations?${fieldParams(name)}&place_id=any&verifiable=any`;
+let drawerSort = 'photos';
+async function openName(key) {
+  const g = state.names.get(key); if (!g) return;
+  $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
+  $('#dTitle').textContent = g.name;
+  $('#dLinks').innerHTML = `<a href="${esc(inatSearch(g.name))}" target="_blank" rel="noopener">All sequenced obs on iNat ↗</a>` +
+    (g.stats && g.stats.taxon ? `<a href="https://www.inaturalist.org/taxa/${g.stats.taxon.id}" target="_blank" rel="noopener">iNat taxon page ↗</a>` : '') +
+    `<a href="https://mycomap.org/temp-codes" target="_blank" rel="noopener">MycoMap temp codes ↗</a>`;
+  drawerSort = 'photos';
+  renderDrawer(g);
+  // lazily fetch the count of all tagged obs (with or without a sequence)
+  if (g.stats && g.taggedTotal == null) {
+    try { const d = await api(`/v1/observations?field:${encodeURIComponent(PNF)}=${encodeURIComponent(g.name)}&per_page=0`); g.taggedTotal = d.total_results; }
+    catch (e) { g.taggedTotal = -1; }
+    if ($('#drawer').classList.contains('on') && $('#dTitle').textContent === g.name) renderDrawer(g);
+  }
+}
+function closeDrawer() { $('#drawer').classList.remove('on'); $('#scrim').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); }
+$('#dClose').onclick = closeDrawer; $('#scrim').onclick = closeDrawer;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); $('#help').classList.add('hidden'); } });
+
+function renderDrawer(g) {
+  const s = g.stats, body = $('#dBody');
+  if (!s) { body.innerHTML = `<p class="dim">This name is still being analyzed across iNat. Your ${g.mine.length} collection${g.mine.length > 1 ? 's are' : ' is'} listed below.</p>` + obsCards(g.mine, g); bindDrawer(g); return; }
+  const tagged = g.taggedTotal == null ? '<span class="skel"></span>' : g.taggedTotal < 0 ? '—' : fmt(g.taggedTotal);
+  const tiles = [
+    [fmt(s.seq), 'sequenced obs on iNat', 'Observations on all of iNat with this exact name and an ITS sequence: the rarity number.'],
+    [tagged, 'tagged with this name (incl. unsequenced)', 'Every observation with this name in the field, sequenced or not. More than the sequenced count means some carry the name without a sequence of their own.'],
+    [s.taxon ? fmt(s.taxon.count) : '—', s.taxon ? 'on iNat’s provisional taxon' : 'no matching iNat taxon', 'iNat now has provisional taxa. This counts observations identified as that taxon, which can differ from the field-based counts.'],
+    [s.nCollectors, 'collectors', 'Different iNat accounts with a sequenced collection of this name.'],
+    [`${s.vouch}<span style="font-size:14px;color:var(--muted)"> / ${s.n}</span>`, 'vouchered', 'Sequenced collections with a specimen record, out of all sequenced collections looked at.'],
+    [s.avgPhotos.toFixed(1), `photos per obs (${fmt(s.photos)} total)`, 'Average photos per sequenced observation.'],
+  ];
+  let flags = '';
+  if (s.describedN) flags += `<div class="flagbox ${s.likelyDescribed ? 'red' : ''}"><b>${s.likelyDescribed ? 'Probably already described.' : 'Some identified as named species.'}</b> ${[...s.described].sort((a, b) => b[1] - a[1]).map(([n, c]) => `${c} identified as <i>${esc(n)}</i>`).join('; ')}${s.likelyDescribed ? '. Check whether this code was retired or sunk into that species.' : ' — likely misidentifications, but worth a glance.'}</div>`;
+  if (s.mismatch.size) flags += `<div class="flagbox"><b>Field and taxon disagree.</b> ${[...s.mismatch].map(([n, c]) => `${c} filed under <span class="nmtext">${esc(n)}</span>`).join('; ')}. Either the field or the ID needs updating.</div>`;
+  if (s.inactive) flags += `<div class="flagbox red"><b>iNat’s taxon for this name is inactive</b>, so it was probably merged, renamed or retired.</div>`;
+  if (s.idUpdate) flags += `<div class="flagbox"><b>${s.idUpdate} marked “ID Update Needed: Yes”.</b></div>`;
+  if (s.seqFlag) flags += `<div class="flagbox"><b>${s.seqFlag} of ${s.n} sequence${s.seqFlag > 1 ? 's' : ''} may need a look</b>: short or with many ambiguous bases. They’re tagged “check” below.</div>`;
+  if (g.variants.size > 1) flags += `<div class="flagbox"><b>Spelled ${g.variants.size} ways in your collections:</b> ${[...g.variants.keys()].map(v => `<span class="nmtext">${esc(v)}</span>`).join(', ')}. Counts here use the most common spelling.</div>`;
+  if (s.sampled) flags += `<div class="flagbox">Statistics below use the first ${fmt(s.n)} of ${fmt(s.seq)} sequenced observations.</div>`;
+  if (!flags) flags = `<div class="flagbox ok">No flags: field values and iNat taxon agree, and sequences pass the basic checks.</div>`;
+  const mx = Math.max(1, ...s.months);
+  const months = `<div class="months">${s.months.map((v, i) => `<div class="mb ${v ? '' : 'zero'}" style="height:${v ? Math.max(4, 100 * v / mx) : 2}%">${v ? `<b>${v}</b>` : ''}<span>${MONTHS_L[i]}</span></div>`).join('')}</div>`;
+  const searched = new Set((state.searchUsers || []).map(u => u.login.toLowerCase()));
+  const coll = [...s.collectors].sort((a, b) => b[1] - a[1]).map(([l, c]) => `<div><a href="https://www.inaturalist.org/people/${encodeURIComponent(l)}" target="_blank" rel="noopener">${esc(l)}</a>${searched.has(l.toLowerCase()) ? ' <span class="tag t-moss">searched</span>' : ''}<span>${c}</span></div>`).join('');
+  const regs = [...s.regions].sort((a, b) => b[1] - a[1]).map(([r, c]) => `<div><span>${esc(r)}</span><span>${c}</span></div>`).join('') || '<div><span class="dim">No place text</span></div>';
+  body.innerHTML = `
+    <div class="dtiles" id="dTiles">${tiles.map(([v, l, help]) => `<div class="tile" data-help="${esc(help)}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+    <div id="dFlags"><div class="sec" data-help="Warnings and notes: disagreements between the field and iNat’s ID, possible described species, sequence problems, spelling variants.">Things to know</div>${flags}</div>
+    <div id="dMonths"><div class="sec" data-help="Sequenced observations by month across all of iNat. Use it to plan when to look for fresh material.">When it fruits</div>${months}</div>
+    <div class="two" id="dWho"><div><div class="sec" data-help="Everyone with a sequenced collection of this name, with how many. Names link to their iNat profiles: people to contact for material or collaboration. “searched” marks the usernames you entered.">Who has collected it</div><div class="list">${coll}</div></div><div><div class="sec" data-help="Where it has been collected, with counts.">Where</div><div class="list">${regs}</div></div></div>
+    <div id="dObs"><div class="sec" data-help="Every sequenced observation of this name. A green outline means it came from a username you searched. Sort by most photos to find the best-documented collections, or vouchered first to find specimens.">Sequenced observations</div>
+    <div class="obsTools"><span class="seg"><button data-s="photos" class="${drawerSort === 'photos' ? 'on' : ''}">Most photos</button><button data-s="date" class="${drawerSort === 'date' ? 'on' : ''}">Newest</button><button data-s="voucher" class="${drawerSort === 'voucher' ? 'on' : ''}">Vouchered first</button></span>
+      <span><button class="ghost sm" id="fastaBtn" data-help="Copies all of this name’s ITS sequences in FASTA format, labelled with iNat number, collector and region, ready to paste into an alignment or BLAST tool.">Copy sequences as FASTA</button></span></div>
+    <div id="fastaOut"></div>
+    ${obsCards(g.all || g.mine, g)}</div>`;
+  bindDrawer(g);
+}
+function obsCards(list, g) {
+  const searched = new Set((state.searchUsers || []).map(u => u.login.toLowerCase()));
+  const sorted = list.slice().sort(drawerSort === 'date' ? (a, b) => (b.date || '').localeCompare(a.date || '') : drawerSort === 'voucher' ? (a, b) => (b.voucher - a.voucher) || (b.nPhotos - a.nPhotos) : (a, b) => b.nPhotos - a.nPhotos);
+  return `<div class="ocards">${sorted.slice(0, 300).map(o => `
+    <div class="ocard ${searched.has(o.login.toLowerCase()) ? 'mine' : ''}">
+      <a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener" class="oimg">${thumbHtml(o, 'small', 'oth')}</a>
+      <div class="meta">
+        <div><b>${esc(o.date || 'No date')}</b> · ${esc(o.login)} · ${esc(o.place || 'no place')}${o.obscured ? ' <span class="tag t-grey">obscured</span>' : ''}</div>
+        <div class="l2"><span>📷 ${o.nPhotos} photo${o.nPhotos === 1 ? '' : 's'}</span>
+          <span>${o.voucher ? `<span class="tag t-moss" title="${esc(o.voucherText)}">Vouchered</span>` : '<span class="dim">no voucher</span>'}</span>
+          <span>ITS ${o.len} bp${o.ric ? ` · RiC ${esc(o.ric)}` : ''}${o.tech ? ` · ${esc(o.tech)}` : ''}</span>
+          ${o.seqIssues.length ? `<span class="tag t-och">check: ${esc(o.seqIssues.join(', '))}</span>` : ''}
+          ${o.taxon && o.taxon.rank === 'species' && keyOf(o.taxon.name) !== o.key ? `<span class="tag t-och">IDed as ${esc(o.taxon.name)}</span>` : ''}
+          ${o.micro ? '<span class="tag t-moss">Microscopy</span>' : ''}</div>
+        <div class="credit">${showable(o) ? `Photo ${esc(creditOf(o))}` : o.nPhotos ? 'Photos are all rights reserved: view them on iNaturalist' : 'No photos'}</div>
+        <div class="l2"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">Observation ↗</a>${o.blast ? `<a href="${esc(o.blast)}" target="_blank" rel="noopener">MycoMap BLAST ↗</a>` : ''}</div>
+      </div></div>`).join('')}${sorted.length > 300 ? `<p class="dim">Showing 300 of ${fmt(sorted.length)}.</p>` : ''}</div>`;
+}
+function bindDrawer(g) {
+  $('#dBody').querySelectorAll('.seg button').forEach(b => b.onclick = () => { drawerSort = b.dataset.s; renderDrawer(g); });
+  const fb = $('#fastaBtn');
+  if (fb) fb.onclick = async () => {
+    const fasta = (g.all || g.mine).filter(o => o.seq).map(o => `>iNat${o.id}|${o.raw.replace(/\s+/g, '_')}|${o.login}${o.region ? '|' + o.region.replace(/\s+/g, '_') : ''}\n${o.seq}`).join('\n');
+    try { await navigator.clipboard.writeText(fasta); fb.textContent = 'Copied ✓'; setTimeout(() => fb.textContent = 'Copy sequences as FASTA', 1800); }
+    catch (e) { $('#fastaOut').innerHTML = `<textarea class="fasta" readonly>${esc(fasta)}</textarea>`; $('#fastaOut textarea').select(); }
+  };
+}
+
+/* ---------- CSV ---------- */
+function download(name, rows) {
+  const csv = rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+  a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const stamp = () => new Date().toISOString().slice(0, 10);
+$('#csvNames').onclick = () => {
+  const rows = [['provisional_name', 'sequenced_obs_inat', 'your_collections', 'collectors', 'vouchered', 'obs_analyzed', 'avg_photos', 'total_photos', 'regions', 'peak_month', 'first_year', 'last_year', 'seqs_to_check', 'flags', 'inat_taxon_count', 'inat_search_url']];
+  for (const g of sortRows(filteredNames(), NCOLS, state.sort)) {
+    const s = g.stats;
+    rows.push([g.name, s?.seq, g.mine.length, s?.nCollectors, s?.vouch, s?.n, s ? s.avgPhotos.toFixed(2) : '', s?.photos,
+      s ? [...s.regions.keys()].join('; ') : '', s && Math.max(...s.months) ? MONTHS_L[peakMonth(s.months)] : '',
+      s && s.years[0] !== Infinity ? s.years[0] : '', s && s.years[1] !== -Infinity ? s.years[1] : '', s?.seqFlag,
+      s ? s.flags.map(f => f.label).join('; ') : '', s?.taxon?.count ?? '', inatSearch(g.name)]);
+  }
+  download(`provisional-names-${stamp()}.csv`, rows);
+};
+$('#csvObs').onclick = () => {
+  const rows = [['inat_id', 'url', 'provisional_name', 'name_sequenced_obs_inat', 'date', 'place', 'region', 'collector', 'photos', 'vouchered', 'voucher_detail', 'its_length', 'seq_issues', 'ric', 'sequencing_tech', 'inat_taxon']];
+  for (const o of sortRows(state.mine.slice(), OCOLS, state.osort)) {
+    const g = state.names.get(o.key);
+    rows.push([o.id, `https://www.inaturalist.org/observations/${o.id}`, o.raw, g?.stats?.seq ?? '', o.date, o.place, o.region, o.login, o.nPhotos, o.voucher ? 'yes' : 'no', o.voucherText, o.len, o.seqIssues.join('; '), o.ric, o.tech, o.taxon?.name || '']);
+  }
+  download(`provisional-collections-${stamp()}.csv`, rows);
+};
+
+/* ---------- hover help ---------- */
+const tip = document.createElement('div'); tip.id = 'tip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip);
+let hoverHelp = store.get('pf:hoverHelp') !== false, tipEl = null, tipTimer = null, tourOn = false;
+function setToggle() { $('#tipToggle').classList.toggle('on', hoverHelp); $('#tipToggle').setAttribute('aria-pressed', hoverHelp); }
+setToggle();
+$('#tipToggle').onclick = () => { hoverHelp = !hoverHelp; store.set('pf:hoverHelp', hoverHelp); setToggle(); hideTip(); };
+function showTip(el) {
+  if (!el || !document.body.contains(el)) return;
+  tip.innerHTML = el.dataset.help; tip.classList.add('on');
+  const r = el.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+  // tall blocks: put the tip beside the pointer's row instead of under the whole block
+  let top = r.height > 160 ? r.top + 12 : r.bottom + 8;
+  if (top + th > innerHeight - 8) top = Math.max(8, r.top - th - 8);
+  let left = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  tip.style.top = top + 'px'; tip.style.left = left + 'px';
+}
+function hideTip() { clearTimeout(tipTimer); tipEl = null; tip.classList.remove('on'); }
+document.addEventListener('pointerover', e => {
+  if (!hoverHelp || tourOn || e.pointerType === 'touch') return;
+  const el = e.target.closest && e.target.closest('[data-help]');
+  if (el === tipEl) return;
+  hideTip();
+  if (!el) return;
+  tipEl = el; tipTimer = setTimeout(() => showTip(el), 450);
+});
+document.addEventListener('pointerout', e => {
+  const to = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest('[data-help]') : null;
+  if (to !== tipEl) hideTip();
+});
+// touch / click on an (i) shows its explanation without sorting
+document.addEventListener('click', e => {
+  if (e.target.classList && e.target.classList.contains('i')) {
+    e.preventDefault(); e.stopPropagation();
+    const el = e.target.closest('[data-help]'); tipEl = el; showTip(el); clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 6000);
+  }
+}, true);
+['scroll', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, e => { if (!(e.target.classList && e.target.classList.contains('i'))) hideTip(); }, true));
+
+/* ---------- example data (for the tour) ---------- */
+const DEMO_B64 = 'H4sIAIe3/GoC/+29a3Pbxprt/1VYfnP2VBk76G5cujOvZOfmxJJ9bE98Mv//VKoBNCRGEqkhJSvKqfnu59cgSIAXhBIJ3ZJds2sSW4ou6Gehn8t61vq/L+zFxYuvX1xMxl+G0+F4ZM+Ccjgq3OTFyxdf3MT/1YuvxcsXU/vFFQeXfKoMZRIIEYj0kwy/DsXXsfinMcl/8h9MnZ3kJ7PPE6mJTBRLESUJ//3VlC/24uv/7/++OBsfD/maL85v8vGxc6c345PhmP94WLz4Og1NJCP98sXInrv6c773n/Pif/7r5YuL+m/55PPhyFVfzf9XQodJyv8lfJsr/xcvXOlS5zIXxDaMgyjOZGCyWAWh0aWOXBYneclXKeylm/1GfEgHUvuvPB5dnrz4mp/hht/mxdf+gy87f+ir5Z/6/cn4csyvyX9xeXJ1nvFfnFxeXky//uqr4cheXk3s2XB6GYwv3Cjgm9t/TtU/7bn9g+d+Pf1nPj7/6qL6Cl8pEaVJLEzy1fS/r+zE/fO3i2O+3cWZzf1PfHgz+GHMI+WvJu64OqMX737gT+Nsml9NHD9Uac+mjg/baz72ZjTObzI3mF78c/C/JrYY8r2DN0eh+F/8N6fuhk8ZbvqU4Wj2KVP337Pnfub4VkkUvnxhz7PhMY+n+uCb6fTK+ePllCbDnM+NDZ996XIe5YsjOxpfjCdu8I93R5/+jb/Pzuz0svVs/FM9txfVAzh2I3c5zKdfVZ8UzELqq1LIYHxenIWxTMLAP8vFoQcimIg4TIz6ysfs+IoInCx+//rPn9zvl7PfYFj8x8Xs3OvPOB/mk/HiT5f2d/8068BKjBbGLMJx/hj5Oc+vRsOpf/x2dMpHphcuHzr/Fy0kLb6ozS+HX/gCl5Mr/pSPr0b8MDr+H/6dsxr6n+wf+b8NFtH+cjAdn7vBZHh8cjkdTBzYAX2Df7x+PXj1S3D02j9DO5n/kv/zsgWDVCVyAYMwzVMlIxPEcephYGxgdREHZahVlGZ5kYfF04dBInTaDwze2tG5HdtZjPORM/t7A4CzzR9cDv00ShehH3aEvhJpr7FvQzWLfZlq1cS+P2kf+yaKpLyH0NdpFIeL0J8/utmD2SvwY9F74AsRGpOqReCnmStU5MKA80qDiD8EWR4VQREqYjQpC1fI9cBXoq/Al/sHfhybSISiI/B5eCM7eO0fKA/tPz4G737w/7gtED7wTSfDOtbf/dC+BybtD41PNr7/k3ArCITWvYIgD5MaBDo0NQjqU/cg0DoWyT2AINVpLBYg2PjY/hwIs8jfiIP+YZDEoeK1sICBjOMi1loEcQICojjKA5vxIF2WyVgVKskjswoDE0jTwMDsBYN0bxhIUBCbsPX+d20c/DAc5adnjgf27ocB70GlbouAg3M7Gl7WRzm1Z/y+E45o4kbT4bRBg932acvIiGO9HRlx39eDmCEjCZWokVEHwiw14jWu7gUaKo0W0Nj6PHeHSd84kSpROg79TV7jxGpXFAnPUUeZvy6oGUwRZfwxjZ0yiSH9XMJJ5K+L6prfcF1ED58nRTKMVaRl1IGTD+P8NJsMi2PnkXKnm+KKAD5rXnm6dVO0P8RNoTfdFPFWPET9wuFEzOAgVKhlBYfFeXs4DHP+qeJEmziYSK1CcQ/YSIWWcYONjc/wyVwbMg7JJymgFnDQSehKXeSBtnkYRNQKgS24G0SkjU1EVJrqcm/DgYceygYOQuyFh3hvPESpShOOtwMPb931cNpOnz4frILi80E3KN6dX5zwo4zqI31/9LmdQY2XP3oxut6URKXh9koi6fmiSIKRK/3Li9Q+qM6NCLWBTMSsppZxEsUU1XKGlCSgSox1AlD4RxovAWUWk8s4+Xn2p8ERZ+cm/5j+29eD6rscHRweVN/l7vW34JpZAKnrue+MpahnLPHOiUC/aq4W7dIic1r7X5+rJQVVRoQuSMnINJVtBrqWsBRXJbjafLXEd4ZSsi+UYmKCl1moNlciR4O3dnI6vbiaDN6OXg6+P3Gjy7veMa/HFxPaTxdkCot3pGrwlK9+mLtGbbhrtFkASnUASoZhv22pMK2Aszj3QHypoMM3CqajCxWQVUipg0nEYd9LmW5kqJqrpvNRPpnrhveyAAFGLCBSOiVFSTODiygPosLpwMZKBk5niRbautzGSxBJAt5kspV9JS2IJHeGiNj7uqFXokkkdLQZI59OrnxHffCqysAAzIg07Gj2DeZ/+fHSXnIYLwc/r91EPx/csoz5+SA0HaXLFzv70ApkfJKy5Q6KewVMEUYzwMyjYA4YsrEkSWR0DxBJZUi2t7lSmT+ypwUPFaqmiRsXkS2LXHJrJzaIRMkNEuuQ4gTQlJFSZSrvEx66F3RQxXfcIO8Jk0s3HXxvLwYfinsBxoWPxYm9nAx/78DHymeswMTnxjVMog6YmH7nHVaIczc5dkWDFh8Uc7QY42+XKJikVH1Rei/VfaTCzZhZeVY7Q0f2j500lTQFm0pGibDUWVwEKi08dnKuliQsA+XBE6bC5IVYxU4ahK3sK90LO3sX9gm9L2Y3Uccc8B3f/S6Z1rcXJ464ak36loeAbu3jHRNAsx0Ruu9UK6mxUB/yHAu6zrSq+yO9HyyIpGkCdz/D3S+RsHckmDCmAdgkWcLogoukCKg5QEIacYEUaRGUWeRoftGw0G4DEtK+kLB/jmWUUrSCTT9IeG8ndjpuNWVkg4KLpY9RbchNCJDbO709Vxsn9CVnEKhPdw4BvpEP/5j/3UczKxFJcxVsfnBPJ3/SEVmliZo7wKbKGScJdRlTgcvcBVpJG2RpaYtMlHGUbbgDpOwr8qN9Iz8NFd1dmXbcAR+G+Uk5dGfFXcvuT1dZM83iHdYquS/bH+IK2Fhuhw8OACdmHd3FIa8AgCzpPuoHuCWt+mHjY9s5/lXv8Q8fgE6DacW/E7FzOSSQqpsLDcraqAwyBxZiRXWUpKvxr/nf5g5U8vCzcPoqKjJp3BX/PJSPF5Or3A0+DBmLHw8+Tezw7OXg0wnhNH05+PzzWm/3525UHN7kbtFgPGgnR+etj1zYjWlRmj7CpaBrTNQH38YEWTzFF9BQSazvBRpxEjf92U3PbmdkmL6RYcKIWV7csESijNQnTxOuAphRkSzDwEa5CcpElTSfTEh9sI4MIfpChtj/ahAxrUeVhpuh8fHEXlNTD779/XLH1mwPjCn18Jgo55iYHzmYkO17Ikz/3owpHkxKLCa6qZRtZlIdR0FZhlkQhfSbsoLrNuFF56ShfZirDViQvWGhh2uCURVd2OT+BhV9oKEhiIgHQkMeijkaZoe+WjYoGf7N0SA0KWWLP66LJM6Vy4IyBQNRZtPAMPwOckfnVcSCUWq2AQ1JX2iI9weDDiXj3LgjZ9qZD/J6fHZ2kw1bE6ajX9pJUr728dHNplRJt3qqD3Ut2Pm0bn7eq0AQ99I+Mka1OITdD3DnTCnpHQ9Eo4rTFpHcpEUsnAmKpBRBBL0sMGWZBUWpMpGFOilssQEPvdUQan88GIijNLk24+GA8GDS8HJwcDrxs4Y7XgvuYji+XFSEMmxdCu0PDUezD60WDeLBkZCHdSE9P+kVJMjU3AstKqWL0VwJmx7bEwIBw4NESd1aKsoSeLNJAHVWByw3FRCkkiIIhYBk6bLS5mIdBDJ8OiCAJRiGJumoFngz8dXpbPgp3KuJy0+nX4ZnZ+7ucLjKx/aYJkl+NZ2frojboFj7hOFo9gmr2ZJ6+Hq65kItzn8FGozhovuABlOeNjR4QjPey+oj3L3TqntGSBR6yrGRzZBBRowYBKtGBWUDPFoQYkIH/TyWhisiSQu1dk3Qr4g3880fpaDmqma81LV38cGO8pPr8bioMPJYNUS6ffiWir7X71rj6MXBz6GRimYcHd7LHt7zKSaiMIkiNiSbe8Pmlh6spc3kREQDlisjU3TlHBssYaidFHmyggreQWGrmBDhI08goiT1a7yi5wnEu6vCwSyY8t/OB0qTq2wyziZXo5Gb0kycBp/fLHFrb/FfXA83Fhxxc5fEXajpud5YQU0dGAvUVIPr2KNGatH/pcIGWdKMLZaedQMZfvKrOwEmYSGnt3H1f81+vNli+MqS7cZd5UsSRn5AxZ3T7JjDUo48y5woW+yEw1g2Kd2gZiUw0rqkixUw8E5ocEVsezD4JplzJgoLaV24RGoXpqJRqY00KmEaEE4vHWnSKQvp/GMOQraUI9PnJlQkTRwrevibCe2vT+zkzE0vx9ejwSf+3/RkePFy8ObIo/GgDcc3Rw+2JS7Cra2uBm4f7ei4Eh3YAWanclbXz888uCE3h9hA4wvuOosgK2X9LanrBz/J9N8HKSXSXXnrNCLTta3xPTAXx6yDrmLu46Vn64wGfrsETO+4MyhFwhpXa1zuVI5yAsTMnC0QKFM6C/wEMYDeapKSWiddaX1JjxOxGSdStnAyPKbj9Js9HWeLq0rIioLaH1udCocmNvspm2+qn+2IrY/JJXlWcTmAynAK39BdD34ZV//2y+rldfTLw2kqbN+UatCyY9HvF2ern2i2Jjg/e7/tAT9Tx9tAUuVX58Tcqbu4fLpaCqPxKgw6Yx+BEhU3THSdW3j6ZGolN0OkKGK0yW3g0lxTvmgnUndvsR/3Efs0G0X0/GI/uu/YL6uGV/UTLY591MCg+nMFA5lEehsMfnATTwG5Oh+85pfijOtb42ue4iBKWCo00VO7MW6NCbJG6FFNTR+VVjMOYRxIAgImICFnUezQEHEl3ClbcF+sYoI1mHAzfaqFCUdzIyO4iZYaEjENl7BiWvaWNkluf4os1bUY+wNPa97lOng7UDGiAms508Hbh0KC1J0504vpCeAd/INPGWQX//ai2WmSPbeGqUgc5RSFPOfn24XIZugaKnV0LNacpC9hBFtO/iYBPkYoob+6PYCOCPivB/8xGlZaU5c3g3E5+EweOzg4sxknOlh86tOW7mmCedc8LIkp3Fu4C41VocxskOR+cTCJoC0WVvNHbS196DxX6QbcxVtxd3GTV0FSvVCq78XqGtsZfVK2pNftMTLuKldenY3HSHgdX/phy+NWKfd/99A5DjKr0hpC9UH720ZB3gl3qExeHVRn/4Tx8GE8GvzkJiM32REPygu9SNXQGBNuodKVviQvwQNFPzTeOGdZQ8aka8qnbKt40Ev3kN6Mh9/GJ6ML4jo/OXULRNBjjVSfLTQpoWpB2e66iL7NT93EL6O/ORpEqRDJY2JC6d0wsUMo/3D40Z+UEFH4tCP6R8Jk8L6Ok12Dmv44zaqw2e1jwJRkjF9lhNxIlOZlYI1T7N2HUVZk1GZJuBLUvjUsO1rDD15tqyiOw1R19IU/u4zm2GRw8MU9nVJD3XupUQ0Q/U/EU7B1jTE/+XmpLf5mpXaktGauFjXtWFFK7YuuOJF+H4mhR0Z1Dc3KIdxWRii0LL3ORVptZYiN6Y1I79iO3T/BocyLEtSpNke+jL2oSCxfQjos7Y27vAQBb0ZE5si+5P3O/s5Ln/Veeu46C67VETzGmz6+967T8ZcLcfrbzR+hmJDwsL91++Lgo8vHo8JObtbq7O84c62e9oXRT38WTq4x0rRYKAkzpKzUcE9iWCiRgYplmGgUYWGyEhKvk25d2rBdF3RIG56NL0/QVlkU4xLhUBP2mQNBqEhNIk2XKs97ClzLyvdcl2c2TDx4LJHbBhq6U+RQ9a7QU0m5kd7OVv0W519JuSlkePRzV7n90U2nw9wOPtN1Gdrz6Z8CowsVBpGi9nSvzFUkFOvdiWLTCeYJUwtWOAIt4O7mRZzlZb5B6Xa74Ofl2IeAOxtfz4Gh6IBEbVyI/XEh2Uc3soO5fnCW2dEN7xGvivCa3WNyKtAx++t5OnXwWPnU9jVYBMZ63u6IZihh46nWgp7HQ4USqqd4+8DvmSRYHjGzRbbBq1kc7i4ODW03bGoP6zvhqYuCnPcytBS/F6tRU2WhPgsjKayI5E7i0LcpPXQfytCpIQI2Y+b7ieMrfIap9WQqD2G2670J03MvN617ubFcCEdXUTATeBMyRPS44v9OuO3TFfWd27RuD395/e75lyf/MhD4l4HAvwwEeCKa/aa4aboCAhRyuBR05mi6hj6j0ujnoEeQlGnujC03FBttAek97oge6o1YAtiugXhVeI8Gb6Z+Iv50GlS3SKh615qaQUOgnz2HxiwQPDSoQGLx1e4zcX9D0LXEByaNn+tUHM15nbRFFUg8BOMIFFJZ+vDJUxZkmQrZF3R8Dxcyn1MbDAbCXoCR9AAML6UTp88meVLbp3Qq6Tl3Mmu50ywIZrkT6uo+ddLpLHW6RcXx10ydTIz4eNgyHbCZZM/DqsBIL6aeGEpxJQq2AR1DuyjP0ixegQZ3c9t7w++Cb8RGPr4kfC/5TReNXfqwZqm1u3/mFEHO1xBHOuQK0bYfvHKWhcF5n+q7t2sVeAWUB7owti/SJv1SRI6pF2eOA2LuxTGPglmbilltuMeN8d3bg4/BdwEjk0Q88R6vj8jBuyokd8y54Oh7FfoGP7lWghmgpS6ny4seCXo90G5gf0iTShZhsK9ZNSMQSyTEDvH1C1buRqd2MeNW/nbtdU+EA0MQJlKdCdc/B2+veOpt5fUZeB4LO9sH3TIJ76UQEXAOa1bVPARmF4uvT5Dr8TRUDAoYAMd/pV7Wob28PCGn+DD+g2dZljt0fyXpi8D3p7WeTus3LBWruCqjlVUVLNpGAQ43aJfAUkxMvAqZdGkzN90MmWJYlhN+M1fUarFVoB9P+Ge1rHBVy46Gyl+APfp5CHpz+H11TUqOmJRw/9jJ2Kvhr+Vlr5cANDuR+xkfpttlQEXviuv5eXWAWs79Pep4qChVIaum4iFysQdZ8vjejSdeMtztSDmRvgukZdgYEsTc1N4bJcD7CcqJiknPMmhVqoykK6LcmjhcNfcIl6RNlignLbDkJxOimxOhmRLPwYG6jBF+yrxp9t7milBtsL6UU2h8f7CWTn1/8GAMXNOpxrBg4BqxzMAVPUvdZtzns9IjjTwFF8VblkVri475gU6vsrqJq/0rTwqWoCaoREJ02M2nI02jp3t1zIPbf8oitjUKbWkqmpFGKjPkbanKtXElCg38m9Wl9ZkkDQgCXttw1WwjWRKxSjabbWxNncTeTHVeYToMMevanDu9Qpfk93betEc5/mH/cjx+BPGe2UR8cepLOocQ0A3xn1CEGPOvfGn5DjBwab045AInRulcCIxgi8z7wpLABDZk2y+JTa7TLJQYZG7ASbIVJ8fDLBteMN2fThfDDb+16r3WtlwA78feI2M8tZUOz1yL5OXg8N1qnB++e7j6YLs0j+lbmScKzoc8vqvJ0D92qoE6y5mf4sIDgNc+mSfVwoSMNzI7vfYP382/yTN79xsGmb4z3WiPJIjapojbJRLdtijJigApErwuCy0zOhKJy5INMa23xvSDjLNhW5lqov1cOrLKpPfNHPTJPJ6G4Vd/L64s/DiYsWkUt228UQcyyE3lmrQmJ6MxsUXQWZYp4nKMMGW5HtpdDjCt0C6vRgROWZ6NifBFdoPZl07DDh/XJb2oiws3ORl6buOnowEUZ7Kg1cz909FjTM66BD6EjPoVJK8X4xZntkhKKJsqcQ824sjXCWW2WXT8nAfMm1/DigWASDcpeFhY1qaVDmB08xqGJ0Fq4Tta6GmKuCCUV7wjZ7G6/TV8MfSKiVN3vYhTZNfCanu7z9cwO0UoxXQ0MD9bdDWqrbWWyMb79XL1/cHDZeL6UWwosvEkODuH2VfzVBeBsJSVo1givDELPFkT7ZKevHr3IXh7WH2bp52mH9AgHLziNTo63rFRg5sB93/LlDgu8qRUDls8gxMnOu7sBknmaDxUltSdZeq4VsymS7tB6a7FrNkbR6jkeTvq6FkUs9szGdUv4+K4VmReHPocNcoAGgpcVZWyyS0ambfNfWb/7bOvZDms2Mim8584kbuSEVke86aJcsjfWc7tIykG4pIOUBpmG0Cit4LEpzVTdKUqNYhZWsQCU9jrTqhfCI29qVEn75uV0GrxcMqNM/PGm57UagWzrenHWhBNt0o7JX2TlHz/0x8fyamp0VNHwxw9iSHd0hKtiknEeGDF9f6WVw5CtPU3edo3DvaIXtDlnwMvYbETlnjNYCTZbBaFLkP23MB0lWRtUVywjedYzrMuLkxqZRm5dB1L4qlgSSMvHKcdwk9PBTjRw7uGHVc1ij8sL4RSI6c++3a2BnRYQvHNJKQ8kt2h47/LHaFTUQzTxm2ykgZmg9O25mnMO8aTopq63ho1CrFCNGX6hg7JDY5EadKsH8m41Ep5lTQeIrmaourJEgcnsGBbKA4hQOl1l+9QbnX5Pru5HA7zxTAt8nY7os9JM7Nx9nJNojutiyfTSqXjYDQaHEw4A1qyb9YqnsM3T6kn27ufjKgdNOYHv4wbLLj9lcMETpnnTiE/OHO/Dz44qA6jnZDhKWGy5RwQ64KBM6ZKdEdw0oDN4t2LkyC1wCJmMOBkso6MNpupAxmn7gv9pkURg1st8v69IoOJHNqPXWrp//vKaxa1xTbXWYBv3j7GxdLpK6P79vKWnorhsyWvCjYDSH3+C4DoeKYQxe1iZreL57bscru8Ppx/q6eNoJ8QHhjRob/atRWgoOHzllPN9aKyrIwF94mx1IoY0ZQBNybXi7DWew/QZTMrIPLz0bCDs9Eebvz31XAycWcLDTZkclXPmZmOWW/iCDp6asPLE7aAl5wGHmvlu8Uy71pLwmSq5w5yDSL2f6NoBqL5+S9ARAMZENEJ4u/xMEWlkEso3RlE1bd62iB6PbmZQgoefGO/DIvpeLSrDXICNd/IZpRSIPQcGRtjA+4ZIl5QzeQY2SChIAULfjZP7apDQfcoJbnblFD0YIIMtwp1ANnZVxufnt2MHnkpPJZqf/2oZ5Y73XK4pzBrTNIwbOstI12mEJktuBmJSGgsSEBZZM4ypVHXDMuVd3vyJ0I4d43IdH9vYsnLCA22263YPWZUstXxr6hcicr/8nG5Yqqx4j1SK+773bdGcT+R3m18WXE/jdCxaLVmXZ7BJ8UaBO8wqqSc+0yHqFiGorQpXqu8bN0GhSe5VeHpcnh21ZpWY9kS9ToE9HR8evAdJkl8lXI8GQ3XWNevDzpZ1z14vsRma2qyJ92i+szr6+vWw4J7zC9E3NhLfsdpfcLBhFQ+vMu+25tvkEYeXw4QwhpADRsej6pAfLIWMLMI23GhJ4ZPJ1vOqlmR4hqGZiUWq6Hfh0NUnPhHM5eWJcLKqdVLq6JCVzhIN+NAt5YT7Bd3Zm/ozsyxYLxYUK/e255bj2xbR3eoW8HsPrGQmAeRp/x6gJuEUE85TpsI2LXShHOGIlfLJMWkZMC8s3VCH9PEXvYCYqiQLi0RwMj46KpJCt2adGO3pm2ScuLc2RSVVYTwWnszHin9zp19W5v/dbukXFCbf0fJhsT0B7d4tb0c/DScKeNTgiLMcacitIeITuWDCa5SAVbHBk86fcqx/c1vOMKMB99T0lye36AO/uch/vGg43XsuWy0Blu9ejqFkddcJfoYGIbCV38UebbM0aTMXMkqxFLCLapefYemhWgLCfNrOlcuepK8qGTY59sYHg2kgKVseym+Pw7dZGIHP/PVoFGPr5i3Eyf07v9zXdP+P+8zoMNtOzQrGvZ/4gO0Q4j/+PY7MmzxlKP7R/4j+l68i/xX3fb2Do6+6Yxujbdi3NoednFmch+ztlQ+2+BdnuQFeTXuPTr1Bid6NdvoVGxpZxtbozvqIbohkcFt6opuOyKsX0+u/lhQhx48sBMZPdibmjBGZFbdldTzTKMYly7V8l8vY3zWEY0wbKlEDpU6nfLKTm3O78e6Z7xsJNpfFMt+opjq+AlHcdTSNpV3t2bbNZZV+Hd4JUsv0iBFUwDGpUmyzEu4lhE95xgiZ1amfoTjwhB5B9zo83Unj64On7yj1LWf/Oxr5pGEWrDE1eWhw0MYTsfLxoP4IKXIfd/FxKCHLkkUbn07R1HPQ1DI0NZEtblHffYzcw+aZDuRng9M9JSB0o+wNZksojFpk7nQHkFlLkNIK4mgn4VZ5HVPMI/WSiOwVcZZZDcYfKitBh9Xk+sT4t3ZywWPJmVZpVfBBtpilBUm6hANOiQvZ8C5EwOtD1iIWzCco56XBBDpnZb+JCQnWLsg1GdewSPBIGgXeIT+6z1lfDTxtou0NdIMno7fbNSwBkAfKrSoxxUUrRbuuC3wCCkLiJkpawF5mm3ARbQVF/fOoOHoYbGz/9SlYgIb/JWjSD1bmCNcIGgyvbMlVB8Q2d6B6Rkhlsl/jRBBcjtHyOz0A7rsMM3UTkP+uacOX/Up42RvooxQkd+7a/V2ojQW1ikRKHruVL9IAjHNSQITFoUTfvKfy1WsmKU7xOyGlR6sdMIQYmGsnwFWlLnv1V8b+oTKHwGGk7XE3PywKwsdOMpyd2T4L/rXRoY3NKVgbtkJZkWkcsQr88pvx9MIdIxqaSJykZRJGNqVzr7+s86+vmMRsr99mp86d1skEBrhHBZI2WDh+ersqixn9oIL2526ItnFdqcH1Mi7WO3sYYeejc/c5dU0yIb5mMXu4PJ6HFT/5oqg+pjzarzY56Eu57WRdxIL8grBQn/69vB9GIZ//WKF9AClcNXYV+UpniKOsi/M8c+OSgGjrOQST8oY83RtFGoUq/q/neSGtsbpLYa6+yucemU51Z2XPdJYV6RPhZ/zjEa4wq9VoQLR1NHscjjnhVAqewfYWehGlPCzbVHkuBkgkbUihHLb0LyVuI/aKBVRZS/e87UcurPirqI+faQs2ykD0Kp7Z/b+PrenCWm5RnKmjqt31+rhfQNun2xWv0kiAq0uKppKp2A+gM2lLYT2OwEomURZHgW0QCGG8UO62BZpuTKAVX82gG0FaDbOsptsjIx94+MqhFZ9Eh7xdkfiVpsOwuNh/hoSwRkWV3cWhugjyrdLQVe8oj7lqnRwfXGee1Zq7OWWZvFeH/nCJhzOOooy6W6LH5/fH76ef/2n/Cr/MK72tV+Np8Oz39wXm+9u+YcjUzvZ0IUukaANcqTZoAhndIBirzXjsBxQVuTlSgfo9pZ/KEFcD13hRiXv5UXGwTumd+M/dKHTjhWQH8ZnnnpjfW/08OPazfDxsYtZqXpeyFXB8ZRDkjJcmPxVJ17dD4Ly1DyMmcADguOtDzU8/+axtjM2ELySaUsbi56Ay1DShi7vwEaYU9dKVFIKXTh2mZAyDDdgQ/eFjR6MmgR0aqrDrsX1S079j8EnZKjd4L2dnF5bRsY/jaf58Gp6On6aiNGyZ0FcWSNGaC+Lq5SXxYW96OqF9kVczAwA0eL6F4I6rTNnuWhTL6SJVMwSAtoj3jqTxqku6Awp/n9SZIxvjNsJQVM7sSccrhs1ZH0I5Mh29cm3AD/IkKu2cuJSMfvqajKaDphRs7r+kD3SW+hyRY9Ubzy7IvmjjySvQIB1xHdYYG5jg3ZbYKbkyLItrIhsfGTQ1PI6uLFB7IR99aCELxqlWV7kYfH0Xf6QV0v7cfnrY452CzEtkfY8SFMzOxqZatVY+/mT9gBAM1fK5x3/e/r6scRBlyhNmmmAEk4I75WRQUKiR+Q3YCWiJXEWUn5TusG22GCYEW01zGBzxh2Piz8WHP8YToSRPXtjJMoApY4X/turglfE4DsOYuoXygeYaZOyPCyj/zaUC6F6N3udGcuEc6n0+bnXRgEKFU7YjlXnP1r1SH52oJiH2h6YwB6yaUsVaVFmmoeYFazf8nxomRrfmyoJN4fBuCg3mcjEPWAi6gMTEasBXZh4zSYwl+ZuIgsPdCuonkuGBg1RgwZ/4rV/X4UGRQnu0eBZ539rNKDRoaOomSJkJglz6ROeDCuyqGBVJtNJiaWS9StiyBmX0Soa9JKwot6MhgnhWQ5HRSM4ouKVNbAe4IB5aZymXWSK+YrXnyCg5/XdW5QDsl9hkaw26UOJ2sx9kupDrn3G6JmwK1d5f7MtI5/5dfDt9NL3jX+yJ7sIV0lPmJCiRUfFyBUyljNoIJZelwGLJO3/yMpubi3PMU7Nuk9SKLb7JFWq69cc32LEKw1UrTDq1U+G7bYYdwghOjDwjfsy9mxtgswbbrxnNXOaXU2OT+aDi4ecW5hbTOd076qI5xlrkKEngcn6iphHwcJciW9Leow9hvF8PGq8cKfJ3avmGz1lDL2quiSWf16OT8df7M5LEMimRawuxc0MI0J4RzvWLEEVW5cqJ89KKbpdyRpwJlL8+9INU2nRz1Q62jiV/vjxQ3DI+s3V71/4r90THUsnfU/s4sZgZjZPrsWo52fWBH+CaEHsjQ24IgyMkXivsbV4TmNrL5FKX9G0amYnMqGLNIgx/yWCEdLi2iSMLW8JTGYiseJrPJPHTbfK497mPtB96ON6s6COEdyTug2aKbbqnGL3rZFrFsK41ak3k+vQS6+pmcOY9rLsFBTieadKvb3mlXfKJqtsCNilS0WRGf/eQNIKvnXmX/Mu0CjxZvgwZbIU6yCR2zWkL06sux625nB0a0XU3uERe3eWEuFRnXZpSFcL9YOfRuPf6zq69a+V/w06sHfyv+mBM5dEf0PO3DwWdhUFxJvCpK0ZssgZHbrcBblzfgyAZqm1EOgiF1l+rYL+oV4XBQz1VlHAfDzlmeXN4hlTBdmr4zas1ITFadMxAHg7Hh1/GbprAvT/rIfm/7nf13j6CB6RmANjS5NU6Xat2Tw/bl7pcq7ZDBtJmHCndOY1fjT1178jRuBphnKBkFeeis0ptTXOS3s+rKRYbw0Ojh66Q5d65qEd7aoMZDwLBbHxJoHPnCtyGF5ZypiMkUEYWMzpA7qjpdMZppwmXwUJrTaxuSGU3HlWtn9XCN0AKnrioeP1fmIxJykG3/5OAvQ9nPHLeaf0ARuljwCasvYwWxz5ElAS/375e4/PeDApsdiSdGNV2cDZioKyDDE5o1HK0EDIIGE5E8N5G5pcbcCC7A0LsgcsaIoB1bFPczR4C9NoenE1GbwdPSIa9HZR87Bv/1UxR8Ps0NtS/6AB863wb40Gyh8UqExrtYwNgwirVdyEiX+fNLF0GeKFgZaPSQqbpMWyWItHg1mip5rHvhkU3GIpuorjD3aUn1xjvlp5MD0WGNKmLI46wJCKnm0v5LmbHLM35h/n4uDniEDaldKYaTL26qFRf09UtBV0PxBcWMvMzvHdDzMR4lo/V7TlcyPpjUSW5XNZiBBek6/JuFL0c1Xk8FHEIw5cFQpvM8BVcAr0pPHoLuQ6O0mJvthJPVDz4tgb8IguUYyCr9e2AbwbpjY+7hmiJu0PjU82iv0n27ViRM9Dh5yyccZU0nXDaXHqvuOKCpZI7gFGiETE4uWfRumfQ2mGnY1IuhcgHdALxYFm9iNO7RnhPPFuK26EBWwLVEua1AyrtV9MXgKV35ZCZzdsiTGlGcmPZVPT+9PCcGU7Lg/xD8TeTGZhYlW5rqYhw61qGiUPYfzbFaLJiykEHnRK9yuo4e2suKy6RALQVjypSlW/T7FA1tGrlwPWkmwlmt0or7/qhtbWA5jBzG77tBVfgFsosCsV98yKRdnzN8l4u1YRqAOiUhGg2avv2V2cEEijl7cO7N1xKNadnKqQHPzoY3JHsrhOaO5WDfmF0VlcoI5OcpdwHXGTeaMzHjG6TRJNPpXkkVm9k8ySMJ/Z607af38POjut4zDtEjMbjvLTM3czYw5GsqIl3eo6uifMxLcgksd9E2rF7JryFr71NVUHQsUoZ/csVPdyTz0WVvasiSBgJyzVt1b2EBhmkxUNbZX7lnLIC8fkwEZkMizyXCVarDLLvWNT1MEeaQFlMp46LvAbQpAwXSy6GrTvol6p5ZCCUu9B3LGzZyf8oDe8XUb5TEH7/bebbpn33z78LZPeQgRQ9G4QOHGsJvntpEj77SRyfJ+pB5MLP/7GdqUGUh0pHkhSeZn1h1lUejxsfagDdvC6itgdCYpACO5mS+i4QMwly9hYclSJJHIskCOUAcxckqQxhFg061cJimbJctNspmedVz7VzcoSFnYIObagtbeLUyQNdF2sEDvuoMMh9cswPxk+odRNi+1DedFvK86JsCam1Ge/GMqLeigfQZJIkkpLECHfXaY5fn/mGWFp5qGOtntOAF64s8s9GFqRJ5lEUUs3BNGmxDfnVFYw4EktMrU0PcsSNS46ZCoXdh1QKtwKqLPhmRdgUuHC/jkRRqUi2dxrWDLbKRiv+0X6wzeDCEayuJPx7P1AQcZim7o9n7Ksbw8Xs+cMLZrdN+zVV5cNagC+0jmvKF3wImqf5/khLyhdyu+5CSUh/078DR+LnShdb+bf5plgZyPDK8GIy28KN1eKLHHa5FdzomQrykB8Z+iJBUpcoEySKG9dus5571Kgjdqq4ycjzE+m+cmpa6RJMCdUfbbbIj/U9spuXYtRkLrO2CFHqm2m7VStk6OLxrt10P7g6wmpcNXr/sxnTWqKy/uDAcIedKHvImryeCme7nm7SlQ+nZw4a4azXsIigBboYv2QIsnvHXq+pFer282gpf4uz+hi+pEIH7yvQ3zHMStpMXYVLcZlYUuBLKG/jBx4zGJ4OdxC9MO5CyQLWaGJdyKTedGtazppoiEMI5YYJ73a3vJDSm9V0NH8HiOY/taeOmyIeJKVCxH+6g4y3turP9zEw7Bu391RR+j+Idc5i+1ZKMUr5M5cpevIWMxiKZcrV2n62iR+zGWZZN/DAosng5oGUD/bY//jtBk7U1dVv3ei7CDmvMbYwefW8bZFOchdT0+HOyIIsSvJY2oW3IVj2TBjZKcFtG+GRhkIijMvACm1lZ6kWa4iiCKpYzQb3y2nU88np4vT+MF5NycVEd8/cSQIZjfK4gDbpIPYD9FI1zwvcUcG/pv5d3nG6Zoia40oAhvapjZZFiqMFTFTZT4qNaMcjFVxzjWO/7Fj4sx6cLcZaXsE9+aC5bP7HXPQZvJy+OaZBHfSb31yTD9sHttmHtv1+c1jm3+LK2d4QpuSZDcl2sM3s2/xHAN7iTqAPO3VWTOU1Z3UAYZofl2uPeXkdlQ6Dv3GUw0NVq2KgldroGlEQx3gVWOKKOOPaQw2ElMKuaGSSbdWMg8lbOJrEhV1e858GOenGUvtx+6uTJyNT7pmDbQ/BGtAb2INbMdS1O805kTMpjHeG2C+yFufd72m5bctkKSM/SKvgtTX/2gm5V6KG7hsfIZPi0Lw7pwtgTPPL6l+yPdHn5foOFEbU1RqkV+kaGOKBV//vmo4n2WRFyX/gy7AbRzlZFGZb/srGzqlkwyx3WjFNtJPdLr2gVu+kTfnv14j9/3rxeh60RxgMhAuuVrvPfhENIVWkI475jmfTtzg0J8HW0GnbhJ8HI35tLNzFJeOquIEOvnMN5WmtKcZ4Ebg3VI/r22Hff6T2qTrVGb4Gy9/lOexibiTyuTJ+LijO6debgu5nYERrQKjFSm7DiqxUqIobSqEsoSNxtA+YMHdb7wQ4IjxUiY44pzFXBSwwvVBpRTbB5WnxMfETr+0Rim4OYi0X/VENvZImuNOz8jTKllqWGaf14vpew9YsV0LKO25cuaM6FYhmBjN13sXR1+LwvF+27E7VX/VJ4+Wn6oAHHzjaYbT05vBP6Yn7it+nX/bgp2uiUnsXQ/isBlBwqB3JSqJgbYwyBAbxbGs8ABBStyyTFiaZa9VLxEhlkaQPjL2SLP2n0R6i6GErKGrZcye3bTN0HyE1324vdeb9Nx2SoIRNtBRpUgeVOdG0NqAhm89kUTMOEbjWs4SsCRgr499CvIv/pHGu1lq8F2ODg4Pqu/y5LG1ryLd/AEusJTEec6FoxDutYW35g5RITW+cYX4RpF7OUaxAUtqO5ZuNXzZv2CJsZymU9OFpA+VLLy/fwaG0jN98FtIia1jSz5leWwp+97PBD+zsaWWfmyJSl5wJ7TV83/fFcMeWHoOJz12re+IuK8HR99+V3/HJw+1fUYr7Yro9fhiMuQI6WgsCjfV1WaAJZnGKxsK1J8RlaBq2gzapUXmkMjhrGgzpFyFRoQOsYSCkog0kitxtQPHJ3cMTOM73397u65h1BxR2Ibq/tbgOh/7DLz56ofpO6gNfQdttvNvel8MrTt383Nv46/i39BhqpgE7MmJe9FYRVFBNW2Hzkf5hLcXfj4ITSfIiGa/QrAEMuQ6wVBrClo6JKlKZsq88tCdKZzG/QE/H5auYZFq63Ibr6sTyHSrOsFt1+v2zjLZ49Kh16Huaj1cjVCnHLyq+nlAbsRr7mj2DeZ/6fkKFcv057UE9OfbzkLnR7Ghif7Fzj60Arp4u7pG3LObdFSLFtRRMIdcXG1iy+geQAbJl97hyz+N3icMsAv/ICf2cjL8vY2zaBloMLLilaa5l0Jk/tAoXqJEaUpHk1zK0jf4WBzRFoGDHF4HbtQowi5Vc0yaPNvAbGQbCNPSwR8eE8S/2dNxtkCZkFVw9agAC3svxPqrQ9sAJP34z8H7iftjOJ6OZ50+O5wxEKY1D2jW1uNT3Tl/+GUVZ0e/3BJnKyeyAW4rn7HCr4u28+uilUQ1iXon+8zy1LjuuNfBUtd70PrhHWgmVzQFYpU8FIUb29mXtwHBznCVS3gdjVfhubGY0xqFlaS1EJ6lrKmGzP0wYrGemk2rnGEt++FORQmOx1GhV1rlHknhZt6OuBuS9lZKE5VIsOh04n03nQ5HQ+/MevTLAFoFfgKrtdxDQUWFydaaLkyWobKnM++XOQcmmB87IEBAORL3vkj3NKMfUWmEU0LRDv/MMCkqAm+DBi+BpQTrTMkqUI6kYiHCIst3MmB8kIsERzFoT7JLBI29n8mQh7/EIP14NrYzvcDHvDji5BbrpX032km1l26KRTjM+dZQQjHbhZA9QYg5UervfVfgSk1nwJim8ecsCoIRrE7GOMbbD4WexcPaAfWNo75EVq9YpypIuZWqcGHxSzq1zUhVY0rYb/ecAi71tJZOieUze83fz2jUg+/tRTNLXWN9vh+eunan/W6ym4+dgBnVc+tBLO03GFSpXN2OWITQgnZtlN9pUCqsdhrYQ/6rXUXN6g8KZeM/eL5luYPIuQq9fkuctFT+pUb4kMucniY21gneR0gWwCfJo8iy8FBKk23QtDV9MKzj/RnWaNszKJCPyrDe+9JqUjjZ1WPoW/q8lriah8OiyaB9W096VjVawZ5VDd3sfgRJHgFA/VCsaYYyOk+bbC/WyFv5jflIoM0Dj6giUPC6gioWMtKi5WbWe+Aq3NoDf5i5FV2DinTcke6xFpSf1Kbdrz+toeT1p4dHyYOJiXoOBZ/jDwzv4VokcX7+S7JwMPpRSNiJTvHu8GD+DZ4HjPrY9Jk9RN3yXuJCZ94kgjJFhjdykOs0yqiBpenJZgfWTEm6AUTiCYFIejmgZw+i/sV3GghJ04aQ1k1v2684eJMBVhykiffDUdWQ/ZvgyE8JqNebYopFVQtRFc2qNPEeZiUD2RjtEQZ4ZVJGim0JeZ+zIt3LqChaolG0kfSeILukYe1LKb+feg9Toj1BloTbZRqN6fmiEi2ZxkVQzOFlTCPTyM31V0nn9hX11Z5A0pYxxZ6ATjVd69DSY4AZB5sP15oAdw+89XSKBke0ip10SQU+3YydW9RCPcxYDbk6baYOIfjvePI5wKFTl9NZajfvnmgx1LVkeg/6cBVs5vEwh42K6xVTbLTo0E5o3UFC+lcxtIQhFMFYKmjuH8sNblJbwupSFEMFTXCD3F6Q0a+BLJvpDfePXjJN6xDGRhbf/rpQu0KNTGkjtho8+S2hZSXEXx5tVnOb7EuGe05n8lDV0VyfTEPZgUnJIqAPZPT7YvlXCOSNa6L1b96siWalcWw6p4EzlfgJ/DTDTRjA/IKkzbOweXEvMRk/q5iUnVJpPTNcliN0sQ4aRbPmkxbSD9oJU2Zb6i8bpkbEeDO2UvfSxWWGwxjZeF769MOysonjFMPEhK1ZK1ZXNm8bprcqgXsw10ClWtMy7mrGsll2cOaFSJ9IftH1DjZxzz7EOhhxVqQXtZjF/OQX+Xkc4KLFag4x7/PMndZyjupv8fepfY1fGq928hf6ZWUJRysO6BcBIP4YABqM7VEIkYV3wY3DdQB1kZHvlr/v78eBs6gnU4i/+ixDyH67tEW9JLCIh0YjJpxdKBM8shj8/itzX0UPzJRWlpRZY2P6RVGa8/+gGQeZYhwY+1s6SdO8iNx9oSfuBT0p2ddfBT0PNePI2+jx8bDsduOBY/4FnFX+8bcXJ46O2zi/ydzsp35ztGz2IZfkBegshOEy+1irBEnN1i4pUig5BgSWfgOZn6cgBjYFf1ZLxB5R5EzycJUzmSxN4pPNnMlzCwrGlyc80IV3pomTUPfqNs6rl+U9vnCnXsfU+aqHAcg6wl7/CcK6n/UMX27t48PRRrsPrZ+KakDKTmNjx9H9C+5Oug9XYx/WHv2+j7BW3WRH5QAV0tpJWlYAMVQtaa0IMl4cXi+WZU0JXz7PTZG7JPNyJetOGl2GgC0njd+uzpiVjY8b5hY5s28ybVEWO7LTk1qr8s3Rav//zdFDxJi4RYunbztvHYynpX+CUopaZHx+Vp4eheKr2klayX+5O8e2ZFs33RjbTUDzi1zdya2J3YZ4W0EtaL8oUUkjzSX4U8UOR1wEeJFJ4pPQtBl89DDJsFCxca6TNcf5ZGmjOOmwqrianhSTm+vzRtfCsNPbKwldslGHn7DumIN9dzZm4mVXg7z6UxPks4fYc4yntxgix73vIVZ2FF4Sahbg88P2AZ6yqqp3CfB3h9+8rb7mc3iDf0PAsbYzcSfjq+mONbMwGA+w89ws8DLaykLn8qCMvMyqY5lTo7kaoGcBzZIrnebpqvoLExLdsXXf5qqTcxDIl1ej4cLV3q/MRKadd+xNVvfqFd4kbjNMvmfFyU3rO+G7t2uJxwpe7ulSkNv1K3pWDKN/WgGGraXZdGtx8pX4i0k5iK/+EonNRx9mg3dVnO0oRcFlKfC2aSU2RYJbPWQkCQGdRlLBxRHmDLF0QT8pjlhjWnOW6F5fitqKSF9UpbE3S2uogUItexWhCP3kP1LdCuC8+y5vBp/G16PpyfBinigdPHymFN5CRs/03IkVtYK3Rv++ppLXZ7+gkvNNvZIoc3QyJ6QBUrG7hLf/Ns8BQz+5L2yC/sKHj3eFECItWKk13SQXASJVsMWhnc+9oOZbPE+g9zkTFRnOlVGxE4Quhn77f+quF3sdGL1w8cS97nXQnqfrJbo8wl4Nj2FQjGkbwUPyZKMBi9ls/K4i6eeHqGtvIYUvE9nz/VLbS8zPfQEfvlNALwlOPvDhKab6r3HNHBT2fPCKnHtniKR+DT1qjSuoQpyVJmL4EzKusJrVCzahsE5GqDFH0i4vklXKa7xEN4o3U1637j3t7x7uldAoD7v4rq8m49Hv7V2mu+0E9geNaKtmiuiZTnRS+7ouznvRUJ3xiRTLFV4AnuYqbwyT9LapNPtvHx8pPawpYUuDlWtbAsWnXdqL13OkNEdh6bFjEcHjwDrXRRlK3UauY6XtMN6FlVtcJ+n+aIHcT8O3o0h5WrfJw+vgzxl4i2NvzyBSOtUVWpCvpcr712UyAwj8+bAysJ4LccXeUS72hbvwigslbAD2+gIu4hJaQIHg95rPA6+mcHOvqwWQ0+kl3z81zfROexZZtLUZ6/WE38EVr6mm/zHycurTob8QXo/P+PSr6V2VtHoLcmX+pqOAjUwkBk7wDlqjKHx1Sp3ROFWpl+8QOYJTCTmK8lsEYSpMXogNRGi1lQj9UOLxCfa+RGnUIXXtw/JR4s5sXw3QfUu41ezm+SHP3626VnCrVKXS9K/xYt1/JYDrRrY4eYVwZZbFjLgqIZvMkp5ba/GHE3zISJfEch0JQm5Fwr13gog1f2V2MiIw4ZlCgmg3ggYRLkrx47SDWpm6fCB1w1z4LWh/YqQcc05qHQArQofSK7lw3folAAqfnYxG3xzNv9XfoiWkmMkQTboZx8VRitY8mTurft4/wZCi0CIIyI0NhAVhs2ztVkFhLdns1tPCkvXPGCHEaOHWg3Ae7nuq10lDKo1nbOgOQL0aT6/d2dnMJTFmk/VONKL7wFGn0ny/TVVRawnMzxvoSA8d+qdenVL0v2jA8nXakIe+I0SHTfCfklQX4/O7TJeZjHiHrTXd3QMfV4Nv8De3oz3IQixZ2em4ZZYiO619QrY2k1U5UBPGMOVbtbDRBVueRcDuAncStu8IZTO8K7PIYfrD+0m7DdlZ2ld21sOmGlItOHWbfrKzzc93hpuLpY+hrCs3ZWXyUazfZmlZfbrLtDv4/kl8HyY+pAQNcjY/uKel9Pnpykth2cU7cUmvOlwCj2amtCLxyV3OA26LzOPum3rPeCtY7GTEF0NyjfhjqWyaYyMWrzjGhdWOhd5MWQpb0+5LLswzXj7+H4t5N37aps+kDk4PZIewS5jwe4tVQ1VhV8kcMLtTMrfxWc9wdNn+EFfPJoHqNNy6utlg6KP1TLTdtp0neqYDNT9dhNVwM5G7JGUHH/RdneOQKkgbsdz6me3DbUI7cX2qfelv/NHA+2xVWcUuKZih7y8rTbz5gkTm4sJlDLIziGKRX4mD3iG9XI0LdZjkVoQbHKz0dgeriT2dHttswfSIYaBJGfa5X0R7SzHJiDpujVaQj654Yh0sqD1j/BZUjqjnWdsxitC00f3zFnKWa80P1o/cvKFSuhP56bvvZicsxb8PZnRi3ldPEg3z6NqR9ORHVRDpmuG0N3JTOqOqczr3xFWEniFoY6JnbJFEukh0uUpcjZcUB+PNxNV7r+q90Sk5teoyGXkzKrxx6cWYr1ffAlIkD3kL6O0u0cyHe+Z1yMD+US8yLE7bg0NStIW7XQz/eWcPngeBwt51uUDJGsO3luwF38bR4koDncewnTIqt0wneHiURcnqHJTA0q7TuMN0O437Nnune1cTXDMk0MgYdkDiZ6RqXxHno91JTw9waVRKVv22fWtSeOhFACpkzE++IoUzVtupjfXD4UcfAP6rPkV89LBY6lMXLyrZUqiNcoYgRYTdiQUhyIEEqFWxXVrmUOQV/5qEGxBitiJkSgV2wmm6UWORqLiQhegzc/I8fqQyU9mBkM94enLMUy9R+2gY2U5iQomy52vDzDESJ2a+NzE7+npv4h6WRh+mfPBxNTgYjTBvZVPgmsHrDjQMumyo8tFHbVpPyMUKi1CsLbLEO2QU7P4UWSBzlJMQjI3VGlv8TwaD6vaJ096EJZq3LCnBjO1aT3PubLrYHfKTkFQ8aPyr7Tocoe65cysD+M1S17Ll9WEv8ibxEELlzyNpQgxfs8bZkvgvUB6GJR4HuaD/Gnmel7W+kcQTLaKcEVKZbSDvbSckHQ+zbHgxzO10Om7uBHzQ081waDdOzwoidvADv9u1vRkkavBxzrUYsil0+G61q3r47v7i+RHkWnnVnMPlGl9Nhv5xMxASNRWvPr12kzVK0ZdBup97MY532h46fDf/Lk8t5jexPJBFZ8yvW37mLJgJV+SM2IoC/fQYB1vjHEM5GRf4t/DnstjAqdvOPy3GE9aNb04QnEPqaB7EtPz5AdKt8kivJ+6LX8d3eO7N9OkO7eSmEkz6wVWw/euHMt45S6GMmGNNuJ6f4lIoJ2z5EMqMEcLE7B7K/rvceaTAdzRrwbz8qHeeKKjtQU1SiAJ8k6FEZeKly+OgcL6YDRGV0nGWetKt4xdMvav5elDLpLegls8uqLvaNEIkPdek8XJQU4zWQV2f4iKouU0r6UXfLSA15yWdREm4R2TzrZ5XZEO1gypC+6VRVkyVQ8eOOS9LSTQtkclmv8gGWVqSjYsyjrINpDwp+xr77i8QFrJsRbHcQcr7MFxIZN+NFbovEsKHJzzPlcDmh7wy/UW/9z5sHh8soPsa/h5WnZHaV/lgWWBlafarIBKZFR9VNri4K9ttf+Zb1DcpinqG/aWI5j93Q8oSAbyevEDzNw/j1TaOWVI4MpvbOLll4wE2t4N3lCySdjrPSbpdovT1GccAE29n559NT2kW/uetj1zYzWuY2/lCkRG9913wy84Zav3qn+OveDCLuv1SH9ms/ZLspoTnv9zdsYFQROPpvemR7gwNs1W5AikgqJotN4SQtCITME4dOTiDWnq2JmcxVbM2iVMH5F2pd4rUW7Xk96bKSfg9VFWmcwvZuQsvQ+OpcrAt1Z2ocvcd7luJ/3+FMOyrVV7ZfsvWO5Z5Q8g1Bk26YCoXsUDtfTwQgTYsA8dOsdWoVjuEZslD12zuED5M5Cpsgkl8YvXkIvcWe1lRJHreyxIBajnRvEM4P+xKQgJLePMwtrfPEBTVemwDCvzpKD7ZopF+7SLKcIrMSptTlxTGJi7PS70mRKSXtgj0HqBQPYACTHA3d4ACp9xo8Io/nF5XNodvx96Kw7tzoLjneQiffx5ILwy1hpbPP9/Xe17cwgjU9K7ze136owvTcA6YWSBUgMEvOozuAJjXHAnnXF8pM+hAx8LfJjR/dQgRbLS0oHI0EMqxk4b6EqAwwPKAd7ixMHUC59dwuHAyvaKOWJmEinS7SeiD6EkwgZVeo7QDQZ9OCK4FUIx8OKDcQsyLdkPvhLaZeER9yI14BI0NZbxtnhePoBsZ3a+P54PCYv+lX9wFvDZEI95lHHQwRxfN4i88M3uy2CcFmoV4oogZqk7WQdFlmtYCxYnf3Pdb/ONxMW05TVNL9NoS8vo6fk+tyz/3B3eOXc1pdZe0FmwerjpW23tDUc/enPSGpv40hKmnV/NjrxZrpsM/HN+yahbxjwusuBnus0xwORWl8v+Ifp14+eaQJMArGOHsmN5HL+kBkfODHY2gM/xwle2qXYomlvCmJ60VZ5Mh2FgkAf+kwkaSmlk4pOhccZNgpJTC9Fn3GwzlVr/B0zGb7fmJ/RUMNdiJESyM07BPRoP3ejK0aKPN7dSPJ4yAP034g///Q3DTXDKr+Lm/2yW+xZQh7Z35dv2lmsz6993M5rY+/flqGt9zNl+g2EPEhvmCL3J2mi98/nn+re48BDa+MbMEoD1mwP7aDPUqcpaDcXfs8PaJwtYip3HoTWRoRmZ4dQpEqo2GNep4J2QuT3mrZzth5za5WNX43Rc4ESeWdmgX/UDAnrlLbyJY1y3mAdMx8ygK8DVgVF24LI68PZfwa7rSY8Vrmes9sMJ3+WsnalzYtGKkNK3ZnROxV1mNPcsi0rhwwRYquXKY43H3yHBFiTj5s7Wzu8/u9ncnYeUgYjuua3bHQ/l4MbnisvkwLHhwj3nnpI+wzVl7Q88PfknAiL10cnKUA/Bdk888FdtXYAPfAU9gaZDB290pZtd49pSI4JWiDOia4Hxlycs8DQkrnw2uI2YrMk6J0lHm7NliGxMj6cotqL/GGEtY8Ol1pLokAfjds6vJ8YPWLKl6hPhXQX5x7huangg5kwOoT3p5tI2GW7iboOr7w9ezL/+k8fGTj7rBKx92e8y94Wye3WTDsc+GZj/p0S9L0++0PfwmCNWqakCsYt+xbeEMm6TM75kn1jL7Lih1MgxF/AAcYxGM58JEri4+p0tkv3Tz4nMJqdYtms8CMSG15Gub7L3zzK9nlmaJbYwdoTT4y9gTqv5UXrK9Atr9dGcYy9c+PrrZhDS0Yrb3zmTcs9OzDI4vYTuomX7A/Jzr/hn51URJKv/77ZvBI1FxI0jT/UB3BlbSBtZovIqijr0dloOTuGVplYvC6cR6HW+aIZEn2mjE7vmjoLuiIe+JZKcx+hm69vnVGVG8iHw6WUmvlwsUcpNI7HQ3B35NG+FqcaPR9ObsCxZK3g4CIyWfjHnNvelt75uHRASbSD3fPemcTTIjk4hwvstTh0NFJiEx24kZ67/cE4eHv3c8ec5OisGPOD1luyiukpymfummGeQXcZkUOMHJnFlL5FTGulsGIwW2YVzkiWVJZ8PAZXtvuUrMzstGThLu8tKuTw9d5RAnOBl1dZWPHN4UPPPTJRf0Oxq/PShmQtm7ZWIlhE93Zb4jMQ+Aav0HvmyY7j+rFHSK9DNATx2SO45lcL01XMHNWCYplKY1lvudCmaVEZJnNsoyjI0zZZlXItWar0DHy2wkHTIbLez8dm4v/zhdFPoiFsg/9Trrh7EDqziNRZfEjHdPHHw8H5/eYEbD48RgZQq547J67DWUvreXvJJnlc+nNSOuT0cPgKpOnteL6cl4cjn4B5SF7OLfXrTmOD0POWuvCeb/6SxXWwTKLFkjA0dL0CtyTuAbJbdwMOqBTENTL2m1nduPe4/mMw1BKddoAHZ4zvrpYRWxe4xtKLJbxMiCn7+EuJsmztMAaFiaNEJSMA+zXLik1Cv0sic5ttGGr3q/Y5v+rif94O0EvygyH+HM2wnzSFjqSHPP03lgehPrJNlnenP3rsJj3FJ9DHPwyqJZ0DJq8d6iFeNMR9Z5oxZqJPy0giz0lHpbpNKtLUx1K9zGd+Sm7Q8nw0+fLAniLLXgzuxwMt/rrpQ50Y58pDzvMYT1RXB9kVc7brXA7fz8l3DkFZD8Kqx/lDtVSZ/fv559k2cAo16s52ke+Lql2aUtEojNjpFo6q0mM5viOo8Wau5i1PdjYfGcXG9jt1M+/bianFDrKh2MuGPAAwsnw3Dy2N11O6s//DzORvmsmV2f96pKp7gX4fSHx0Qfy1pv3cVwfLnYJ5Nhq19tlpa1YCrEq8tavMeTdr9aSBt5n9agKL1QJ/VokBmURuDlWAapjr9YApTQ1VxoM6A8j/ROQp3J/s07pkKYLHZUUZCydFUrVcw2VoGnJ9XEwCuPpFAr7qQ8svHBz8B11v4QWufhJi8MsdUjqRfZzvkRB3yl4WhcuMm5DaYXAAw+6EQmfHyXqwcOaarvLoSbSs98/bPQ7Q9dvYh5+scHT0C3FEhEVqb44cb+go8sbU8bY3EssqzAoYMOhLhHhER9IIQRoXj6CBGx2NZM4FOWuwm9IcYfeSdidluJBzH674AY6XW1RctwTyP6GXL/cJPkcA2gs3jlW0zrhcp8q7ugqbCEGO8+sORJ2fJIwp+rUb/l1yhsNr669Hr3Le4azyzstTtHhqawNe8QTp/4WFssEt9RwG1fkKjtIFH3AJKb7MvpyfQaLsSIJRt4azvdIgdvtHy6kLjlABQKKwq2uiFqlpa6JCXMU+cI+IJyEHNvB5WPvQtoEWUs0tWAR65NbKztHyfgaYwmS93opxLwNGy31yM9zzod3a6prbUK56ddiUCLyMS7xP3Hg8T8++Dg6K7sZeE716Zh1fzsJrD/xlN+QY7Guib0S3s+PLu5SzeZobcJd5n/p5JNCfjCTRGhsJvJZBaEuYPk73cotEHBE2PixLgSNxqt1+UKq0nAn8sVshrjeS9DfqffXH65YJihK5GqtIOtvDSBPLcndskg9ds1Bsu39xa6t9iOlFHvWy0z620UrGu9wfq0AjjFQsKNjHsYOIYzO9cn+h7fKP6QssQhlWmiNg6ZEuqYnN74FfoCXqQuMr/vqCxyjXmJH/2GbWGzdVv4YUpf5dfEWOHrmr7jDXy9hxbzvm/t7QT7pN8t+hNRTQIRt6L4nWtt1mfu390Mg3T6MIv0z7DqpWWEK1Jr+QQJlNBQ4oIJyCnsVAOMKCrYCy4jxN+SvFzxpuwVHVEP6MApa2n894TQcQulciF7HvY18EClcw6P2aF7eHCl6uhB4PGQKU2fAKGpFkaNAqJiASvNaFCj9+5lTgGIDnM6p7ZMMildaHO5DpB2lbsPQFQPAEmZUYku7aAfxtee6PZo98f2rD/pe6HR1ABBwNpM3ORqFMqUkwrpBBzX9q6LMKikJrwgWvgg6s38SKFpnCmbPtUebBII3+m9YKVal8X0qEm10JQoYgQkgiIpUZv0wgP4ZGcMHVQmEPRICltsGNv1tpe1/wYKM3ooGrKDJHxAAPHsXg4OTieeK3y30d2+UBEPv8sY1sKK85NeGdjhF6buw1bvIfOqfmZ13Gz2GPTnV9P5Dyri1sROLusrkhn4vtLSikkKqboa5M0zM62FyzJoWTaHbY/CkV8Lxjo5dSVOlTSbVtzFKm+9Ntte77RisjeI2AEXkW+gdOiSXpy5m3at/maN0vjnF07ns55jae0ThqPZJywjiiXMO6jX7dFTnR9tsPSjzUYPOCb60YPYqc367uN31blHKvr3ASWi2KFYRzu9jTV+QMjcLOuuPtzdfSz1Ds2nhN8lTURr5VdlMRAomMcZv9hYGq4WdBwLURRxlJd5Esqd0PAwvCoB/Quz6sR0uSqhOmI9rWq6RKL35JrKVvz64p8vBwvo8O+1M9kdc7UnAp17uDIeOIz70rYTwrtutrTt4ApmltopgDxGPW7wEzBxVVAkGtIM67vR0o4V7w8/VEs3D9Xih67HBT9kRMetqx4/HE+O7Sg4HI8mY1eH+nckKdPLRw/p6J60TN8D7YrM3xQIb775GotI6Ovpswj0fipr3IDp0kVNqKsYhaAQ7RhTSN96MoivS2Qc0TcNM6vRmLGbbMCSp2OUF8Es010idJ8tBfXo+HK8V/+pv/AObyF42rcjWNS45sXh3DVvFgYz1zzEbfZyzYvDv81VgcGO305quYex+yQ1aSWD54yUiJkcRFlKBWd0mqiwhJex3pkK1dbOlMVI49cJFFVXAvfq5q53ck0U99q9DSkg+dYdy+iv7FlxPaTOPvxmIP0sag07Vdlw/9hR293ElL4XCZTFqc8rb6W91Jb02g/wbEzv1TdaOsZsRscePSjkjdNozdD+gDgbfGjibCdPPXrbUiYNKuDsWaHwXcoxp0cbCDk6nfNv0F3Lko6UWS2bb92vPQe9I7rYTekMyxups56nfWynhnGHK/enqwmxy0U8WioT2ny+R6qlVXwLheD+6RuzTq5kqNGMOnw4zCSCvQtOD1NwUnH9PBK1w491iO6uP4+tSdLs3pbMOnIU573OCWjieQY29Y73aSZshCmUtWJdf16F/ejP9yG1LXWiVJfUNntwCD4QTSxWUn1X5NiDM744Sdt8jZ0lJ2LgTktOPeJKbh+wx6JnbkmITH0UxfFCpr6KiUBVMvWrolu7qW6n5u+TuaEYa7TwBqgLVzWJYFAc43hsFXMSiMcBVqEltU1RhIp91lSuqW93WwW2FtrZZJy469Or0fC0EYTwa9Ft3xy9kUPFZZyfXDUkqu/ePoFsqzPke7YHrI3T5gc1T7bozaaSkVD/MnNs2La8o+oRxz6elTRL5VZ7P+Xb8rI1sGOGUJq4oI1qIudtV/HEiQlEl+ZOhewKOSfWVUnC7TLw58NRMf7C5JKHz9/dLEqIlLpeRVtdKz+jlL0ymPZvYkbZ8WO9iW+R4US9K4nONA/go9aaB/MTnMmKKHUnz5Cu/IZ7Vzz5l/FGVz86nNhFtrRCCmyvi4IEJc80+YpxLGJnxhtsw9YweEBRL6+vX0vxVNavmeR4TYm0W6TqdHd+9kO+oe9nFF3JC8RhXIsY1Ke/vHxNh8nL6tKGFjtJIzJirr/L3yVB4UFiYKriVmspsbIM8T9ILZUVRn6V41QaJJkSUZ5Z3vXRBhglW2F0QpY9paFRqfzX+QnJTq+mU16/MfZpVEdXqaIEPgEQmUdQAqF7NAQgc/zMjn3J/Ngg7F7JUqOEGe20A/FGSPMsoPMKv04i4Z9YIYwud2g+qTCiOEIxo1F5YzMiFjEtJ+FX4lKa1NakVFNFBJ0W8GiVb9DT0Vv1dIZn4/GpLbGD8taYiEQtSFB0gNN+u7KojCV+G7JjS+jTZJih6D4rmN+fXgOit/Yaxa/c1cIg36+p835/8FQgFfc84Uh8isYpmjScuyPUQdEUEfxFarztcuQN/HaS6z2cf49nAaxv4C2hVfWNrwB2vZLiGDakaGpmKE/MvmFCCaeYFtqUTlSSI3RNvaJyLICd2+AwIsKt0Ko2jwp3NswXfV2Ji3AY99mIimk8K/iKHZj64WpCpNgRy3cTuGh17ynFnWzw7qwYvBpOKKiOTxDS/8Hj7dPVNCeTH08Zlh+8HSBaSxd69Ro7ePtUMJcmPfd95Rx0iK/VoKvDZQ66NPH6tGi+etSlXmh/d9QlUj6TTHB6siva0kpbspUA5g7JeFUGeVT6vi8qvxkKIkwZUSt1sQtzaTegLdmKNkZ6Dp7H5HTarLmiRbM0RUn3R5vil1Fd1ujfnn2pOBl31ZF/3slfFs7TvvqwV9I+lgZ92peAmnu2iXsMcBz4uBt84wNvV4ywIOwbUE2vIZdIkCJShcOC4ZIv8kAjSskFFXlbSUzUi3IdI1JsxcgtiqQeLqQYErIJOy6kXxjIjq+9Xx3J3enMffQIQkud4T3emPHhOw9F1W7wh8e+SG1MMo+FNoQS/x5LgZChVA537zz47/L3KJ+0T3Bkq3vn22lZwZqVVX4ZUftlxDxBViS3MB9DE9tQr+6PpEsGjOnm/ZHp8Bi1td/s6Thr2S9CreizbkpZcJEsL3QQ3w/OLiBfAqMf11K1ox8fuoPdaR9nZM+XTt2rm5/1AjE06SrPuAlbvMr81a6cW9LcGfXxKmHu0vDcI2GRoUqD1Mu2RhkhjuKxC3L0RfKkwFQx3bBC1TWRaUEgG2fZTTYWFSW+bl+Teqk+2SseU77YlV0IOHPHEEmb7Y87isQ/74vEzuoW/87SZuFwNTv/pcUqdkx35EU2X/5Z3CAfxvzgl96Kdnj2m/ti810XEVmuSJRsxNxcmbGci0NlrArtK0E6cjYpaOtDuI+cd4sXG2ywwqeziAgHzO+LhB2DoPEZX31oZ06+E7wX5qK8d11JfM6AOhG1v+L8/FfWE2H3RF/9NXZN9jaKiwRr7K0CnwZlGQqyrMJxu0DDj1hrRzAgT/MYS3goUysUlBlCoq0IsRcX1lNJyA1/pWBYXDakyyJta/mYjYP/TydXE/8NatJvqvUTpqHch3foLKB5XMbEYsXtjVNJ/wIBvXGUb7yZnWkpqcNbEmVIr9eXWrSgkAvObAEBpYB5SDaJKY1djVCz5E1gdrYy3N/gE9WF2I/yN7+/3+OwdDKT4vQPaIANyKXffHq8ftRj1NVzNWh/8lqHy8Fu6KqIZ01v78e88N1VgbrZaDqkI1MvwU+ussk4Q7hihPOSG02Dz2+W7Az9cmZr2RyfNm8c3l42Rw8ExljL2g1xz5jknS5vXnIdaEvlTZ+QPzoUgvg7dE5WpQ271W/NrZfN5f7uVJh/4Bka9uZneJcHPoPZ+Bb/xfVwowq73L6VhbVez1Y6CZ6HaVwLx81DoXbRMX4tCwtMc9+Wh7zdo5e7BPnul5DayQURzxqUYZraInFFipxyGpTsL7J6n7HAGCeWUkMhyuByVRZ2fW1RpFvXFkt+tPFvV9PLRWERU8op3edkRLJeQndBdO2hHyEte1LVk+zmFIs6/ejVS9iDI1v9Zg2IXnXfTQ+KIhFt3c+SvXv01kpB8/iY3158o9mGVhx54zzPRINiI/7qcJrNWKoQHvzoY3hn/S2em2l5vWNcEJU5C3C03JlEFh5uWVEEGEVjDqIc9Bq3QaAu2rrPld/Y0dWZXVxNsDaUiDq8dtvTQ8eeCI9jUk1GPDYG3yY/DORh8rQxsn3iWLUG+4OI19QisQuKuYPo/GzZI+Fl2YcjIoskiXl+YNkoXMrsEO69aOaLSVgomXEzu4TWVZQ5PDtkxEie2WLJJZNlZb6+exWqfnavepBm1Ag50RDu2r1K9OCj40Mjr+7ka6Efsd5lMH8JP7NevGL39U4N4odF1C0cqITq3QYRraB6lX4eMZWuoy83H0TX8WncNX3sZeGc4y1UWgLXXhyT/gKsF+80CgvaOxpAKmdBWcJ6jrPMbTDp1VvXYQp7Pbp2JzynxSIM3yhZ4pil+7sZ+F0O+sYdgEOIZHKztFDzhLElt7roiJ5ZZUhqs2hTV0WL2Fg0JRKf1amAdYNUQ5TxRVOod5nRVN/krutiMdbbmyG3R9sioTuwJqP6DaE6+FzF6q4GvlHCWCtpKqa8jByLOYgK66L0bFgm+mWOM4IqZVpiQSVUtAorfOP15ousBSv2FUu0pZo2nkYXtlfra79JAPmmo7vwHuOGOUHG5d7Kl6c+OOBf2qA6fPP0QBV1Nvk2ahzdYcgJB/OklPSv43qpch4OTXvPI4lxg/CrqSApxsb3rkhCAua72Td5ntdXHbk7TnP8AjWa540VD+SzLKa3hhyedx0ly2a1mFaOwhxbUy2FeaXjv0pFM9t9fG/OHLzk5t5CsgdPhnYLT/TARWPQSQ+lw4fnx6szTzR6T+ywdeDOx/CO5tbYr8bjilPzeq3B9/qJgO4WnXWWAnomGphgfF6cCWaitU/pPGJmXb7IO5yFWnm3XwZ99Invw3bxKeDsJ+K3qspHu0IN31Gq1oajppRXMYabU+LuicFvBP8zZ2WaTX4gV0ijjVmFmlnqlJvNULuVQN/+G6bMpSCpqo4b7Z09XWr8Hb5ZyxGfznW2XbCPq6d3pYCyrPZD68WDeXxMr7IaW9x0UKhpC4ItRVW2ExX0u+9m3+R5oq4feXFa1ZjRq6Yhgk+FxoPZSyB7OxdsZJlPkbDTtiuzVJVRJsKdoHerhsj+e6kkvqxVJsldk8mXA2zAwsH3hD2z3JuqV/J6fH7uvG5NU88dvhmg0k0C/NdH7N8OUX1seSu/MG9a3i8Q5IROkRRHOhqGBYALcLhzJJEpcspZEZZy2cCxajCKzeJOoi0gOBrZzEu6DUdeA4TPXUy00NIKl6hye99o3JB4T4LVDr3x//8qDJ2pntHA/3tuKkmS4X9fuUFxRQY5nM4+BSrUNDi8Gk7a2PnfTyWPTG6h39lvR+SkZEfqMk5+HV5Oo0D+KtWvCGsUw9PAnnEP1pnlPKqCkxumVxyXl8/6de23qu9GpqQsls8WjWCY7baVd/gdXHKEMp7plGwODt71o+Mzwm9XTh+JnL8gmz4Lm7GpQQbULzx66UMdaOe8agPPmqk1ZHy7gdO33X6j4IktBmU4o6AbEPXLloo830d3bE787GUihxeEQVv0UGMS/HrMZTg4+Am3v9dsx6KiNJrdg8bfNU/1HsRc5uHn1RWY03AGZvGrNr+ekMP6gw0uzuhxV+FQ/RHesaiZWXWEBTMOmUWe/lffxiHzOCbM6mn3/B+IAKBPikkwGTB/4FfV9M6olKpxuP/3qGr3YLyzU+O0+gmPDg4Pqp/weYL/BzshgD8OvSD+brCnwR8ZKvuoJdbi8lKwegbKMThMchdorA0DiVIjWto5F55cgT09uPac0Ntqblybyk/spFzUohKiqO6X5h4hXoHpatdaPF8nu5pcelS/PgjeHfl/LHHbj54GjavVWe3arNJ9a2vPNkgW4TBvr/rhBNUCf/VX7el8tBM7+FiF5jYIBUffdKEooS9ND6xZvMqtTZ2FZIwqvR9SoKatoPU472MXaidFnmxAUbIdRbfcGdl//xCeJ9WlEF3GO/lJyVEVd10SeVAktXzP4y45iZ7XsoSs77MZnurAWChJVOMKrwTJgonov1H6gKO93a2u/ut//h/yWOdN2FoCAA==';
+async function loadDemo() {
+  const bin = Uint8Array.from(atob(DEMO_B64), c => c.charCodeAt(0));
+  const snap = JSON.parse(await gunzipIfNeeded(bin.buffer));
+  loadSnapshotData(snap, 'example data (a sample of one collector’s names, saved Nov 2026)', true);
+}
+
+/* ---------- guided tour ---------- */
+const sleepT = ms => new Promise(r => setTimeout(r, ms));
+function pickTourName() {
+  const gs = [...state.names.values()].filter(g => g.stats);
+  return (gs.find(g => PRESETS.candidates.test(g) && g.stats.flags.length === 0 && g.stats.n >= 3) || gs.find(g => PRESETS.candidates.test(g)) ||
+    gs.sort((a, b) => b.stats.n - a.stats.n)[0] || {}).key;
+}
+function colRect(keys) {
+  const ths = keys.map(k => document.querySelector(`#namesTable th[data-k="${k}"]`)).filter(Boolean);
+  if (!ths.length) return null;
+  const wrap = document.querySelector('#namesView .tableWrap').getBoundingClientRect();
+  const r0 = ths[0].getBoundingClientRect(), r1 = ths[ths.length - 1].getBoundingClientRect();
+  const rows = document.querySelectorAll('#namesTable tbody tr');
+  const last = rows[Math.min(rows.length, 4) - 1];
+  const bottom = Math.min(wrap.bottom, last ? last.getBoundingClientRect().bottom : r0.bottom);
+  return { left: Math.max(wrap.left, r0.left), top: r0.top, right: Math.min(wrap.right, r1.right), bottom };
+}
+function showCol(keys) {
+  const th = document.querySelector(`#namesTable th[data-k="${keys[0]}"]`);
+  const wrap = document.querySelector('#namesView .tableWrap');
+  if (th && wrap) { wrap.scrollLeft = Math.max(0, th.offsetLeft - (innerWidth < 640 ? 8 : 120)); wrap.scrollTop = 0; }
+  const top = wrap.getBoundingClientRect().top + scrollY - 150;
+  scrollTo({ top, behavior: 'instant' });
+}
+const col = (keys, title, body) => ({ title, body, before: () => { closeDrawer(); switchTab('names'); showCol(keys); }, rect: () => colRect(keys) });
+const TOUR = [
+  { title: 'Welcome to Provisional Finder', body: '<p>This tool helps you decide which provisional names are worth researching further: which are rare, which have specimens, who else has collected them, and which have problems to sort out first.</p><p>The tour points at each part of the page. Use <b>Next</b> or the arrow keys. Want to explore on your own instead? <b>Exit tour</b> or the <b>×</b> closes it at any step.</p>' },
+  { el: () => $('.field'), title: 'Start with whose collections', body: '<p>Type one or more iNaturalist usernames and press Enter after each. Green means the account was found.</p><p>Only observations with <b>both</b> a Provisional Species Name and a DNA Barcode ITS sequence are included, so everything here is sequence-backed.</p>', before: () => { closeDrawer(); scrollTo({ top: 0, behavior: 'instant' }); } },
+  { el: () => $('#pname').closest('.field'), title: '…or one provisional name', body: '<p>Optional. Type a name exactly as it appears in the field, quotes included, to narrow the search. With no usernames, you get every sequenced observation of that name on iNat.</p>' },
+  { el: () => $('#goBtn'), title: 'Search', body: '<p>The tool first pulls the collections, then looks up each name across all of iNat. It goes about one name per second to stay within iNat’s limits, so a big search takes a few minutes.</p><p>Rows fill in as they arrive, rarest first, so you can start reading straight away.</p>' },
+  { el: () => $('#summary'), title: 'The overview', body: '<p>How many sequenced collections were found, across how many names, and how many of those names are singletons (only one sequenced collection anywhere) or research candidates.</p>', before: () => { switchTab('names'); scrollTo({ top: $('#summary').getBoundingClientRect().top + scrollY - 180, behavior: 'instant' }); } },
+  { el: () => $('#presets'), title: 'Quick views', body: '<ul><li><b>Research candidates</b>: 2–10 sequenced collections, at least one vouchered, at least two collectors. A good place to start.</li><li><b>Singletons</b>: only one sequenced collection anywhere. Look for a second.</li><li><b>Needs attention</b>: something to clean up first, like an ID that disagrees with the field.</li></ul>' },
+  { el: () => $('#filters summary'), title: 'Filters', body: '<p>Open this to set your own rules, such as “found in OH”, “at least 3 photos per observation” or “vouchered only”. Filters combine with the quick views.</p>' },
+  col(['name', 'seq'], 'Name and rarity', '<p><b>Sequenced</b> is the key number: how many observations on <i>all</i> of iNat have this exact name and an ITS sequence. Lower is rarer; the table starts with the rarest.</p><p>Click any column heading to sort by it.</p>'),
+  col(['mine', 'coll'], 'Yours and collectors', '<p><b>Yours</b>: how many came from the usernames you searched.</p><p><b>Collectors</b>: how many different people have sequenced it. Several collectors usually means more material to compare and people you can contact.</p>'),
+  col(['vouch', 'photos'], 'Specimens and photos', '<p><b>Vouchered</b>: collections with a specimen record. Describing a species needs a kept specimen for the holotype, so this matters.</p><p><b>Photos / obs</b>: a rough measure of how well each collection is documented.</p>'),
+  col(['regions', 'season'], 'Where and when', '<p><b>Regions</b>: states, provinces or countries it has turned up in.</p><p><b>Season</b>: observations by month, January to December. The rust bar is the peak, when to go looking for fresh material.</p>'),
+  col(['seqq', 'flags'], 'Things to check', '<p><b>Sequences</b>: sequences that are short or have many ambiguous bases.</p><p><b>Flags</b>: problems with the name itself. For example, most observations are IDed as a named species, so the code may already be described.</p><p>Hover over any heading for the full definition.</p>'),
+  { el: () => document.querySelector(`#namesTable tbody tr[data-k="${CSS.escape(state.tourKey || '')}"]`) || document.querySelector('#namesTable tbody tr[data-k]'), title: 'Click a name for its profile', body: '<p>Every row opens a full profile of that name. Let’s open this one.</p>',
+    before: () => { closeDrawer(); switchTab('names'); state.tourKey = pickTourName(); const tr = document.querySelector(`#namesTable tbody tr[data-k="${CSS.escape(state.tourKey || '')}"]`); if (tr) { const wrap = document.querySelector('#namesView .tableWrap'); wrap.scrollLeft = 0; wrap.scrollTop = Math.max(0, tr.offsetTop - 60); scrollTo({ top: wrap.getBoundingClientRect().top + scrollY - 150, behavior: 'instant' }); } } },
+  { el: () => $('#dTiles'), title: 'The name at a glance', body: '<p>Sequenced count, how many observations carry the name with or without a sequence, iNat’s own provisional taxon count, collectors, vouchers and photos.</p>', before: async () => { if (!$('#drawer').classList.contains('on')) { openName(state.tourKey || pickTourName()); await sleepT(350); } $('#dBody').scrollTop = 0; }, inDrawer: true },
+  { el: () => $('#dFlags'), title: 'Things to know', body: '<p>Plain-language notes about this name: disagreements between the field and iNat’s identification, possible described species, sequences to check, or spellings that differ. Green means nothing was found.</p>', inDrawer: true },
+  { el: () => $('#dMonths'), title: 'When it fruits', body: '<p>Sequenced observations by month across all of iNat. Use it to plan when to look for fresh material.</p>', inDrawer: true },
+  { el: () => $('#dWho'), title: 'Who and where', body: '<p>Everyone who has sequenced this name, linked to their iNat profile. These are the people to ask about material or to bring in as co-authors.</p>', inDrawer: true },
+  { el: () => $('#dObs'), title: 'Every collection', body: '<p>All sequenced observations of the name, with photo count, voucher, sequence length and links to iNat and MycoMap BLAST. Sort by most photos or vouchered first.</p><p><b>Copy sequences as FASTA</b> puts all the sequences on your clipboard for an alignment or BLAST.</p>', inDrawer: true },
+  { el: () => document.querySelector('#obsView .tableWrap'), title: 'The Collections tab', body: '<p>The same results as one row per collection. Sort by photos, date or name rarity to find your best-documented or rarest collections.</p>', before: () => { closeDrawer(); switchTab('obs'); scrollTo({ top: $('#obsView').getBoundingClientRect().top + scrollY - 200, behavior: 'instant' }); } },
+  { el: () => $('.savebar'), title: 'Keep and share results', body: '<p><b>Save results to a file</b> keeps a search so you can reopen it instantly or share it. Others can open it with this tool.</p><p>The browser can also remember results for a set time, so repeat searches are fast.</p>', before: () => { switchTab('names'); scrollTo({ top: 0, behavior: 'instant' }); } },
+  { title: 'That’s the tour', body: '<p>Hover over anything on the page for a short explanation (turn that off with <b>Hover help</b> at the top; <b>Theme</b> switches to dark mode). The <b>Glossary</b> lists every column and flag.</p><p>A good first step: run your own usernames, then open <b>Research candidates</b>.</p>', before: () => { closeDrawer(); } },
+];
+let tourI = 0, tourEls = null;
+function switchTab(t) { document.querySelector(`.tab[data-tab="${t}"]`).click(); }
+function tourBuild() {
+  tourEls = { block: document.createElement('div'), hole: document.createElement('div'), card: document.createElement('div') };
+  tourEls.block.id = 'tourBlock'; tourEls.hole.id = 'tourHole'; tourEls.card.id = 'tourCard';
+  tourEls.card.setAttribute('role', 'dialog'); tourEls.card.setAttribute('aria-live', 'polite');
+  document.body.append(tourEls.block, tourEls.hole, tourEls.card);
+  tourEls.block.onclick = () => {};
+}
+function placeTour(step) {
+  const { hole, card } = tourEls;
+  let r = null;
+  if (step.rect) r = step.rect();
+  else if (step.el) { const el = step.el(); if (el) { const b = el.getBoundingClientRect(); r = { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; } }
+  const pad = 6;
+  if (!r || r.right - r.left < 2) {
+    hole.classList.add('center');
+    card.style.left = Math.max(12, (innerWidth - card.offsetWidth) / 2) + 'px';
+    card.style.top = Math.max(12, innerHeight * 0.42 - card.offsetHeight / 2) + 'px';
+    return;
+  }
+  hole.classList.remove('center');
+  if (innerWidth < 640) {
+    // phones: card docks at the bottom; highlight whatever fits above it
+    card.style.left = '12px'; card.style.right = '12px'; card.style.width = 'auto';
+    const ct = innerHeight - card.offsetHeight - 12;
+    card.style.top = ct + 'px';
+    const rr = { left: Math.max(4, r.left - pad), top: Math.max(4, r.top - pad), right: Math.min(innerWidth - 4, r.right + pad), bottom: Math.min(ct - 10, r.bottom + pad) };
+    if (rr.bottom - rr.top < 24) { hole.classList.add('center'); return; }
+    Object.assign(hole.style, { left: rr.left + 'px', top: rr.top + 'px', width: (rr.right - rr.left) + 'px', height: (rr.bottom - rr.top) + 'px' });
+    return;
+  }
+  card.style.right = ''; card.style.width = '';
+  // clamp very tall targets to the viewport
+  r = { left: r.left - pad, top: Math.max(4, r.top - pad), right: r.right + pad, bottom: Math.min(innerHeight - 4, r.bottom + pad) };
+  Object.assign(hole.style, { left: r.left + 'px', top: r.top + 'px', width: (r.right - r.left) + 'px', height: (r.bottom - r.top) + 'px' });
+  const cw = card.offsetWidth, ch = card.offsetHeight, gap = 14;
+  let left, top;
+  if (step.inDrawer && r.left - cw - gap > 8) { left = r.left - cw - gap; top = Math.min(Math.max(12, r.top), innerHeight - ch - 12); }
+  else if (r.bottom + gap + ch < innerHeight - 8) { top = r.bottom + gap; left = r.left; }
+  else if (r.top - gap - ch > 8) { top = r.top - gap - ch; left = r.left; }
+  else if (innerWidth - r.right - gap - cw > 8) { left = r.right + gap; top = Math.min(Math.max(12, r.top), innerHeight - ch - 12); }
+  else if (r.left - gap - cw > 8) { left = r.left - gap - cw; top = Math.min(Math.max(12, r.top), innerHeight - ch - 12); }
+  else { top = innerHeight - ch - 12; left = (innerWidth - cw) / 2; }
+  card.style.left = Math.min(Math.max(12, left), innerWidth - cw - 12) + 'px';
+  card.style.top = Math.max(12, top) + 'px';
+}
+async function tourGo(i) {
+  if (!tourEls) return;
+  tourI = Math.max(0, Math.min(TOUR.length - 1, i));
+  const step = TOUR[tourI];
+  if (step.before) await step.before();
+  await sleepT(60);
+  const phone = innerWidth < 640;
+  if (step.inDrawer && step.el) { const el = step.el(); if (el) el.scrollIntoView({ block: 'start', behavior: 'instant' }); $('#dBody').scrollTop = Math.max(0, $('#dBody').scrollTop - 12); await sleepT(40); }
+  else if (step.el && !step.rect) { const el = step.el(); if (el) { const b = el.getBoundingClientRect(); if (phone) scrollTo({ top: b.top + scrollY - 16, behavior: 'instant' }); else if (b.top < 80 || b.bottom > innerHeight - 220) scrollTo({ top: b.top + scrollY - 140, behavior: 'instant' }); } }
+  else if (step.rect && phone) { const th = document.querySelector('#namesView .tableWrap'); if (th) scrollTo({ top: th.getBoundingClientRect().top + scrollY - 16, behavior: 'instant' }); }
+  const last = tourI === TOUR.length - 1;
+  tourEls.card.innerHTML = `<button class="tclose" data-t="end" aria-label="Exit tour" title="Exit tour (Esc)">×</button><div class="tbar"><span style="width:${100 * (tourI + 1) / TOUR.length}%"></span></div><h4>${step.title}</h4><div class="tb">${step.body}</div>
+    <div class="tnav"><span class="tcount">${tourI + 1} of ${TOUR.length}${last ? '' : ' · <button class="texit" data-t="end">Exit tour</button>'}</span>${tourI ? '<button class="ghost sm" data-t="back">Back</button>' : ''}<button class="primary" style="padding:7px 18px" data-t="next">${last ? 'Finish' : 'Next'}</button></div>`;
+  tourEls.card.querySelectorAll('[data-t]').forEach(b => b.onclick = () => b.dataset.t === 'next' ? (last ? tourEnd() : tourGo(tourI + 1)) : b.dataset.t === 'back' ? tourGo(tourI - 1) : tourEnd(true));
+  placeTour(step);
+  tourEls.card.querySelector('[data-t="next"]').focus({ preventScroll: true });
+  // re-measure once animations (drawer slide-in, late-loading counts) settle
+  const myI = tourI;
+  [300, 700].forEach(ms => setTimeout(() => { if (tourEls && tourI === myI) placeTour(step); }, ms));
+}
+function tourStart() {
+  hideTip(); store.set('pf:toured', true);
+  if (state.run && !state.run.stopped && !state.run.paused && $('#goBtn').disabled) { state.run.paused = true; $('#pauseBtn').textContent = 'Resume'; }
+  tourOn = true; if (!tourEls) tourBuild();
+  const hasResults = [...state.names.values()].some(g => g.stats);
+  if (hasResults) return tourGo(0);
+  // no results yet: offer example data
+  tourEls.hole.classList.add('center');
+  tourEls.card.innerHTML = `<button class="tclose" aria-label="Close" title="Close (Esc)">×</button><h4>Welcome to Provisional Finder</h4><div class="tb"><p>The tour makes most sense with results on screen. You haven’t searched yet, so you can:</p></div>
+    <div class="choice"><button class="primary" data-c="demo">Show me with example data</button><button class="ghost" data-c="own">I’ll run my own search first</button></div>`;
+  placeTour({});
+  tourEls.card.querySelector('.tclose').onclick = () => tourEnd(true);
+  tourEls.card.querySelector('[data-c="demo"]').onclick = async () => { try { await loadDemo(); tourGo(0); } catch (e) { tourEnd(); $('#formMsg').textContent = 'Example data couldn’t load in this browser: ' + e.message; } };
+  tourEls.card.querySelector('[data-c="own"]').onclick = () => { tourEnd(); userInput.focus(); $('#formMsg').textContent = ''; const m = $('#formMsg'); m.style.color = 'var(--moss)'; m.textContent = 'Add a username, press Search, then click “Take the tour” again.'; setTimeout(() => { m.style.color = ''; }, 8000); };
+}
+function tourEnd(early) {
+  tourOn = false;
+  if (tourEls) { Object.values(tourEls).forEach(e => e.remove()); tourEls = null; }
+  closeDrawer();
+  if (early) toast('Tour closed. Restart it any time with “▶ Guided tour” up here, or hover over anything for a quick explanation.');
+}
+let toastEl = null, toastTimer = null;
+function toast(msg) {
+  if (!toastEl) { toastEl = document.createElement('div'); toastEl.id = 'toast'; document.body.appendChild(toastEl); }
+  toastEl.textContent = msg; toastEl.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toastEl.classList.remove('on'), 6000);
+}
+addEventListener('resize', () => { if (tourEls && TOUR[tourI]) placeTour(TOUR[tourI]); });
+$('#dBody').addEventListener('scroll', () => { if (tourEls && TOUR[tourI] && TOUR[tourI].inDrawer) placeTour(TOUR[tourI]); });
+document.addEventListener('keydown', e => {
+  if (!tourEls) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); if (tourEls.card.querySelector('[data-t="next"]')) tourI < TOUR.length - 1 ? tourGo(tourI + 1) : tourEnd(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); tourGo(tourI - 1); }
+  else if (e.key === 'Escape') { e.preventDefault(); tourEnd(tourI < TOUR.length - 1); }
+}, true);
+$('#tourBtn').onclick = tourStart;
+$('#newHereTour').onclick = e => { e.preventDefault(); tourStart(); };
+
+/* ---------- theme (same behaviour as the other Workbench tools) ---------- */
+$('#themeBtn').addEventListener('click', () => {
+  const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('provfinder.theme', r.dataset.theme);
+});
+
+/* ---------- iNaturalist connection status ---------- */
+(async () => {
+  const chip = $('#src-inat'), st = chip.querySelector('.st');
+  try {
+    const r = await fetch(`${API}/v1/observations?per_page=0&${fieldParams('')}`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    chip.classList.add('live'); st.textContent = 'live';
+    chip.dataset.help = `Live connection to the iNaturalist API. Right now ${fmt(d.total_results)} observations on iNat have both a provisional name and an ITS sequence.`;
+  } catch (e) { chip.classList.add('fail'); st.textContent = 'not reachable'; chip.dataset.help = 'iNaturalist isn’t answering right now. Searches will fail until it’s back; saved result files still open.'; }
+})();
+
+/* ---------- help + restore ---------- */
+$('#helpBtn').onclick = () => $('#help').classList.remove('hidden');
+$('#helpClose').onclick = () => $('#help').classList.add('hidden');
+$('#help').onclick = e => { if (e.target.id === 'help') $('#help').classList.add('hidden'); };
+const saved = store.get('pf:inputs');
+if (saved) { $('#pname').value = saved.pname || ''; (saved.users || []).forEach(addUser); }
+renderAll();
+$('#results').classList.add('hidden');
+})();
+</script>
+</body>
+</html>

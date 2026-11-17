@@ -24,5 +24,5 @@ import Photo from '../components/Photo.astro'; // adjust the ../ to the page's f
 - `src` is just the file name.
 - `alt` is required: describe the photo for people who can't see it.
 - `display` (optional) is the widest the photo appears on desktop, in CSS pixels. The default, 700, suits most photos. Use a smaller number for thumbnails and portraits (e.g. `display={180}`) so phones download less.
-- `quality` (optional) defaults to 78. Logos and line art look better at 90.
+- `quality` (optional) defaults to 72. Logos and line art look better at 90.
 - If the file name is wrong, the build stops with an error naming the missing photo, instead of publishing a broken image.

@@ -20,13 +20,15 @@ interface Props {
   quality?: number;
   [attr: string]: unknown;
 }
-const { src, alt, display = 700, quality = 78, width: _w, height: _h, ...attrs } = Astro.props;
+const { src, alt, display = 700, quality = 72, width: _w, height: _h, ...attrs } = Astro.props;
 const external = /^https?:\/\//.test(String(src));
 const name = String(src).split('/').pop();
 const entry = external ? undefined : photos[`/src/assets/photos/${name}`];
 if (!external && !entry) throw new Error(`Photo "${name}" was not found in src/assets/photos/`);
 const image = entry?.default ?? { width: 0 };
-const widths = [...new Set([Math.min(400, display), display, display * 2])]
+// 1200 matches a full-width photo on a high-density phone (about 390 CSS px at 3x),
+// so phones don't fall through to the larger desktop retina size.
+const widths = [...new Set([Math.min(400, display), display, ...(display >= 600 ? [1200] : []), display * 2])]
   .filter((w) => w <= image.width)
   .concat(display * 2 > image.width ? [image.width] : [])
   .filter((w, i, all) => all.indexOf(w) === i)

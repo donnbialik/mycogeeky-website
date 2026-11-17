@@ -867,3 +867,25 @@
 /* 404 page */
 .not-found{padding-block:clamp(64px,10vw,120px)}
 .not-found-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+
+/* Workbench: suggested research path (one per audience; steps link to the tool cards below) */
+.mv-research-path{border:1px solid #c9d6cb;background:#fffdf8;border-radius:8px;padding:18px 20px 16px;margin:0 0 18px}
+.mv-research-path .eyebrow{margin:0 0 4px}
+.mv-research-path h3{font-family:var(--v5-serif);font-size:1.35rem;line-height:1.2;margin:0 0 4px;color:#123b30}
+.mv-research-path-intro{margin:0 0 14px;color:#54685a;font-size:.92rem}
+.mv-research-path ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.mv-research-path li a{display:flex;gap:10px;align-items:flex-start;height:100%;padding:10px 11px;border:1px solid #dbe3dc;border-radius:6px;background:#f7f9f5;text-decoration:none;color:#1c3028}
+.mv-research-path li a:hover,.mv-research-path li a:focus-visible{border-color:#1d6b55;background:#eef4ec}
+.mv-path-n{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1d6b55;color:#fff;font:600 .78rem var(--v5-sans)}
+.mv-path-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mv-path-text strong{font-size:.92rem}
+.mv-path-tool{font:600 .7rem var(--v5-mono);letter-spacing:.04em;text-transform:uppercase;color:#4c6b57}
+.mv-path-q{font-size:.8rem;line-height:1.35;color:#5b6b61}
+.mv-research-path li.is-planned a{background:#f3f4f1;border-style:dashed}
+.mv-research-path li.is-planned .mv-path-n{background:#9aaa9f}
+.mv-tool-step{display:inline-block;margin-right:8px;padding:1px 6px;border-radius:4px;background:#1d6b55;color:#fff;letter-spacing:.06em}
+.mv-tool-card[data-availability=planned] .mv-tool-step{background:#9aaa9f}
+.mv-tool-card:target{outline:2px solid #1d6b55;outline-offset:3px}
+html{scroll-padding-top:20px}
+@media(min-width:760px) and (max-width:1199px){.mv-research-path ol{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:1200px){.mv-research-path ol{grid-template-columns:repeat(7,minmax(0,1fr))}}

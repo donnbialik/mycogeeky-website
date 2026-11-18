@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sequencing Plate Tagger</title>
+<style>
+  :root{color-scheme:light;--bg:#f9f9f7;--card:#fcfcfb;--card2:#f0efec;--ink:#0b0b0b;--mute:#52514e;--line:#e1e0d9;--acc:#2a78d6;--acc2:rgba(42,120,214,0.10);--warn:#5c4300;--warnbg:#fff6df;--bad:#9b2c25;--badbg:#fbe9e7;--ok:#1d6b3f;--okbg:#e6f3ea}
+  @media (prefers-color-scheme: dark){:root{color-scheme:dark;--bg:#0d0d0d;--card:#1a1a19;--card2:#2c2c2a;--ink:#f0efec;--mute:#c3c2b7;--line:#2c2c2a;--acc:#3987e5;--acc2:rgba(57,135,229,0.14);--warn:#f6dc9a;--warnbg:#2e2610;--bad:#f2b8b2;--badbg:#3a1d1a;--ok:#9fd8b2;--okbg:#16301f}}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:22px 28px 10px}
+  header h1{margin:0;font-size:22px}
+  header p{margin:4px 0 0;color:var(--mute)}
+  main{padding:8px 28px 60px;max-width:1200px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+  h2{margin:0 0 10px;font-size:17px}
+  h2 .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;text-align:center;font-size:13px;line-height:24px;margin-right:8px}
+  .muted{color:var(--mute)} .small{font-size:13px}
+  button{font:inherit;padding:7px 14px;border-radius:7px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+  button.sec{background:var(--card);color:var(--acc)}
+  button:disabled{opacity:.45;cursor:default}
+  input[type=text],input[type=password],textarea,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+  textarea{width:100%;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  #drop{border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--mute);cursor:pointer}
+  #drop.over{border-color:var(--acc);background:var(--acc2)}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top}
+  th{background:var(--card2);position:sticky;top:0}
+  .scroll{max-height:380px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--card2)}
+  .p-ok{background:var(--okbg);color:var(--ok)} .p-warn{background:var(--warnbg);color:var(--warn)} .p-bad{background:var(--badbg);color:var(--bad)}
+  .filecard{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0}
+  .filecard .row{margin:4px 0}
+  .note{padding:8px 12px;border-radius:7px;background:var(--warnbg);color:var(--warn);font-size:13px;margin:8px 0}
+  .info{padding:8px 12px;border-radius:7px;background:var(--okbg);color:var(--ok);font-size:13px;margin:8px 0}
+  .err{padding:8px 12px;border-radius:7px;background:var(--badbg);color:var(--bad);font-size:13px;margin:8px 0}
+  a{color:var(--acc)}
+  .hidden{display:none !important}
+  #siteHome{display:inline-block;margin:0 0 10px;font-size:13px;color:var(--mute);text-decoration:none}
+  .fieldopt{padding:6px 8px;border:1px solid var(--line);border-radius:6px;margin:4px 0;cursor:pointer}
+  .fieldopt:hover{background:var(--acc2)}
+  .fieldopt.sel{border-color:var(--acc);background:var(--acc2)}
+  .stats span{margin-right:14px}
+  progress{width:260px;height:14px}
+</style>
+</head>
+<body>
+<header>
+  <a id="siteHome" class="hidden" href="/investigate/tools/">← MycoView Research Workbench</a>
+  <h1>Sequencing Plate Tagger</h1>
+  <p>Load the 96-well plate CSVs you send for sequencing, and write each observation's plate into an iNaturalist observation field. Later, any observation tells you which plate, and so which stored bag, holds its specimen.</p>
+</header>
+<main>
+
+<!-- STEP 1 -->
+<section>
+  <h2><span class="n">1</span>Load plate CSVs</h2>
+  <div id="drop">Drop one or more plate .csv files here, or click to choose<input id="fileIn" type="file" accept=".csv,.tsv,.txt" multiple hidden></div>
+  <div class="row small" style="margin-top:10px">
+    <b>Plate label written to iNat:</b>
+    <select id="plateMode">
+      <option value="yearhash">Year + number (e.g. 2026 #1)</option>
+      <option value="hash">Number after # only (e.g. 1)</option>
+      <option value="name">Full plate name (e.g. Donn Bialik 2026 #1)</option>
+      <option value="labid">Number after “plate-” (e.g. 1253)</option>
+    </select>
+    <span class="muted">Read from each file name, e.g. a Mycota Lab export named <code>plate-1253-Your Name 2026 #1.csv</code>. You can still edit any plate by hand below. Changing this resets those edits.</span>
+  </div>
+  <p class="small muted">Each file can be one row per sample, or an 8×12 grid of wells. In either case the tool finds iNat observation numbers or observation URLs.</p>
+  <div id="files"></div>
+</section>
+
+<!-- STEP 2 -->
+<section>
+  <h2><span class="n">2</span>Review &amp; look up samples</h2>
+  <div class="row">
+    <input id="search" type="text" placeholder="Find an observation number…" style="width:260px">
+    <span id="searchOut" class="small"></span>
+  </div>
+  <div class="stats small" id="indexStats" style="margin:10px 0"></div>
+  <div id="conflicts"></div>
+  <div class="scroll"><table id="indexTbl"><thead><tr><th>iNat obs</th><th>Plate</th><th>Well</th><th>File</th><th>iNat status</th></tr></thead><tbody></tbody></table></div>
+  <div class="row" style="margin-top:10px">
+    <button class="sec" id="exportIndex" disabled>Download combined index (.csv)</button>
+    <span class="small muted">A plain lookup table of every sample, plate and well, for your records.</span>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section>
+  <h2><span class="n">3</span>Connect to iNaturalist</h2>
+  <p class="small">Sign in to iNaturalist and open <a href="https://www.inaturalist.org/users/api_token" target="_blank" rel="noopener">inaturalist.org/users/api_token</a>. Copy the long <code>api_token</code> value and paste it here. The token lasts 24 hours. It stays in this page's memory, is sent only to iNaturalist, and is not saved anywhere.</p>
+  <textarea id="token" rows="3" placeholder="eyJhbGciOi…"></textarea>
+  <div class="row" style="margin-top:8px"><button id="verify">Verify token</button><span id="who" class="small"></span></div>
+
+  <h3 style="font-size:15px;margin:18px 0 6px">Observation field to write to</h3>
+  <div class="row">
+    <input id="fieldQ" type="text" placeholder="Search fields, e.g. Sequencing Plate" style="width:300px">
+    <button class="sec" id="fieldSearch">Search</button>
+  </div>
+  <div id="fieldResults"></div>
+  <div id="fieldChosen" class="small" style="margin-top:6px"></div>
+  <p class="small muted">If no suitable field exists, <a href="https://www.inaturalist.org/observation_fields/new" target="_blank" rel="noopener">create one on iNaturalist</a> (for example, “Mycota Lab Plate” with datatype <b>text</b>), then search for it here. Choose <b>text</b> so labels like “2026 #1” work, and so a sample sent on two plates can hold “12, 15”.</p>
+</section>
+
+<!-- STEP 4 -->
+<section>
+  <h2><span class="n">4</span>Check, then write</h2>
+  <div class="row">
+    <button id="check" disabled>Check observations on iNat</button>
+    <label class="small"><input type="checkbox" id="overwrite"> Overwrite a different plate value already on the observation</label>
+  </div>
+  <p class="small muted">The check reads each observation and doesn't change anything. It shows which observations are new, which already have this plate, which have a different value, and which can't be found.</p>
+  <div class="stats small" id="checkStats"></div>
+  <div class="row" style="margin-top:8px">
+    <button id="write" disabled>Write plate numbers</button>
+    <button class="sec" id="stop" disabled>Stop</button>
+    <progress id="prog" value="0" max="1" hidden></progress><span id="progTxt" class="small"></span>
+  </div>
+  <p class="small muted">Writes go out one per second, to stay within iNaturalist's API rate guidance. A full plate of 96 takes about 2 minutes.</p>
+  <div id="writeMsg"></div>
+  <h3 style="font-size:15px;margin:14px 0 6px">Log</h3>
+  <div class="scroll" style="max-height:240px"><table id="logTbl"><thead><tr><th>Time</th><th>Obs</th><th>Action</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+  <div class="row" style="margin-top:8px"><button class="sec" id="exportLog" disabled>Download log (.csv)</button></div>
+</section>
+
+</main>
+<script>
+"use strict";
+const API = "https://api.inaturalist.org/v1";
+const state = {
+  files: [],          // {name, rows, delim, layout, headerRow, idCol, wellCol, plate, samples:[{obs,well,raw}], skipped:[]}
+  index: new Map(),   // obs -> {plates:[{plate,well,file}], status, existing, ofvId, owner}
+  plateMode: "yearhash", token: "", me: null, field: null, stopFlag: false, log: []
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k,v){ try { localStorage.setItem(k,v); } catch(e){} } };
+
+/* ---------- CSV parsing ---------- */
+function detectDelim(text){
+  const first = text.split(/\r?\n/).slice(0,10).join("\n");
+  const c = {",":0,";":0,"\t":0};
+  for (const ch of first) if (ch in c) c[ch]++;
+  return Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];
+}
+function parseCSV(text, delim){
+  text = text.replace(/^﻿/, "");
+  const rows = []; let row = [], cell = "", q = false;
+  for (let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if (q){
+      if (ch === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; }
+      else cell += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === delim){ row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r"){
+      if (ch === "\r" && text[i+1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += ch;
+  }
+  if (cell !== "" || row.length){ row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(c => c.trim())).filter(r => r.some(c => c !== ""));
+}
+
+/* ---------- ID / plate extraction ---------- */
+function extractObsId(cell){
+  if (!cell) return null;
+  const s = String(cell).trim();
+  let m = s.match(/inaturalist\.(?:org|ca|nz|[a-z.]+)\/observations\/(\d+)/i);
+  if (m) return m[1];
+  m = s.match(/^(?:inat|iNaturalist|obs)?[\s#:_-]*(\d{4,10})(?:\.0+)?$/i);
+  return m ? m[1] : null;
+}
+function plateFromName(name, mode = state.plateMode){
+  const stem = name.replace(/\.[^.]+$/, "").trim();
+  const hash = stem.match(/#\s*(\d+)/);
+  const year = stem.match(/\b(19|20)\d{2}\b/);
+  const labId = stem.match(/^plate[\s_-]*(\d+)/i);
+  const fullName = stem.replace(/^plate[\s_-]*\d+[\s_-]*/i, "").trim();
+  if (mode === "hash" && hash) return hash[1];
+  if (mode === "yearhash" && hash) return (year ? year[0] + " " : "") + "#" + hash[1];
+  if (mode === "name" && fullName) return fullName;
+  if (mode === "labid" && labId) return labId[1];
+  // fallbacks when the name doesn't fit the chosen style
+  if (hash) return hash[1];
+  let m = stem.match(/plate[\s_#-]*(\d+)/i);
+  if (m) return m[1];
+  m = stem.match(/(\d+)/);
+  return m ? m[1] : stem;
+}
+
+/* ---------- layout detection ---------- */
+function detectGrid(rows){
+  for (let r = 0; r < Math.min(rows.length, 20); r++){
+    const nums = rows[r].map(c => c.replace(/^0+/, ""));
+    let start = -1;
+    for (let c = 0; c < nums.length; c++) if (nums[c] === "1"){ start = c; break; }
+    if (start < 0) continue;
+    let k = 0; while (nums[start+k] === String(k+1)) k++;
+    if (k < 10) continue;
+    let letters = 0;
+    for (let rr = r+1; rr < Math.min(rows.length, r+12); rr++){
+      const lab = (rows[rr][start-1] ?? rows[rr][0] ?? "").toUpperCase();
+      if (/^[A-H]$/.test(lab)) letters++;
+    }
+    if (letters >= 6) return { headerRow: r, colStart: start, ncols: k };
+  }
+  return null;
+}
+function detectHeaderRow(rows){
+  const kw = /inat|observation|obs|sample|specimen|well|position|voucher|id/i;
+  for (let r = 0; r < Math.min(rows.length, 15); r++){
+    const ne = rows[r].filter(c => c !== "");
+    if (ne.length >= 2 && ne.some(c => kw.test(c)) && !ne.some(c => extractObsId(c))) return r;
+  }
+  return 0;
+}
+function guessColumns(rows, headerRow){
+  const hdr = rows[headerRow] || [];
+  const body = rows.slice(headerRow+1);
+  const ncol = Math.max(...rows.map(r => r.length));
+  let best = -1, bestScore = -1;
+  for (let c = 0; c < ncol; c++){
+    const h = (hdr[c] || "").toLowerCase();
+    const hits = body.filter(r => extractObsId(r[c])).length;
+    let score = hits;
+    if (/inat|inaturalist|observation|obs\b|obs\s*#|obs\s*id/.test(h)) score += 1000;
+    else if (/sample|specimen|voucher/.test(h)) score += 100;
+    if (/well|position|row|column|date|conc|ng|volume/.test(h)) score -= 500;
+    if (hits === 0) score = -1;
+    if (score > bestScore){ bestScore = score; best = c; }
+  }
+  let well = hdr.findIndex(h => /^well|well\b|position/i.test(h));
+  return { idCol: best, wellCol: well };
+}
+
+/* ---------- file handling ---------- */
+function analyzeFile(f){
+  f.grid = detectGrid(f.rows);
+  if (f.layout === undefined) f.layout = f.grid ? "grid" : "list";
+  if (f.layout === "list"){
+    if (f.headerRow === undefined) f.headerRow = detectHeaderRow(f.rows);
+    if (f.idCol === undefined){ const g = guessColumns(f.rows, f.headerRow); f.idCol = g.idCol; f.wellCol = g.wellCol; }
+  }
+  extractSamples(f);
+}
+function extractSamples(f){
+  f.samples = []; f.skipped = [];
+  if (f.layout === "grid" && f.grid){
+    const g = f.grid;
+    for (let r = g.headerRow+1; r < f.rows.length; r++){
+      const lab = (f.rows[r][g.colStart-1] ?? f.rows[r][0] ?? "").toUpperCase();
+      if (!/^[A-H]$/.test(lab)) continue;
+      for (let k = 0; k < g.ncols; k++){
+        const cell = f.rows[r][g.colStart+k] || "";
+        if (!cell) continue;
+        const id = extractObsId(cell);
+        const well = lab + (k+1);
+        if (id) f.samples.push({ obs:id, well, raw:cell }); else f.skipped.push({ well, raw:cell });
+      }
+    }
+  } else {
+    for (let r = f.headerRow+1; r < f.rows.length; r++){
+      const row = f.rows[r];
+      const cell = f.idCol >= 0 ? (row[f.idCol] || "") : "";
+      const well = f.wellCol >= 0 ? (row[f.wellCol] || "") : "";
+      if (!cell) continue;
+      const id = extractObsId(cell);
+      if (id) f.samples.push({ obs:id, well, raw:cell }); else f.skipped.push({ well, raw:cell });
+    }
+  }
+}
+async function addFiles(list){
+  for (const file of list){
+    const text = await file.text();
+    const delim = detectDelim(text);
+    const f = { name:file.name, delim, rows:parseCSV(text, delim), plate:plateFromName(file.name) };
+    const dup = state.files.findIndex(x => x.name === f.name);
+    analyzeFile(f);
+    if (dup >= 0) state.files[dup] = f; else state.files.push(f);
+  }
+  state.files.sort((a,b) => a.plate.localeCompare(b.plate, undefined, {numeric:true}));
+  renderFiles(); rebuildIndex();
+}
+function renderFiles(){
+  const box = $("#files");
+  box.innerHTML = state.files.map((f, i) => {
+    const hdr = f.rows[f.headerRow ?? 0] || [];
+    const ncol = Math.max(...f.rows.map(r => r.length));
+    const opts = sel => `<option value="-1">(none)</option>` + Array.from({length:ncol}, (_, c) => `<option value="${c}" ${c===sel?"selected":""}>${esc(hdr[c] || "Column "+(c+1))}</option>`).join("");
+    const listCtl = f.layout === "list" ? `
+      <span class="small">Header row <input type="text" data-i="${i}" data-k="headerRow" value="${(f.headerRow??0)+1}" style="width:44px"></span>
+      <span class="small">iNat ID column <select data-i="${i}" data-k="idCol">${opts(f.idCol)}</select></span>
+      <span class="small">Well column <select data-i="${i}" data-k="wellCol">${opts(f.wellCol)}</select></span>` : "";
+    const sk = f.skipped.length ? `<div class="small muted" style="margin-top:4px">Skipped ${f.skipped.length} non-iNat cell(s): ${esc(f.skipped.slice(0,8).map(s => (s.well? s.well+": ":"")+s.raw).join(" · "))}${f.skipped.length>8?" …":""}</div>` : "";
+    const badge = f.samples.length ? `<span class="pill p-ok">${f.samples.length} samples</span>` : `<span class="pill p-bad">no iNat IDs found. Check the column choice</span>`;
+    return `<div class="filecard">
+      <div class="row"><b>${esc(f.name)}</b> ${badge}
+        <span class="small">Plate # <input type="text" data-i="${i}" data-k="plate" value="${esc(f.plate)}" style="width:90px"></span>
+        <span class="small">Layout <select data-i="${i}" data-k="layout"><option value="list" ${f.layout==="list"?"selected":""}>one row per sample</option><option value="grid" ${f.layout==="grid"?"selected":""} ${f.grid?"":"disabled"}>8×12 grid</option></select></span>
+        ${listCtl}
+        <button class="sec" data-rm="${i}" style="padding:3px 10px">Remove</button>
+      </div>${sk}</div>`;
+  }).join("");
+  box.querySelectorAll("[data-k]").forEach(el => el.addEventListener("change", e => {
+    const f = state.files[+el.dataset.i], k = el.dataset.k;
+    if (k === "plate") f.plate = el.value.trim();
+    else if (k === "layout"){ f.layout = el.value; if (f.layout === "list"){ f.headerRow ??= detectHeaderRow(f.rows); if (f.idCol === undefined){ const g = guessColumns(f.rows, f.headerRow); f.idCol = g.idCol; f.wellCol = g.wellCol; } } }
+    else if (k === "headerRow"){ f.headerRow = Math.max(0, (parseInt(el.value)||1) - 1); const g = guessColumns(f.rows, f.headerRow); f.idCol = g.idCol; f.wellCol = g.wellCol; }
+    else f[k] = +el.value;
+    extractSamples(f); renderFiles(); rebuildIndex();
+  }));
+  box.querySelectorAll("[data-rm]").forEach(el => el.addEventListener("click", () => { state.files.splice(+el.dataset.rm, 1); renderFiles(); rebuildIndex(); }));
+}
+
+/* ---------- index ---------- */
+function rebuildIndex(){
+  const old = state.index; state.index = new Map();
+  for (const f of state.files) for (const s of f.samples){
+    if (!state.index.has(s.obs)){
+      const prev = old.get(s.obs);
+      state.index.set(s.obs, { plates:[], status: prev?.status, existing: prev?.existing, ofvId: prev?.ofvId, owner: prev?.owner });
+    }
+    const e = state.index.get(s.obs);
+    if (!e.plates.some(p => p.plate === f.plate && p.well === s.well)) e.plates.push({ plate:f.plate, well:s.well, file:f.name });
+  }
+  renderIndex(); updateButtons();
+}
+function targetValue(e){
+  const uniq = [...new Set(e.plates.map(p => p.plate))];
+  return uniq.join(", ");
+}
+const STATUS = {
+  new:      ["will add", "p-ok"],
+  same:     ["already set", ""],
+  diff:     ["different value", "p-warn"],
+  missing:  ["not found", "p-bad"],
+  done:     ["written ✓", "p-ok"],
+  failed:   ["failed", "p-bad"],
+  skipped:  ["skipped", "p-warn"]
+};
+function statusCell(e){
+  if (!e.status) return `<span class="muted small">not checked</span>`;
+  const [t, c] = STATUS[e.status] || [e.status, ""];
+  let extra = "";
+  if (e.status === "diff") extra = ` <span class="small muted">(on iNat: ${esc(e.existing)})</span>`;
+  if (e.owner && state.me && e.owner !== state.me.login) extra += ` <span class="small muted">· obs by ${esc(e.owner)}</span>`;
+  if (e.err) extra += ` <span class="small muted">${esc(e.err)}</span>`;
+  return `<span class="pill ${c}">${t}</span>${extra}`;
+}
+function renderIndex(){
+  const tb = $("#indexTbl tbody");
+  const entries = [...state.index.entries()];
+  tb.innerHTML = entries.map(([obs, e]) => `<tr>
+    <td><a href="https://www.inaturalist.org/observations/${obs}" target="_blank" rel="noopener">${obs}</a></td>
+    <td>${esc(targetValue(e))}</td>
+    <td>${esc(e.plates.map(p => p.well).filter(Boolean).join(", "))}</td>
+    <td class="small muted">${esc([...new Set(e.plates.map(p => p.file))].join(", "))}</td>
+    <td>${statusCell(e)}</td></tr>`).join("");
+  const multi = entries.filter(([, e]) => new Set(e.plates.map(p => p.plate)).size > 1);
+  $("#indexStats").innerHTML = `<span><b>${state.files.length}</b> plate file(s)</span><span><b>${state.index.size}</b> unique observations</span>`;
+  $("#conflicts").innerHTML = multi.length
+    ? `<div class="note">${multi.length} observation(s) appear on more than one plate (${multi.slice(0,6).map(([o]) => o).join(", ")}${multi.length>6?" …":""}). For a text field all of their plate numbers are written, joined with commas. A numeric field can hold only one number, so these are skipped.</div>` : "";
+  $("#exportIndex").disabled = !state.index.size;
+  runSearch();
+}
+function runSearch(){
+  const q = $("#search").value.trim();
+  const out = $("#searchOut");
+  if (!q){ out.textContent = ""; return; }
+  const id = extractObsId(q) || q.replace(/\D/g, "");
+  const e = state.index.get(id);
+  out.innerHTML = e
+    ? `<span class="pill p-ok">Obs ${id}</span> → ${e.plates.map(p => `<b>Plate ${esc(p.plate)}</b>${p.well ? ", well "+esc(p.well) : ""}`).join("; ")}`
+    : `<span class="pill p-bad">Obs ${esc(id)} isn't in the loaded plates</span>`;
+}
+
+/* ---------- downloads ---------- */
+function csvLine(a){ return a.map(v => { v = String(v ?? ""); return /[",\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; }).join(","); }
+function download(name, text){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], {type:"text/csv"}));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+$("#exportIndex").onclick = () => {
+  const lines = [csvLine(["observation_id","plate","well","file","url"])];
+  for (const [obs, e] of state.index) for (const p of e.plates) lines.push(csvLine([obs, p.plate, p.well, p.file, "https://www.inaturalist.org/observations/"+obs]));
+  download("plate_index.csv", lines.join("\n"));
+};
+$("#exportLog").onclick = () => {
+  download("inat_plate_write_log.csv", [csvLine(["time","observation_id","action","result"]), ...state.log.map(l => csvLine([l.t, l.obs, l.action, l.result]))].join("\n"));
+};
+
+/* ---------- iNat API ---------- */
+async function api(path, opts = {}){
+  const headers = { "Accept":"application/json" };
+  if (state.token) headers["Authorization"] = state.token;
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const res = await fetch(API + path, { method: opts.method || "GET", headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  let data = null; try { data = await res.json(); } catch(e){}
+  if (!res.ok){
+    const msg = data?.error?.original?.error || data?.error?.original?.errors?.join?.("; ") || data?.error || data?.message || ("HTTP " + res.status);
+    const err = new Error(typeof msg === "string" ? msg : JSON.stringify(msg)); err.status = res.status; throw err;
+  }
+  return data;
+}
+$("#verify").onclick = async () => {
+  state.token = $("#token").value.trim().replace(/^.*"api_token"\s*:\s*"([^"]+)".*$/s, "$1");
+  $("#who").innerHTML = "Checking…";
+  try {
+    const d = await api("/users/me");
+    state.me = d.results[0];
+    $("#who").innerHTML = `<span class="pill p-ok">Signed in as ${esc(state.me.login)}</span>`;
+  } catch(e){
+    state.me = null;
+    $("#who").innerHTML = `<span class="pill p-bad">${e.status === 401 ? "Token rejected: it may have expired. Get a fresh one." : esc(e.message)}</span>`;
+  }
+  updateButtons();
+};
+function renderFieldOptions(list){
+  $("#fieldResults").innerHTML = list.length ? list.map(r => `<div class="fieldopt ${state.field?.id===r.id?"sel":""}" data-id="${r.id}">
+      <b>${esc(r.name)}</b> <span class="pill">${esc(r.datatype)}</span> <span class="small muted">ID ${r.id} · used ${r.values_count ?? 0}× ${r.description ? "· "+esc(r.description.slice(0,120)) : ""}</span></div>`).join("")
+    : `<div class="small muted">No matching fields.</div>`;
+  $("#fieldResults").querySelectorAll(".fieldopt").forEach(el => el.onclick = () => chooseField(list.find(r => r.id === +el.dataset.id)));
+}
+$("#fieldSearch").onclick = async () => {
+  const q = $("#fieldQ").value.trim(); if (!q) return;
+  try { const d = await api("/observation_fields/autocomplete?per_page=15&q=" + encodeURIComponent(q)); renderFieldOptions(d.results); }
+  catch(e){ $("#fieldResults").innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+};
+$("#fieldQ").addEventListener("keydown", e => { if (e.key === "Enter") $("#fieldSearch").click(); });
+function chooseField(r){
+  state.field = { id:r.id, name:r.name, datatype:r.datatype };
+  store.set("plateTagger.field", JSON.stringify(state.field));
+  $("#fieldResults").querySelectorAll(".fieldopt").forEach(el => el.classList.toggle("sel", +el.dataset.id === r.id));
+  showField();
+  for (const e of state.index.values()){ e.status = undefined; e.existing = undefined; e.ofvId = undefined; }
+  renderIndex(); updateButtons();
+}
+function showField(){
+  const f = state.field;
+  if (!f){ $("#fieldChosen").innerHTML = ""; return; }
+  let warn = "";
+  if (f.datatype === "numeric") warn = ` <span class="pill p-warn">numeric: plate labels must be plain numbers</span>`;
+  else if (f.datatype !== "text") warn = ` <span class="pill p-bad">datatype “${esc(f.datatype)}” isn't suitable for plate numbers</span>`;
+  $("#fieldChosen").innerHTML = `Writing to: <b>${esc(f.name)}</b> (ID <a href="https://www.inaturalist.org/observation_fields/${f.id}" target="_blank" rel="noopener">${f.id}</a>, ${esc(f.datatype)})${warn}`;
+}
+function updateButtons(){
+  const ready = state.me && state.field && state.index.size;
+  $("#check").disabled = !ready || state.busy;
+  const writable = [...state.index.values()].some(e => e.status === "new" || (e.status === "diff" && $("#overwrite").checked));
+  $("#write").disabled = !ready || state.busy || !writable;
+}
+$("#overwrite").onchange = updateButtons;
+
+$("#check").onclick = async () => {
+  state.busy = true; updateButtons();
+  const ids = [...state.index.keys()];
+  const fid = state.field.id;
+  let counts = {};
+  try {
+    for (let i = 0; i < ids.length; i += 100){
+      const chunk = ids.slice(i, i+100);
+      $("#checkStats").textContent = `Checking ${Math.min(i+100, ids.length)} / ${ids.length}…`;
+      const d = await api(`/observations?per_page=100&id=${chunk.join(",")}`);
+      const found = new Map(d.results.map(o => [String(o.id), o]));
+      for (const id of chunk){
+        const e = state.index.get(id), o = found.get(id);
+        e.err = undefined;
+        if (!o){ e.status = "missing"; continue; }
+        e.owner = o.user?.login;
+        const ofv = (o.ofvs || []).find(v => v.field_id === fid || v.observation_field?.id === fid);
+        const want = targetValue(e);
+        if (!ofv){ e.status = "new"; e.existing = undefined; e.ofvId = undefined; }
+        else {
+          e.existing = ofv.value; e.ofvId = ofv.id;
+          e.status = String(ofv.value).trim() === want ? "same" : "diff";
+        }
+      }
+      if (i + 100 < ids.length) await sleep(1000);
+    }
+  } catch(e){
+    $("#checkStats").innerHTML = `<div class="err">Check stopped: ${esc(e.message)}</div>`;
+    state.busy = false; updateButtons(); renderIndex(); return;
+  }
+  for (const e of state.index.values()) counts[e.status] = (counts[e.status] || 0) + 1;
+  $("#checkStats").innerHTML = ["new","same","diff","missing"].map(k => `<span><span class="pill ${STATUS[k][1]}">${STATUS[k][0]}</span> ${counts[k] || 0}</span>`).join("");
+  const others = [...state.index.values()].filter(e => e.owner && e.owner !== state.me.login).length;
+  if (others) $("#checkStats").innerHTML += `<div class="note">${others} observation(s) belong to other users. iNaturalist only lets you add a field to someone else's observation if their account settings allow it. Any it refuses will show as failed in the log.</div>`;
+  state.busy = false; renderIndex(); updateButtons();
+};
+
+function addLog(obs, action, result){
+  const t = new Date().toLocaleTimeString();
+  state.log.push({ t, obs, action, result });
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td class="small">${t}</td><td><a href="https://www.inaturalist.org/observations/${obs}" target="_blank" rel="noopener">${obs}</a></td><td class="small">${esc(action)}</td><td class="small">${esc(result)}</td>`;
+  $("#logTbl tbody").prepend(tr);
+  $("#exportLog").disabled = false;
+}
+$("#stop").onclick = () => { state.stopFlag = true; $("#stop").disabled = true; };
+$("#write").onclick = async () => {
+  const overwrite = $("#overwrite").checked;
+  const numeric = state.field.datatype === "numeric";
+  const jobs = [...state.index.entries()].filter(([, e]) => e.status === "new" || (overwrite && e.status === "diff"));
+  if (!jobs.length) return;
+  state.busy = true; state.stopFlag = false; updateButtons();
+  $("#stop").disabled = false;
+  const prog = $("#prog"); prog.hidden = false; prog.max = jobs.length; prog.value = 0;
+  $("#writeMsg").innerHTML = "";
+  let ok = 0, bad = 0, skip = 0;
+  for (let j = 0; j < jobs.length; j++){
+    if (state.stopFlag){ $("#writeMsg").innerHTML = `<div class="note">Stopped after ${j} of ${jobs.length}. Click “Write” again to carry on. Observations already written won't be written twice.</div>`; break; }
+    const [obs, e] = jobs[j];
+    const value = targetValue(e);
+    $("#progTxt").textContent = `${j+1} / ${jobs.length}: obs ${obs} → ${value}`;
+    if (numeric && !/^-?\d+(\.\d+)?$/.test(value)){
+      e.status = "skipped"; e.err = "value isn't a single number"; addLog(obs, "skip", e.err); skip++; prog.value = j+1; continue;
+    }
+    const body = { observation_field_value: { observation_id: +obs, observation_field_id: state.field.id, value } };
+    try {
+      if (e.status === "diff" && e.ofvId){
+        await api(`/observation_field_values/${e.ofvId}`, { method:"PUT", body });
+        addLog(obs, `update ${e.existing} → ${value}`, "ok");
+      } else {
+        await api(`/observation_field_values`, { method:"POST", body });
+        addLog(obs, `add ${value}`, "ok");
+      }
+      e.status = "done"; e.existing = value; e.err = undefined; ok++;
+    } catch(err){
+      e.status = "failed"; e.err = err.message; bad++;
+      addLog(obs, `write ${value}`, `${err.status || ""} ${err.message}`.trim());
+      if (err.status === 401){ $("#writeMsg").innerHTML = `<div class="err">The token expired or was rejected. Paste a fresh token, verify it, then run Check and Write again.</div>`; prog.value = j+1; break; }
+      if (err.status === 429){ addLog(obs, "rate limited", "waiting 60 s"); await sleep(60000); }
+    }
+    prog.value = j+1;
+    renderIndex();
+    if (j < jobs.length - 1) await sleep(1100);
+  }
+  $("#progTxt").textContent = `Done: ${ok} written, ${bad} failed, ${skip} skipped.`;
+  state.busy = false; $("#stop").disabled = true; renderIndex(); updateButtons();
+};
+
+/* ---------- wiring ---------- */
+const drop = $("#drop"), fileIn = $("#fileIn");
+drop.onclick = () => fileIn.click();
+fileIn.onchange = () => { addFiles([...fileIn.files]); fileIn.value = ""; };
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files]); });
+$("#search").addEventListener("input", runSearch);
+const pm = store.get("plateTagger.plateMode.v2"); if (pm) state.plateMode = pm;
+$("#plateMode").value = state.plateMode;
+$("#plateMode").onchange = e => {
+  state.plateMode = e.target.value; store.set("plateTagger.plateMode.v2", state.plateMode);
+  for (const f of state.files) f.plate = plateFromName(f.name);
+  renderFiles(); rebuildIndex();
+};
+try { const f = JSON.parse(store.get("plateTagger.field") || "null"); if (f?.id){ state.field = f; showField(); } } catch(e){}
+// Link back to the MycoView site, shown only when the page is served from a website (keep in future versions of this tool)
+if (/^https?:$/.test(location.protocol)) $("#siteHome").classList.remove("hidden");
+updateButtons();
+</script>
+</body>
+</html>

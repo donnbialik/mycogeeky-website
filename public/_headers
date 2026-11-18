@@ -36,3 +36,9 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Sequencing Plate Tagger: a self-contained page; reads local CSVs and calls the iNaturalist API from the browser with the user's own token.
+/investigate/plate-tagger/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

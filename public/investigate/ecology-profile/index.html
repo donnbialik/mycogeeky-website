@@ -239,6 +239,17 @@ button.rep{font-size:12px;padding:3px 9px}
       <div class="tablewrap"><table id="perObs"></table></div>
     </section>
 
+    <section class="card" style="margin-top:14px" id="workbookCard">
+      <h2>Genus workbook<span class="sub">take these collections into a genus research spreadsheet</span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <button id="wbCopy" type="button" title="One row per collection, in the column order of the workbook’s Site data tab">Copy rows for the genus workbook</button>
+        <button id="wbDownload" class="primary" type="button" title="A new workbook with these collections and their site data already filled in">Download a starter workbook (.xlsx)</button>
+        <span id="wbNote" class="muted" style="font-size:12.5px"></span>
+      </div>
+      <p class="note"><b>Already have a genus workbook?</b> Copy the rows and paste them into the first empty row of its <b>Site data</b> tab (column A). The Collections tab fills its site columns from there by iNat number, so it doesn’t matter what order the rows are in.
+        <b>Starting a new one?</b> Download the starter workbook: Collections comes filled with each observation’s iNat number, name, collector, date, voucher, sequence, locality and coordinates, Site data comes filled from this page, and the other tabs (described species, measurements and their automatic summaries, comparison matrix, type-sequence check, GenBank queue) are ready to fill in. It opens in Google Sheets and Claude Sheets; some automatic columns use functions that older versions of Excel don’t have, and Claude Sheets doesn’t keep the dropdown lists from the file.</p>
+    </section>
+
     <section class="card" style="margin-top:14px">
       <details class="method">
         <summary>Methods, sources and limits</summary>
@@ -256,6 +267,7 @@ button.rep{font-size:12px;padding:3px 9px}
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="genus-workbook.js"></script>
 <script>
 (() => {
 'use strict';
@@ -263,7 +275,7 @@ button.rep{font-size:12px;padding:3px 9px}
 const INAT = 'https://api.inaturalist.org';
 const ENV = (location.hostname.endsWith('mycoview.com') || location.hostname.endsWith('pages.dev') || location.hostname === 'localhost') && location.protocol.startsWith('http') ? '/api/env' : 'https://mycoview.com/api/env';
 const PNF = 'Provisional Species Name', ITSF = 'DNA Barcode ITS';
-const OBS_FIELDS = '(id:!t,observed_on:!t,location:!t,obscured:!t,geoprivacy:!t,taxon_geoprivacy:!t,public_positional_accuracy:!t,place_guess:!t,place_ids:!t,description:!t,user:(login:!t),taxon:(name:!t),ofvs:(name:!t,value:!t))';
+const OBS_FIELDS = '(id:!t,observed_on:!t,location:!t,obscured:!t,geoprivacy:!t,taxon_geoprivacy:!t,public_positional_accuracy:!t,place_guess:!t,place_ids:!t,description:!t,user:(login:!t,name:!t),taxon:(name:!t),ofvs:(name:!t,value:!t))';
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const PLACE_REGION = {"2":"MA","3":"NE","4":"DE","5":"DC","6":"AK","7":"VA","8":"RI","9":"NM","10":"OR","11":"HI","12":"OK","13":"ND","14":"CA","15":"WY","16":"MT","17":"ME","18":"TX","19":"AL","20":"IN","22":"ID","23":"GA","24":"IA","25":"KS","26":"KY","27":"LA","28":"MO","29":"MI","30":"NC","31":"OH","32":"WI","33":"WV","34":"CO","35":"IL","36":"AR","37":"MS","38":"MN","40":"AZ","41":"NH","42":"PA","43":"SC","44":"SD","45":"TN","46":"WA","47":"VT","48":"NY","49":"CT","50":"NV","51":"NJ","52":"UT","6834":"AB","6853":"NS","6883":"ON","7085":"BC","7289":"NL","7539":"FL","7587":"NB","7590":"MB","7953":"SK","9079":"NT","9116":"PE","12835":"MD","13335":"NU","13337":"YT","6848":"PR","13336":"QC"};
@@ -322,7 +334,8 @@ function parseObs(o) {
   const notes = Object.entries(f).filter(([k, v]) => NOTE_FIELD.test(k) && String(v || '').trim() && !/^(no|none|n\/a|-)$/i.test(String(v).trim())).map(([k, v]) => `${k}: ${String(v).trim()}`);
   const desc = String(o.description || '').trim();
   return { id: o.id, date: o.observed_on || null, lat, lon, acc: acc == null ? null : Number(acc), obscured, login: o.user ? o.user.login : '',
-    region: regionOf(o), notes, desc, hasLoc: Number.isFinite(lat) && Number.isFinite(lon), env: {} };
+    userName: o.user && o.user.name ? String(o.user.name).trim() : '', taxonName: o.taxon ? o.taxon.name : '', place: String(o.place_guess || '').trim(),
+    region: regionOf(o), notes, desc, fields: f, hasLoc: Number.isFinite(lat) && Number.isFinite(lon), env: {} };
 }
 function precise(o) {
   if (!o.hasLoc || o.obscured) return false;
@@ -661,6 +674,78 @@ $('#csvBtn').onclick = () => {
   const csv = rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
   a.download = `ecology-profile_${S.name.replace(/[^\w-]+/g, '_')}_${localToday()}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+/* ================= genus workbook export ================= */
+const CANADA = new Set(['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'ON', 'PE', 'QC', 'SK', 'NT', 'NU', 'YT']);
+const IUPAC_RUN = /[ACGTRYSWKMBDHVN]{50,}/gi;
+function itsOf(o) { const raw = String(o.fields[ITSF] || '').replace(/\s+/g, ''); const runs = (raw.match(IUPAC_RUN) || []).sort((x, y) => y.length - x.length); return runs.length ? runs[0].toUpperCase() : ''; }
+function fieldLike(o, re, skip) { const out = []; for (const [k, v] of Object.entries(o.fields)) { const s = String(v ?? '').trim(); if (re.test(k) && !(skip && skip.test(k)) && s && !/^(no|none|n\/?a|-|yes)$/i.test(s)) out.push(s); } return [...new Set(out)].join('; '); }
+function voucherOf(o) { return fieldLike(o, /voucher number|herbarium|fungarium|collection identifier|catalog number|specimen number/i); }
+function siteSoil(o) { const s = o.env.soil; if (!s || s.error) return '';
+  if (s.src === 'SSURGO' && s.components && s.components[0]) { const c = s.components[0]; return [[c.name, c.textureSurface ? c.textureSurface.toLowerCase() : null].filter(Boolean).join(' '), c.drainage ? c.drainage.toLowerCase() : null, Number.isFinite(c.phSurface) ? `pH ${c.phSurface.toFixed(1)}` : null].filter(Boolean).join(', ') + ' (SSURGO)'; }
+  if (s.src === 'SoilGrids' && Number.isFinite(s.ph)) return `pH ${s.ph.toFixed(1)}${Number.isFinite(s.clay) ? `, clay ${Math.round(s.clay)}%` : ''}${Number.isFinite(s.sand) ? `, sand ${Math.round(s.sand)}%` : ''} (SoilGrids model)`;
+  return ''; }
+function siteTrees(o) { const p = o.env.plants; if (!p || p.error || !p.near) return '';
+  const t = p.near.filter(x => TREE_GENERA.has(x.name.split(' ')[0]) && x.rank !== 'genus').sort((a, b) => b.count - a.count).slice(0, 6).map(x => x.name);
+  return t.length ? `${t.join(', ')} (within ${Math.round(S.settings.plantR * 1000)} m)` : `none recorded within ${Math.round(S.settings.plantR * 1000)} m`; }
+// One object per collection, keyed by the workbook's Site data headers.
+function siteRow(o) {
+  const site = precise(o), e = o.env, w = e.wx && !e.wx.error && !e.wx.pending ? e.wx : null, r1 = (v, d = 1) => v == null || !Number.isFinite(v) ? '' : Number(v.toFixed(d));
+  return {
+    'Collection ID (iNat #)': o.id,
+    'Vegetation type (LANDFIRE)': site && e.veg && e.veg.name ? e.veg.name : (site ? '' : (o.obscured ? '(location obscured)' : '(location imprecise)')),
+    'Elevation (m)': site && e.elev != null ? Math.round(e.elev) : '',
+    'Soil': site ? siteSoil(o) : '',
+    'Trees nearby (iNat)': site ? siteTrees(o) : '',
+    'Rain 14 d before (mm)': w ? r1(w.rain14) : '',
+    'Rain 14 d, % of normal': w && w.pct14 != null ? Math.round(w.pct14) : '',
+    'Days since ≥5 mm rain': w && w.since5mm != null ? w.since5mm : '',
+    'Mean high, prior week (°C)': w ? r1(w.tmax7) : '',
+    'Mean low, prior week (°C)': w ? r1(w.tmin7) : '',
+    'Site report': siteReport(o),
+    'Retrieved': `MycoView Ecology Profile ${localToday()}`,
+  };
+}
+function collectionRow(o) {
+  const its = itsOf(o), st = o.region && STATE_NAMES[o.region] ? STATE_NAMES[o.region] : (o.region || '');
+  const country = o.region && STATE_NAMES[o.region] ? (CANADA.has(o.region) ? 'Canada' : 'USA') : '';
+  const tech = String(o.fields['Sequencing technology'] || '').trim();
+  return {
+    'Collection ID (iNat #)': o.id, 'Provisional / working name': S.name,
+    'Current determination': o.taxonName && o.taxonName !== S.name ? o.taxonName : '',
+    'Collector': o.userName || o.login, 'Date collected': o.date ? new Date(o.date + 'T00:00:00Z') : '',
+    'Voucher / herbarium catalog #': voucherOf(o),
+    'Sequencing technology': tech, 'ITS sequence': its, 'GenBank status': its ? 'Sequence in hand' : 'Not sequenced',
+    'Country': country, 'State / province': st, 'Locality': o.place,
+    'Latitude': o.hasLoc ? Number(o.lat.toFixed(5)) : '', 'Longitude': o.hasLoc ? Number(o.lon.toFixed(5)) : '',
+    'Location precision (m)': o.acc != null ? o.acc : '',
+    'Substrate': fieldLike(o, /substrate|growing on/i), 'Host / associated species': fieldLike(o, /host|associated/i), 'Habitat': fieldLike(o, /habitat/i),
+    'Notes': o.obscured ? 'iNat location is obscured; coordinates are not the collection site.' : '',
+  };
+}
+// One line per collection: multi-line cells don't paste reliably into every spreadsheet, so line breaks become " · ".
+const tsvCell = v => v == null ? '' : String(v).replace(/\r?\n+/g, ' · ').replace(/\t/g, ' ');
+$('#wbCopy').onclick = () => {
+  if (!S.obs.length || !window.MVGenusWorkbook) return;
+  const cols = MVGenusWorkbook.SITE_COLS;
+  const text = S.obs.map(o => { const r = siteRow(o); return cols.map(h => tsvCell(r[h])).join('\t'); }).join('\n');
+  copyText(text, $('#wbNote'), null).then(() => { if ($('#wbNote').textContent === 'Copied.') $('#wbNote').textContent = `Copied ${S.obs.length} row${S.obs.length === 1 ? '' : 's'}. Paste into column A of the Site data tab.`; });
+};
+$('#wbDownload').onclick = () => {
+  if (!S.obs.length) return;
+  if (!window.MVGenusWorkbook) { $('#wbNote').textContent = 'The workbook builder didn’t load. Reload the page and try again.'; return; }
+  const genus = (S.name.match(/^[A-Z][a-z]+/) || ['Genus'])[0];
+  const bytes = MVGenusWorkbook.build({
+    genus, project: { Genus: genus, 'Scope (region, group)': S.name, Started: localToday(), 'Last updated': localToday() },
+    collections: S.obs.map(collectionRow), siteData: S.obs.map(siteRow),
+    comparison: [{ Taxon: S.name, Group: 'Provisional', Source: 'Collections' }],
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+  a.download = `genus-workbook_${S.name.replace(/[^\w-]+/g, '_')}_${localToday()}.xlsx`; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  $('#wbNote').textContent = `Workbook with ${S.obs.length} collection${S.obs.length === 1 ? '' : 's'} downloaded.`;
 };
 
 /* ================= 6. draft paragraph ================= */

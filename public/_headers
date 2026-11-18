@@ -30,3 +30,9 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Habitat Profiler: a self-contained page; calls iNaturalist and Open-Meteo from the browser, and /api/env relays.
+/investigate/habitat-profiler/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

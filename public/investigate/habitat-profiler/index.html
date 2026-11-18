@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Habitat Profiler · MycoView</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script>try{const t=JSON.parse(localStorage.getItem('habprof.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+:root{
+  /* MycoView Research Workbench palette (same as the other Workbench tools) */
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface-2:#E8EFEB; --ink:#15201B; --muted:#56655E; --line:#D2DCD7;
+  --accent:#1D6B55; --accent-ink:#FFFFFF; --spore:#8A5A2B; --good:#2E7D4F; --warn:#A86E14; --bad:#B4412F;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body)}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:22px} h2{font-size:17px} h3{font-size:14.5px}
+.muted{color:var(--muted)} .hidden{display:none!important}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+/* Link back to the MycoView site (keep in future versions of this tool) */
+.site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-bottom:2px}
+.site-home:hover{text-decoration:underline}
+.sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:var(--surface);white-space:nowrap;cursor:help}
+.srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.srcchip.live .dot{background:var(--good)} .srcchip.fail .dot{background:var(--bad)} .srcchip.slow .dot{background:var(--warn)}
+.srcchip .st{color:var(--muted)}
+.steps{background:var(--surface-2);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right))}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px}
+.stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--f-body);margin-right:9px}
+.steps .stepn{margin-right:0;margin-top:-1px}
+main{max-width:1440px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) 48px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.card h2{display:flex;align-items:center;gap:0;margin-bottom:10px}
+.card h2 .sub{font:400 12.5px var(--f-body);color:var(--muted);margin-left:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+label.inline{flex-direction:row;align-items:center;gap:7px;color:var(--ink)}
+input[type=text],input[type=number],select{font:inherit;font-size:13.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:7px 9px;width:100%;min-width:0}
+input#pname{font-family:var(--f-mono)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:5px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:8px 18px;font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+.form{display:grid;grid-template-columns:minmax(260px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:12px;align-items:end}
+.opts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.status .txt{flex:1 1 320px;font-size:13px}
+.prog{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px;width:100%}
+.prog div{font-size:12px;color:var(--muted)}
+.prog .bar{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:3px}
+.prog .bar span{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.msg{color:var(--bad);font-size:13px;margin-top:8px}
+.grid{display:grid;gap:14px;margin-top:14px}
+.g2{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:9px 11px;background:var(--surface)}
+.tile .v{font-family:var(--f-mono);font-size:19px}
+.tile .k{font-size:12px;color:var(--muted)}
+#map{height:360px;border-radius:6px;border:1px solid var(--line)}
+.draft{font-family:Georgia,"Source Serif 4",serif;font-size:15px;line-height:1.65;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:14px 16px;white-space:pre-wrap}
+.draft .ref{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.03em}
+.tablewrap th{position:sticky;top:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+.tablewrap{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:6px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);margin-left:4px;white-space:nowrap}
+.tag.tree{background:color-mix(in oklab,var(--good) 16%,var(--surface));color:var(--good)}
+.tag.warn{background:color-mix(in oklab,var(--warn) 16%,var(--surface));color:var(--warn)}
+.bars{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:90px;padding:4px 0 18px}
+.bars div{background:var(--good);border-radius:3px 3px 0 0;position:relative;min-height:2px}
+.bars div.z{background:var(--line)}
+.bars div span{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.bars div b{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.notes li{margin-bottom:6px}
+details.method summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details.method li{margin-bottom:6px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+dialog#unused{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:18px 20px;width:min(640px,calc(100vw - 24px));box-shadow:0 14px 44px rgba(0,0,0,.3)}
+dialog#unused::backdrop{background:rgba(14,20,18,.45)}
+dialog#unused textarea{width:100%;height:260px;font:12.5px/1.5 var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+dialog#unused .row{justify-content:flex-end;margin-top:10px}
+button.rep{font-size:12px;padding:3px 9px}
+@media (max-width:980px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}.g2,.g3{grid-template-columns:1fr}}
+@media (max-width:560px){.form{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+:root{--s0:#cfd6d2;--s1:#d6ecc9;--s2:#7fc28f;--s3:#1d6b55;--s4:#8fb3d9}
+:root[data-theme="dark"]{--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}}
+.form{grid-template-columns:minmax(240px,2fr) minmax(170px,1.2fr) minmax(190px,1.2fr) repeat(2,minmax(120px,1fr)) auto}
+.modes{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:10px}
+.ac{position:relative;display:block}
+.aclist{position:absolute;z-index:1000;left:0;right:0;top:100%;margin:2px 0 0;padding:4px 0;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:280px;overflow:auto;color:var(--ink);font-size:13px}
+.aclist li{padding:6px 10px;cursor:pointer}
+.aclist li:hover,.aclist li.on{background:var(--surface-2)}
+#map{height:460px}
+ul.sig{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+ul.sig li{padding:8px 11px;border:1px solid var(--line);border-left:4px solid var(--good);border-radius:6px;background:var(--bg);font-size:13.5px}
+ul.sig li.less{border-left-color:var(--warn)}
+ul.sig li.empty{border-left-color:var(--line)}
+.ev{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;margin-right:6px;white-space:nowrap;vertical-align:1px}
+.ev-clear{background:var(--good);color:var(--accent-ink)}
+.ev-some{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--good)}
+.ev-hint{background:var(--surface-2);color:var(--muted)}
+.ev-none{background:transparent;color:var(--muted);border:1px solid var(--line)}
+table.cmp td{vertical-align:middle}
+.pb{display:inline-block;width:90px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;vertical-align:middle;margin-right:6px}
+.pb span{display:block;height:100%}
+.pb .f{background:var(--good)} .pb .b{background:var(--muted);opacity:.55}
+.pv{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.legend i.sq{border-radius:2px;width:14px}
+#elev .tile .v{font-size:15px}
+@media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
+@media (max-width:560px){.form{grid-template-columns:1fr}.pb{width:50px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <a class="site-home" href="/investigate/tools/">← MycoView Research Workbench</a>
+    <h1>Habitat Profiler</h1>
+    <p>What sets a species’ sites apart from the land around them, and where else nearby looks like that.</p>
+  </div>
+  <div class="sources">
+    <span class="srcchip" id="src-inat" title="Finds, background fungi records and nearby plant records"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-veg" title="LANDFIRE 2024 Existing Vegetation Type, United States only"><span class="dot"></span>LANDFIRE <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-elev" title="Copernicus 90 m elevation model via Open-Meteo (CC BY 4.0), used for elevation, slope and aspect"><span class="dot"></span>Terrain <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-soil" title="USDA NRCS SSURGO soils (United States). Left out when the USDA service is down."><span class="dot"></span>Soils <span class="st">checking…</span></span>
+    <button id="themeBtn" class="ghost" type="button" style="font-size:12px">Theme</button>
+  </div>
+</header>
+<nav class="steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Pick a species</strong> (or a provisional name) and, if you like, a region</span></li>
+    <li><span class="stepn">2</span><span><strong>Build the profile</strong>: each find is compared with points around it</span></li>
+    <li><span class="stepn">3</span><span><strong>Read the signature</strong>, checking how strong each difference is</span></li>
+    <li><span class="stepn">4</span><span><strong>Check an area</strong>: move the map to where you hunt and score it</span></li>
+  </ol>
+</nav>
+<main>
+  <section class="card">
+    <h2><span class="stepn">1</span>Which species</h2>
+    <div class="modes" role="radiogroup" aria-label="Search by">
+      <label class="inline"><input type="radio" name="mode" value="taxon" checked> A species on iNaturalist</label>
+      <label class="inline"><input type="radio" name="mode" value="prov"> A provisional name</label>
+    </div>
+    <form id="form" class="form" autocomplete="off">
+      <label class="wide" id="taxonWrap">Species
+        <span class="ac"><input type="text" id="taxon" placeholder="Start typing, e.g. Grifola frondosa" aria-autocomplete="list" aria-controls="taxonList"><ul class="aclist hidden" id="taxonList" role="listbox"></ul></span>
+      </label>
+      <label class="wide hidden" id="provWrap">Provisional Species Name (exact)
+        <input type="text" id="pname" placeholder="Tubaria sp. 'IN03'">
+      </label>
+      <label>Region (optional)
+        <span class="ac"><input type="text" id="place" placeholder="Anywhere" aria-autocomplete="list" aria-controls="placeList"><ul class="aclist hidden" id="placeList" role="listbox"></ul></span>
+      </label>
+      <label>Compare finds with
+        <select id="bgMode"><option value="fungi" selected>other fungi recorded nearby</option><option value="random">random points nearby</option></select>
+      </label>
+      <label>Within
+        <select id="bgR"><option value="2">2 km of each find</option><option value="5" selected>5 km of each find</option><option value="10">10 km of each find</option></select>
+      </label>
+      <label>Most sites
+        <select id="cap"><option>30</option><option selected>60</option><option>120</option></select>
+      </label>
+      <button class="primary" id="goBtn" type="submit">Build profile</button>
+    </form>
+    <div class="opts">
+      <label class="inline" id="rgWrap"><input type="checkbox" id="rgOnly" checked> Research-grade finds only</label>
+      <label class="inline hidden" id="seqWrap"><input type="checkbox" id="seqOnly" checked> Sequenced collections only (DNA Barcode ITS filled in)</label>
+      <label class="inline"><input type="checkbox" id="doTrees" checked> Trees recorded nearby (adds about 2 s per site)</label>
+      <label class="inline">Location precision <select id="prec" style="width:auto"><option value="100">≤ 100 m</option><option value="250" selected>≤ 250 m</option></select></label>
+    </div>
+    <p class="hint">New here? <a href="#" id="example">Try an example: hen of the woods (Grifola frondosa) in Ohio</a>. Only finds with a precise public location are used, and repeat finds at the same spot count once.</p>
+    <div id="formMsg" class="msg"></div>
+  </section>
+
+  <section id="statusBox" class="status hidden">
+    <div class="txt" id="statusTxt"></div>
+    <button class="ghost" id="stopBtn" type="button">Stop</button>
+    <div class="prog" id="prog"></div>
+  </section>
+
+  <div id="out" class="hidden">
+    <section class="card" style="margin-top:14px">
+      <h2>Habitat signature<span class="sub" id="sigSub"></span></h2>
+      <div class="tiles" id="tiles"></div>
+      <ul class="sig" id="sig"></ul>
+      <p class="note" id="sigNote"></p>
+      <div class="row" style="margin-top:8px"><button id="copySig" type="button">Copy signature</button><button id="csvBtn" type="button">Download all points (CSV)</button><span id="copyNote" class="muted" style="font-size:12.5px"></span></div>
+    </section>
+
+    <section class="card" style="margin-top:14px" id="areaCard">
+      <h2>Check an area<span class="sub">move the map to a place you can search, then score it</span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <button class="primary" id="scoreBtn" type="button">Score this view</button>
+        <button id="clearBtn" type="button">Clear scores</button>
+        <span id="scoreNote" class="muted" style="font-size:12.5px"></span>
+      </div>
+      <div id="map"></div>
+      <div class="legend" id="scoreLegend">
+        <span><i class="sq" style="background:var(--s0)"></i>weaker match than typical nearby land</span>
+        <span><i class="sq" style="background:var(--s1)"></i>about typical</span>
+        <span><i class="sq" style="background:var(--s2)"></i>better (×1.5–3)</span>
+        <span><i class="sq" style="background:var(--s3)"></i>much better (×3 or more)</span>
+        <span><i class="sq" style="background:var(--s4)"></i>water or ice</span>
+        <span><i style="background:var(--accent)"></i>known find</span>
+      </div>
+      <p class="note">Each cell is scored on its mapped cover, slope, aspect and elevation against the profile above (not soils or trees). The score compares the cell with typical land near known finds. It is not a probability that the species is there, and it says nothing about access: check that collecting is allowed before you go.</p>
+    </section>
+
+    <div class="grid g2">
+      <section class="card">
+        <h2>Cover type<span class="sub" id="physSub"></span></h2>
+        <div id="phys"></div>
+      </section>
+      <section class="card">
+        <h2>Vegetation group<span class="sub" id="groupSub"></span></h2>
+        <div id="group"></div>
+      </section>
+    </div>
+
+    <div class="grid g3">
+      <section class="card">
+        <h2>Elevation<span class="sub" id="elevSub"></span></h2>
+        <div id="elev"></div>
+      </section>
+      <section class="card">
+        <h2>Slope<span class="sub" id="slopeSub"></span></h2>
+        <div id="slope"></div>
+      </section>
+      <section class="card">
+        <h2>Aspect<span class="sub" id="aspectSub"></span></h2>
+        <div id="aspect"></div>
+      </section>
+    </div>
+
+    <div class="grid g2">
+      <section class="card">
+        <h2>Soils<span class="sub" id="soilSub"></span></h2>
+        <div id="soil"></div>
+      </section>
+      <section class="card">
+        <h2>Trees recorded nearby<span class="sub" id="treeSub"></span></h2>
+        <div id="trees"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:14px">
+      <details class="method">
+        <summary>Named vegetation types (finest level)</summary>
+        <div id="named" style="margin-top:10px"></div>
+      </details>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <details class="method">
+        <summary>Methods, sources and limits</summary>
+        <ul id="methods"></ul>
+      </details>
+    </section>
+  </div>
+  <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; vegetation type from <a href="https://landfire.gov" target="_blank" rel="noopener">LANDFIRE</a>; elevation by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (Copernicus DEM, CC BY 4.0); soils from USDA NRCS SSURGO; basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these.</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(() => {
+'use strict';
+/* ================= configuration ================= */
+const INAT = 'https://api.inaturalist.org';
+const ENV = (location.hostname.endsWith('mycoview.com') || location.hostname.endsWith('pages.dev') || location.hostname === 'localhost') && location.protocol.startsWith('http') ? '/api/env' : 'https://mycoview.com/api/env';
+const PNF = 'Provisional Species Name', ITSF = 'DNA Barcode ITS';
+const FUNGI = 47170;
+const OBS_FIELDS = '(id:!t,observed_on:!t,location:!t,obscured:!t,geoprivacy:!t,taxon_geoprivacy:!t,public_positional_accuracy:!t,place_guess:!t,taxon:(id:!t,name:!t))';
+const BG_FIELDS = '(id:!t,location:!t,public_positional_accuracy:!t)';
+const BG_PER_SITE = 8;          // background points per find site
+const SITE_CELL_M = 500;        // finds closer than this count as one site
+const TREE_R = 0.1;             // km: "near" a site for tree records
+const NOT_LAND = new Set(['Open Water', 'Snow-Ice']);
+const SECTORS = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+const SLOPE_CLASSES = [[0, 5, 'flat or gentle (under 5°)'], [5, 15, 'moderate (5–15°)'], [15, 30, 'steep (15–30°)'], [30, 91, 'very steep (30° or more)']];
+const TREE_GENERA = new Set('Abies Acer Aesculus Ailanthus Alnus Amelanchier Arbutus Asimina Betula Calocedrus Carpinus Carya Castanea Catalpa Celtis Cercis Chamaecyparis Cladrastis Cornus Crataegus Cupressus Diospyros Eucalyptus Fagus Fraxinus Gleditsia Gymnocladus Halesia Ilex Juglans Juniperus Larix Liquidambar Liriodendron Lithocarpus Maclura Magnolia Malus Morus Notholithocarpus Nyssa Ostrya Oxydendrum Picea Pinus Platanus Populus Prunus Pseudotsuga Pyrus Quercus Robinia Sabal Salix Sassafras Sequoia Sequoiadendron Sorbus Taxodium Thuja Tilia Tsuga Ulmus Umbellularia'.split(' '));
+
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n, d = 0) => n == null || !Number.isFinite(n) ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
+const pct = (a, n) => n ? `${Math.round(100 * a / n)}%` : '—';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const median = a => { const b = a.filter(Number.isFinite).sort((x, y) => x - y); if (!b.length) return null; const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+const quantile = (a, q) => { const b = a.filter(Number.isFinite).sort((x, y) => x - y); if (!b.length) return null; const i = (b.length - 1) * q, lo = Math.floor(i); return b[lo] + (b[Math.min(lo + 1, b.length - 1)] - b[lo]) * (i - lo); };
+const plural = (n, w, ws) => `${fmt(n)} ${n === 1 ? w : (ws || w + 's')}`;
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const localToday = () => new Date().toLocaleDateString('en-CA');
+const listJoin = a => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+const coarse = p => !p ? null : p.startsWith('Developed') ? 'Developed' : p.startsWith('Quarries') ? 'Quarries and mines' : p;
+function pacer(gapMs, concurrency = 1) {
+  let last = 0, active = 0; const waiting = [];
+  const next = () => { if (active >= concurrency || !waiting.length) return; active++; const { fn, res, rej } = waiting.shift();
+    const wait = Math.max(0, last + gapMs - Date.now()); last = Math.max(Date.now(), last + gapMs);
+    setTimeout(() => fn().then(res, rej).finally(() => { active--; next(); }), wait); };
+  return fn => new Promise((res, rej) => { waiting.push({ fn, res, rej }); next(); });
+}
+const qInat = pacer(1050, 1), qMeteo = pacer(300, 1), qEnv = pacer(40, 8);
+async function getJSON(url, opts) {
+  for (let i = 0; i < 3; i++) {
+    let r; try { r = await fetch(url, opts); } catch (e) { if (i === 2) throw e; await sleep(2000); continue; }
+    if (r.status === 429 || r.status >= 500) { if (i === 2) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } await sleep(4000 * (i + 1)); continue; }
+    if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    return r.json();
+  }
+}
+function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'fail', 'slow'); if (cls) c.classList.add(cls); c.querySelector('.st').textContent = text; }
+const metersToDeg = (lat, dn, de) => [dn / 111320, de / (111320 * Math.cos(lat * Math.PI / 180))];
+const distM = (a, b) => { const [dy, dx] = [(a.lat - b.lat) * 111320, (a.lon - b.lon) * 111320 * Math.cos(a.lat * Math.PI / 180)]; return Math.hypot(dx, dy); };
+
+/* ================= statistics ================= */
+// Fisher's exact test (two-sided) on a 2×2 table, with log-factorials.
+const LF = [0]; const lnFact = n => { while (LF.length <= n) LF.push(LF[LF.length - 1] + Math.log(LF.length)); return LF[n]; };
+function fisherP(a, b, c, d) {
+  const r1 = a + b, r2 = c + d, c1 = a + c, n = r1 + r2;
+  const lp = x => lnFact(r1) + lnFact(r2) + lnFact(c1) + lnFact(n - c1) - lnFact(n) - lnFact(x) - lnFact(r1 - x) - lnFact(c1 - x) - lnFact(r2 - c1 + x);
+  const obs = lp(a); let p = 0;
+  for (let x = Math.max(0, c1 - r2); x <= Math.min(r1, c1); x++) { const v = lp(x); if (v <= obs + 1e-7) p += Math.exp(v); }
+  return Math.min(1, p);
+}
+// Two-sided sign test: k of n paired differences positive.
+function signP(k, n) { if (!n) return 1; let p = 0; const m = Math.min(k, n - k); for (let i = 0; i <= m; i++) p += Math.exp(lnFact(n) - lnFact(i) - lnFact(n - i) - n * Math.LN2); return Math.min(1, 2 * p); }
+function evidence(p, a) {
+  if (p < 0.01 && a >= 5) return ['clear', 'Clear difference'];
+  if (p < 0.05 && a >= 3) return ['some', 'Some evidence'];
+  if (p < 0.2) return ['hint', 'A hint only'];
+  return ['none', 'No clear difference'];
+}
+// Compare how often each category occurs at finds vs background.
+function compareCat(F, B) {
+  const nF = F.length, nB = B.length, cats = new Set([...F, ...B]), K = cats.size || 1, out = [];
+  for (const c of cats) {
+    const a = F.filter(x => x === c).length, b = B.filter(x => x === c).length;
+    const ratio = ((a + 0.5) / (nF + 0.5 * K)) / ((b + 0.5) / (nB + 0.5 * K));
+    const p = fisherP(a, nF - a, b, nB - b);
+    out.push({ cat: c, a, b, nF, nB, ratio, p, ev: evidence(p, ratio >= 1 ? a : b) }); // a claim that a category is favoured needs finds in it
+  }
+  return out.sort((x, y) => (y.a + y.b) - (x.a + x.b));
+}
+// Likelihood ratio used for scoring the map (add-one smoothing so rare categories stay near 1).
+function lrTable(F, B) { const cats = new Set([...F, ...B]), K = cats.size + 1, m = new Map();
+  for (const c of cats) { const a = F.filter(x => x === c).length, b = B.filter(x => x === c).length; m.set(c, ((a + 1) / (F.length + K)) / ((b + 1) / (B.length + K))); }
+  m.unseen = ((1) / (F.length + K)) / ((1) / (B.length + K)); return m; }
+
+/* ================= state ================= */
+const S = { run: 0, sites: [], bg: [], settings: {}, ssurgoUp: null, prog: {}, map: null, layers: {}, taxon: null, place: null };
+
+/* ================= autocomplete ================= */
+function autocomplete(input, list, fetcher, onPick) {
+  let timer = null, items = [], active = -1;
+  const close = () => { list.classList.add('hidden'); active = -1; };
+  const draw = () => { list.innerHTML = items.map((it, i) => `<li role="option" data-i="${i}"${i === active ? ' class="on" aria-selected="true"' : ''}>${it.html}</li>`).join(''); list.classList.toggle('hidden', !items.length); };
+  input.addEventListener('input', () => { onPick(null, true); clearTimeout(timer); const q = input.value.trim(); if (q.length < 2) { items = []; close(); return; }
+    timer = setTimeout(async () => { try { items = await fetcher(q); active = -1; draw(); } catch (e) { items = []; close(); } }, 250); });
+  input.addEventListener('keydown', e => { if (list.classList.contains('hidden')) return;
+    if (e.key === 'ArrowDown') { active = Math.min(items.length - 1, active + 1); draw(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { active = Math.max(0, active - 1); draw(); e.preventDefault(); }
+    else if (e.key === 'Enter' && active >= 0) { pick(active); e.preventDefault(); }
+    else if (e.key === 'Escape') close(); });
+  const pick = i => { const it = items[i]; input.value = it.label; onPick(it.value); close(); };
+  list.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
+  input.addEventListener('blur', () => setTimeout(close, 150));
+}
+autocomplete($('#taxon'), $('#taxonList'), async q => {
+  const d = await getJSON(`${INAT}/v1/taxa/autocomplete?q=${encodeURIComponent(q)}&per_page=8&is_active=true`);
+  return d.results.map(t => ({ value: { id: t.id, name: t.name, rank: t.rank, common: t.preferred_common_name || '' }, label: t.name,
+    html: `<i>${esc(t.name)}</i> <span class="muted">${esc(t.rank)}${t.preferred_common_name ? ' · ' + esc(t.preferred_common_name) : ''}${t.iconic_taxon_name && t.iconic_taxon_name !== 'Fungi' ? ' · ' + esc(t.iconic_taxon_name) : ''}</span>` }));
+}, (v, typing) => { S.taxon = v; if (!typing && v) $('#formMsg').textContent = ''; });
+autocomplete($('#place'), $('#placeList'), async q => {
+  const d = await getJSON(`${INAT}/v1/places/autocomplete?q=${encodeURIComponent(q)}&per_page=8`);
+  return d.results.map(p => ({ value: { id: p.id, name: p.display_name }, label: p.display_name, html: esc(p.display_name) }));
+}, v => { S.place = v; });
+const modeNow = () => document.querySelector('input[name=mode]:checked').value;
+function syncMode() { const t = modeNow() === 'taxon';
+  $('#taxonWrap').classList.toggle('hidden', !t); $('#provWrap').classList.toggle('hidden', t);
+  $('#rgWrap').classList.toggle('hidden', !t); $('#seqWrap').classList.toggle('hidden', t); }
+document.querySelectorAll('input[name=mode]').forEach(r => r.addEventListener('change', syncMode));
+
+/* ================= 1. finds ================= */
+function parseObs(o) {
+  const [lat, lon] = String(o.location || '').split(',').map(Number);
+  const acc = o.public_positional_accuracy;
+  return { id: o.id, date: o.observed_on || null, lat, lon, acc: acc == null ? null : Number(acc),
+    obscured: !!o.obscured || o.geoprivacy === 'obscured' || o.taxon_geoprivacy === 'obscured' || o.geoprivacy === 'private',
+    place: o.place_guess || '', taxonName: o.taxon ? o.taxon.name : '' };
+}
+const preciseObs = o => Number.isFinite(o.lat) && Number.isFinite(o.lon) && !o.obscured && o.acc != null && o.acc <= S.settings.prec;
+function findParams() {
+  const st = S.settings; let p = 'geoprivacy=open&taxon_geoprivacy=open';
+  p += `&acc_below=${st.prec + 1}`;
+  if (st.mode === 'taxon') { p += `&taxon_id=${st.taxon.id}`; if (st.rgOnly) p += '&quality_grade=research'; }
+  else { p += `&field:${encodeURIComponent(PNF)}=${encodeURIComponent(st.pname)}`; if (st.seqOnly) p += `&field:${encodeURIComponent(ITSF)}=`; }
+  if (st.place) p += `&place_id=${st.place.id}`;
+  return p;
+}
+async function loadFinds() {
+  const st = S.settings, p = findParams();
+  // Up to 3 pages in random order, so a common species is sampled across its range, not just its oldest records.
+  const first = await qInat(() => getJSON(`${INAT}/v2/observations?${p}&per_page=200&order_by=random&fields=${OBS_FIELDS}`));
+  let all = first.results; const total = first.total_results;
+  if (total > 200) for (let k = 0; k < 2 && all.length < Math.min(total, 600); k++) {
+    const d = await qInat(() => getJSON(`${INAT}/v2/observations?${p}&per_page=200&order_by=random&fields=${OBS_FIELDS}`)); all = all.concat(d.results); }
+  const seen = new Set(), obs = all.filter(o => !seen.has(o.id) && seen.add(o.id)).map(parseObs).filter(preciseObs);
+  // One site per ~500 m: repeat visits to the same spot would otherwise count as independent evidence.
+  const sites = [];
+  for (const o of obs) { const near = sites.find(s => distM(s, o) < SITE_CELL_M); if (near) { near.obs.push(o); continue; } sites.push({ lat: o.lat, lon: o.lon, obs: [o], id: o.id }); }
+  const pick = sites.length <= st.cap ? sites : Array.from({ length: st.cap }, (_, i) => sites[Math.floor(i * sites.length / st.cap)]);
+  return { sites: pick.map((s, i) => ({ ...s, idx: i, kind: 'find', env: {} })), total, preciseN: obs.length, siteN: sites.length };
+}
+
+/* ================= 2. background ================= */
+function randomAround(site, n, rKm) {
+  const out = [];
+  for (let i = 0; i < n; i++) { const r = rKm * 1000 * Math.sqrt(Math.random()), th = 2 * Math.PI * Math.random();
+    const [dl, dn] = metersToDeg(site.lat, r * Math.cos(th), r * Math.sin(th)); out.push({ lat: site.lat + dl, lon: site.lon + dn }); }
+  return out;
+}
+async function fungiAround(site, n, rKm) {
+  const st = S.settings;
+  let p = `taxon_id=${FUNGI}&lat=${site.lat.toFixed(5)}&lng=${site.lon.toFixed(5)}&radius=${rKm}&geoprivacy=open&taxon_geoprivacy=open&acc_below=${st.prec + 1}&order_by=random&per_page=60`;
+  if (st.mode === 'taxon') p += `&without_taxon_id=${st.taxon.id}`;
+  const d = await qInat(() => getJSON(`${INAT}/v2/observations?${p}&fields=${BG_FIELDS}`));
+  const pts = [];
+  for (const o of d.results) { const [lat, lon] = String(o.location || '').split(',').map(Number); if (!Number.isFinite(lat)) continue;
+    const q = { lat, lon }; if (S.sites.some(s => distM(s, q) < 100) || pts.some(x => distM(x, q) < 100)) continue; pts.push(q); if (pts.length >= n) break; }
+  return pts;
+}
+
+/* ================= 3. layers (identical for finds and background) ================= */
+async function vegFor(pt) { const d = await qEnv(() => getJSON(`${ENV}/vegetation?lat=${pt.lat.toFixed(5)}&lon=${pt.lon.toFixed(5)}`));
+  if (!d.available) return { none: d.reason || 'unavailable' }; return { name: d.name, phys: coarse(d.physiognomy), group: d.group }; }
+// One attempt only: if the USDA service is down, soils are switched off for the rest of the run instead of retrying every point.
+async function soilFor(pt) {
+  if (S.ssurgoUp === false) return { none: true, off: true };
+  let d; try { d = await qEnv(() => fetch(`${ENV}/soil?lat=${pt.lat.toFixed(5)}&lon=${pt.lon.toFixed(5)}`).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))); }
+  catch (e) { if (S.ssurgoUp !== true) { S.ssurgoUp = false; setChip('#src-soil', 'fail', 'USDA down · soils left out'); } throw e; }
+  const c = d.available && d.components && d.components[0]; if (!c) return { none: true };
+  return { drainage: c.drainage || null, ph: Number.isFinite(c.phSurface) ? c.phSurface : null, texture: c.textureSurface || null, series: c.name || null }; }
+// Terrain: elevation at the point and 90 m north, south, east and west of it (Copernicus 90 m DEM), giving slope and aspect.
+async function terrainFor(points) {
+  const D = 90, coords = [];
+  for (const p of points) { const [dl] = metersToDeg(p.lat, D, 0), [, dn] = metersToDeg(p.lat, 0, D);
+    coords.push([p.lat, p.lon], [p.lat + dl, p.lon], [p.lat - dl, p.lon], [p.lat, p.lon + dn], [p.lat, p.lon - dn]); }
+  const z = [];
+  for (let i = 0; i < coords.length; i += 100) { const c = coords.slice(i, i + 100);
+    const d = await qMeteo(() => getJSON(`https://api.open-meteo.com/v1/elevation?latitude=${c.map(x => x[0].toFixed(5)).join(',')}&longitude=${c.map(x => x[1].toFixed(5)).join(',')}`));
+    z.push(...(d.elevation || [])); }
+  points.forEach((p, k) => { const [c, n, s, e, w] = z.slice(5 * k, 5 * k + 5);
+    if (![c, n, s, e, w].every(Number.isFinite)) { p.env.terrain = { none: true }; return; }
+    const dzdx = (e - w) / (2 * D), dzdy = (n - s) / (2 * D);
+    const slope = Math.atan(Math.hypot(dzdx, dzdy)) * 180 / Math.PI;
+    const aspect = (Math.atan2(-dzdx, -dzdy) * 180 / Math.PI + 360) % 360; // compass direction the slope faces
+    p.env.terrain = { elev: c, slope, aspect }; });
+}
+const slopeClass = s => SLOPE_CLASSES.find(([lo, hi]) => s >= lo && s < hi)[2];
+const sectorOf = a => SECTORS[Math.round(a / 45) % 8];
+const aspectCat = t => t && !t.none ? (t.slope < 5 ? 'flat' : sectorOf(t.aspect)) : null;
+// Trees recorded on iNaturalist within 100 m of a site, against the whole background radius around it.
+async function treesFor(site) {
+  const q = (r, n) => `${INAT}/v1/observations/species_counts?lat=${site.lat.toFixed(5)}&lng=${site.lon.toFixed(5)}&radius=${r}&iconic_taxa=Plantae&verifiable=true&per_page=${n}`;
+  const near = await qInat(() => getJSON(q(TREE_R, 100)));
+  const keep = r => r.taxon && TREE_GENERA.has(String(r.taxon.name).split(' ')[0]) && r.taxon.rank !== 'genus';
+  const nearT = near.results.filter(keep).map(r => r.taxon.name), nearC = new Map(near.results.filter(keep).map(r => [r.taxon.name, r.count]));
+  if (!near.results.length) return { near: [], nearC, around: new Map(), aroundTotal: 0 };
+  const bg = await qInat(() => getJSON(q(S.settings.bgR, 500)));
+  const around = new Map(bg.results.filter(keep).map(r => [r.taxon.name, r.count]));
+  return { near: nearT, nearC, around, aroundTotal: bg.results.filter(keep).reduce((a, r) => a + r.count, 0) };
+}
+
+/* ================= 4. run ================= */
+function progRow(key, label) { S.prog[key] = { label, done: 0, total: 0, failed: 0 }; }
+function renderProg() { $('#prog').innerHTML = Object.values(S.prog).filter(p => p.total).map(p => `<div>${p.label}: ${p.done}/${p.total}${p.failed ? ` · ${p.failed} failed` : ''}<div class="bar"><span style="width:${100 * p.done / p.total}%"></span></div></div>`).join(''); }
+async function track(key, list, fn) {
+  const p = S.prog[key]; p.total += list.length; renderProg(); const run = S.run;
+  await Promise.all(list.map(async x => { try { await fn(x); } catch (e) { p.failed++; } if (run !== S.run) return; p.done++; renderProg(); scheduleRender(); }));
+}
+async function build() {
+  const run = ++S.run, mode = modeNow();
+  S.settings = { mode, taxon: S.taxon, pname: $('#pname').value.replace(/[‘’]/g, "'").trim(), place: S.place && $('#place').value.trim() ? S.place : null,
+    bgMode: $('#bgMode').value, bgR: +$('#bgR').value, cap: +$('#cap').value, prec: +$('#prec').value,
+    rgOnly: $('#rgOnly').checked, seqOnly: $('#seqOnly').checked, doTrees: $('#doTrees').checked };
+  const st = S.settings;
+  if (mode === 'taxon' && !st.taxon) { $('#formMsg').textContent = 'Pick a species from the list that appears as you type.'; return; }
+  if (mode === 'prov' && !st.pname) { $('#formMsg').textContent = 'Enter a provisional name.'; return; }
+  S.label = mode === 'taxon' ? st.taxon.name + (st.taxon.common ? ` (${st.taxon.common})` : '') : st.pname;
+  store.set('habprof.last', { mode, taxon: st.taxon, pname: st.pname, place: st.place });
+  S.prog = {}; S.sites = []; S.bg = []; clearScores();
+  $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#prog').innerHTML = '';
+  $('#statusTxt').innerHTML = `Loading finds of <b>${esc(S.label)}</b>${st.place ? ` in ${esc(st.place.name)}` : ''}…`;
+  try {
+    const f = await loadFinds(); if (run !== S.run) return;
+    if (f.sites.length < 3) { $('#statusBox').classList.add('hidden'); $('#goBtn').disabled = false;
+      $('#formMsg').textContent = f.total ? `Only ${plural(f.siteN, 'site')} with a precise public location (of ${plural(f.total, 'record')}). A profile needs at least 3; try a wider region or the 250 m precision setting.` : 'No records found. Check the name, the region and the filters.'; return; }
+    S.sites = f.sites; S.found = f;
+    $('#out').classList.remove('hidden'); initMap(); drawPoints();
+    const ssurgo = S.ssurgoUp !== false;
+    // background
+    progRow('bg', st.bgMode === 'fungi' ? 'Background fungi records' : 'Background points'); progRow('veg', 'Vegetation'); progRow('terrain', 'Terrain');
+    if (ssurgo) progRow('soil', 'Soils'); if (st.doTrees) progRow('trees', 'Trees nearby');
+    const est = Math.round((st.bgMode === 'fungi' ? S.sites.length * 1.05 : 0) + (st.doTrees ? S.sites.length * 2.1 : 0) + S.sites.length * 0.5 + 5);
+    $('#statusTxt').innerHTML = `Comparing <b>${plural(S.sites.length, 'site')}</b> (from ${plural(f.preciseN, 'precise record')}${f.total > f.preciseN ? ` of ${fmt(f.total)}` : ''}) with ${st.bgMode === 'fungi' ? 'other fungi recorded' : 'random points'} within ${st.bgR} km. About ${est > 90 ? Math.round(est / 60) + ' min' : est + ' s'}; results fill in as they arrive.`;
+    S.prog.bg.total = S.sites.length; renderProg();
+    const findLayers = Promise.all([
+      track('veg', S.sites, async s => { s.env.veg = await vegFor(s); }),
+      ssurgo ? track('soil', S.sites, async s => { s.env.soil = await soilFor(s); }) : null,
+    ]);
+    const bgJob = (async () => {
+      for (const s of S.sites) { if (run !== S.run) return;
+        try { const pts = st.bgMode === 'fungi' ? await fungiAround(s, BG_PER_SITE, st.bgR) : randomAround(s, BG_PER_SITE, st.bgR);
+          const add = pts.map(p => ({ ...p, kind: 'bg', site: s.idx, env: {} })); S.bg.push(...add);
+          track('veg', add, async b => { b.env.veg = await vegFor(b); });
+          if (ssurgo) track('soil', add, async b => { b.env.soil = await soilFor(b); });
+        } catch (e) { S.prog.bg.failed++; }
+        S.prog.bg.done++; renderProg(); }
+    })();
+    const treeJob = st.doTrees ? track('trees', S.sites, async s => { s.env.trees = await treesFor(s); }) : null;
+    await bgJob; if (run !== S.run) return;
+    const all = [...S.sites, ...S.bg]; S.prog.terrain.total = 1; renderProg();
+    const terrainJob = terrainFor(all).then(() => { setChip('#src-elev', 'live', 'live'); }, () => { S.prog.terrain.failed = 1; all.forEach(p => { p.env.terrain = p.env.terrain || { none: true }; }); setChip('#src-elev', 'fail', 'unavailable'); })
+      .finally(() => { S.prog.terrain.done = 1; renderProg(); scheduleRender(); });
+    await Promise.all([findLayers, treeJob, terrainJob]);
+    await waitIdle(run);
+    if (run !== S.run) return;
+    const failed = Object.values(S.prog).reduce((a, p) => a + p.failed, 0);
+    $('#statusTxt').innerHTML = `Done. ${plural(S.sites.length, 'find site')} compared with ${plural(S.bg.length, 'background point')}.${failed ? ` ${failed} lookups failed and are left out.` : ''}`;
+    renderAll();
+  } catch (e) {
+    $('#statusTxt').innerHTML = `<span style="color:var(--bad)">Couldn’t finish: ${esc(e.message)}. iNaturalist or a data service may be busy; try again in a minute.</span>`;
+  }
+  if (run === S.run) $('#goBtn').disabled = false;
+}
+async function waitIdle(run) { for (let i = 0; i < 3600; i++) { if (run !== S.run) return; const busy = Object.values(S.prog).some(p => p.done < p.total); if (!busy) return; await sleep(500); } }
+
+/* ================= 5. analysis ================= */
+function analyse() {
+  const F = S.sites, B = S.bg.filter(b => !(b.env.veg && b.env.veg.phys && NOT_LAND.has(b.env.veg.phys)));
+  const A = { nF: F.length, nB: B.length, nBraw: S.bg.length };
+  const v = (list, f) => list.map(f).filter(x => x != null && x !== '');
+  const vegF = F.filter(p => p.env.veg && p.env.veg.phys && !NOT_LAND.has(p.env.veg.phys)), vegB = B.filter(p => p.env.veg && p.env.veg.phys);
+  A.waterFinds = F.filter(p => p.env.veg && p.env.veg.phys && NOT_LAND.has(p.env.veg.phys)).length;
+  A.vegN = [vegF.length, vegB.length];
+  A.phys = compareCat(v(vegF, p => p.env.veg.phys), v(vegB, p => p.env.veg.phys));
+  A.group = compareCat(v(vegF, p => p.env.veg.group), v(vegB, p => p.env.veg.group));
+  A.named = compareCat(v(vegF, p => p.env.veg.name), v(vegB, p => p.env.veg.name));
+  const tF = F.filter(p => p.env.terrain && !p.env.terrain.none), tB = B.filter(p => p.env.terrain && !p.env.terrain.none);
+  A.terrainN = [tF.length, tB.length];
+  A.slope = compareCat(tF.map(p => slopeClass(p.env.terrain.slope)), tB.map(p => slopeClass(p.env.terrain.slope)));
+  A.aspect = compareCat(tF.map(p => aspectCat(p.env.terrain)), tB.map(p => aspectCat(p.env.terrain)));
+  A.elevF = tF.map(p => p.env.terrain.elev); A.elevB = tB.map(p => p.env.terrain.elev);
+  A.slopeF = tF.map(p => p.env.terrain.slope); A.slopeB = tB.map(p => p.env.terrain.slope);
+  // Paired: each find against the median of its own background points.
+  const paired = key => { const d = []; for (const s of tF) { const bs = tB.filter(b => b.site === s.idx).map(b => b.env.terrain[key]); if (bs.length >= 3) d.push(s.env.terrain[key] - median(bs)); }
+    const pos = d.filter(x => x > 0).length, neg = d.filter(x => x < 0).length; return { n: d.length, med: median(d), pos, neg, p: signP(pos, pos + neg) }; };
+  A.relElev = paired('elev'); A.relSlope = paired('slope');
+  // Elevation bands (quintiles of the background) for scoring.
+  A.elevCuts = [0.2, 0.4, 0.6, 0.8].map(q => quantile(A.elevB, q));
+  const band = e => { if (!A.elevCuts.every(Number.isFinite)) return null; let i = 0; while (i < 4 && e > A.elevCuts[i]) i++; return i; };
+  A.band = band;
+  A.elevBand = compareCat(tF.map(p => band(p.env.terrain.elev)), tB.map(p => band(p.env.terrain.elev)));
+  // Soils
+  const sF = F.filter(p => p.env.soil && !p.env.soil.none), sB = B.filter(p => p.env.soil && !p.env.soil.none);
+  A.soilN = [sF.length, sB.length];
+  A.drain = compareCat(v(sF, p => p.env.soil.drainage), v(sB, p => p.env.soil.drainage));
+  A.phF = v(sF, p => p.env.soil.ph); A.phB = v(sB, p => p.env.soil.ph);
+  const phD = []; for (const s of sF) { if (!Number.isFinite(s.env.soil.ph)) continue; const bs = sB.filter(b => b.site === s.idx && Number.isFinite(b.env.soil.ph)).map(b => b.env.soil.ph); if (bs.length >= 3) phD.push(s.env.soil.ph - median(bs)); }
+  { const pos = phD.filter(x => x > 0).length, neg = phD.filter(x => x < 0).length; A.relPh = { n: phD.length, med: median(phD), pos, neg, p: signP(pos, pos + neg) }; }
+  // Trees: share of sites with the tree within 100 m vs its share of tree records in the surrounding area.
+  const tr = F.filter(p => p.env.trees);
+  A.treeSites = tr.length; A.treeSitesWithData = tr.filter(p => p.env.trees.near.length).length;
+  // Pooled over sites: each tree's share of tree records within 100 m of finds, against its share of tree
+  // records within the background radius around the same sites. Both are shares of records, so they compare.
+  const nearC = new Map(), aroundC = new Map(), sitesWith = new Map(); let nearAll = 0, aroundAll = 0;
+  for (const s of tr) { const t = s.env.trees; if (!t.near.length) continue;
+    for (const [n, c] of t.nearC || []) { nearC.set(n, (nearC.get(n) || 0) + c); nearAll += c; sitesWith.set(n, (sitesWith.get(n) || 0) + 1); }
+    for (const [n, c] of t.around || []) { aroundC.set(n, (aroundC.get(n) || 0) + c); aroundAll += c; } }
+  A.trees = [...sitesWith].map(([name, sites]) => { const ns = nearAll ? nearC.get(name) / nearAll : 0, as = aroundAll ? (aroundC.get(name) || 0) / aroundAll : 0;
+    return { name, sites, nearShare: ns, around: as, ratio: as ? ns / as : null }; }).sort((a, b) => b.sites - a.sites || (b.ratio || 0) - (a.ratio || 0));
+  // Scoring tables
+  A.lr = { phys: lrTable(v(vegF, p => p.env.veg.phys), v(vegB, p => p.env.veg.phys)), group: lrTable(v(vegF, p => p.env.veg.group), v(vegB, p => p.env.veg.group)),
+    slope: lrTable(tF.map(p => slopeClass(p.env.terrain.slope)), tB.map(p => slopeClass(p.env.terrain.slope))),
+    aspect: lrTable(tF.map(p => aspectCat(p.env.terrain)), tB.map(p => aspectCat(p.env.terrain))),
+    band: lrTable(tF.map(p => band(p.env.terrain.elev)), tB.map(p => band(p.env.terrain.elev))) };
+  A.groupSeen = new Set([...v(vegF, p => p.env.veg.group), ...v(vegB, p => p.env.veg.group)].filter((g, i, a) => a.filter(x => x === g).length >= 3));
+  return A;
+}
+function signature(A) {
+  const out = [], strong = r => r.ev[0] === 'clear' || r.ev[0] === 'some';
+  const line = (r, what) => {
+    const fs = pct(r.a, r.nF), bs = pct(r.b, r.nB);
+    if (r.ratio >= 1.5) return { kind: 'more', ev: r.ev, text: `<b>${esc(what)}</b>: ${r.a} of ${r.nF} find sites (${fs}) against ${bs} of nearby ${S.settings.bgMode === 'fungi' ? 'fungi records' : 'land'}, about ${fmt(r.ratio, 1)}× as often.` };
+    if (r.ratio <= 0.67) return { kind: 'less', ev: r.ev, text: `<b>Less often ${esc(what.charAt(0).toLowerCase() + what.slice(1))}</b>: ${r.a} of ${r.nF} find sites (${fs}) against ${bs} nearby.` };
+    return null;
+  };
+  for (const r of A.phys.filter(strong)) { const l = line(r, `${r.cat} cover`); if (l) out.push(l); }
+  for (const r of A.group.filter(strong)) { const l = line(r, r.cat); if (l) out.push(l); }
+  for (const r of A.slope.filter(strong)) { const l = line(r, `On ${r.cat} slopes`); if (l) out.push(l); }
+  for (const r of A.aspect.filter(strong)) { const l = line(r, r.cat === 'flat' ? 'On flat ground' : `On ${r.cat}-facing slopes`); if (l) out.push(l); }
+  for (const r of A.drain.filter(strong)) { const l = line(r, `On ${r.cat.toLowerCase()} soils`); if (l) out.push(l); }
+  const rel = (R, unit, hi, lo, d = 0) => { if (R.n < 5 || R.p >= 0.05) return null; const up = R.pos > R.neg;
+    return { kind: up ? 'more' : 'less', ev: evidence(R.p, Math.max(R.pos, R.neg)), text: `<b>${up ? hi : lo}</b> than the ${S.settings.bgMode === 'fungi' ? 'fungi records' : 'land'} around them: ${Math.max(R.pos, R.neg)} of ${R.pos + R.neg} sites, by a median of ${fmt(Math.abs(R.med), d)} ${unit}.` }; };
+  for (const x of [rel(A.relElev, 'm', 'Sites sit higher', 'Sites sit lower'), rel(A.relSlope, '°', 'Sites are steeper', 'Sites are flatter', 1), rel(A.relPh, 'pH units', 'Soils are less acidic', 'Soils are more acidic', 1)]) if (x) out.push(x);
+  const trees = A.trees.filter(t => t.sites >= 3 && t.ratio && t.ratio >= 1.5).slice(0, 5);
+  if (trees.length) out.push({ kind: 'more', ev: ['hint', 'Tree records'], text: `<b>Trees recorded near finds more than in the area around them</b>: ${listJoin(trees.map(t => `<i>${esc(t.name)}</i> (${t.sites} sites)`))}. Based on where people photographed trees; treat as leads.` });
+  const order = { clear: 0, some: 1, hint: 2, none: 3 };
+  return out.sort((a, b) => order[a.ev[0]] - order[b.ev[0]] || (a.kind === 'more' ? -1 : 1));
+}
+
+/* ================= 6. rendering ================= */
+let renderTimer = null;
+function scheduleRender() { if (renderTimer) return; renderTimer = setTimeout(() => { renderTimer = null; renderAll(); }, 600); }
+const evTag = ev => `<span class="ev ev-${ev[0]}">${ev[1]}</span>`;
+function catTable(rows, label, opts = {}) {
+  const shown = rows.filter(r => r.a + r.b >= (opts.min || 1)).slice(0, opts.limit || 40);
+  if (!shown.length) return '<p class="empty">No data yet.</p>';
+  const max = Math.max(...shown.map(r => Math.max(r.a / (r.nF || 1), r.b / (r.nB || 1))), 0.01);
+  return `<table class="cmp"><thead><tr><th>${esc(label)}</th><th>Find sites</th><th>Nearby</th><th class="num">Ratio</th><th>Evidence</th></tr></thead><tbody>${shown.map(r => `<tr>
+    <td>${esc(opts.name ? opts.name(r.cat) : r.cat)}</td>
+    <td><span class="pb"><span class="f" style="width:${100 * (r.a / (r.nF || 1)) / max}%"></span></span><span class="pv">${r.a} · ${pct(r.a, r.nF)}</span></td>
+    <td><span class="pb"><span class="b" style="width:${100 * (r.b / (r.nB || 1)) / max}%"></span></span><span class="pv">${r.b} · ${pct(r.b, r.nB)}</span></td>
+    <td class="num">${fmt(r.ratio, 1)}×</td><td>${evTag(r.ev)}</td></tr>`).join('')}</tbody></table>`;
+}
+function renderAll() {
+  if (!S.sites.length) return;
+  const A = analyse(); S.A = A;
+  const st = S.settings, bgWord = st.bgMode === 'fungi' ? 'other fungi records' : 'random points';
+  $('#sigSub').textContent = `${S.label}${st.place ? ' · ' + st.place.name : ''}`;
+  $('#tiles').innerHTML = [[fmt(A.nF), 'find sites'], [fmt(S.found.preciseN), 'precise records used'], [fmt(A.nB), `background ${bgWord}`], [`${st.bgR} km`, 'background radius']]
+    .map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+  const sig = signature(A); S.sig = sig;
+  $('#sig').innerHTML = sig.length ? sig.map(x => `<li class="${x.kind}">${evTag(x.ev)} ${x.text}</li>`).join('')
+    : `<li class="empty">No clear differences from the ${bgWord} around the finds on these layers${A.nF < 15 ? `, which is common with only ${A.nF} sites` : ''}.</li>`;
+  $('#sigNote').innerHTML = `“Nearby” means ${bgWord} within ${st.bgR} km of each find (${BG_PER_SITE} per site)${st.bgMode === 'fungi' ? ', which share the finds’ bias toward places people walk, so differences point to the species rather than to trails and parks' : '; random points include private and inaccessible land, so they partly measure where people go'}. Evidence labels are rules of thumb from Fisher’s exact and sign tests, with no correction for the many comparisons made; with few sites, read “Some evidence” as a lead to check.`;
+  $('#physSub').textContent = `${A.vegN[0]} sites · ${A.vegN[1]} nearby${A.waterFinds ? ` · ${A.waterFinds} find site${A.waterFinds > 1 ? 's' : ''} mapped as water left out (usually a pond or river edge)` : ''}`;
+  $('#phys').innerHTML = catTable(A.phys, 'Cover type (LANDFIRE)');
+  $('#groupSub').textContent = 'groups with at least 2 points';
+  $('#group').innerHTML = catTable(A.group, 'Vegetation group', { min: 2, limit: 15 });
+  $('#named').innerHTML = catTable(A.named, 'Named vegetation type', { min: 2, limit: 30 });
+  // terrain
+  $('#elevSub').textContent = `${A.terrainN[0]} sites · ${A.terrainN[1]} nearby`;
+  const rng = a => a.length ? `${fmt(quantile(a, 0.25))}–${fmt(quantile(a, 0.75))} m (median ${fmt(median(a))})` : '—';
+  const relLine = (R, unit, d, word) => R.n ? `<p class="note">Compared with their own surroundings, ${R.pos} of ${R.pos + R.neg} sites are ${word[0]} and ${R.neg} ${word[1]} (median difference ${R.med > 0 ? '+' : ''}${fmt(R.med, d)} ${unit}). ${evTag(evidence(R.p, Math.max(R.pos, R.neg)))}</p>` : '';
+  $('#elev').innerHTML = A.elevF.length ? `<div class="tiles"><div class="tile"><div class="v">${rng(A.elevF)}</div><div class="k">find sites, middle half</div></div><div class="tile"><div class="v">${rng(A.elevB)}</div><div class="k">nearby, middle half</div></div></div>${relLine(A.relElev, 'm', 0, ['higher', 'lower'])}` : '<p class="empty">No terrain data.</p>';
+  $('#slopeSub').textContent = $('#elevSub').textContent;
+  $('#slope').innerHTML = A.slopeF.length ? catTable(A.slope, 'Slope', { name: c => c }) + relLine(A.relSlope, '°', 1, ['steeper', 'flatter']) : '<p class="empty">No terrain data.</p>';
+  $('#aspectSub').textContent = 'slopes of 5° or more';
+  $('#aspect').innerHTML = A.slopeF.length ? catTable([...A.aspect].sort((a, b) => (a.cat === 'flat') - (b.cat === 'flat') || SECTORS.indexOf(a.cat) - SECTORS.indexOf(b.cat)), 'Facing', { name: c => c === 'flat' ? 'flat (under 5°)' : c }) : '<p class="empty">No terrain data.</p>';
+  // soils
+  $('#soilSub').textContent = S.ssurgoUp === false && !A.soilN[0] ? 'USDA soil service unavailable' : `${A.soilN[0]} sites · ${A.soilN[1]} nearby (SSURGO)`;
+  $('#soil').innerHTML = S.ssurgoUp === false && !A.soilN[0] ? '<p class="empty">The USDA soil survey service was down when this profile was built, so soils are left out (the modelled alternative is too slow to look up for every background point).</p>'
+    : (A.soilN[0] ? catTable(A.drain, 'Drainage class') + (A.phF.length ? `<p class="note">Surface pH: find sites median ${fmt(median(A.phF), 1)}, nearby median ${fmt(median(A.phB), 1)}.${A.relPh.n ? ` Paired with their own surroundings, ${A.relPh.pos} of ${A.relPh.pos + A.relPh.neg} sites are less acidic. ${evTag(evidence(A.relPh.p, Math.max(A.relPh.pos, A.relPh.neg)))}` : ''}</p>` : '') : '<p class="empty">No soil data yet (SSURGO covers the United States).</p>');
+  // trees
+  $('#treeSub').textContent = st.doTrees ? `${A.treeSitesWithData} of ${A.treeSites} sites have tree records within ${TREE_R * 1000} m` : 'not requested';
+  $('#trees').innerHTML = !st.doTrees ? '<p class="empty">Turn on “Trees recorded nearby” and rebuild to include them.</p>' : A.trees.length ? `<table><thead><tr><th>Tree</th><th class="num">Sites</th><th class="num">Share of tree records near finds</th><th class="num">Share around</th><th class="num">Ratio</th></tr></thead><tbody>${A.trees.slice(0, 20).map(t => `<tr><td><i>${esc(t.name)}</i></td><td class="num">${t.sites}</td><td class="num">${(100 * t.nearShare).toFixed(1)}%</td><td class="num">${(100 * t.around).toFixed(1)}%</td><td class="num">${t.ratio ? fmt(t.ratio, 1) + '×' : '—'}</td></tr>`).join('')}</tbody></table><p class="note">Each tree’s share of the tree records within ${TREE_R * 1000} m of the finds, against its share of tree records within ${st.bgR} km of the same sites. They show where people photographed trees, not where trees grow; absence of a record means nothing.</p>` : '<p class="empty">No tree records near these sites yet.</p>';
+  renderMethods(A);
+  drawPoints();
+}
+
+/* ================= 7. map and area scoring ================= */
+function initMap() {
+  if (!window.L) { $('#map').innerHTML = '<p class="empty" style="padding:12px">Map library didn’t load.</p>'; return; }
+  if (!S.map) { S.map = L.map('map', { scrollWheelZoom: false });
+    L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom: 17, maxNativeZoom: 16, attribution: 'Basemap: <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map">USGS The National Map</a>' }).addTo(S.map); }
+  const pts = S.sites.map(s => [s.lat, s.lon]);
+  if (pts.length) S.map.fitBounds(pts, { padding: [24, 24], maxZoom: 12 }); else S.map.setView([40, -90], 4);
+  setTimeout(() => S.map.invalidateSize(), 100);
+}
+function drawPoints() {
+  if (!S.map) return; if (S.layers.pts) S.layers.pts.remove();
+  const css = getComputedStyle(document.documentElement), acc = css.getPropertyValue('--accent').trim(), mut = css.getPropertyValue('--muted').trim();
+  S.layers.pts = L.layerGroup().addTo(S.map);
+  for (const b of S.bg) L.circleMarker([b.lat, b.lon], { radius: 2.5, color: mut, weight: 1, fillOpacity: .5, interactive: false }).addTo(S.layers.pts);
+  for (const s of S.sites) { const v = s.env.veg && s.env.veg.name ? `<br>${esc(s.env.veg.name)}` : '';
+    L.circleMarker([s.lat, s.lon], { radius: 6, color: acc, fillColor: acc, fillOpacity: .9, weight: 1 }).bindPopup(`${s.obs.map(o => `<a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">${o.id}</a>`).slice(0, 5).join(', ')}${s.obs.length > 5 ? ` +${s.obs.length - 5}` : ''}${v}`).addTo(S.layers.pts); }
+}
+function clearScores() { if (S.layers.cells) { S.layers.cells.remove(); S.layers.cells = null; } $('#scoreNote').textContent = ''; }
+function cellScore(cell, A) {
+  const parts = [], v = cell.env.veg, t = cell.env.terrain;
+  if (v && v.phys && NOT_LAND.has(v.phys)) return { water: true, parts: [], score: 0 };
+  if (v && v.group && A.groupSeen.has(v.group)) parts.push(['vegetation group', A.lr.group.get(v.group) ?? A.lr.group.unseen]);
+  else if (v && v.phys) parts.push(['cover type', A.lr.phys.get(v.phys) ?? A.lr.phys.unseen]);
+  if (t && !t.none) {
+    parts.push(['slope', A.lr.slope.get(slopeClass(t.slope)) ?? 1]);
+    parts.push(['aspect', A.lr.aspect.get(aspectCat(t)) ?? 1]);
+    const b = A.band(t.elev); if (b != null) parts.push(['elevation', A.lr.band.get(b) ?? 1]);
+  }
+  const score = parts.length ? Math.exp(parts.reduce((s, [, r]) => s + Math.log(r), 0)) : null;
+  return { parts, score };
+}
+async function scoreView() {
+  if (!S.A || !S.map) return;
+  const A = S.A, bnd = S.map.getBounds(), sw = bnd.getSouthWest(), ne = bnd.getNorthEast();
+  const hM = (ne.lat - sw.lat) * 111320, wM = (ne.lng - sw.lng) * 111320 * Math.cos((ne.lat + sw.lat) / 2 * Math.PI / 180);
+  if (Math.max(hM, wM) > 30000) { $('#scoreNote').textContent = 'Zoom in to an area no more than about 30 km across, then score it.'; return; }
+  // About 200 square cells, whatever the shape of the view.
+  const cols = Math.max(4, Math.round(Math.sqrt(200 * wM / hM))), rows = Math.max(4, Math.round(200 / cols));
+  const dLat = (ne.lat - sw.lat) / rows, dLon = (ne.lng - sw.lng) / cols, cells = [];
+  for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) cells.push({ lat: sw.lat + (i + 0.5) * dLat, lon: sw.lng + (j + 0.5) * dLon, b: [[sw.lat + i * dLat, sw.lng + j * dLon], [sw.lat + (i + 1) * dLat, sw.lng + (j + 1) * dLon]], env: {} });
+  S.scoreRun = (S.scoreRun || 0) + 1; const myRun = S.scoreRun;
+  clearScores(); $('#scoreBtn').disabled = true;
+  $('#scoreNote').textContent = `Scoring ${cells.length} cells of about ${fmt(Math.max(wM / cols, hM / rows))} m: looking up vegetation and terrain…`;
+  S.layers.cells = L.layerGroup().addTo(S.map);
+  try {
+    let done = 0;
+    await Promise.all([
+      Promise.all(cells.map(c => vegFor(c).then(v => { c.env.veg = v; }, () => { c.env.veg = null; }).finally(() => { done++; if (done % 12 === 0 && myRun === S.scoreRun) $('#scoreNote').textContent = `Scoring ${cells.length} cells: ${done} looked up…`; }))),
+      terrainFor(cells).catch(() => cells.forEach(c => { c.env.terrain = { none: true }; })),
+    ]);
+    if (myRun !== S.scoreRun) return;
+    const css = getComputedStyle(document.documentElement), col = k => css.getPropertyValue(k).trim();
+    let best = 0, scored = 0;
+    for (const c of cells) {
+      const r = cellScore(c, A); c.r = r;
+      const fill = r.water ? col('--s4') : r.score == null ? 'transparent' : r.score < 0.67 ? col('--s0') : r.score < 1.5 ? col('--s1') : r.score < 3 ? col('--s2') : col('--s3');
+      if (r.score != null) { scored++; best = Math.max(best, r.score); }
+      const why = r.water ? 'Open water or ice' : r.score == null ? 'No data for this cell' : `<b>×${fmt(r.score, 1)}</b> against typical land near known finds<br>${r.parts.map(([k, x]) => `${esc(k)} ×${fmt(x, 1)}`).join(' · ')}`;
+      const v = c.env.veg, t = c.env.terrain;
+      const desc = [v && v.name ? esc(v.name) : null, t && !t.none ? `${fmt(t.elev)} m, slope ${fmt(t.slope)}°${t.slope >= 5 ? ` facing ${sectorOf(t.aspect)}` : ''}` : null].filter(Boolean).join('<br>');
+      L.rectangle(c.b, { color: 'transparent', weight: 0, fillColor: fill, fillOpacity: .55 }).bindPopup(`${why}${desc ? '<br><span style="color:#666">' + desc + '</span>' : ''}`).addTo(S.layers.cells);
+    }
+    S.layers.pts && S.layers.pts.bringToFront && S.layers.pts.eachLayer(l => l.bringToFront && l.bringToFront());
+    $('#scoreNote').textContent = scored ? `Scored ${scored} of ${cells.length} cells; best ×${fmt(best, 1)}. Click a cell to see why. Cells are about ${fmt(Math.max(wM / cols, hM / rows))} m across, so look inside the green ones rather than at their centres.` : 'No cells could be scored here (vegetation data covers the United States only).';
+  } catch (e) { $('#scoreNote').textContent = 'Scoring failed: ' + e.message; }
+  $('#scoreBtn').disabled = false;
+}
+
+/* ================= 8. exports, methods ================= */
+function pointsCsv() {
+  const head = ['kind', 'site', 'lat', 'lon', 'inat_ids', 'cover_type', 'vegetation_group', 'vegetation_type', 'elevation_m', 'slope_deg', 'aspect_deg', 'facing', 'soil_series', 'drainage', 'surface_ph', 'trees_within_100m'];
+  const row = p => { const v = p.env.veg || {}, t = p.env.terrain && !p.env.terrain.none ? p.env.terrain : {}, s = p.env.soil && !p.env.soil.none ? p.env.soil : {};
+    return [p.kind === 'find' ? 'find' : 'background', p.kind === 'find' ? p.idx + 1 : p.site + 1, p.lat.toFixed(5), p.lon.toFixed(5), p.obs ? p.obs.map(o => o.id).join(' ') : '',
+      v.phys || '', v.group || '', v.name || '', t.elev != null ? Math.round(t.elev) : '', t.slope != null ? t.slope.toFixed(1) : '', t.aspect != null ? Math.round(t.aspect) : '', t.slope != null ? aspectCat(t) : '',
+      s.series || '', s.drainage || '', s.ph != null ? s.ph.toFixed(1) : '', p.env.trees ? p.env.trees.near.join('; ') : '']; };
+  const rows = [head, ...S.sites.map(row), ...S.bg.map(row)];
+  return rows.map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
+}
+$('#csvBtn').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + pointsCsv()], { type: 'text/csv' }));
+  a.download = `habitat-profile_${S.label.replace(/[^\w-]+/g, '_')}_${localToday()}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
+$('#copySig').onclick = async () => {
+  const tmp = document.createElement('div'); const lines = (S.sig || []).map(x => { tmp.innerHTML = `${x.ev[1]}: ${x.text}`; return '• ' + tmp.textContent; });
+  const st = S.settings, text = `Habitat signature: ${S.label}${st.place ? ', ' + st.place.name : ''}\n${S.A.nF} find sites compared with ${S.A.nB} ${st.bgMode === 'fungi' ? 'other fungi records' : 'random points'} within ${st.bgR} km (MycoView Habitat Profiler, ${localToday()})\n${lines.length ? lines.join('\n') : 'No clear differences on these layers.'}`;
+  try { await navigator.clipboard.writeText(text); $('#copyNote').textContent = 'Copied.'; } catch (e) { $('#copyNote').textContent = 'Couldn’t copy; select the list and copy it.'; }
+  setTimeout(() => { $('#copyNote').textContent = ''; }, 3000);
+};
+function renderMethods(A) {
+  const st = S.settings;
+  $('#methods').innerHTML = [
+    `<b>Finds</b>: ${st.mode === 'taxon' ? `iNaturalist observations of ${esc(S.label)}${st.rgOnly ? ' (research grade)' : ''}` : `iNaturalist observations whose Provisional Species Name is exactly “${esc(st.pname)}”${st.seqOnly ? ' with the DNA Barcode ITS field filled in' : ''}`}${st.place ? ` in ${esc(st.place.name)}` : ''}, with an open (not obscured) location accurate to ${st.prec} m or better. Up to 600 records are drawn in random order; records within ${SITE_CELL_M} m of each other count as one site, and at most ${st.cap} sites are used.`,
+    `<b>Background</b>: for each site, ${BG_PER_SITE} ${st.bgMode === 'fungi' ? `records of other fungi on iNaturalist within ${st.bgR} km (also open, precise locations; none within 100 m of a find). They carry the same bias toward accessible places as the finds, so a difference suggests something about the species rather than about where people walk.` : `random points within ${st.bgR} km. These describe the landscape, including private, developed and inaccessible land, so part of any difference reflects where people search.`} Background points on open water or ice are dropped.`,
+    `<b>Vegetation</b>: LANDFIRE 2024 Existing Vegetation Type at each point (30 m pixel; United States only), at three levels: cover type, vegetation group and named type. Mapped classes can be wrong on the ground, especially at forest edges and in parks.`,
+    `<b>Terrain</b>: Copernicus 90 m elevation model via Open-Meteo, at each point and 90 m north, south, east and west of it; slope and aspect come from those differences, so they describe the slope over about 180 m, not the microsite. Aspect is only given for slopes of 5° or more.`,
+    `<b>Soils</b>: dominant component of the USDA NRCS SSURGO map unit at each point (drainage class and surface pH), through MycoView’s relay. Left out when the USDA service is unavailable.`,
+    `<b>Trees</b>: each tree’s share of iNaturalist tree records within ${TREE_R * 1000} m of the finds, against its share of tree records within ${st.bgR} km of the same sites (only trees at 3 or more sites are named in the signature). These reflect where people photograph trees.`,
+    `<b>Statistics</b>: for each category, the share of find sites is compared with the share of background points (ratio with half-count smoothing; Fisher’s exact test). Higher or lower than surroundings uses each site against the median of its own background points (sign test). Labels: “Clear difference” p &lt; 0.01 with at least 5 sites, “Some evidence” p &lt; 0.05, “A hint only” p &lt; 0.2. Many comparisons are made, so some hints will be chance. These are rules of thumb, not validated statistics.`,
+    `<b>Area scores</b>: each cell’s vegetation group (or cover type if the group is rare in the profile), slope class, aspect and elevation band (fifths of the background elevations) is turned into a ratio of how often finds and background points have that value (add-one smoothing), and the ratios are multiplied. This treats the layers as independent, which they are not, so scores overstate certainty. It is a ranking of places to look, not a prediction.`,
+  ].map(x => `<li>${x}</li>`).join('');
+}
+
+/* ================= 9. wiring ================= */
+$('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
+$('#scoreBtn').onclick = scoreView; $('#clearBtn').onclick = clearScores;
+$('#stopBtn').onclick = () => { S.run++; $('#statusTxt').textContent = 'Stopped. Results so far are shown.'; $('#goBtn').disabled = false; renderAll(); };
+$('#example').onclick = e => { e.preventDefault();
+  document.querySelector('input[name=mode][value=taxon]').checked = true; syncMode();
+  S.taxon = { id: 53714, name: 'Grifola frondosa', rank: 'species', common: 'hen of the woods' }; $('#taxon').value = 'Grifola frondosa';
+  S.place = { id: 31, name: 'Ohio, US' }; $('#place').value = 'Ohio, US'; $('#form').requestSubmit(); };
+$('#themeBtn').addEventListener('click', () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('habprof.theme', r.dataset.theme); if (S.sites.length) drawPoints(); });
+const last = store.get('habprof.last');
+if (last) { if (last.mode === 'prov') { document.querySelector('input[name=mode][value=prov]').checked = true; $('#pname').value = last.pname || ''; }
+  else if (last.taxon) { S.taxon = last.taxon; $('#taxon').value = last.taxon.name; }
+  if (last.place) { S.place = last.place; $('#place').value = last.place.name; } }
+syncMode();
+(async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
+(async () => { try { const d = await getJSON(`${ENV}/vegetation?lat=41.13700&lon=-81.56500`); setChip('#src-veg', d.available ? 'live' : 'fail', d.available ? 'live' : 'unavailable'); } catch (e) { setChip('#src-veg', 'fail', 'not reachable'); } })();
+(async () => { try { await getJSON('https://api.open-meteo.com/v1/elevation?latitude=41.137&longitude=-81.565'); setChip('#src-elev', 'live', 'live'); } catch (e) { setChip('#src-elev', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } })();
+(async () => { try { const d = await getJSON(`${ENV}/soil?lat=41.13700&lon=-81.56500`); if (d.available) { S.ssurgoUp = true; setChip('#src-soil', 'live', 'USDA live'); } else throw 0; } catch (e) { S.ssurgoUp = false; setChip('#src-soil', 'fail', 'USDA down · soils left out'); } })();
+})();
+</script>
+</body>
+</html>

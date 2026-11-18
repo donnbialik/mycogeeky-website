@@ -405,6 +405,15 @@ async function weatherFor(st) {
   return out;
 }
 
+function loadWx(st, run) {
+  $('#wx').innerHTML = '<p class="empty">Loading weather…</p>';
+  weatherFor(st).then(w => { if (run === S.run) { S.wx = w; renderWx(); setChip('#src-wx', 'live', 'live'); } })
+    .catch(e => { if (run !== S.run) return; const busy = e.status === 429;
+      $('#wx').innerHTML = `<p class="empty">Weather unavailable (${esc(e.message)}${busy ? ': Open-Meteo is busy' : ''}). The list of what turns up below doesn’t depend on it.</p><button type="button" id="wxRetry">Try the weather again</button>`;
+      $('#wxRetry').onclick = () => { if (run === S.run) loadWx(st, run); };
+      setChip('#src-wx', 'fail', busy ? 'busy, try again in a minute' : 'not reachable'); });
+}
+
 /* ---------- 3. run ---------- */
 async function build() {
   if (!S.spot) { $('#formMsg').textContent = 'Set the spot first: tap the map, search a park or use your location.'; return; }
@@ -419,8 +428,7 @@ async function build() {
   $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#out').classList.remove('hidden');
   $('#statusTxt').innerHTML = `Looking up ${S.years.length} years of records within ${fmt(st.radius, 1)} km, ${shortDate(addDays(date, -st.win))}–${shortDate(addDays(date, st.win))} each year (about ${Math.round(S.years.length * (st.who === 'user' ? 1.1 : 2.2))} s)…`;
   $('#wx').innerHTML = '<p class="empty">Loading weather…</p>'; $('#list').innerHTML = ''; $('#effort').innerHTML = '';
-  weatherFor(st).then(w => { if (run === S.run) { S.wx = w; renderWx(); setChip('#src-wx', 'live', 'live'); } })
-    .catch(e => { if (run === S.run) { $('#wx').innerHTML = `<p class="empty">Weather unavailable (${esc(e.message)}).</p>`; setChip('#src-wx', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); } });
+  loadWx(st, run);
   let done = 0, failed = 0;
   for (const w of S.years) { if (run !== S.run) return;
     try { await loadYear(w); } catch (e) { w.failed = true; failed++; }

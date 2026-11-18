@@ -157,6 +157,8 @@ table.forays tr.detail td{background:var(--bg);white-space:normal}
 .nev{color:var(--good);font-weight:600} .nyr{color:var(--accent);text-decoration-style:dotted}
 .spb{display:inline-block;min-width:44px;padding:1px 6px;border-radius:4px;background:linear-gradient(90deg,color-mix(in oklab,var(--good) 28%,transparent) var(--w),transparent var(--w));font-family:var(--f-mono)}
 .wet{color:var(--good);font-weight:600} .dry{color:var(--warn);font-weight:600}
+.h3{font:600 13.5px var(--f-body);margin:14px 0 6px}
+table.wd{font-size:12.5px}table.wd td,table.wd th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}table.wd .num{text-align:right}
 svg .grid{stroke:var(--line);stroke-width:1} svg .tick{font:10.5px var(--f-mono);fill:var(--muted)} svg .axl{font:12px var(--f-sans,sans-serif);fill:var(--muted)}
 svg .pt{fill:var(--good);fill-opacity:.55;stroke:var(--good);stroke-width:1} svg .normband{fill:var(--surface-2)}
 svg .cline{fill:none;stroke:var(--good);stroke-width:2}
@@ -245,6 +247,9 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
 
     <section class="card" style="margin-top:14px">
       <h2>Forays<span class="sub">click a heading to sort, a row to see what was found</span></h2>
+      <div class="row" style="margin-bottom:8px"><label class="inline" for="minRec">Show forays with at least</label>
+        <select id="minRec"><option value="1">1 record (all)</option><option value="3" selected>3 records</option><option value="5">5 records</option><option value="10">10 records</option></select>
+        <span class="muted" id="minNote"></span></div>
       <div class="tablewrap"><table class="forays" id="forays"></table></div>
       <p class="note">Species are distinct taxa identified to species or below; “other” are records identified only to genus or higher. Species per hour uses the time between the first and last photo of the foray and is shown when that is at least 15 minutes; long forays find more species simply because more ground is covered, so compare the per-hour column too. Rain is the total in the 14 days before, with its share of the 10-year normal for those days.</p>
       <div class="row" style="margin-top:8px"><button type="button" id="csvForays">Forays (CSV)</button><button type="button" id="csvObs">Observations with foray numbers (CSV)</button></div>
@@ -256,6 +261,9 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
         <div class="row" style="margin-bottom:6px"><label class="inline"><input type="radio" name="yv" value="species" checked> species</label><label class="inline"><input type="radio" name="yv" value="rate"> species per hour</label></div>
         <div id="scatter"></div>
         <p class="note" id="rainNote"></p>
+        <h3 class="h3">Wetter against drier, month by month</h3>
+        <div id="wetdry"></div>
+        <p class="note" id="wetdryNote"></p>
       </section>
       <section class="card">
         <h2>Month by month<span class="sub">forays and species</span></h2>
@@ -543,6 +551,8 @@ const COLS = [
   ['newEver', 'New ever', f => f.newEver.size, 'num'], ['seq', 'Sequenced', f => f.seq, 'num'], ['rate', 'Species / hour', f => f.rate, 'num'],
   ['rain', 'Rain 14 d before', f => f.wx && f.wx.rain14 != null ? f.wx.rain14 : null, 'num'], ['pct', '% of normal', f => f.wx && f.wx.pct14 != null ? f.wx.pct14 : null, 'num'],
 ];
+function minRec() { return +($('#minRec') ? $('#minRec').value : 1) || 1; }
+function shownForays() { const k = minRec(); return S.forays.filter(f => f.obs.length >= k); }
 function visibleCols() { const st = S.settings, multi = S.forays.some(f => f.people.length > 1) || (st.src === 'project') || st.users.length > 1;
   return COLS.filter(c => (c[0] !== 'people' || multi) && (c[0] !== 'newYear' || st.newYear) && (c[0] !== 'newEver' || st.newEver) && (!['rain', 'pct'].includes(c[0]) || st.doWx)); }
 function renderAll() {
@@ -562,7 +572,9 @@ function renderAll() {
 }
 function renderTable() {
   const cols = visibleCols(), { key, dir } = S.sort, col = COLS.find(c => c[0] === key) || COLS[6];
-  const rows = [...S.forays].sort((a, b) => { const x = col[2](a), y = col[2](b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (x < y ? -1 : x > y ? 1 : 0) * dir || a.n - b.n; });
+  const shown = shownForays(), hidden = S.forays.length - shown.length;
+  $('#minNote').textContent = hidden ? `${hidden} smaller foray${hidden === 1 ? '' : 's'} hidden here and in the rain comparison; totals above count everything.` : '';
+  const rows = [...shown].sort((a, b) => { const x = col[2](a), y = col[2](b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (x < y ? -1 : x > y ? 1 : 0) * dir || a.n - b.n; });
   const maxSp = Math.max(1, ...S.forays.map(f => f.species.size));
   const cell = (c, f) => { const v = c[2](f);
     if (c[0] === 'date') return shortDate(f.date);
@@ -599,10 +611,10 @@ function spearman(x, y) { const rank = a => { const idx = a.map((v, i) => [v, i]
   let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++) { sxy += (rx[i] - mx) * (ry[i] - my); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - my) ** 2; } return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null; }
 function renderScatter() {
   const st = S.settings, yv = document.querySelector('input[name=yv]:checked').value;
-  if (!st.doWx) { $('#scatter').innerHTML = '<p class="empty">Turn on “Weather before each foray” and rebuild.</p>'; $('#rainNote').textContent = ''; $('#rainSub').textContent = ''; return; }
-  const pts = S.forays.filter(f => f.wx && f.wx.pct14 != null && (yv === 'species' ? true : f.rate != null)).map(f => ({ f, x: f.wx.pct14, y: yv === 'species' ? f.species.size : f.rate }));
+  if (!st.doWx) { $('#scatter').innerHTML = '<p class="empty">Turn on “Weather before each foray” and rebuild.</p>'; $('#rainNote').textContent = ''; $('#rainSub').textContent = ''; $('#wetdry').innerHTML = ''; $('#wetdryNote').textContent = ''; return; }
+  const pts = shownForays().filter(f => f.wx && f.wx.pct14 != null && (yv === 'species' ? true : f.rate != null)).map(f => ({ f, x: f.wx.pct14, y: yv === 'species' ? f.species.size : f.rate }));
   $('#rainSub').textContent = `${pts.length} forays with weather`;
-  if (pts.length < 3) { $('#scatter').innerHTML = `<p class="empty">${S.forays.some(f => f.wx == null) ? 'Weather is still loading…' : 'Too few forays with weather to compare.'}</p>`; $('#rainNote').textContent = ''; return; }
+  if (pts.length < 3) { $('#scatter').innerHTML = `<p class="empty">${S.forays.some(f => f.wx == null) ? 'Weather is still loading…' : 'Too few forays with weather to compare.'}</p>`; $('#rainNote').textContent = ''; $('#wetdry').innerHTML = ''; $('#wetdryNote').textContent = ''; return; }
   const W = 520, H = 250, m = { l: 40, r: 12, t: 10, b: 34 }, xmax = Math.max(200, ...pts.map(p => p.x)) * 1.05, ymax = Math.max(...pts.map(p => p.y)) * 1.1 || 1;
   const X = v => m.l + (W - m.l - m.r) * v / xmax, Y = v => H - m.b - (H - m.t - m.b) * v / ymax;
   const xt = [0, 50, 100, 150, 200, 300, 400, 500].filter(v => v <= xmax), yt = [0, .25, .5, .75, 1].map(k => ymax * k / 1.1);
@@ -612,11 +624,27 @@ function renderScatter() {
     ${yt.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end" class="tick">${fmt(v, yv === 'rate' ? 1 : 0)}</text>`).join('')}
     <text x="${(W + m.l) / 2}" y="${H - 4}" text-anchor="middle" class="axl">rain in the 14 days before, % of normal</text>
     ${pts.map(p => `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${4 + Math.min(6, p.f.obs.length / 15)}" class="pt"><title>${esc(shortDate(p.f.date))} · ${esc(p.f.label)}: ${fmt(p.y, yv === 'rate' ? 1 : 0)} ${yv === 'rate' ? 'species/hour' : 'species'}, ${fmt(p.x)}% of normal rain</title></circle>`).join('')}</svg>`;
-  const rho = spearman(pts.map(p => p.x), pts.map(p => p.y)), a = Math.abs(rho || 0);
-  const strength = pts.length < 8 ? 'too few forays to say' : a < 0.2 ? 'no real relationship' : a < 0.4 ? `a weak ${rho > 0 ? 'positive' : 'negative'} relationship` : a < 0.6 ? `a moderate ${rho > 0 ? 'positive' : 'negative'} relationship` : `a strong ${rho > 0 ? 'positive' : 'negative'} relationship`;
-  $('#rainNote').innerHTML = `Spearman’s ρ = ${fmt(rho, 2)} over ${pts.length} forays: ${strength}. The shaded band is roughly normal rain (75–125%). Bigger dots are forays with more records. ${yv === 'species' ? 'Longer forays find more species whatever the weather, so check species per hour as well. ' : ''}Season matters as much as rain: a dry October can still beat a wet June.`;
+  const rho = spearman(pts.map(p => p.x), pts.map(p => p.y));
+  const unit = yv === 'rate' ? 'species per hour' : 'species';
+  // Within-month view: season drives both rain and fruiting, so compare forays only against others in the same month.
+  const byM = new Map(); for (const p of pts) { const k = p.f.date.slice(0, 7); if (!byM.has(k)) byM.set(k, []); byM.get(k).push(p); }
+  const med = a => { const b = [...a].sort((x, y) => x - y), n = b.length; return n ? (n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2) : null; };
+  const rowsM = [], rhos = []; let wins = 0, losses = 0, ties = 0;
+  for (const [k, ps] of [...byM].sort()) { const wet = ps.filter(p => p.x >= 100), dry = ps.filter(p => p.x < 100);
+    const r = ps.length >= 4 ? spearman(ps.map(p => p.x), ps.map(p => p.y)) : null; if (r != null) rhos.push([r, ps.length]);
+    const mw = med(wet.map(p => p.y)), md = med(dry.map(p => p.y));
+    if (wet.length >= 2 && dry.length >= 2) { if (mw > md) wins++; else if (mw < md) losses++; else ties++; }
+    rowsM.push({ k, n: ps.length, nw: wet.length, nd: dry.length, mw, md, r }); }
+  const within = rhos.length ? rhos.reduce((a, [r, n]) => a + r * n, 0) / rhos.reduce((a, [, n]) => a + n, 0) : null, nWithin = rhos.reduce((a, [, n]) => a + n, 0);
+  const word = (r, n) => n < 8 || r == null ? 'too few forays to say' : Math.abs(r) < 0.2 ? 'little or no relationship' : `a ${Math.abs(r) < 0.4 ? 'weak' : Math.abs(r) < 0.6 ? 'moderate' : 'strong'} ${r > 0 ? 'positive' : 'negative'} relationship`;
+  $('#rainNote').innerHTML = `All forays together: Spearman’s ρ = ${fmt(rho, 2)} over ${pts.length} forays, ${word(rho, pts.length)}. This mixes seasons, so part of it can be the time of year rather than the rain. ${within != null ? `<b>Within the same month</b> (months with 4 or more forays, ${nWithin} forays): average ρ = ${fmt(within, 2)}, ${word(within, nWithin)}. ` : 'No month has 4 or more forays with weather, so there is no within-month figure. '}The shaded band is roughly normal rain (75–125%); bigger dots are forays with more records.${yv === 'species' ? ' Longer forays find more species whatever the weather, so check species per hour too.' : ''} These are descriptions of your forays, not tests: a few forays per month can’t separate rain from where you went.`;
+  $('#wetdry').innerHTML = `<div class="tablewrap" style="max-height:none"><table class="wd"><thead><tr><th>Month</th><th class="num">Forays</th><th class="num">Wetter (≥100%)</th><th class="num">Median ${esc(unit)}</th><th class="num">Drier (&lt;100%)</th><th class="num">Median ${esc(unit)}</th><th class="num">ρ in month</th></tr></thead><tbody>${rowsM.map(r => `<tr><td>${MONTHS[+r.k.slice(5) - 1]} ${r.k.slice(0, 4)}</td><td class="num">${r.n}</td><td class="num">${r.nw}</td><td class="num${r.mw != null && r.md != null && r.mw > r.md ? ' wet' : ''}">${r.mw == null ? '—' : fmt(r.mw, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.nd}</td><td class="num${r.mw != null && r.md != null && r.md > r.mw ? ' dry' : ''}">${r.md == null ? '—' : fmt(r.md, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.r == null ? '—' : fmt(r.r, 2)}</td></tr>`).join('')}</tbody></table></div>`;
+  const comp = wins + losses + ties;
+  $('#wetdryNote').innerHTML = comp ? `In ${wins} of ${comp} month${comp === 1 ? '' : 's'} with at least 2 wetter and 2 drier forays, forays after wetter-than-normal weeks had the higher median${losses ? `; in ${losses} the drier ones did` : ''}${ties ? `; ${ties} tied` : ''}. “Wetter” is rain in the 14 days before at or above the 10-year normal for those days.` : 'No month has at least 2 wetter and 2 drier forays to compare.';
 }
+
 document.querySelectorAll('input[name=yv]').forEach(r => r.addEventListener('change', renderScatter));
+$('#minRec').addEventListener('change', () => { if (S.forays.length) { renderTable(); renderScatter(); } });
 function renderMonths() {
   const F = S.forays, m = new Map();
   for (const f of F) { const k = f.date.slice(0, 7); if (!m.has(k)) m.set(k, { forays: 0, sp: new Set() }); const g = m.get(k); g.forays++; for (const s of f.species.keys()) g.sp.add(s); }
@@ -648,7 +676,7 @@ function renderMethods() {
     `<b>Forays</b>: ${st.grp === 'dist' ? `records on the same date are joined into one foray when each is within ${st.km} km of another record in it (single linkage), so a day at two parks far apart makes two forays.` : 'records on the same date in the same iNaturalist place make one foray; the place is the smallest iNaturalist place containing the record, which is usually a park, preserve or town.'} Records without a location join the same person’s foray nearest in time that day. Several people out on the same day and place count as one foray.`,
     `<b>Species</b>: distinct taxa identified to species or below (subspecies and varieties count with their species). “Other” lists records identified only to genus or higher; they may or may not be different from the species found. Provisional names come from the “${PNF}” observation field and sequenced records from “${ITSF}” with at least 100 bases.`,
     `<b>New</b>: “new ever” means the person who found it had no earlier record of that species on iNaturalist; “new that year” means none earlier in that calendar year. Earlier records are read from each person’s iNaturalist species list, so a species they found but never posted still counts as new.`,
-    `<b>Weather</b>: Open-Meteo’s archive (ERA5 reanalysis) at each foray’s middle point, rounded to about 10 km; forays in the last five days wait for the archive to catch up. Normal is the mean rain in the same 14 days over the previous ${S.wxPlan ? S.wxPlan.years : NORMAL_YEARS} years. The comparison of species with rain uses Spearman’s rank correlation; it describes these forays and does not separate rain from season, effort or place.`,
+    `<b>Weather</b>: Open-Meteo’s archive (ERA5 reanalysis) at each foray’s middle point, rounded to about 10 km; forays in the last five days wait for the archive to catch up. Normal is the mean rain in the same 14 days over the previous ${S.wxPlan ? S.wxPlan.years : NORMAL_YEARS} years. The comparison of species with rain uses Spearman’s rank correlation, once over all forays and once within each month (months with 4 or more forays, averaged by number of forays), because season drives both rain and fruiting. The month-by-month table splits forays at 100% of normal rain and compares medians. Forays below the minimum size chosen above the table are left out of the table and the rain comparison, but not of the totals, month bars, species curve, places or CSV files. All of it describes these forays; none of it is a significance test.`,
   ].map(x => `<li>${x}</li>`).join('');
 }
 function csv(rows) { return rows.map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n'); }

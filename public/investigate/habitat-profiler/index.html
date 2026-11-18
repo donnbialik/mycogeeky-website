@@ -774,7 +774,8 @@ async function scoreView() {
       const why = r.water ? 'Open water or ice' : r.score == null ? 'No data for this cell' : `<b>×${fmt(r.score, 1)}</b> against typical land near known finds<br>${r.parts.map(([k, x]) => `${esc(k)} ×${fmt(x, 1)}`).join(' · ')}`;
       const v = c.env.veg, t = c.env.terrain;
       const desc = [v && v.name ? esc(v.name) : null, t && !t.none ? `${fmt(t.elev)} m, slope ${fmt(t.slope)}°${t.slope >= 5 ? ` facing ${sectorOf(t.aspect)}` : ''}` : null].filter(Boolean).join('<br>');
-      L.rectangle(c.b, { color: 'transparent', weight: 0, fillColor: fill, fillOpacity: .55 }).bindPopup(`${why}${desc ? '<br><span style="color:#666">' + desc + '</span>' : ''}`).addTo(S.layers.cells);
+      const plan = `<br><a href="/investigate/plan-a-visit/?lat=${c.lat.toFixed(5)}&lng=${c.lon.toFixed(5)}">Plan a visit here →</a>`;
+      L.rectangle(c.b, { color: 'transparent', weight: 0, fillColor: fill, fillOpacity: .55 }).bindPopup(`${why}${desc ? '<br><span style="color:#666">' + desc + '</span>' : ''}${r.water ? '' : plan}`).addTo(S.layers.cells);
     }
     S.layers.pts && S.layers.pts.bringToFront && S.layers.pts.eachLayer(l => l.bringToFront && l.bringToFront());
     $('#scoreNote').textContent = scored ? `Scored ${scored} of ${cells.length} cells; best ×${fmt(best, 1)}. Click a cell to see why. Cells are about ${fmt(Math.max(wM / cols, hM / rows))} m across, so look inside the green ones rather than at their centres.` : 'No cells could be scored here (vegetation data covers the United States only).';
@@ -823,8 +824,12 @@ $('#example').onclick = e => { e.preventDefault();
   S.taxon = { id: 53714, name: 'Grifola frondosa', rank: 'species', common: 'hen of the woods' }; $('#taxon').value = 'Grifola frondosa';
   S.place = { id: 31, name: 'Ohio, US' }; $('#place').value = 'Ohio, US'; $('#form').requestSubmit(); };
 $('#themeBtn').addEventListener('click', () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('habprof.theme', r.dataset.theme); if (S.sites.length) drawPoints(); });
-const last = store.get('habprof.last');
-if (last) { if (last.mode === 'prov') { document.querySelector('input[name=mode][value=prov]').checked = true; $('#pname').value = last.pname || ''; }
+const last = store.get('habprof.last'), qp = new URLSearchParams(location.search);
+// Links from other tools: ?taxon_id=…&taxon=…&place_id=…&place=… (names are only labels; ids decide what is searched).
+if (qp.get('taxon_id') && Number(qp.get('taxon_id'))) { document.querySelector('input[name=mode][value=taxon]').checked = true;
+  S.taxon = { id: Number(qp.get('taxon_id')), name: qp.get('taxon') || 'Taxon ' + qp.get('taxon_id'), rank: '', common: qp.get('common') || '' }; $('#taxon').value = S.taxon.name;
+  if (qp.get('place_id') && Number(qp.get('place_id'))) { S.place = { id: Number(qp.get('place_id')), name: qp.get('place') || 'Place ' + qp.get('place_id') }; $('#place').value = S.place.name; } else { S.place = null; $('#place').value = ''; } }
+else if (last) { if (last.mode === 'prov') { document.querySelector('input[name=mode][value=prov]').checked = true; $('#pname').value = last.pname || ''; }
   else if (last.taxon) { S.taxon = last.taxon; $('#taxon').value = last.taxon.name; }
   if (last.place) { S.place = last.place; $('#place').value = last.place.name; } }
 syncMode();

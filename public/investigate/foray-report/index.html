@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foray Report · MycoView</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script>try{const t=JSON.parse(localStorage.getItem('foray.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+:root{
+  /* MycoView Research Workbench palette (same as the other Workbench tools) */
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface-2:#E8EFEB; --ink:#15201B; --muted:#56655E; --line:#D2DCD7;
+  --accent:#1D6B55; --accent-ink:#FFFFFF; --spore:#8A5A2B; --good:#2E7D4F; --warn:#A86E14; --bad:#B4412F;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body)}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:22px} h2{font-size:17px} h3{font-size:14.5px}
+.muted{color:var(--muted)} .hidden{display:none!important}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+/* Link back to the MycoView site (keep in future versions of this tool) */
+.site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-bottom:2px}
+.site-home:hover{text-decoration:underline}
+.sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:var(--surface);white-space:nowrap;cursor:help}
+.srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.srcchip.live .dot{background:var(--good)} .srcchip.fail .dot{background:var(--bad)} .srcchip.slow .dot{background:var(--warn)}
+.srcchip .st{color:var(--muted)}
+.steps{background:var(--surface-2);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right))}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px}
+.stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--f-body);margin-right:9px}
+.steps .stepn{margin-right:0;margin-top:-1px}
+main{max-width:1440px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) 48px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.card h2{display:flex;align-items:center;gap:0;margin-bottom:10px}
+.card h2 .sub{font:400 12.5px var(--f-body);color:var(--muted);margin-left:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+label.inline{flex-direction:row;align-items:center;gap:7px;color:var(--ink)}
+input[type=text],input[type=number],select{font:inherit;font-size:13.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:7px 9px;width:100%;min-width:0}
+input#pname{font-family:var(--f-mono)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:5px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:8px 18px;font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+.form{display:grid;grid-template-columns:minmax(260px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:12px;align-items:end}
+.opts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.status .txt{flex:1 1 320px;font-size:13px}
+.prog{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px;width:100%}
+.prog div{font-size:12px;color:var(--muted)}
+.prog .bar{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:3px}
+.prog .bar span{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.msg{color:var(--bad);font-size:13px;margin-top:8px}
+.grid{display:grid;gap:14px;margin-top:14px}
+.g2{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:9px 11px;background:var(--surface)}
+.tile .v{font-family:var(--f-mono);font-size:19px}
+.tile .k{font-size:12px;color:var(--muted)}
+#map{height:360px;border-radius:6px;border:1px solid var(--line)}
+.draft{font-family:Georgia,"Source Serif 4",serif;font-size:15px;line-height:1.65;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:14px 16px;white-space:pre-wrap}
+.draft .ref{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.03em}
+.tablewrap th{position:sticky;top:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+.tablewrap{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:6px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);margin-left:4px;white-space:nowrap}
+.tag.tree{background:color-mix(in oklab,var(--good) 16%,var(--surface));color:var(--good)}
+.tag.warn{background:color-mix(in oklab,var(--warn) 16%,var(--surface));color:var(--warn)}
+.bars{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:90px;padding:4px 0 18px}
+.bars div{background:var(--good);border-radius:3px 3px 0 0;position:relative;min-height:2px}
+.bars div.z{background:var(--line)}
+.bars div span{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.bars div b{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.notes li{margin-bottom:6px}
+details.method summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details.method li{margin-bottom:6px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+dialog#unused{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:18px 20px;width:min(640px,calc(100vw - 24px));box-shadow:0 14px 44px rgba(0,0,0,.3)}
+dialog#unused::backdrop{background:rgba(14,20,18,.45)}
+dialog#unused textarea{width:100%;height:260px;font:12.5px/1.5 var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+dialog#unused .row{justify-content:flex-end;margin-top:10px}
+button.rep{font-size:12px;padding:3px 9px}
+@media (max-width:980px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}.g2,.g3{grid-template-columns:1fr}}
+@media (max-width:560px){.form{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+:root{--s0:#cfd6d2;--s1:#d6ecc9;--s2:#7fc28f;--s3:#1d6b55;--s4:#8fb3d9}
+:root[data-theme="dark"]{--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}}
+.form{grid-template-columns:minmax(240px,2fr) minmax(170px,1.2fr) minmax(190px,1.2fr) repeat(2,minmax(120px,1fr)) auto}
+.modes{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:10px}
+.ac{position:relative;display:block}
+.aclist{position:absolute;z-index:1000;left:0;right:0;top:100%;margin:2px 0 0;padding:4px 0;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:280px;overflow:auto;color:var(--ink);font-size:13px}
+.aclist li{padding:6px 10px;cursor:pointer}
+.aclist li:hover,.aclist li.on{background:var(--surface-2)}
+#map{height:460px}
+ul.sig{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+ul.sig li{padding:8px 11px;border:1px solid var(--line);border-left:4px solid var(--good);border-radius:6px;background:var(--bg);font-size:13.5px}
+ul.sig li.less{border-left-color:var(--warn)}
+ul.sig li.empty{border-left-color:var(--line)}
+.ev{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;margin-right:6px;white-space:nowrap;vertical-align:1px}
+.ev-clear{background:var(--good);color:var(--accent-ink)}
+.ev-some{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--good)}
+.ev-hint{background:var(--surface-2);color:var(--muted)}
+.ev-none{background:transparent;color:var(--muted);border:1px solid var(--line)}
+table.cmp td{vertical-align:middle}
+.pb{display:inline-block;width:90px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;vertical-align:middle;margin-right:6px}
+.pb span{display:block;height:100%}
+.pb .f{background:var(--good)} .pb .b{background:var(--muted);opacity:.55}
+.pv{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.legend i.sq{border-radius:2px;width:14px}
+#elev .tile .v{font-size:15px}
+@media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
+@media (max-width:560px){.form{grid-template-columns:1fr}.pb{width:50px}}
+
+.form{grid-template-columns:minmax(240px,2.2fr) repeat(4,minmax(120px,1fr)) auto}
+.optlabel{font-size:13px;color:var(--muted);margin-right:4px}
+.opts{align-items:center}
+input[type=range]{accent-color:var(--accent);vertical-align:middle}
+table.forays th{cursor:pointer;user-select:none;white-space:nowrap}
+table.forays th.sorted{color:var(--ink)}
+table.forays tr.frow{cursor:pointer}
+table.forays tr.frow:hover td,table.forays tr.open td{background:var(--surface-2)}
+table.forays tr.detail td{background:var(--bg);white-space:normal}
+.det{display:grid;gap:6px;font-size:13px;padding:4px 2px 8px;max-width:1100px}
+.det a{color:inherit}
+.nev{color:var(--good);font-weight:600} .nyr{color:var(--accent);text-decoration-style:dotted}
+.spb{display:inline-block;min-width:44px;padding:1px 6px;border-radius:4px;background:linear-gradient(90deg,color-mix(in oklab,var(--good) 28%,transparent) var(--w),transparent var(--w));font-family:var(--f-mono)}
+.wet{color:var(--good);font-weight:600} .dry{color:var(--warn);font-weight:600}
+svg .grid{stroke:var(--line);stroke-width:1} svg .tick{font:10.5px var(--f-mono);fill:var(--muted)} svg .axl{font:12px var(--f-sans,sans-serif);fill:var(--muted)}
+svg .pt{fill:var(--good);fill-opacity:.55;stroke:var(--good);stroke-width:1} svg .normband{fill:var(--surface-2)}
+svg .cline{fill:none;stroke:var(--good);stroke-width:2}
+#scatter svg,#curve svg{width:100%;height:auto;display:block}
+.mbars{display:flex;align-items:flex-end;gap:4px;height:118px}
+.mb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}
+.mb .s{display:block;width:70%;max-width:26px;background:var(--good);border-radius:3px 3px 0 0}
+.mb .f{display:block;width:70%;max-width:26px;background:var(--accent);opacity:.45;border-radius:0 0 3px 3px}
+.mb em{font-style:normal;font:10.5px var(--f-mono);color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:6px} .legend i{display:inline-block;width:12px;height:12px;border-radius:2px}
+@media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
+@media (max-width:560px){.form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <a class="site-home" href="/investigate/tools/">← MycoView Research Workbench</a>
+    <h1>Foray Report</h1>
+    <p>Every foray in a season or year from iNaturalist records: which were the most productive, and what the weather had been doing before them.</p>
+  </div>
+  <div class="sources">
+    <span class="srcchip" id="src-inat" title="Observations on iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-wx" title="Weather before each foray from the Open-Meteo archive (ERA5, CC BY 4.0)"><span class="dot"></span>Open-Meteo <span class="st">checking…</span></span>
+    <button id="themeBtn" class="ghost" type="button" style="font-size:12px">Theme</button>
+  </div>
+</header>
+<nav class="steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Whose forays</strong>: one or more iNaturalist users, or a project</span></li>
+    <li><span class="stepn">2</span><span><strong>Which period</strong>: a year, a season, a month or your own dates</span></li>
+    <li><span class="stepn">3</span><span><strong>How to group</strong> a day’s records into forays</span></li>
+    <li><span class="stepn">4</span><span><strong>Compare</strong> the forays, the places and the weather before them</span></li>
+  </ol>
+</nav>
+<main>
+  <section class="card">
+    <h2><span class="stepn">1</span>Whose forays, and when</h2>
+    <div class="modes" role="radiogroup" aria-label="Records from">
+      <label class="inline"><input type="radio" name="src" value="users" checked> People (iNaturalist usernames)</label>
+      <label class="inline"><input type="radio" name="src" value="project"> An iNaturalist project</label>
+    </div>
+    <form id="form" class="form" autocomplete="off">
+      <label class="wide" id="usersWrap">Usernames <input type="text" id="users" placeholder="one or more, separated by commas"></label>
+      <label class="wide hidden" id="projWrap">Project
+        <span class="ac"><input type="text" id="proj" placeholder="Start typing a project name" aria-autocomplete="list" aria-controls="projList"><ul class="aclist hidden" id="projList" role="listbox"></ul></span>
+      </label>
+      <label>Period
+        <select id="period"><option value="year" selected>a year</option><option value="season">a season</option><option value="month">a month</option><option value="custom">my own dates</option></select>
+      </label>
+      <label id="yearWrap">Year <select id="year"></select></label>
+      <label id="seasonWrap" class="hidden">Season <select id="season"><option value="spring">spring (Mar–May)</option><option value="summer">summer (Jun–Aug)</option><option value="fall" selected>fall (Sep–Nov)</option><option value="winter">winter (Dec–Feb)</option></select></label>
+      <label id="monthWrap" class="hidden">Month <select id="month"></select></label>
+      <label id="d1Wrap" class="hidden">From <input type="date" id="d1"></label>
+      <label id="d2Wrap" class="hidden">To <input type="date" id="d2"></label>
+      <button class="primary" id="goBtn" type="submit">Build report</button>
+    </form>
+    <div class="opts">
+      <span class="optlabel">A foray is the same day and</span>
+      <label class="inline"><input type="radio" name="grp" value="dist" checked> within <input type="range" id="km" min="1" max="20" step="1" value="5" style="width:110px"> <b id="kmv">5 km</b></label>
+      <label class="inline"><input type="radio" name="grp" value="place"> the same iNaturalist place (park)</label>
+    </div>
+    <div class="opts">
+      <span class="optlabel">Count species that are</span>
+      <label class="inline"><input type="checkbox" id="newYear" checked> new that year</label>
+      <label class="inline"><input type="checkbox" id="newEver" checked> new ever</label>
+      <label class="inline"><input type="checkbox" id="doWx" checked> Weather before each foray</label>
+    </div>
+    <p class="hint">New here? <a href="#" id="example">Try an example: mycogeekyohio, fall 2025</a>. Fungi only (lichens included). Each person’s records count toward the foray they were on; several people out together on the same day and place make one foray.</p>
+    <div id="formMsg" class="msg"></div>
+  </section>
+
+  <section id="statusBox" class="status hidden">
+    <div class="txt" id="statusTxt"></div>
+    <button class="ghost" id="stopBtn" type="button">Stop</button>
+    <div class="prog" id="prog"></div>
+  </section>
+
+  <div id="out" class="hidden">
+    <section class="card" style="margin-top:14px">
+      <h2>The period<span class="sub" id="sumSub"></span></h2>
+      <div class="tiles" id="tiles"></div>
+      <p class="note" id="sumNote"></p>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>Forays<span class="sub">click a heading to sort, a row to see what was found</span></h2>
+      <div class="tablewrap"><table class="forays" id="forays"></table></div>
+      <p class="note">Species are distinct taxa identified to species or below; “other” are records identified only to genus or higher. Species per hour uses the time between the first and last photo of the foray and is shown when that is at least 15 minutes; long forays find more species simply because more ground is covered, so compare the per-hour column too. Rain is the total in the 14 days before, with its share of the 10-year normal for those days.</p>
+      <div class="row" style="margin-top:8px"><button type="button" id="csvForays">Forays (CSV)</button><button type="button" id="csvObs">Observations with foray numbers (CSV)</button></div>
+    </section>
+
+    <div class="grid g2">
+      <section class="card">
+        <h2>Productivity and rain<span class="sub" id="rainSub"></span></h2>
+        <div class="row" style="margin-bottom:6px"><label class="inline"><input type="radio" name="yv" value="species" checked> species</label><label class="inline"><input type="radio" name="yv" value="rate"> species per hour</label></div>
+        <div id="scatter"></div>
+        <p class="note" id="rainNote"></p>
+      </section>
+      <section class="card">
+        <h2>Month by month<span class="sub">forays and species</span></h2>
+        <div id="months"></div>
+        <h3 style="margin:14px 0 4px;font-size:14px">Species so far</h3>
+        <div id="curve"></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:14px">
+      <h2>Places<span class="sub" id="placeSub"></span></h2>
+      <div class="tablewrap"><table id="places"></table></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <details class="method">
+        <summary>Methods, sources and limits</summary>
+        <ul id="methods"></ul>
+      </details>
+    </section>
+  </div>
+  <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; weather by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (ERA5 reanalysis, CC BY 4.0). Not affiliated with or endorsed by either.</p>
+</main>
+
+<script>
+(() => {
+'use strict';
+const INAT = 'https://api.inaturalist.org', FUNGI = 47170;
+const METEO = 'https://archive-api.open-meteo.com/v1/archive';
+const PNF = 'Provisional Species Name', ITSF = 'DNA Barcode ITS';
+const OBS_FIELDS = '(id:!t,observed_on:!t,time_observed_at:!t,location:!t,obscured:!t,positional_accuracy:!t,public_positional_accuracy:!t,place_guess:!t,place_ids:!t,quality_grade:!t,taxon:(id:!t,name:!t,rank:!t,rank_level:!t,preferred_common_name:!t),user:(login:!t,name:!t),ofvs:(name:!t,value:!t))';
+const MAX_OBS = 10000, METEO_PER_MIN = 450, NORMAL_YEARS = 10;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n, d = 0) => n == null || !Number.isFinite(n) ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const isoDay = d => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0, 10);
+const todayIso = () => isoDay(new Date());
+const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const shiftYears = (iso, k) => { const y = +iso.slice(0, 4) - k, md = iso.slice(4); return `${y}${md === '-02-29' ? '-02-28' : md}`; };
+const dayDiff = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 864e5);
+const shortDate = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const distKm = (a, b) => { const dy = (a.lat - b.lat) * 111.32, dx = (a.lon - b.lon) * 111.32 * Math.cos(a.lat * Math.PI / 180); return Math.hypot(dx, dy); };
+const median = a => { const b = a.filter(Number.isFinite).sort((x, y) => x - y); if (!b.length) return null; const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+function pacer(gapMs, concurrency = 1) {
+  let last = 0, active = 0; const waiting = [];
+  const next = () => { if (active >= concurrency || !waiting.length) return; active++; const { fn, res, rej } = waiting.shift();
+    const wait = Math.max(0, last + gapMs - Date.now()); last = Math.max(Date.now(), last + gapMs);
+    setTimeout(() => fn().then(res, rej).finally(() => { active--; next(); }), wait); };
+  return fn => new Promise((res, rej) => { waiting.push({ fn, res, rej }); next(); });
+}
+// Open-Meteo counts a request covering more than 14 days as several calls, and limits calls per minute,
+// so requests are spaced by their weight rather than by count.
+function weightedPacer(perMin) {
+  let free = Date.now(); const q = []; let busy = false;
+  const pump = async () => { if (busy) return; busy = true;
+    while (q.length) { const { fn, w, res, rej } = q.shift(); const wait = free - Date.now(); if (wait > 0) await sleep(wait);
+      free = Math.max(Date.now(), free) + w * 60000 / perMin; fn().then(res, rej); }
+    busy = false; };
+  return (fn, w) => new Promise((res, rej) => { q.push({ fn, w, res, rej }); pump(); });
+}
+const qInat = pacer(1050, 1), qMeteo = weightedPacer(METEO_PER_MIN);
+async function getJSON(url) {
+  for (let i = 0; i < 3; i++) {
+    let r; try { r = await fetch(url); } catch (e) { if (i === 2) throw e; await sleep(2000); continue; }
+    if (r.status === 429 || r.status >= 500) { if (i === 2) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } await sleep(5000 * (i + 1)); continue; }
+    if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    return r.json();
+  }
+}
+function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'fail', 'slow'); if (cls) c.classList.add(cls); c.querySelector('.st').textContent = text; }
+const speciesKey = t => !t ? null : t.rank_level <= 10 ? (t.rank_level < 10 ? t.name.split(' ').slice(0, 2).join(' ') : t.name) : null;
+
+/* ---------- form ---------- */
+const S = { run: 0, obs: [], forays: [], settings: {}, sort: { key: 'species', dir: -1 }, open: new Set(), proj: null };
+(function initForm() {
+  const ys = $('#year'), thisYear = new Date().getFullYear();
+  for (let y = thisYear; y >= 2008; y--) ys.insertAdjacentHTML('beforeend', `<option${y === thisYear ? ' selected' : ''}>${y}</option>`);
+  $('#month').innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}"${i === new Date().getMonth() ? ' selected' : ''}>${m}</option>`).join('');
+  const sync = () => { const p = $('#period').value;
+    $('#yearWrap').classList.toggle('hidden', p === 'custom'); $('#seasonWrap').classList.toggle('hidden', p !== 'season');
+    $('#monthWrap').classList.toggle('hidden', p !== 'month'); $('#d1Wrap').classList.toggle('hidden', p !== 'custom'); $('#d2Wrap').classList.toggle('hidden', p !== 'custom'); };
+  $('#period').addEventListener('change', sync); sync();
+  const srcSync = () => { const u = document.querySelector('input[name=src]:checked').value === 'users'; $('#usersWrap').classList.toggle('hidden', !u); $('#projWrap').classList.toggle('hidden', u); };
+  document.querySelectorAll('input[name=src]').forEach(r => r.addEventListener('change', srcSync)); srcSync();
+  $('#km').addEventListener('input', () => { $('#kmv').textContent = $('#km').value + ' km'; document.querySelector('input[name=grp][value=dist]').checked = true; });
+  // project autocomplete
+  const input = $('#proj'), list = $('#projList'); let timer = null, items = [];
+  input.addEventListener('input', () => { S.proj = null; clearTimeout(timer); const q = input.value.trim(); if (q.length < 2) { list.classList.add('hidden'); return; }
+    timer = setTimeout(async () => { try { const d = await getJSON(`${INAT}/v1/projects/autocomplete?q=${encodeURIComponent(q)}&per_page=8`); items = d.results;
+      list.innerHTML = items.map((p, i) => `<li data-i="${i}">${esc(p.title)}</li>`).join(''); list.classList.toggle('hidden', !items.length); } catch (e) { list.classList.add('hidden'); } }, 250); });
+  list.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); const p = items[+li.dataset.i]; S.proj = { id: p.id, title: p.title, slug: p.slug }; input.value = p.title; list.classList.add('hidden'); });
+  input.addEventListener('blur', () => setTimeout(() => list.classList.add('hidden'), 150));
+})();
+function periodRange() {
+  const p = $('#period').value, y = +$('#year').value, pad = n => String(n).padStart(2, '0');
+  if (p === 'year') return [`${y}-01-01`, `${y}-12-31`, String(y)];
+  if (p === 'month') { const m = +$('#month').value, last = new Date(Date.UTC(y, m, 0)).getUTCDate(); return [`${y}-${pad(m)}-01`, `${y}-${pad(m)}-${last}`, `${MONTHS[m - 1]} ${y}`]; }
+  if (p === 'season') { const s = $('#season').value;
+    if (s === 'winter') return [`${y - 1}-12-01`, `${y}-02-${new Date(Date.UTC(y, 2, 0)).getUTCDate()}`, `winter ${y - 1}–${String(y).slice(2)}`];
+    const r = { spring: ['03-01', '05-31'], summer: ['06-01', '08-31'], fall: ['09-01', '11-30'] }[s]; return [`${y}-${r[0]}`, `${y}-${r[1]}`, `${s} ${y}`]; }
+  return [$('#d1').value, $('#d2').value, `${$('#d1').value} to ${$('#d2').value}`];
+}
+
+/* ---------- 1. observations ---------- */
+function parseObs(o) {
+  const [lat, lon] = String(o.location || '').split(',').map(Number), f = {};
+  for (const v of o.ofvs || []) if (v && v.name) f[v.name] = v.value;
+  const t = o.time_observed_at ? Date.parse(o.time_observed_at) : NaN;
+  const its = String(f[ITSF] || '').replace(/[^ACGTRYSWKMBDHVN]/gi, '');
+  return { id: o.id, date: o.observed_on, t: Number.isFinite(t) ? t : null, lat, lon, hasLoc: Number.isFinite(lat) && Number.isFinite(lon), obscured: !!o.obscured,
+    placeGuess: o.place_guess || '', placeIds: o.place_ids || [], qg: o.quality_grade, taxon: o.taxon || null, sp: speciesKey(o.taxon),
+    login: o.user ? o.user.login : '?', prov: String(f[PNF] || '').trim(), seq: its.length >= 100 };
+}
+async function loadObs(run) {
+  const st = S.settings; let base = `taxon_id=${FUNGI}&d1=${st.d1}&d2=${st.d2}&order_by=id&order=asc&per_page=200`;
+  base += st.src === 'users' ? `&user_id=${st.users.map(encodeURIComponent).join(',')}` : `&project_id=${st.proj.id}`;
+  let idAbove = 0, out = [], total = null;
+  while (out.length < MAX_OBS) { if (run !== S.run) return null;
+    const d = await qInat(() => getJSON(`${INAT}/v2/observations?${base}&id_above=${idAbove}&fields=${OBS_FIELDS}`));
+    if (total == null) total = d.total_results;
+    if (!d.results.length) break; out = out.concat(d.results.map(parseObs)); idAbove = d.results[d.results.length - 1].id;
+    $('#prog').innerHTML = `<div>Observations: ${fmt(out.length)} of ${fmt(Math.min(total, MAX_OBS))}<div class="bar"><span style="width:${100 * out.length / Math.max(1, Math.min(total, MAX_OBS))}%"></span></div></div>`;
+    if (d.results.length < 200) break; }
+  return { obs: out.filter(o => o.date), total };
+}
+// Each person's species before the period (and earlier in its first year), for "new ever" and "new that year".
+async function priorSpecies(login, d1, d2) {
+  const set = new Set(); let page = 1, total = 0, got = 0;
+  do { const d = await qInat(() => getJSON(`${INAT}/v1/observations/species_counts?user_id=${encodeURIComponent(login)}&taxon_id=${FUNGI}${d1 ? `&d1=${d1}` : ''}&d2=${d2}&per_page=500&page=${page}`));
+    total = d.total_results; got += d.results.length; for (const r of d.results) { const k = speciesKey(r.taxon); if (k) set.add(k); } page++; }
+  while (got < total && page <= 12);
+  return set;
+}
+// Smallest iNaturalist place containing each observation (usually a park, preserve or town).
+async function placeNames(obs) {
+  const ids = [...new Set(obs.flatMap(o => o.placeIds))], info = new Map();
+  for (let i = 0; i < ids.length; i += 100) { const d = await qInat(() => getJSON(`${INAT}/v1/places/${ids.slice(i, i + 100).join(',')}?per_page=100`));
+    for (const p of d.results) info.set(p.id, { name: p.display_name || p.name, area: p.bbox_area || Infinity, admin: p.admin_level }); }
+  // Prefer the smallest place that isn't an administrative unit (a park or preserve); fall back to the smallest town or county.
+  for (const o of obs) { let best = null, bestAdmin = null;
+    for (const id of o.placeIds) { const p = info.get(id); if (!p || !(p.area > 1e-8)) continue;
+      if (p.admin == null) { if (!best || p.area < best.area) best = { id, ...p }; } else if (!bestAdmin || p.area < bestAdmin.area) bestAdmin = { id, ...p }; }
+    // A non-administrative place counts only if it is park-sized and smaller than the smallest town or county (ecoregions, watersheds and project areas are not).
+    if (best && (best.area > 0.05 || (bestAdmin && best.area >= bestAdmin.area))) best = null;
+    o.place = best || bestAdmin; o.placeIsAdmin = !best && !!bestAdmin; }
+}
+
+/* ---------- 2. forays ---------- */
+function groupForays(obs) {
+  const st = S.settings, byDay = new Map(); for (const o of obs) { if (!byDay.has(o.date)) byDay.set(o.date, []); byDay.get(o.date).push(o); }
+  const forays = [];
+  for (const [date, list] of byDay) {
+    let groups;
+    if (st.grp === 'place') { const m = new Map(); for (const o of list) { const k = o.place ? 'p' + o.place.id : o.hasLoc ? 'g' + o.lat.toFixed(2) + ',' + o.lon.toFixed(2) : 'u' + o.login; if (!m.has(k)) m.set(k, []); m.get(k).push(o); } groups = [...m.values()]; }
+    else { // single linkage: records within N km of any record already in the foray join it
+      const loc = list.filter(o => o.hasLoc), parent = loc.map((_, i) => i), find = i => parent[i] === i ? i : (parent[i] = find(parent[i]));
+      for (let i = 0; i < loc.length; i++) for (let j = i + 1; j < loc.length; j++) if (distKm(loc[i], loc[j]) <= st.km) parent[find(i)] = find(j);
+      const m = new Map(); loc.forEach((o, i) => { const r = find(i); if (!m.has(r)) m.set(r, []); m.get(r).push(o); });
+      groups = [...m.values()];
+      for (const o of list.filter(x => !x.hasLoc)) { // no location: join the same person's nearest-in-time foray that day
+        let best = null, bd = Infinity; for (const g of groups) for (const x of g) if (x.login === o.login) { const d = o.t && x.t ? Math.abs(o.t - x.t) : 1e12; if (d < bd) { bd = d; best = g; } }
+        if (best) best.push(o); else groups.push([o]); } }
+    for (const g of groups) forays.push(makeForay(date, g));
+  }
+  forays.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.t0 - b.t0);
+  forays.forEach((f, i) => { f.n = i + 1; f.obs.forEach(o => { o.foray = f.n; }); });
+  return forays;
+}
+function makeForay(date, obs) {
+  const loc = obs.filter(o => o.hasLoc), times = obs.map(o => o.t).filter(Boolean);
+  const lat = median(loc.map(o => o.lat)), lon = median(loc.map(o => o.lon));
+  const species = new Map(); for (const o of obs) if (o.sp) { if (!species.has(o.sp)) species.set(o.sp, { name: o.sp, common: o.taxon.preferred_common_name || '', ids: [], by: new Set() }); const s = species.get(o.sp); s.ids.push(o.id); s.by.add(o.login); }
+  const other = new Set(obs.filter(o => o.taxon && !o.sp).map(o => o.taxon.name));
+  const prov = new Set(obs.filter(o => o.prov).map(o => o.prov));
+  let label;
+  if (S.settings.grp === 'place' && obs[0].place) label = obs[0].place.name;
+  else { const c = new Map(); for (const o of obs) { const g = o.placeGuess.split(',').slice(0, 2).join(',').trim(), p = o.place && !o.placeIsAdmin ? o.place.name : (g || (o.place ? o.place.name : '')); if (p) c.set(p, (c.get(p) || 0) + 1); }
+    label = [...c].sort((a, b) => b[1] - a[1])[0]?.[0] || (loc.length ? `${lat.toFixed(3)}, ${lon.toFixed(3)}` : 'no location'); }
+  const t0 = times.length ? Math.min(...times) : null, t1 = times.length ? Math.max(...times) : null;
+  const hours = t0 && t1 && times.length >= 3 && t1 - t0 >= 15 * 60000 ? (t1 - t0) / 36e5 : null;
+  return { date, obs, lat, lon, hasLoc: loc.length > 0, obscured: loc.some(o => o.obscured), label, people: [...new Set(obs.map(o => o.login))],
+    species, other, prov, seq: obs.filter(o => o.seq).length, t0, t1, hours, rate: hours ? species.size / hours : null, newYear: new Set(), newEver: new Set() };
+}
+// New-to-you flags, walking forays in date order per person.
+function markNew(forays, prior) {
+  const seenEver = new Map(), seenYear = new Map();
+  for (const f of forays) { const yr = f.date.slice(0, 4);
+    for (const o of [...f.obs].sort((a, b) => (a.t || 0) - (b.t || 0))) { if (!o.sp) continue; const who = o.login;
+      if (!seenEver.has(who)) seenEver.set(who, new Set(prior.ever.get(who) || []));
+      const yk = who + '|' + yr; if (!seenYear.has(yk)) seenYear.set(yk, new Set(yr === S.settings.d1.slice(0, 4) ? (prior.year.get(who) || []) : []));
+      if (!seenEver.get(who).has(o.sp)) { f.newEver.add(o.sp); seenEver.get(who).add(o.sp); }
+      if (!seenYear.get(yk).has(o.sp)) { f.newYear.add(o.sp); seenYear.get(yk).add(o.sp); } } }
+}
+
+/* ---------- 3. weather ---------- */
+const reqWeight = (d1, d2, vars) => Math.max(1, (dayDiff(d1, d2) + 1) / 14) * Math.max(1, vars / 10);
+async function weather(forays, run) {
+  const cutoff = addDays(todayIso(), -6), cells = new Map();
+  for (const f of forays) { if (!f.hasLoc) continue; if (f.date > cutoff) { f.wx = { pending: true }; continue; }
+    const k = `${(Math.round(f.lat * 10) / 10).toFixed(1)},${(Math.round(f.lon * 10) / 10).toFixed(1)}`; if (!cells.has(k)) cells.set(k, []); cells.get(k).push(f); }
+  const plan = [...cells].map(([k, fs]) => { const ds = fs.map(f => f.date).sort(); return { k, fs, lo: ds[0], hi: ds[ds.length - 1] }; });
+  let years = NORMAL_YEARS; const cost = y => plan.reduce((a, p) => a + reqWeight(addDays(p.lo, -31), p.hi, 3) + y * reqWeight(addDays(p.lo, -14), addDays(p.hi, -1), 1), 0);
+  if (cost(years) > 4000) years = 5;
+  const total = cost(years), est = Math.round(total / METEO_PER_MIN * 60);
+  S.wxPlan = { cells: plan.length, years, total: Math.round(total), est };
+  if (est > 20) $('#statusTxt').innerHTML = `${S.forays.length} forays from ${fmt(S.obs.length)} records. Looking up the weather before each: about ${est >= 90 ? Math.round(est / 60) + ' minutes' : est + ' seconds'} (Open-Meteo limits how fast it can be asked). The table fills in as it arrives.`;
+  let done = 0; const tick = () => { done++; $('#wxProg') && ($('#wxProg').innerHTML = `Weather: ${done}/${plan.length * (years + 1)} requests<div class="bar"><span style="width:${100 * done / (plan.length * (years + 1))}%"></span></div>`); };
+  await Promise.all(plan.map(async p => {
+    const [la, lo] = p.k.split(','), ll = `latitude=${la}&longitude=${lo}`;
+    try {
+      const s1 = addDays(p.lo, -31), cur = await qMeteo(() => getJSON(`${METEO}?${ll}&start_date=${s1}&end_date=${p.hi}&daily=precipitation_sum,temperature_2m_max,temperature_2m_min&timezone=auto`), reqWeight(s1, p.hi, 3));
+      tick(); if (run !== S.run) return;
+      const norms = await Promise.all(Array.from({ length: years }, (_, i) => { const a = shiftYears(addDays(p.lo, -14), i + 1), b = shiftYears(addDays(p.hi, -1), i + 1);
+        return qMeteo(() => getJSON(`${METEO}?${ll}&start_date=${a}&end_date=${b}&daily=precipitation_sum&timezone=auto`), reqWeight(a, b, 1)).then(r => { tick(); return r.daily; }, () => { tick(); return null; }); }));
+      for (const f of p.fs) f.wx = wxFor(f.date, cur.daily, norms);
+    } catch (e) { for (const f of p.fs) f.wx = { error: e.status === 429 ? 'limit' : 'failed' }; }
+    if (run === S.run) scheduleRender();
+  }));
+}
+function wxFor(D, d, norms) {
+  const i = d.time.indexOf(D); if (i < 0) return { error: 'nodata' };
+  const P = d.precipitation_sum, sum = n => { let s = 0, k = 0; for (let j = i - n; j < i; j++) if (j >= 0 && P[j] != null) { s += P[j]; k++; } return k >= n * 0.8 ? s : null; };
+  const mean = (a, n) => { let s = 0, k = 0; for (let j = i - n; j < i; j++) if (j >= 0 && a[j] != null) { s += a[j]; k++; } return k ? s / k : null; };
+  let since = null; for (let j = i - 1, n = 1; j >= 0; j--, n++) if (P[j] != null && P[j] >= 5) { since = n; break; }
+  const nv = []; for (let k = 0; k < norms.length; k++) { const n = norms[k]; if (!n) continue; const end = shiftYears(addDays(D, -1), k + 1), e = n.time.indexOf(end); if (e < 13) continue;
+    const w = n.precipitation_sum.slice(e - 13, e + 1).filter(x => x != null); if (w.length >= 12) nv.push(w.reduce((a, b) => a + b, 0)); }
+  const normal14 = nv.length >= 3 ? nv.reduce((a, b) => a + b, 0) / nv.length : null, rain14 = sum(14);
+  return { rain3: sum(3), rain7: sum(7), rain14, rain30: sum(30), normal14, normalYears: nv.length, pct14: rain14 != null && normal14 ? 100 * rain14 / normal14 : null,
+    since5mm: since, tmax7: mean(d.temperature_2m_max, 7), tmin7: mean(d.temperature_2m_min, 7) };
+}
+
+/* ---------- 4. run ---------- */
+async function build() {
+  const src = document.querySelector('input[name=src]:checked').value, [d1, d2, label] = periodRange();
+  const users = $('#users').value.split(/[,\s]+/).map(s => s.replace(/^@/, '').trim()).filter(Boolean);
+  if (src === 'users' && !users.length) { $('#formMsg').textContent = 'Enter at least one iNaturalist username.'; return; }
+  if (src === 'project' && !S.proj) { $('#formMsg').textContent = 'Pick a project from the list that appears as you type.'; return; }
+  if (!d1 || !d2 || d1 > d2) { $('#formMsg').textContent = 'Choose a valid period.'; return; }
+  S.settings = { src, users, proj: S.proj, d1, d2: d2 > todayIso() ? todayIso() : d2, label, grp: document.querySelector('input[name=grp]:checked').value, km: +$('#km').value,
+    newYear: $('#newYear').checked, newEver: $('#newEver').checked, doWx: $('#doWx').checked };
+  const st = S.settings, run = ++S.run;
+  store.set('foray.last', { src, users: $('#users').value, proj: S.proj, period: $('#period').value, year: $('#year').value, season: $('#season').value, month: $('#month').value, grp: st.grp, km: st.km });
+  S.open.clear(); S.newSkipped = 0; S.priorFailed = 0; $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden');
+  const who = src === 'users' ? users.join(', ') : st.proj.title;
+  $('#statusTxt').innerHTML = `Loading fungi records of <b>${esc(who)}</b>, ${esc(label)}…`;
+  try {
+    const r = await loadObs(run); if (!r || run !== S.run) return;
+    if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#goBtn').disabled = false; $('#formMsg').textContent = 'No fungi records found for that period. Check the usernames or project and the dates.'; return; }
+    S.obs = r.obs; S.truncated = r.total > MAX_OBS ? r.total : 0;
+    $('#statusTxt').innerHTML = `Found ${fmt(S.obs.length)} records${S.truncated ? ` (the first ${fmt(MAX_OBS)} of ${fmt(r.total)})` : ''}. Naming places${st.newEver || st.newYear ? ' and checking earlier records' : ''}…`;
+    await placeNames(S.obs); if (run !== S.run) return;
+    const prior = { ever: new Map(), year: new Map() }, people = [...new Set(S.obs.map(o => o.login))];
+    if (st.newEver || st.newYear) {
+      if (people.length > 40) { st.newEver = st.newYear = false; S.newSkipped = people.length; }
+      else for (const [i, login] of people.entries()) { if (run !== S.run) return;
+        $('#prog').innerHTML = `<div>Earlier records: ${i + 1}/${people.length} people<div class="bar"><span style="width:${100 * (i + 1) / people.length}%"></span></div></div>`;
+        try { if (st.newEver) prior.ever.set(login, await priorSpecies(login, null, addDays(st.d1, -1)));
+          if (st.newYear && st.d1.slice(5) !== '01-01') prior.year.set(login, await priorSpecies(login, st.d1.slice(0, 4) + '-01-01', addDays(st.d1, -1))); }
+        catch (e) { S.priorFailed = (S.priorFailed || 0) + 1; } }
+    }
+    S.forays = groupForays(S.obs); markNew(S.forays, prior);
+    $('#out').classList.remove('hidden'); renderAll();
+    if (st.doWx) { $('#prog').innerHTML = '<div id="wxProg">Weather…</div>';
+      $('#statusTxt').innerHTML = `${S.forays.length} forays from ${fmt(S.obs.length)} records. Looking up the weather before each…`;
+      await weather(S.forays, run); if (run !== S.run) return;
+      $('#statusTxt').innerHTML = `Done. ${S.forays.length} forays from ${fmt(S.obs.length)} records${S.wxPlan ? `; weather from ${S.wxPlan.cells} weather cell${S.wxPlan.cells === 1 ? '' : 's'}` : ''}.`;
+      setChip('#src-wx', S.forays.some(f => f.wx && f.wx.error === 'limit') ? 'fail' : 'live', S.forays.some(f => f.wx && f.wx.error === 'limit') ? 'limit reached' : 'live');
+    } else $('#statusTxt').innerHTML = `Done. ${S.forays.length} forays from ${fmt(S.obs.length)} records.`;
+    renderAll();
+  } catch (e) { $('#statusTxt').innerHTML = `<span style="color:var(--bad)">Couldn’t finish: ${esc(e.message)}. iNaturalist may be busy; try again in a minute.</span>`; }
+  if (run === S.run) $('#goBtn').disabled = false;
+}
+let rt = null; const scheduleRender = () => { if (rt) return; rt = setTimeout(() => { rt = null; renderAll(); }, 700); };
+
+/* ---------- 5. render ---------- */
+const COLS = [
+  ['n', '#', f => f.n, 'num'], ['date', 'Date', f => f.date], ['label', 'Place', f => f.label], ['people', 'People', f => f.people.length, 'num'],
+  ['hours', 'Hours', f => f.hours, 'num'], ['obs', 'Records', f => f.obs.length, 'num'], ['species', 'Species', f => f.species.size, 'num'],
+  ['other', 'Other', f => f.other.size, 'num'], ['prov', 'Provisional', f => f.prov.size, 'num'], ['newYear', 'New that year', f => f.newYear.size, 'num'],
+  ['newEver', 'New ever', f => f.newEver.size, 'num'], ['seq', 'Sequenced', f => f.seq, 'num'], ['rate', 'Species / hour', f => f.rate, 'num'],
+  ['rain', 'Rain 14 d before', f => f.wx && f.wx.rain14 != null ? f.wx.rain14 : null, 'num'], ['pct', '% of normal', f => f.wx && f.wx.pct14 != null ? f.wx.pct14 : null, 'num'],
+];
+function visibleCols() { const st = S.settings, multi = S.forays.some(f => f.people.length > 1) || (st.src === 'project') || st.users.length > 1;
+  return COLS.filter(c => (c[0] !== 'people' || multi) && (c[0] !== 'newYear' || st.newYear) && (c[0] !== 'newEver' || st.newEver) && (!['rain', 'pct'].includes(c[0]) || st.doWx)); }
+function renderAll() {
+  if (!S.forays.length) return;
+  const st = S.settings, F = S.forays, allSp = new Set(F.flatMap(f => [...f.species.keys()])), allProv = new Set(F.flatMap(f => [...f.prov]));
+  const best = [...F].sort((a, b) => b.species.size - a.species.size)[0], newEver = new Set(F.flatMap(f => [...f.newEver]));
+  $('#sumSub').textContent = `${st.src === 'users' ? st.users.join(', ') : st.proj.title} · ${st.label}`;
+  const tiles = [[fmt(F.length), 'forays'], [fmt(S.obs.length), 'fungi records'], [fmt(allSp.size), 'species'], [fmt(allProv.size), 'provisional names'],
+    ...(st.newEver ? [[fmt(newEver.size), 'species new ever']] : []), [fmt(best.species.size), `most species in a foray (${shortDate(best.date)})`]];
+  $('#tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}</div></div>`).join('');
+  $('#sumNote').innerHTML = [S.truncated ? `Only the first ${fmt(MAX_OBS)} of ${fmt(S.truncated)} records were used; choose a shorter period for the rest.` : '',
+    S.newSkipped ? `“New” columns are off: checking earlier records for ${S.newSkipped} people would take too long.` : '',
+    S.priorFailed ? `Earlier records couldn’t be read for ${S.priorFailed} ${S.priorFailed === 1 ? 'person' : 'people'}, so their “new” counts are too high.` : '',
+    F.some(f => f.obscured) ? 'Some records have obscured locations; their forays still group by day, but places and distances are approximate.' : '',
+    st.grp === 'dist' ? `A foray is records on the same day within ${st.km} km of each other (chained), by ${st.src === 'users' && st.users.length === 1 ? 'one person' : 'anyone in the list'}.` : 'A foray is records on the same day in the same iNaturalist place (the smallest one containing each record).'].filter(Boolean).join(' ');
+  renderTable(); renderScatter(); renderMonths(); renderPlaces(); renderMethods();
+}
+function renderTable() {
+  const cols = visibleCols(), { key, dir } = S.sort, col = COLS.find(c => c[0] === key) || COLS[6];
+  const rows = [...S.forays].sort((a, b) => { const x = col[2](a), y = col[2](b); if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1; return (x < y ? -1 : x > y ? 1 : 0) * dir || a.n - b.n; });
+  const maxSp = Math.max(1, ...S.forays.map(f => f.species.size));
+  const cell = (c, f) => { const v = c[2](f);
+    if (c[0] === 'date') return shortDate(f.date);
+    if (c[0] === 'label') return `${esc(f.label)}${f.obscured ? ' <span class="muted" title="Some records here have obscured locations">≈</span>' : ''}`;
+    if (c[0] === 'species') return `<span class="spb" style="--w:${100 * f.species.size / maxSp}%">${fmt(v)}</span>`;
+    if (c[0] === 'hours' || c[0] === 'rate') return fmt(v, 1);
+    if (c[0] === 'rain') return f.wx ? (f.wx.pending ? '<span class="muted" title="Weather archive lags about 5 days">soon</span>' : f.wx.error ? '<span class="muted">—</span>' : fmt(v) + ' mm') : (S.settings.doWx ? '<span class="muted">…</span>' : '—');
+    if (c[0] === 'pct') return v == null ? '—' : `<span class="${v >= 125 ? 'wet' : v < 60 ? 'dry' : ''}">${fmt(v)}%</span>`;
+    return fmt(v); };
+  $('#forays').innerHTML = `<thead><tr>${cols.map(c => `<th class="${c[3] || ''}${c[0] === key ? ' sorted' : ''}" data-k="${c[0]}" tabindex="0" aria-sort="${c[0] === key ? (dir > 0 ? 'ascending' : 'descending') : 'none'}">${esc(c[1])}${c[0] === key ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${rows.map(f => {
+    const open = S.open.has(f.n);
+    return `<tr class="frow${open ? ' open' : ''}" data-n="${f.n}">${cols.map(c => `<td class="${c[3] || ''}">${cell(c, f)}</td>`).join('')}</tr>${open ? `<tr class="detail"><td colspan="${cols.length}">${detail(f)}</td></tr>` : ''}`; }).join('')}</tbody>`;
+}
+function detail(f) {
+  const sp = [...f.species.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const ids = f.obs.map(o => o.id), link = ids.length <= 200 ? `https://www.inaturalist.org/observations?id=${ids.join(',')}` : null;
+  const wx = f.wx && !f.wx.error && !f.wx.pending ? `<p class="note">Before this foray: ${fmt(f.wx.rain3)} mm in 3 days, ${fmt(f.wx.rain7)} mm in 7, ${fmt(f.wx.rain14)} mm in 14${f.wx.normal14 != null ? ` (${fmt(f.wx.pct14)}% of the ${fmt(f.wx.normal14)} mm normal)` : ''}, ${fmt(f.wx.rain30)} mm in 30; ${f.wx.since5mm != null ? `${f.wx.since5mm} days since a day with 5 mm or more` : 'no day with 5 mm or more in the previous month'}; mean high ${fmt(f.wx.tmax7)} °C and low ${fmt(f.wx.tmin7)} °C over the week before.</p>` : '';
+  return `<div class="det">
+    <div><b>${f.species.size} species</b>${S.settings.newEver || S.settings.newYear ? ' (<span class="nev">new ever</span>, <span class="nyr">new that year</span>)' : ''}: ${sp.map(s => `<a href="https://www.inaturalist.org/observations?id=${s.ids.slice(0, 50).join(',')}" target="_blank" rel="noopener" class="${f.newEver.has(s.name) ? 'nev' : f.newYear.has(s.name) ? 'nyr' : ''}"><i>${esc(s.name)}</i></a>`).join(', ') || '—'}</div>
+    ${f.other.size ? `<div><b>Identified only to genus or higher:</b> ${[...f.other].sort().map(n => `<i>${esc(n)}</i>`).join(', ')}</div>` : ''}
+    ${f.prov.size ? `<div><b>Provisional names:</b> ${[...f.prov].map(esc).join(', ')}</div>` : ''}
+    <div class="muted">${f.people.map(esc).join(', ')}${f.t0 ? ` · ${new Date(f.t0).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}–${new Date(f.t1).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}${link ? ` · <a href="${link}" target="_blank" rel="noopener">all ${f.obs.length} records on iNaturalist</a>` : ''}${f.hasLoc ? ` · <a href="/investigate/plan-a-visit/?lat=${f.lat.toFixed(5)}&lng=${f.lon.toFixed(5)}&date=${f.date}&label=${encodeURIComponent(f.label)}">plan a visit here</a>` : ''}</div>
+    ${wx}</div>`;
+}
+$('#forays').addEventListener('click', e => {
+  const th = e.target.closest('th'); if (th) { const k = th.dataset.k; S.sort = { key: k, dir: S.sort.key === k ? -S.sort.dir : (['date', 'label', 'n'].includes(k) ? 1 : -1) }; renderTable(); return; }
+  if (e.target.closest('a')) return; const tr = e.target.closest('tr.frow'); if (!tr) return; const n = +tr.dataset.n; S.open.has(n) ? S.open.delete(n) : S.open.add(n); renderTable(); });
+$('#forays').addEventListener('keydown', e => { const th = e.target.closest('th'); if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); th.click(); } });
+
+// Spearman rank correlation, with average ranks for ties.
+function spearman(x, y) { const rank = a => { const idx = a.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]), r = new Array(a.length);
+  for (let i = 0; i < idx.length;) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1; } return r; };
+  const rx = rank(x), ry = rank(y), n = x.length, mx = rx.reduce((a, b) => a + b, 0) / n, my = ry.reduce((a, b) => a + b, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0; for (let i = 0; i < n; i++) { sxy += (rx[i] - mx) * (ry[i] - my); sxx += (rx[i] - mx) ** 2; syy += (ry[i] - my) ** 2; } return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null; }
+function renderScatter() {
+  const st = S.settings, yv = document.querySelector('input[name=yv]:checked').value;
+  if (!st.doWx) { $('#scatter').innerHTML = '<p class="empty">Turn on “Weather before each foray” and rebuild.</p>'; $('#rainNote').textContent = ''; $('#rainSub').textContent = ''; return; }
+  const pts = S.forays.filter(f => f.wx && f.wx.pct14 != null && (yv === 'species' ? true : f.rate != null)).map(f => ({ f, x: f.wx.pct14, y: yv === 'species' ? f.species.size : f.rate }));
+  $('#rainSub').textContent = `${pts.length} forays with weather`;
+  if (pts.length < 3) { $('#scatter').innerHTML = `<p class="empty">${S.forays.some(f => f.wx == null) ? 'Weather is still loading…' : 'Too few forays with weather to compare.'}</p>`; $('#rainNote').textContent = ''; return; }
+  const W = 520, H = 250, m = { l: 40, r: 12, t: 10, b: 34 }, xmax = Math.max(200, ...pts.map(p => p.x)) * 1.05, ymax = Math.max(...pts.map(p => p.y)) * 1.1 || 1;
+  const X = v => m.l + (W - m.l - m.r) * v / xmax, Y = v => H - m.b - (H - m.t - m.b) * v / ymax;
+  const xt = [0, 50, 100, 150, 200, 300, 400, 500].filter(v => v <= xmax), yt = [0, .25, .5, .75, 1].map(k => ymax * k / 1.1);
+  $('#scatter').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Species per foray against rain in the 14 days before, as percent of normal">
+    <rect x="${X(75)}" y="${m.t}" width="${X(125) - X(75)}" height="${H - m.t - m.b}" class="normband"/>
+    ${xt.map(v => `<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H - m.b}" class="grid"/><text x="${X(v)}" y="${H - m.b + 14}" text-anchor="middle" class="tick">${v}%</text>`).join('')}
+    ${yt.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end" class="tick">${fmt(v, yv === 'rate' ? 1 : 0)}</text>`).join('')}
+    <text x="${(W + m.l) / 2}" y="${H - 4}" text-anchor="middle" class="axl">rain in the 14 days before, % of normal</text>
+    ${pts.map(p => `<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${4 + Math.min(6, p.f.obs.length / 15)}" class="pt"><title>${esc(shortDate(p.f.date))} · ${esc(p.f.label)}: ${fmt(p.y, yv === 'rate' ? 1 : 0)} ${yv === 'rate' ? 'species/hour' : 'species'}, ${fmt(p.x)}% of normal rain</title></circle>`).join('')}</svg>`;
+  const rho = spearman(pts.map(p => p.x), pts.map(p => p.y)), a = Math.abs(rho || 0);
+  const strength = pts.length < 8 ? 'too few forays to say' : a < 0.2 ? 'no real relationship' : a < 0.4 ? `a weak ${rho > 0 ? 'positive' : 'negative'} relationship` : a < 0.6 ? `a moderate ${rho > 0 ? 'positive' : 'negative'} relationship` : `a strong ${rho > 0 ? 'positive' : 'negative'} relationship`;
+  $('#rainNote').innerHTML = `Spearman’s ρ = ${fmt(rho, 2)} over ${pts.length} forays: ${strength}. The shaded band is roughly normal rain (75–125%). Bigger dots are forays with more records. ${yv === 'species' ? 'Longer forays find more species whatever the weather, so check species per hour as well. ' : ''}Season matters as much as rain: a dry October can still beat a wet June.`;
+}
+document.querySelectorAll('input[name=yv]').forEach(r => r.addEventListener('change', renderScatter));
+function renderMonths() {
+  const F = S.forays, m = new Map();
+  for (const f of F) { const k = f.date.slice(0, 7); if (!m.has(k)) m.set(k, { forays: 0, sp: new Set() }); const g = m.get(k); g.forays++; for (const s of f.species.keys()) g.sp.add(s); }
+  const keys = []; for (let d = S.settings.d1.slice(0, 7); d <= S.settings.d2.slice(0, 7);) { keys.push(d); const [y, mo] = d.split('-').map(Number); d = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`; }
+  const maxS = Math.max(1, ...[...m.values()].map(g => g.sp.size)), maxF = Math.max(1, ...[...m.values()].map(g => g.forays));
+  $('#months').innerHTML = `<div class="mbars">${keys.map(k => { const g = m.get(k) || { forays: 0, sp: new Set() };
+    return `<div class="mb" title="${MONTHS[+k.slice(5) - 1]} ${k.slice(0, 4)}: ${g.forays} forays, ${g.sp.size} species"><span class="s" style="height:${70 * g.sp.size / maxS}px"></span><span class="f" style="height:${30 * g.forays / maxF}px"></span><em>${MONTHS[+k.slice(5) - 1].slice(0, keys.length > 14 ? 1 : 3)}</em></div>`; }).join('')}</div>
+    <p class="legend"><span><i style="background:var(--good)"></i>species that month</span><span><i style="background:var(--accent);opacity:.45"></i>forays</span></p>`;
+  // cumulative distinct species through the period
+  const seen = new Set(), pts = []; for (const f of F) { for (const s of f.species.keys()) seen.add(s); pts.push([f.date, seen.size]); }
+  const W = 520, H = 130, t0 = Date.parse(S.settings.d1), t1 = Math.max(Date.parse(S.settings.d2), t0 + 864e5), X = d => 30 + (W - 40) * (Date.parse(d) - t0) / (t1 - t0), Y = v => H - 20 - (H - 38) * v / Math.max(1, seen.size);
+  $('#curve').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Distinct species recorded so far through the period"><line x1="30" x2="${W - 10}" y1="${H - 20}" y2="${H - 20}" class="grid"/>
+    <polyline points="${[[S.settings.d1, 0], ...pts].map(([d, v]) => `${X(d).toFixed(1)},${Y(v).toFixed(1)}`).join(' ')}" class="cline"/>
+    <text x="${W - 10}" y="${Math.max(12, Y(seen.size) - 5)}" text-anchor="end" class="tick">${seen.size} species</text>
+    <text x="30" y="${H - 5}" class="tick">${shortDate(S.settings.d1)}</text><text x="${W - 10}" y="${H - 5}" text-anchor="end" class="tick">${shortDate(S.settings.d2)}</text></svg>`;
+}
+function renderPlaces() {
+  const m = new Map();
+  for (const f of S.forays) { const k = f.label; if (!m.has(k)) m.set(k, { label: k, forays: 0, sp: new Set(), prov: new Set(), spSum: 0, best: 0 }); const g = m.get(k);
+    g.forays++; g.spSum += f.species.size; g.best = Math.max(g.best, f.species.size); for (const s of f.species.keys()) g.sp.add(s); for (const p of f.prov) g.prov.add(p); }
+  const rows = [...m.values()].sort((a, b) => b.sp.size - a.sp.size);
+  $('#placeSub').textContent = `${rows.length} place${rows.length === 1 ? '' : 's'}, named after the most specific iNaturalist place or the location most records give`;
+  $('#places').innerHTML = `<thead><tr><th>Place</th><th class="num">Forays</th><th class="num">Species, all forays</th><th class="num">Species per foray (mean)</th><th class="num">Best foray</th><th class="num">Provisional names</th></tr></thead><tbody>${rows.slice(0, 60).map(g => `<tr><td>${esc(g.label)}</td><td class="num">${g.forays}</td><td class="num">${g.sp.size}</td><td class="num">${fmt(g.spSum / g.forays, 1)}</td><td class="num">${g.best}</td><td class="num">${g.prov.size}</td></tr>`).join('')}</tbody>`;
+}
+function renderMethods() {
+  const st = S.settings;
+  $('#methods').innerHTML = [
+    `<b>Records</b>: iNaturalist observations of Fungi (lichens included) ${st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : `in the project “${esc(st.proj.title)}”`}, observed ${st.d1} to ${st.d2}, all quality grades. At most ${fmt(MAX_OBS)} records are read.`,
+    `<b>Forays</b>: ${st.grp === 'dist' ? `records on the same date are joined into one foray when each is within ${st.km} km of another record in it (single linkage), so a day at two parks far apart makes two forays.` : 'records on the same date in the same iNaturalist place make one foray; the place is the smallest iNaturalist place containing the record, which is usually a park, preserve or town.'} Records without a location join the same person’s foray nearest in time that day. Several people out on the same day and place count as one foray.`,
+    `<b>Species</b>: distinct taxa identified to species or below (subspecies and varieties count with their species). “Other” lists records identified only to genus or higher; they may or may not be different from the species found. Provisional names come from the “${PNF}” observation field and sequenced records from “${ITSF}” with at least 100 bases.`,
+    `<b>New</b>: “new ever” means the person who found it had no earlier record of that species on iNaturalist; “new that year” means none earlier in that calendar year. Earlier records are read from each person’s iNaturalist species list, so a species they found but never posted still counts as new.`,
+    `<b>Weather</b>: Open-Meteo’s archive (ERA5 reanalysis) at each foray’s middle point, rounded to about 10 km; forays in the last five days wait for the archive to catch up. Normal is the mean rain in the same 14 days over the previous ${S.wxPlan ? S.wxPlan.years : NORMAL_YEARS} years. The comparison of species with rain uses Spearman’s rank correlation; it describes these forays and does not separate rain from season, effort or place.`,
+  ].map(x => `<li>${x}</li>`).join('');
+}
+function csv(rows) { return rows.map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n'); }
+function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+$('#csvForays').onclick = () => { const st = S.settings;
+  download(`forays_${st.d1}_${st.d2}.csv`, csv([['foray', 'date', 'place', 'people', 'latitude', 'longitude', 'hours', 'records', 'species', 'other_taxa', 'provisional_names', 'new_that_year', 'new_ever', 'sequenced', 'species_per_hour', 'rain_3d_mm', 'rain_7d_mm', 'rain_14d_mm', 'rain_14d_pct_normal', 'rain_30d_mm', 'days_since_5mm', 'mean_high_week_c', 'mean_low_week_c', 'species_list', 'provisional_list'],
+    ...S.forays.map(f => { const w = f.wx && !f.wx.error && !f.wx.pending ? f.wx : {}; const r1 = v => v == null ? '' : Math.round(v * 10) / 10;
+      return [f.n, f.date, f.label, f.people.join(' '), f.lat != null ? f.lat.toFixed(4) : '', f.lon != null ? f.lon.toFixed(4) : '', r1(f.hours), f.obs.length, f.species.size, f.other.size, f.prov.size, st.newYear ? f.newYear.size : '', st.newEver ? f.newEver.size : '', f.seq, r1(f.rate),
+        r1(w.rain3), r1(w.rain7), r1(w.rain14), w.pct14 != null ? Math.round(w.pct14) : '', r1(w.rain30), w.since5mm ?? '', r1(w.tmax7), r1(w.tmin7), [...f.species.keys()].sort().join('; '), [...f.prov].join('; ')]; })])); };
+$('#csvObs').onclick = () => { const st = S.settings;
+  download(`foray-records_${st.d1}_${st.d2}.csv`, csv([['foray', 'observation_id', 'date', 'user', 'taxon', 'rank', 'species', 'provisional_name', 'sequenced', 'latitude', 'longitude', 'obscured', 'place', 'quality_grade', 'url'],
+    ...S.obs.map(o => [o.foray, o.id, o.date, o.login, o.taxon ? o.taxon.name : '', o.taxon ? o.taxon.rank : '', o.sp || '', o.prov, o.seq ? 'yes' : '', o.hasLoc ? o.lat.toFixed(5) : '', o.hasLoc ? o.lon.toFixed(5) : '', o.obscured ? 'yes' : '', o.place ? o.place.name : o.placeGuess, o.qg, `https://www.inaturalist.org/observations/${o.id}`])])); };
+
+/* ---------- wiring ---------- */
+$('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
+$('#stopBtn').onclick = () => { S.run++; $('#statusTxt').textContent = 'Stopped. Results so far are shown.'; $('#goBtn').disabled = false; renderAll(); };
+$('#example').onclick = e => { e.preventDefault(); document.querySelector('input[name=src][value=users]').checked = true; $('#usersWrap').classList.remove('hidden'); $('#projWrap').classList.add('hidden');
+  $('#users').value = 'mycogeekyohio'; $('#period').value = 'season'; $('#period').dispatchEvent(new Event('change')); $('#year').value = '2025'; $('#season').value = 'fall'; $('#form').requestSubmit(); };
+$('#themeBtn').addEventListener('click', () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('foray.theme', r.dataset.theme); });
+const last = store.get('foray.last'), qp = new URLSearchParams(location.search);
+if (qp.get('user')) $('#users').value = qp.get('user');
+else if (last) { $('#users').value = last.users || ''; if (last.src === 'project' && last.proj) { document.querySelector('input[name=src][value=project]').checked = true; S.proj = last.proj; $('#proj').value = last.proj.title; $('#usersWrap').classList.add('hidden'); $('#projWrap').classList.remove('hidden'); }
+  for (const k of ['period', 'year', 'season', 'month']) if (last[k]) $('#' + k).value = last[k]; $('#period').dispatchEvent(new Event('change'));
+  if (last.grp === 'place') document.querySelector('input[name=grp][value=place]').checked = true; if (last.km) { $('#km').value = last.km; $('#kmv').textContent = last.km + ' km'; } }
+(async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
+(async () => { try { await getJSON(`${METEO}?latitude=41.1&longitude=-81.6&start_date=2024-01-01&end_date=2024-01-02&daily=precipitation_sum`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } })();
+})();
+</script>
+</body>
+</html>

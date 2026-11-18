@@ -1,18 +1,18 @@
 ---
 import type {ResearchPath} from '../data/tools';
 import {tools} from '../data/tools';
-const {path}=Astro.props as {path:ResearchPath};
-const steps=path.steps.map(s=>({...s,tool:tools.find(t=>t.id===s.toolId)})).filter(s=>s.tool);
+const {path,hidden}=Astro.props as {path:ResearchPath;hidden?:boolean};
+const steps=path.steps.map(s=>({...s,tool:tools.find(t=>t.id===s.toolId)})).filter(s=>s.tool||s.href);
 ---
-<nav class="mv-research-path" aria-labelledby={`path-${path.id}`}>
+<nav class="mv-research-path" id={`path-${path.id}`} data-path={path.id} aria-labelledby={`path-${path.id}-title`} hidden={hidden} style={`--steps:${steps.length}`}>
  <p class="eyebrow">For {path.audience.toLowerCase()}</p>
- <h3 id={`path-${path.id}`}>{path.title}</h3>
+ <h3 id={`path-${path.id}-title`}>{path.title}</h3>
  <p class="mv-research-path-intro">{path.intro}</p>
- <ol>
-  {steps.map((s,i)=>{const live=Boolean(s.tool!.href);return <li class={live?'':'is-planned'}>
-   <a href={`#tool-${s.toolId}`}>
+ <ol data-many={steps.length>7?'':undefined}>
+  {steps.map((s,i)=>{const live=Boolean(s.href||s.tool!.href);return <li class={live?'':'is-planned'}>
+   <a href={s.href||`#tool-${s.toolId}`} data-path-link={s.href&&s.href.startsWith('#path-')?s.href.slice(6):undefined}>
     <span class="mv-path-n" aria-hidden="true">{i+1}</span>
-    <span class="mv-path-text"><strong>{s.label}</strong><span class="mv-path-tool">{s.tool!.name}{!live&&' (planned)'}{s.tool!.access==='invitation'&&' (by invitation)'}</span><span class="mv-path-q">{s.question}</span></span>
+    <span class="mv-path-text"><strong>{s.label}</strong><span class="mv-path-tool">{s.name||s.tool!.name}{!live&&' (planned)'}{s.tool&&s.tool.access==='invitation'&&' (by invitation)'}</span><span class="mv-path-q">{s.question}</span></span>
    </a>
   </li>})}
  </ol>

@@ -1,6 +1,8 @@
 ---
 import type {ResearchTool} from '../data/tools';
-const {tool,step}=Astro.props as {tool:ResearchTool;step?:number};
+import {stepsFor} from '../data/tools';
+const {tool}=Astro.props as {tool:ResearchTool};
+const steps=stepsFor(tool.id);
 const available=Boolean(tool.href);
 const invitation=available&&tool.access==='invitation';
 const state=invitation?'invitation':available?'available':'planned';
@@ -15,7 +17,7 @@ const validation:Record<ResearchTool['validation'],string>={
 };
 ---
 <article class="tool-card mv-tool-card" id={`tool-${tool.id}`} data-availability={state}>
- <div class="eyebrow">{step&&<span class="mv-tool-step">Step {step}</span>}{tool.category}</div>
+ <div class="eyebrow">{steps.map(s=><span class="mv-tool-step" data-path={s.path}>{s.label}</span>)}{tool.category}</div>
  <h3>{tool.name}</h3>
  <p>{tool.description}</p>
  <div class="mv-tool-status-row" aria-label="Tool status">

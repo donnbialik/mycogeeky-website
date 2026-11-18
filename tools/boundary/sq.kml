@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Test doc</name>
+<Placemark><name>Sand Run plot &amp; buffer</name><MultiGeometry>
+<Polygon><outerBoundaryIs><LinearRing><coordinates>
+-81.56,41.12,0 -81.54,41.12,0 -81.54,41.14,0 -81.56,41.14,0 -81.56,41.12,0
+</coordinates></LinearRing></outerBoundaryIs>
+<innerBoundaryIs><LinearRing><coordinates>-81.552,41.128 -81.548,41.128 -81.548,41.132 -81.552,41.132</coordinates></LinearRing></innerBoundaryIs></Polygon>
+<Polygon><outerBoundaryIs><LinearRing><coordinates>-81.50,41.10 -81.49,41.10 -81.49,41.11 -81.50,41.11</coordinates></LinearRing></outerBoundaryIs></Polygon>
+</MultiGeometry></Placemark></Document></kml>

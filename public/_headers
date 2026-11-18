@@ -24,3 +24,9 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Ecology Profile: a self-contained page; calls iNaturalist, Open-Meteo, SoilGrids and USGS from the browser, and /api/env relays.
+/investigate/ecology-profile/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

@@ -193,6 +193,23 @@ function plateFromName(name, mode = state.plateMode){
   return m ? m[1] : stem;
 }
 
+/** Order files by the year and number in their plate labels, so a label you correct by hand moves into place. */
+function plateOrder(a, b){
+  const key = f => { const y = f.plate.match(/\b(\d{4})\b/), h = f.plate.match(/#\s*(\d+)/) || f.plate.match(/(\d+)\s*$/);
+    return [y ? +y[1] : Infinity, h ? +h[1] : Infinity]; };
+  const [ya, ha] = key(a), [yb, hb] = key(b);
+  return ya !== yb ? ya - yb : ha !== hb ? ha - hb : a.name.localeCompare(b.name, undefined, {numeric:true});
+}
+/** A warning when the file name doesn't fit the chosen label style, e.g. a mistyped year. */
+function nameWarning(name){
+  const stem = name.replace(/\.[^.]+$/, "");
+  const hash = /#\s*\d+/.test(stem), year = /\b(19|20)\d{2}\b/.test(stem);
+  const odd = stem.match(/\b(\d{5,})\b(?=[^#]*#)/);
+  if ((state.plateMode === "yearhash" || state.plateMode === "hash") && !hash) return "No “#” plate number in the file name. Check the plate label.";
+  if (state.plateMode === "yearhash" && !year) return odd ? `The year in the file name looks mistyped (“${odd[1]}”), so the label has no year. Fix the plate label before writing.` : "No 4-digit year in the file name, so the label has no year. Check the plate label.";
+  return "";
+}
+
 /* ---------- layout detection ---------- */
 function detectGrid(rows){
   for (let r = 0; r < Math.min(rows.length, 20); r++){
@@ -283,7 +300,7 @@ async function addFiles(list){
     analyzeFile(f);
     if (dup >= 0) state.files[dup] = f; else state.files.push(f);
   }
-  state.files.sort((a,b) => a.plate.localeCompare(b.plate, undefined, {numeric:true}));
+  state.files.sort(plateOrder);
   renderFiles(); rebuildIndex();
 }
 function renderFiles(){
@@ -298,21 +315,23 @@ function renderFiles(){
       <span class="small">Well column <select data-i="${i}" data-k="wellCol">${opts(f.wellCol)}</select></span>` : "";
     const sk = f.skipped.length ? `<div class="small muted" style="margin-top:4px">Skipped ${f.skipped.length} non-iNat cell(s): ${esc(f.skipped.slice(0,8).map(s => (s.well? s.well+": ":"")+s.raw).join(" · "))}${f.skipped.length>8?" …":""}</div>` : "";
     const badge = f.samples.length ? `<span class="pill p-ok">${f.samples.length} samples</span>` : `<span class="pill p-bad">no iNat IDs found. Check the column choice</span>`;
+    const warn = f.edited ? "" : nameWarning(f.name);
+    const warnHtml = warn ? `<div class="note" style="margin:6px 0 2px">⚠ ${esc(warn)}</div>` : "";
     return `<div class="filecard">
       <div class="row"><b>${esc(f.name)}</b> ${badge}
         <span class="small">Plate # <input type="text" data-i="${i}" data-k="plate" value="${esc(f.plate)}" style="width:90px"></span>
         <span class="small">Layout <select data-i="${i}" data-k="layout"><option value="list" ${f.layout==="list"?"selected":""}>one row per sample</option><option value="grid" ${f.layout==="grid"?"selected":""} ${f.grid?"":"disabled"}>8×12 grid</option></select></span>
         ${listCtl}
         <button class="sec" data-rm="${i}" style="padding:3px 10px">Remove</button>
-      </div>${sk}</div>`;
+      </div>${warnHtml}${sk}</div>`;
   }).join("");
   box.querySelectorAll("[data-k]").forEach(el => el.addEventListener("change", e => {
     const f = state.files[+el.dataset.i], k = el.dataset.k;
-    if (k === "plate") f.plate = el.value.trim();
+    if (k === "plate"){ f.plate = el.value.trim(); f.edited = true; }
     else if (k === "layout"){ f.layout = el.value; if (f.layout === "list"){ f.headerRow ??= detectHeaderRow(f.rows); if (f.idCol === undefined){ const g = guessColumns(f.rows, f.headerRow); f.idCol = g.idCol; f.wellCol = g.wellCol; } } }
     else if (k === "headerRow"){ f.headerRow = Math.max(0, (parseInt(el.value)||1) - 1); const g = guessColumns(f.rows, f.headerRow); f.idCol = g.idCol; f.wellCol = g.wellCol; }
     else f[k] = +el.value;
-    extractSamples(f); renderFiles(); rebuildIndex();
+    extractSamples(f); state.files.sort(plateOrder); renderFiles(); rebuildIndex();
   }));
   box.querySelectorAll("[data-rm]").forEach(el => el.addEventListener("click", () => { state.files.splice(+el.dataset.rm, 1); renderFiles(); rebuildIndex(); }));
 }
@@ -557,7 +576,8 @@ const pm = store.get("plateTagger.plateMode.v2"); if (pm) state.plateMode = pm;
 $("#plateMode").value = state.plateMode;
 $("#plateMode").onchange = e => {
   state.plateMode = e.target.value; store.set("plateTagger.plateMode.v2", state.plateMode);
-  for (const f of state.files) f.plate = plateFromName(f.name);
+  for (const f of state.files){ f.plate = plateFromName(f.name); f.edited = false; }
+  state.files.sort(plateOrder);
   renderFiles(); rebuildIndex();
 };
 try { const f = JSON.parse(store.get("plateTagger.field") || "null"); if (f?.id){ state.field = f; showField(); } } catch(e){}

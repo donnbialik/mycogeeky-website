@@ -106,6 +106,11 @@ details.method summary{cursor:pointer;font-weight:600;color:var(--accent)}
 details.method li{margin-bottom:6px}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+dialog#repDlg{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:18px 20px;width:min(640px,calc(100vw - 24px));box-shadow:0 14px 44px rgba(0,0,0,.3)}
+dialog#repDlg::backdrop{background:rgba(14,20,18,.45)}
+dialog#repDlg textarea{width:100%;height:260px;font:12.5px/1.5 var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+dialog#repDlg .row{justify-content:flex-end;margin-top:10px}
+button.rep{font-size:12px;padding:3px 9px}
 @media (max-width:980px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}.g2,.g3{grid-template-columns:1fr}}
 @media (max-width:560px){.form{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -226,6 +231,11 @@ details.method li{margin-bottom:6px}
 
     <section class="card" style="margin-top:14px">
       <h2>Per-collection data<span class="sub">every value the profile is built from</span></h2>
+      <div class="row" style="margin-bottom:10px">
+        <button id="copyAllReports" type="button" title="One site report per collection, ready to paste into iNaturalist comments">Copy all site reports</button>
+        <span class="muted" style="font-size:12.5px">Each row’s <b>Report</b> button gives a short site summary to paste into that observation’s comments on iNaturalist. Reports are also in the CSV.</span>
+        <span id="allNote" class="muted" style="font-size:12.5px"></span>
+      </div>
       <div class="tablewrap"><table id="perObs"></table></div>
     </section>
 
@@ -236,6 +246,12 @@ details.method li{margin-bottom:6px}
       </details>
     </section>
   </div>
+  <dialog id="repDlg" aria-labelledby="repTitle">
+    <h2 id="repTitle" style="margin-bottom:8px">Site report</h2>
+    <p class="muted" style="margin:0 0 8px;font-size:12.5px">Paste into the observation’s <b>comments</b> on iNaturalist. These values are derived from the coordinates and public datasets, not observed in the field, so they don’t belong in fields like “Habitat”.</p>
+    <textarea id="repText" readonly></textarea>
+    <div class="row"><span id="repNote" class="muted" style="font-size:12.5px;margin-right:auto"></span><a id="repOpen" href="#" target="_blank" rel="noopener"><button type="button">Open observation on iNaturalist ↗</button></a><button id="repCopy" class="primary" type="button">Copy</button><button id="repClose" type="button">Close</button></div>
+  </dialog>
   <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; weather and elevation by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0); vegetation type from <a href="https://landfire.gov" target="_blank" rel="noopener">LANDFIRE</a>; soils from USDA NRCS SSURGO or <a href="https://soilgrids.org" target="_blank" rel="noopener">ISRIC SoilGrids</a> (CC BY 4.0); basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these.</p>
 </main>
 
@@ -269,6 +285,7 @@ const words = n => ['no','one','two','three','four','five','six','seven','eight'
 const listJoin = a => a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 const isoDay = d => d.toISOString().slice(0, 10);
+const localToday = () => new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD in the visitor's own time zone
 const addDays = (s, n) => { const d = new Date(s + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return isoDay(d); };
 
 /* A paced queue per upstream service, so each stays within its published fair-use limit. */
@@ -564,6 +581,55 @@ function drawMap() {
   if (pts.length) S.map.fitBounds(pts, { padding: [24, 24], maxZoom: 12 }); else S.map.setView([40, -90], 3);
   setTimeout(() => S.map.invalidateSize(), 100);
 }
+/* ================= site report (one per collection, for iNaturalist comments) ================= */
+function siteReport(o) {
+  const e = o.env, L = [], used = new Set();
+  L.push(`Site data (derived), MycoView Ecology Profile, ${localToday()}`);
+  const site = precise(o);
+  if (!site) L.push(o.hasLoc ? (o.obscured ? 'Location is obscured, so site layers (vegetation, soil, elevation, nearby plants) are left out; weather is regional.' : `Location uncertainty (${o.acc != null ? '±' + fmt(o.acc) + ' m' : 'unknown'}) is too large for site layers; weather is regional.`) : 'No public location, so no site data.');
+  if (site && e.veg && e.veg.name) { L.push(`Vegetation (LANDFIRE 2024, 30 m): ${e.veg.name}`); used.add('LANDFIRE'); }
+  if (site && e.elev != null) { L.push(`Elevation: ${fmt(e.elev)} m (${e.elevSrc || 'elevation model'})`); used.add(e.elevSrc && e.elevSrc.startsWith('USGS') ? 'USGS 3DEP' : 'Copernicus DEM'); }
+  if (site && e.soil && !e.soil.error) {
+    if (e.soil.src === 'SSURGO' && e.soil.components && e.soil.components[0]) { const c = e.soil.components[0];
+      L.push(`Soil (USDA SSURGO): ${[c.name, c.textureSurface ? c.textureSurface.toLowerCase() : null].filter(Boolean).join(' ')}${c.drainage ? ', ' + c.drainage.toLowerCase() : ''}${Number.isFinite(c.phSurface) ? `, surface pH ${c.phSurface.toFixed(1)}` : ''}`); used.add('USDA NRCS SSURGO'); }
+    else if (e.soil.src === 'SoilGrids' && Number.isFinite(e.soil.ph)) { L.push(`Soil (SoilGrids model, 250 m, 0–5 cm): pH ${e.soil.ph.toFixed(1)}${Number.isFinite(e.soil.clay) ? `, clay ${Math.round(e.soil.clay)}%` : ''}${Number.isFinite(e.soil.sand) ? `, sand ${Math.round(e.soil.sand)}%` : ''}`); used.add('ISRIC SoilGrids'); }
+  }
+  if (site && e.plants && !e.plants.error) { const r = Math.round(S.settings.plantR * 1000);
+    const trees = e.plants.near.filter(t => TREE_GENERA.has(t.name.split(' ')[0]) && t.rank !== 'genus').sort((a, b) => b.count - a.count).slice(0, 6).map(t => t.name);
+    L.push(trees.length ? `Trees recorded on iNaturalist within ${r} m: ${trees.join(', ')}` : `Trees recorded on iNaturalist within ${r} m: none`); used.add('iNaturalist'); }
+  const w = e.wx;
+  if (w && !w.error && !w.pending) {
+    const since = w.since5mm === '>30' ? 'more than 30 days' : w.since5mm != null ? `${w.since5mm} day${w.since5mm === 1 ? '' : 's'}` : null;
+    if (w.rain14 != null) L.push(`Rain in the 14 days before: ${fmt(w.rain14)} mm${w.pct14 != null ? ` (${fmt(w.pct14)}% of the ${w.normalYears}-year normal for those dates)` : ''}${since ? `; last ≥5 mm rain ${since} before` : ''}`);
+    if (w.tmax7 != null) L.push(`Prior week: mean high ${fmt(w.tmax7, 1)} °C, mean low ${fmt(w.tmin7, 1)} °C${w.coldest7 != null ? `, coldest night ${fmt(w.coldest7, 1)} °C` : ''}`);
+    used.add('Open-Meteo/ERA5 (~25 km grid)');
+  } else if (w && w.pending) L.push('Weather: not yet available (reanalysis lags about 5 days).');
+  if (L.length === 1) L.push('No site data could be retrieved for this collection.');
+  if (used.size) L.push(`Sources: ${[...used].join('; ')}. Derived from public coordinates and datasets; not field-verified.`);
+  L.push('https://mycoview.com/investigate/ecology-profile/');
+  return L.join('\n');
+}
+function openReport(id) {
+  const o = S.obs.find(x => String(x.id) === String(id)); if (!o) return;
+  $('#repTitle').textContent = `Site report · iNat ${o.id}`; $('#repText').value = siteReport(o); $('#repNote').textContent = '';
+  $('#repOpen').href = `https://www.inaturalist.org/observations/${o.id}`;
+  const d = $('#repDlg'); if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  $('#repText').focus(); $('#repText').select();
+}
+async function copyText(text, noteEl, ta) {
+  try { await navigator.clipboard.writeText(text); noteEl.textContent = 'Copied.'; }
+  catch (e) { if (ta) { ta.focus(); ta.select(); } noteEl.textContent = 'Press Ctrl+C / Cmd+C to copy the selected text.'; }
+  setTimeout(() => { noteEl.textContent = ''; }, 3500);
+}
+$('#repCopy').onclick = () => copyText($('#repText').value, $('#repNote'), $('#repText'));
+$('#repClose').onclick = () => { const d = $('#repDlg'); d.close ? d.close() : d.removeAttribute('open'); };
+$('#copyAllReports').onclick = () => {
+  const text = S.obs.map(o => `iNat ${o.id} · https://www.inaturalist.org/observations/${o.id}\n${siteReport(o)}`).join('\n\n----------\n\n');
+  if (!navigator.clipboard) { $('#repTitle').textContent = `All site reports (${S.obs.length})`; $('#repText').value = text; $('#repOpen').href = '#'; const d = $('#repDlg'); d.showModal ? d.showModal() : d.setAttribute('open', ''); $('#repText').select(); return; }
+  copyText(text, $('#allNote'), null);
+};
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('button.rep'); if (b) openReport(b.dataset.id); });
+
 const COLS = [
   ['iNat', o => o.id], ['Date', o => o.date], ['Collector', o => o.login], ['Region', o => o.region],
   ['Lat', o => o.hasLoc ? o.lat.toFixed(5) : ''], ['Lon', o => o.hasLoc ? o.lon.toFixed(5) : ''], ['Public accuracy (m)', o => o.acc ?? ''],
@@ -582,17 +648,19 @@ const COLS = [
   ['Mean low prior wk (°C)', o => o.env.wx && o.env.wx.tmin7 != null ? o.env.wx.tmin7.toFixed(1) : ''],
   ['Trees within radius', o => o.env.plants && o.env.plants.near ? o.env.plants.near.filter(t => TREE_GENERA.has(t.name.split(' ')[0])).map(t => t.name).join('; ') : ''],
   ['Observer notes', o => [...o.notes].join('; ')],
+  ['Site report', o => siteReport(o)],
 ];
 function renderTable() {
-  const head = `<thead><tr>${COLS.map(c => `<th>${esc(c[0])}</th>`).join('')}</tr></thead>`;
-  const body = S.obs.map(o => `<tr>${COLS.map((c, i) => { const v = c[1](o); return i === 0 ? `<td><a href="https://www.inaturalist.org/observations/${v}" target="_blank" rel="noopener">${v}</a></td>` : `<td${typeof v === 'number' ? ' class="num"' : ''}>${esc(v ?? '')}</td>`; }).join('')}</tr>`).join('');
+  const cols = COLS.filter(c => c[0] !== 'Site report'); // the full report is in the CSV and behind each row's button
+  const head = `<thead><tr><th></th>${cols.map(c => `<th>${esc(c[0])}</th>`).join('')}</tr></thead>`;
+  const body = S.obs.map(o => `<tr><td><button class="rep" type="button" data-id="${o.id}" title="Site report for iNat ${o.id}">Report</button></td>${cols.map((c, i) => { const v = c[1](o); return i === 0 ? `<td><a href="https://www.inaturalist.org/observations/${v}" target="_blank" rel="noopener">${v}</a></td>` : `<td${typeof v === 'number' ? ' class="num"' : ''}>${esc(v ?? '')}</td>`; }).join('')}</tr>`).join('');
   $('#perObs').innerHTML = head + `<tbody>${body}</tbody>`;
 }
 $('#csvBtn').onclick = () => {
   const rows = [COLS.map(c => c[0]), ...S.obs.map(o => COLS.map(c => c[1](o)))];
   const csv = rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
-  a.download = `ecology-profile_${S.name.replace(/[^\w-]+/g, '_')}_${isoDay(new Date())}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  a.download = `ecology-profile_${S.name.replace(/[^\w-]+/g, '_')}_${localToday()}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 };
 
 /* ================= 6. draft paragraph ================= */
@@ -617,7 +685,7 @@ function renderDraft(sm) {
   if (sm.elev.length) { const r = range(sm.elev); S1.push(sm.elev.length === 1 ? `Elevation ${fmt(r[0])} m.` : `Elevations ranged from ${fmt(r[0])} to ${fmt(r[1])} m (median ${fmt(median(sm.elev))} m).`); }
   if (sm.wxN >= 3 && sm.rain14 != null) S1.push(`In the 14 days before collection, rainfall was a median of ${fmt(sm.rain14)} mm${sm.pct14 != null ? ` (${fmt(sm.pct14)}% of the ten-year average for those dates)` : ''}${sm.wxPctN ? `, and ${sm.wetter} of ${sm.wxPctN} collections followed a wetter-than-normal fortnight` : ''}.`);
   const ids = S.obs.map(o => o.id);
-  const refs = `iNaturalist observations: ${ids.slice(0, 40).join(', ')}${ids.length > 40 ? `, and ${ids.length - 40} more (see table)` : ''}. Environmental data: ${['Open-Meteo/ERA5', sm.vegN ? 'LANDFIRE 2024 EVT' : null, sm.ssurgo.length ? 'USDA NRCS SSURGO' : null, sm.grids.length ? 'ISRIC SoilGrids' : null, sm.elev.length ? ([...new Set(S.obs.map(o => o.env.elevSrc).filter(Boolean))].join('/') || 'elevation model') : null].filter(Boolean).join('; ')}. Generated with MycoView Ecology Profile on ${isoDay(new Date())}.`;
+  const refs = `iNaturalist observations: ${ids.slice(0, 40).join(', ')}${ids.length > 40 ? `, and ${ids.length - 40} more (see table)` : ''}. Environmental data: ${['Open-Meteo/ERA5', sm.vegN ? 'LANDFIRE 2024 EVT' : null, sm.ssurgo.length ? 'USDA NRCS SSURGO' : null, sm.grids.length ? 'ISRIC SoilGrids' : null, sm.elev.length ? ([...new Set(S.obs.map(o => o.env.elevSrc).filter(Boolean))].join('/') || 'elevation model') : null].filter(Boolean).join('; ')}. Generated with MycoView Ecology Profile on ${localToday()}.`;
   S.draftText = S1.join(' ') + '\n\n' + refs;
   $('#draft').innerHTML = esc(S1.join(' ')) + `\n\n<span class="ref">${esc(refs)}</span>`;
 }

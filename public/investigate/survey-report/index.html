@@ -194,6 +194,7 @@ table.ck tr.oth td{color:var(--muted)}
 .mstrip{display:inline-flex;gap:1px} .mstrip i{display:inline-block;width:7px;height:12px;border-radius:1px;background:var(--surface-2)} .mstrip i.on{background:var(--good)}
 table.ph td.mc,table.ph th.mc{text-align:center;padding:2px 1px;width:6.5%} table.ph .cell{display:block;min-height:18px;border-radius:2px;font:10.5px/18px var(--f-mono);color:var(--ink)}
 table.ph tr.eff td{font-weight:600;border-bottom:2px solid var(--line)}
+details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:pointer;font-weight:600;color:var(--accent)} details.recon ul{margin:6px 0 0;padding-left:18px}
 .dl{display:flex;flex-wrap:wrap;gap:8px 4px;align-items:center} .dl button{margin-right:2px} .dl .mv-i{margin-right:12px}
 #map{height:420px}
 @media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
@@ -263,6 +264,7 @@ table.ph tr.eff td{font-weight:600;border-bottom:2px solid var(--line)}
         <label class="inline"><input type="checkbox" id="optLichen"> Include lichens</label><button type="button" class="mv-i" data-help="lichens" aria-label="What does Include lichens mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline"><input type="checkbox" id="optSlime"> Include slime molds</label><button type="button" class="mv-i" data-help="slime" aria-label="What does Include slime molds mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline"><input type="checkbox" id="optProv" checked> Count provisional names as species</label><button type="button" class="mv-i" data-help="prov" aria-label="What does Provisional names mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+        <label class="inline" id="provSpWrap">A record with both a species ID and a provisional name counts as <select id="optProvSp" style="width:auto"><option value="prov" selected>the provisional name</option><option value="species">the species</option></select></label><button type="button" class="mv-i" data-help="provsp" aria-label="What does records with both mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline"><input type="checkbox" id="optRG"> Research grade only</label><button type="button" class="mv-i" data-help="rg" aria-label="What does Research grade only mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
       </div>
     </section>
@@ -272,6 +274,7 @@ table.ph tr.eff td{font-weight:600;border-bottom:2px solid var(--line)}
       <div class="tiles" id="tiles"></div>
       <p class="lede" id="lede"></p>
       <p class="note" id="sumNote"></p>
+      <details class="recon" id="reconBox"><summary>Matching iNaturalist’s numbers<button type="button" class="mv-i" data-help="recon" aria-label="What does Matching iNaturalist’s numbers mean?" aria-expanded="false" aria-controls="mv-pop">i</button></summary><ul class="notes" id="recon"></ul></details>
     </section>
 
     <div class="grid g2">
@@ -393,6 +396,8 @@ MVHelp.init({
   lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes and Coniocybomycetes, the orders Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
   slime: '<b>Include slime molds</b> (Mycetozoa, e.g. <i>Lycogala</i>, <i>Stemonitis</i>). They aren’t fungi, but many fungal surveys record them.',
   prov: '<b>Count provisional names as species.</b> A record with a “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, counts as that species even if iNaturalist only has it to genus. Usually these are DNA-sequenced and not yet formally named. Turn off to count only formally named species.',
+  provsp: '<b>A record with both a species ID and a provisional name.</b> Some records are identified to a named species on iNaturalist and also carry a “Provisional Species Name”, often because sequencing showed the name is wrong or covers more than one species. <b>The provisional name</b> (default) counts them as the provisional species. <b>The species</b> counts them under the iNaturalist name, so provisional names count only on records identified to genus or above.',
+  recon: '<b>Matching iNaturalist’s numbers.</b> Step by step, why the totals here differ from the project page or Explore: records that aren’t fungi, the lichen and slime mold options, iNaturalist counting names above species as “species”, and provisional names.',
   rg: '<b>Research grade only.</b> Only records whose identification the community has agreed. Fewer, safer names; hard groups drop out.',
   summary: 'Totals for the survey with the options above. A <b>survey day</b> is a date with at least one record.',
   t_species: '<b>Species</b>: distinct species (subspecies and varieties count with their species), plus provisional names if that option is on.',
@@ -517,7 +522,8 @@ async function build() {
     const r = await loadObs(run); if (!r || run !== S.run) return;
     setChip('#src-inat', 'live', 'live');
     if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#formMsg').textContent = 'No fungi records found for that survey and those dates.'; return; }
-    S.obs = r.obs; S.truncated = r.truncated;
+    S.obs = r.obs; S.truncated = r.truncated; S.allTotal = null;
+    if (!S.settings.boundary) qInat(() => getJSON(`${INAT}/v1/observations?per_page=0&d1=${S.settings.d1}&d2=${S.settings.d2}${S.settings.src === 'project' ? `&project_id=${S.settings.proj.id}` : `&user_id=${S.settings.users.map(encodeURIComponent).join(',')}`}`)).then(d => { if (run === S.run) { S.allTotal = d.total_results; if (A) renderRecon(); } }, () => {});
     $('#statusTxt').textContent = 'Looking up the taxonomy (cached after the first time)…';
     await loadTaxa(S.obs, run); if (run !== S.run) return;
     for (const o of S.obs) { o.L = lineage(o.taxon); o.lichen = isLichen(o.L); o.slime = (o.taxon.ancestor_ids || []).includes(SLIME); o.year = +o.date.slice(0, 4); o.month = +o.date.slice(5, 7); }
@@ -529,11 +535,12 @@ async function build() {
 $('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
 
 /* ---------- 3. analysis ---------- */
-function opts() { return { lichen: $('#optLichen').checked, slime: $('#optSlime').checked, prov: $('#optProv').checked, rg: $('#optRG').checked }; }
+function opts() { return { lichen: $('#optLichen').checked, slime: $('#optSlime').checked, prov: $('#optProv').checked, provSp: $('#optProvSp').value, rg: $('#optRG').checked }; }
 function usable() { const o = opts(); return S.obs.filter(r => (o.lichen || !r.lichen) && (o.slime || !r.slime) && (!o.rg || r.qg === 'research')); }
 function unitOf(r, o) {
-  if (o.prov && r.prov) return { key: 'p:' + r.prov, name: r.prov, prov: true, taxonId: r.taxon.id };
-  const k = speciesKey(r.taxon); if (!k) return null;
+  const k = speciesKey(r.taxon);
+  if (o.prov && r.prov && !(k && o.provSp === 'species')) return { key: 'p:' + r.prov, name: r.prov, prov: true, taxonId: r.taxon.id };
+  if (!k) return null;
   const ids = r.taxon.ancestor_ids || [], spId = r.taxon.rank_level === 10 ? r.taxon.id : ids[ids.length - 2];
   return { key: 's:' + k, name: k, prov: false, taxonId: spId || r.taxon.id };
 }
@@ -573,7 +580,7 @@ function accumulation(days, perms = 100) {
 
 /* ---------- 4. render ---------- */
 let A = null;
-function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
+function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderRecon(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
 const srcLabel = st => (st.src === 'project' ? st.proj.title : st.src === 'users' ? st.users.join(', ') : 'Everyone') + (st.boundary ? ` · inside ${st.boundary.name}` : '');
 const tile = (v, k, h) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}${MVHelp.tip(h, k)}</div></div>`;
 function inatSearch(extra) { const st = S.settings; let q = `d1=${st.d1}&d2=${st.d2}`;
@@ -594,6 +601,29 @@ function renderSummary() {
     !o.lichen && lich ? `${fmt(lich)} lichen records are left out (tick “Include lichens” to add them).` : '', !o.slime && slime ? `${fmt(slime)} slime mold records are left out.` : '',
     S.bCls ? `Boundary ${esc(st.boundary.name)}: ${fmt(S.bCls.in + (st.edge === 'keep' ? S.bCls.edge : 0))} records inside counted; ${fmt(S.bCls.out)} nearby but outside it and ${fmt(S.bCls.obscured)} with obscured locations left out; ${fmt(S.bCls.edge)} inside but with an accuracy reaching past the edge, ${st.edge === 'keep' ? 'included in that count' : 'left out'}.` : '',
     !st.boundary && S.obs.some(r => r.obscured) ? `${fmt(S.obs.filter(r => r.obscured).length)} records have obscured locations; they are counted (the project placed them here) but not mapped.` : ''].filter(Boolean).join(' ');
+}
+// Explain the gap between this report and the numbers on the iNaturalist project or explore page, step by step.
+function renderRecon() {
+  const st = S.settings, o = A.o, all = S.obs, li = [];
+  if (st.boundary) { $('#reconBox').classList.add('hidden'); return; } $('#reconBox').classList.remove('hidden');
+  // iNaturalist's "species" = leaf taxa: every observed taxon that no other observed taxon sits below.
+  const ids = new Map(); for (const r of all) ids.set(r.taxon.id, r.taxon);
+  const inner = new Set(); for (const t of ids.values()) for (const a of (t.ancestor_ids || []).slice(0, -1)) inner.add(a);
+  const leaves = [...ids.values()].filter(t => !inner.has(t.id)), leafSp = leaves.filter(t => t.rank_level <= 10).length, leafUp = leaves.length - leafSp;
+  const upRanks = [...new Set(leaves.filter(t => t.rank_level > 10).map(t => t.rank))];
+  const keysOf = (recs, oo) => { const s = new Set(); for (const r of recs) { const u = unitOf(r, oo); if (u) s.add(u.key); } return s; };
+  const noProv = { ...o, prov: false };
+  const a = keysOf(all, noProv).size, kept = usable(), b = keysOf(kept, noProv).size, c = A.units.size, P = [...A.units.values()].filter(u => u.prov).length, D = b - (c - P);
+  const nLich = all.filter(r => r.lichen).length, nSlime = all.filter(r => r.slime).length, nRG = all.filter(r => r.qg !== 'research' && (o.lichen || !r.lichen) && (o.slime || !r.slime)).length;
+  const where = st.src === 'project' ? 'the project page' : 'iNaturalist’s Explore page for these people';
+  li.push(`<b>Observations.</b> ${S.allTotal != null ? `${where[0].toUpperCase() + where.slice(1)} shows ${fmt(S.allTotal)} for these dates. ${S.allTotal > all.length ? `${fmt(S.allTotal - all.length)} of them aren’t identified as fungi or slime molds (e.g. only as “Life”), so this report never reads them, leaving ${fmt(all.length)}. ` : `This report read all ${fmt(all.length)}. `}` : `This report read ${fmt(all.length)} fungi and slime mold records. `}${[!o.lichen && nLich ? `${fmt(nLich)} lichen records` : '', !o.slime && nSlime ? `${fmt(nSlime)} slime mold records` : '', o.rg && nRG ? `${fmt(nRG)} records not at research grade` : ''].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' and $1') || 'None'} ${(!o.lichen && nLich) || (!o.slime && nSlime) || (o.rg && nRG) ? 'are left out by the options above' : 'are left out'}, giving the ${fmt(A.recs.length)} used.`);
+  li.push(`<b>Species.</b> iNaturalist would show <b>${fmt(leaves.length)}</b> species for these records. That figure counts every name with nothing more specific recorded under it: ${fmt(leafSp)} at species rank${leafUp ? ` and ${fmt(leafUp)} identified only to ${upRanks.slice(0, 4).join(', ').replace(/, ([^,]*)$/, ' or $1')} with nothing named below them in these records, which this report doesn’t count as species` : ''}.${a !== leafSp ? ` Merging subspecies and varieties into their species gives ${fmt(a)}.` : ''}`);
+  const steps = [`${fmt(a)} species-rank names in all the records read`];
+  if (b !== a) steps.push(`${fmt(b)} after leaving out ${[!o.lichen ? 'lichens' : '', !o.slime ? 'slime molds' : '', o.rg ? 'records below research grade' : ''].filter(Boolean).join(' and ') || 'the options above'} (−${fmt(a - b)})`);
+  if (o.prov) { steps.push(`+${fmt(P)} provisional names`); if (D > 0) steps.push(`−${fmt(D)} species whose every record carries a provisional name, so they count under that name instead${o.provSp === 'prov' ? ' (change this with “A record with both…” above)' : ''}`); }
+  li.push(`<b>This report: ${fmt(c)} species.</b> ${steps.join('; ')}${steps.length > 1 ? ` = ${fmt(c)}` : ''}.`);
+  li.push(`<b>Observers.</b> ${fmt(new Set(all.map(r => r.login)).size)} people recorded the fungi and slime molds read; ${fmt(A.people.size)} after the options above. iNaturalist’s “People” also counts anyone with only non-fungal records.`);
+  $('#recon').innerHTML = li.map(x => `<li>${x}</li>`).join('');
 }
 function renderCompleteness() {
   const c = chao2(A.units, A.days.size), acc = accumulation(A.days);
@@ -697,7 +727,7 @@ function renderMethods() {
   const st = S.settings, o = A.o, c = S.chao || {};
   $('#methods').innerHTML = [
     `<b>Source</b>: iNaturalist records of Fungi${o.slime ? ' and Mycetozoa (slime molds)' : ''} ${st.src === 'project' ? `in the project “${esc(st.proj.title)}” (id ${st.proj.id})` : st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : 'by anyone'}, observed ${st.d1} to ${st.d2}, read on ${todayIso()} through the iNaturalist API${o.rg ? ', research grade only' : ', all quality grades'}.${st.boundary ? ` Records were kept only if their point fell inside the boundary file “${esc(st.boundary.fileName)}” (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}, holes excluded)${st.edge === 'drop' ? ' and their stated accuracy did not reach past its edge' : ''}; records with obscured locations were excluded.` : ''}`,
-    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes, Coniocybomycetes; Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
+    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes, Coniocybomycetes; Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
     `<b>Effort</b>: a survey day is a date with at least one record. Species accumulation is the mean of 100 random orderings of the ${fmt(A.days.size)} survey days, with the central 95% of orderings shaded.`,
     `<b>Richness estimate</b>: incidence-based Chao2 with the bias correction (m−1)/m and a log-normal 95% interval (Chao 1987; Chao & Chiu 2016), from Q1 = ${fmt(c.Q1)} species on one day and Q2 = ${fmt(c.Q2)} on two, over m = ${fmt(c.m)} days. Sample coverage follows Chao & Jost (2012). Fruiting-body surveys detect only species that fruited and were recorded, so the estimate is a lower bound.`,
     `<b>Identification</b>: iNaturalist identifications are not all verified; ${fmt(A.recs.length ? 100 * A.recs.filter(r => r.qg === 'research').length / A.recs.length : 0)}% of the records used are research grade, and ${fmt(A.recs.filter(r => r.seq).length)} have an ITS sequence.`,
@@ -724,7 +754,8 @@ $('#dlDays').onclick = () => download(`survey-days_${slug()}.csv`, csv([['date',
 $('#dlYears').onclick = () => download(`year-by-year_${slug()}.csv`, csv([['year', 'survey_days', 'records', 'observers', 'species', 'new_to_survey', 'running_total'], ...S.yrs.map(g => [g.y, g.days, g.records, g.people.size, g.units.size, g.newN, g.cum])]));
 
 /* ---------- wiring ---------- */
-for (const id of ['#optLichen', '#optSlime', '#optProv', '#optRG']) $(id).addEventListener('change', renderAll);
+$('#optProv').addEventListener('change', () => $('#provSpWrap').classList.toggle('muted', !$('#optProv').checked));
+for (const id of ['#optLichen', '#optSlime', '#optProv', '#optProvSp', '#optRG']) $(id).addEventListener('change', renderAll);
 document.querySelectorAll('input[name=grank]').forEach(r => r.addEventListener('change', renderGroups));
 $('#ckFilter').addEventListener('input', () => renderChecklist()); $('#ckSort').addEventListener('change', renderChecklist); $('#ckOther').addEventListener('change', renderChecklist);
 $('#example').onclick = e => { e.preventDefault(); document.querySelector('input[name=src][value=project]').checked = true; $('#usersWrap').classList.add('hidden'); $('#projWrap').classList.remove('hidden');

@@ -155,7 +155,7 @@ table.cmp td{vertical-align:middle}
   <div class="sources">
     <span class="srcchip" id="src-inat" title="Finds, background fungi records and nearby plant records"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
     <span class="srcchip" id="src-veg" title="LANDFIRE 2024 Existing Vegetation Type, United States only"><span class="dot"></span>LANDFIRE <span class="st">checking…</span></span>
-    <span class="srcchip" id="src-elev" title="Copernicus 90 m elevation model via Open-Meteo (CC BY 4.0), used for elevation, slope and aspect"><span class="dot"></span>Terrain <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-elev" title="Terrain Tiles on AWS (USGS 3DEP and other sources, about 30 m), used for elevation, slope and aspect"><span class="dot"></span>Terrain <span class="st">checking…</span></span>
     <span class="srcchip" id="src-soil" title="USDA NRCS SSURGO soils (United States). Left out when the USDA service is down."><span class="dot"></span>Soils <span class="st">checking…</span></span>
     <button id="themeBtn" class="ghost" type="button" style="font-size:12px">Theme</button>
   </div>
@@ -291,7 +291,7 @@ table.cmp td{vertical-align:middle}
       </details>
     </section>
   </div>
-  <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; vegetation type from <a href="https://landfire.gov" target="_blank" rel="noopener">LANDFIRE</a>; elevation by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (Copernicus DEM, CC BY 4.0); soils from USDA NRCS SSURGO; basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these.</p>
+  <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; vegetation type from <a href="https://landfire.gov" target="_blank" rel="noopener">LANDFIRE</a>; elevation from <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles on AWS</a> (Mapzen; USGS 3DEP, SRTM and other sources); soils from USDA NRCS SSURGO; basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these.</p>
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -333,7 +333,7 @@ function pacer(gapMs, concurrency = 1) {
     setTimeout(() => fn().then(res, rej).finally(() => { active--; next(); }), wait); };
   return fn => new Promise((res, rej) => { waiting.push({ fn, res, rej }); next(); });
 }
-const qInat = pacer(1050, 1), qMeteo = pacer(300, 1), qEnv = pacer(40, 8);
+const qInat = pacer(1050, 1), qEnv = pacer(40, 8);
 async function getJSON(url, opts) {
   for (let i = 0; i < 3; i++) {
     let r; try { r = await fetch(url, opts); } catch (e) { if (i === 2) throw e; await sleep(2000); continue; }
@@ -471,24 +471,42 @@ async function vegFor(pt) { const d = await qEnv(() => getJSON(`${ENV}/vegetatio
 async function soilFor(pt) {
   if (S.ssurgoUp === false) return { none: true, off: true };
   let d; try { d = await qEnv(() => fetch(`${ENV}/soil?lat=${pt.lat.toFixed(5)}&lon=${pt.lon.toFixed(5)}`).then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))); }
-  catch (e) { if (S.ssurgoUp !== true) { S.ssurgoUp = false; setChip('#src-soil', 'fail', 'USDA down · soils left out'); } throw e; }
+  catch (e) { if (S.ssurgoUp !== true) { S.ssurgoUp = false; setChip('#src-soil', 'fail', 'USDA down · soils left out'); return { none: true, off: true }; } throw e; }
   const c = d.available && d.components && d.components[0]; if (!c) return { none: true };
   return { drainage: c.drainage || null, ph: Number.isFinite(c.phSurface) ? c.phSurface : null, texture: c.textureSurface || null, series: c.name || null }; }
-// Terrain: elevation at the point and 90 m north, south, east and west of it (Copernicus 90 m DEM), giving slope and aspect.
+// Terrain from the open Terrain Tiles on AWS (terrarium PNG, zoom 12, about 30 m per pixel in the US): one tile
+// covers many points, and there is no per-request limit. Slope and aspect come from the elevation 2 pixels
+// (about 60 m) north, south, east and west of the point, bilinearly interpolated.
+const TZ = 12, tiles = new Map(), qTile = pacer(15, 6);
+const TILE_URL = (z, x, y) => `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`;
+function worldPx(lat, lon) { const n = 256 * 2 ** TZ, r = lat * Math.PI / 180;
+  return [(lon + 180) / 360 * n, (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n]; }
+function loadTile(x, y) {
+  const k = `${x}/${y}`; if (tiles.has(k)) return tiles.get(k);
+  const pr = qTile(() => new Promise((res, rej) => { const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => { try { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d', { willReadFrequently: true });
+      g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, 256, 256).data, z = new Float32Array(65536);
+      for (let i = 0; i < 65536; i++) z[i] = d[4 * i] * 256 + d[4 * i + 1] + d[4 * i + 2] / 256 - 32768; res(z); } catch (e) { rej(e); } };
+    img.onerror = () => rej(new Error('tile failed')); img.src = TILE_URL(TZ, x, y); }));
+  pr.catch(() => tiles.delete(k)); tiles.set(k, pr); return pr;
+}
+function elevAt(loaded, px, py) { // bilinear at world pixel coordinates (pixel centres at +0.5)
+  const fx = px - 0.5, fy = py - 0.5, x0 = Math.floor(fx), y0 = Math.floor(fy), ax = fx - x0, ay = fy - y0;
+  const v = (x, y) => { const z = loaded.get(`${Math.floor(x / 256)}/${Math.floor(y / 256)}`); return z ? z[(y & 255) * 256 + (x & 255)] : NaN; };
+  return v(x0, y0) * (1 - ax) * (1 - ay) + v(x0 + 1, y0) * ax * (1 - ay) + v(x0, y0 + 1) * (1 - ax) * ay + v(x0 + 1, y0 + 1) * ax * ay;
+}
 async function terrainFor(points) {
-  const D = 90, coords = [];
-  for (const p of points) { const [dl] = metersToDeg(p.lat, D, 0), [, dn] = metersToDeg(p.lat, 0, D);
-    coords.push([p.lat, p.lon], [p.lat + dl, p.lon], [p.lat - dl, p.lon], [p.lat, p.lon + dn], [p.lat, p.lon - dn]); }
-  const z = [];
-  for (let i = 0; i < coords.length; i += 100) { const c = coords.slice(i, i + 100);
-    const d = await qMeteo(() => getJSON(`https://api.open-meteo.com/v1/elevation?latitude=${c.map(x => x[0].toFixed(5)).join(',')}&longitude=${c.map(x => x[1].toFixed(5)).join(',')}`));
-    z.push(...(d.elevation || [])); }
-  points.forEach((p, k) => { const [c, n, s, e, w] = z.slice(5 * k, 5 * k + 5);
-    if (![c, n, s, e, w].every(Number.isFinite)) { p.env.terrain = { none: true }; return; }
+  const need = new Set(), pos = points.map(p => worldPx(p.lat, p.lon));
+  for (const [px, py] of pos) for (const dx of [-3, 3]) for (const dy of [-3, 3]) need.add(`${Math.floor((px + dx) / 256)}/${Math.floor((py + dy) / 256)}`);
+  const loaded = new Map(); let failed = 0;
+  await Promise.all([...need].map(k => { const [x, y] = k.split('/').map(Number); return loadTile(x, y).then(z => { loaded.set(k, z); }, () => { failed++; }); }));
+  if (!loaded.size) throw new Error('terrain tiles unavailable');
+  points.forEach((p, i) => { const [px, py] = pos[i], mpp = 156543.03392 * Math.cos(p.lat * Math.PI / 180) / 2 ** TZ, D = 2 * mpp;
+    const c = elevAt(loaded, px, py), n = elevAt(loaded, px, py - 2), s = elevAt(loaded, px, py + 2), e = elevAt(loaded, px + 2, py), w = elevAt(loaded, px - 2, py);
+    if (![c, n, s, e, w].every(Number.isFinite) || c < -500) { p.env.terrain = { none: true }; return; }
     const dzdx = (e - w) / (2 * D), dzdy = (n - s) / (2 * D);
-    const slope = Math.atan(Math.hypot(dzdx, dzdy)) * 180 / Math.PI;
-    const aspect = (Math.atan2(-dzdx, -dzdy) * 180 / Math.PI + 360) % 360; // compass direction the slope faces
-    p.env.terrain = { elev: c, slope, aspect }; });
+    p.env.terrain = { elev: c, slope: Math.atan(Math.hypot(dzdx, dzdy)) * 180 / Math.PI, aspect: (Math.atan2(-dzdx, -dzdy) * 180 / Math.PI + 360) % 360 }; });
+  return { failedTiles: failed };
 }
 const slopeClass = s => SLOPE_CLASSES.find(([lo, hi]) => s >= lo && s < hi)[2];
 const sectorOf = a => SECTORS[Math.round(a / 45) % 8];
@@ -522,7 +540,7 @@ async function build() {
   if (mode === 'prov' && !st.pname) { $('#formMsg').textContent = 'Enter a provisional name.'; return; }
   S.label = mode === 'taxon' ? st.taxon.name + (st.taxon.common ? ` (${st.taxon.common})` : '') : st.pname;
   store.set('habprof.last', { mode, taxon: st.taxon, pname: st.pname, place: st.place });
-  S.prog = {}; S.sites = []; S.bg = []; clearScores();
+  S.prog = {}; S.sites = []; S.bg = []; S.bgDone = false; clearScores();
   $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#prog').innerHTML = '';
   $('#statusTxt').innerHTML = `Loading finds of <b>${esc(S.label)}</b>${st.place ? ` in ${esc(st.place.name)}` : ''}…`;
   try {
@@ -551,10 +569,12 @@ async function build() {
         } catch (e) { S.prog.bg.failed++; }
         S.prog.bg.done++; renderProg(); }
     })();
-    const treeJob = st.doTrees ? track('trees', S.sites, async s => { s.env.trees = await treesFor(s); }) : null;
     await bgJob; if (run !== S.run) return;
+    S.bgDone = true; scheduleRender();
+    // Trees share iNaturalist's one-request-a-second limit, so they start once the background is in.
+    const treeJob = st.doTrees ? track('trees', S.sites, async s => { s.env.trees = await treesFor(s); }) : null;
     const all = [...S.sites, ...S.bg]; S.prog.terrain.total = 1; renderProg();
-    const terrainJob = terrainFor(all).then(() => { setChip('#src-elev', 'live', 'live'); }, () => { S.prog.terrain.failed = 1; all.forEach(p => { p.env.terrain = p.env.terrain || { none: true }; }); setChip('#src-elev', 'fail', 'unavailable'); })
+    const terrainJob = terrainFor(all).then(r => { setChip('#src-elev', r.failedTiles ? 'slow' : 'live', r.failedTiles ? `${r.failedTiles} tiles missing` : 'live'); }, () => { S.prog.terrain.failed = 1; all.forEach(p => { p.env.terrain = p.env.terrain || { none: true }; }); setChip('#src-elev', 'fail', 'unavailable'); })
       .finally(() => { S.prog.terrain.done = 1; renderProg(); scheduleRender(); });
     await Promise.all([findLayers, treeJob, terrainJob]);
     await waitIdle(run);
@@ -664,8 +684,9 @@ function renderAll() {
   $('#sigSub').textContent = `${S.label}${st.place ? ' · ' + st.place.name : ''}`;
   $('#tiles').innerHTML = [[fmt(A.nF), 'find sites'], [fmt(S.found.preciseN), 'precise records used'], [fmt(A.nB), `background ${bgWord}`], [`${st.bgR} km`, 'background radius']]
     .map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
-  const sig = signature(A); S.sig = sig;
-  $('#sig').innerHTML = sig.length ? sig.map(x => `<li class="${x.kind}">${evTag(x.ev)} ${x.text}</li>`).join('')
+  const sig = S.bgDone ? signature(A) : []; S.sig = sig;
+  $('#copySig').disabled = !S.bgDone; $('#scoreBtn').disabled = !S.bgDone;
+  $('#sig').innerHTML = !S.bgDone ? `<li class="empty">The signature appears once the background is in (${S.prog.bg ? S.prog.bg.done : 0} of ${S.sites.length} sites so far), so it isn’t built on a partial comparison.</li>` : sig.length ? sig.map(x => `<li class="${x.kind}">${evTag(x.ev)} ${x.text}</li>`).join('')
     : `<li class="empty">No clear differences from the ${bgWord} around the finds on these layers${A.nF < 15 ? `, which is common with only ${A.nF} sites` : ''}.</li>`;
   $('#sigNote').innerHTML = `“Nearby” means ${bgWord} within ${st.bgR} km of each find (${BG_PER_SITE} per site)${st.bgMode === 'fungi' ? ', which share the finds’ bias toward places people walk, so differences point to the species rather than to trails and parks' : '; random points include private and inaccessible land, so they partly measure where people go'}. Evidence labels are rules of thumb from Fisher’s exact and sign tests, with no correction for the many comparisons made; with few sites, read “Some evidence” as a lead to check.`;
   $('#physSub').textContent = `${A.vegN[0]} sites · ${A.vegN[1]} nearby${A.waterFinds ? ` · ${A.waterFinds} find site${A.waterFinds > 1 ? 's' : ''} mapped as water left out (usually a pond or river edge)` : ''}`;
@@ -785,7 +806,7 @@ function renderMethods(A) {
     `<b>Finds</b>: ${st.mode === 'taxon' ? `iNaturalist observations of ${esc(S.label)}${st.rgOnly ? ' (research grade)' : ''}` : `iNaturalist observations whose Provisional Species Name is exactly “${esc(st.pname)}”${st.seqOnly ? ' with the DNA Barcode ITS field filled in' : ''}`}${st.place ? ` in ${esc(st.place.name)}` : ''}, with an open (not obscured) location accurate to ${st.prec} m or better. Up to 600 records are drawn in random order; records within ${SITE_CELL_M} m of each other count as one site, and at most ${st.cap} sites are used.`,
     `<b>Background</b>: for each site, ${BG_PER_SITE} ${st.bgMode === 'fungi' ? `records of other fungi on iNaturalist within ${st.bgR} km (also open, precise locations; none within 100 m of a find). They carry the same bias toward accessible places as the finds, so a difference suggests something about the species rather than about where people walk.` : `random points within ${st.bgR} km. These describe the landscape, including private, developed and inaccessible land, so part of any difference reflects where people search.`} Background points on open water or ice are dropped.`,
     `<b>Vegetation</b>: LANDFIRE 2024 Existing Vegetation Type at each point (30 m pixel; United States only), at three levels: cover type, vegetation group and named type. Mapped classes can be wrong on the ground, especially at forest edges and in parks.`,
-    `<b>Terrain</b>: Copernicus 90 m elevation model via Open-Meteo, at each point and 90 m north, south, east and west of it; slope and aspect come from those differences, so they describe the slope over about 180 m, not the microsite. Aspect is only given for slopes of 5° or more.`,
+    `<b>Terrain</b>: Terrain Tiles on AWS (Mapzen; in the United States mostly USGS 3DEP), read at zoom 12, about 30 m per pixel. Slope and aspect come from the elevation about 60 m north, south, east and west of each point, so they describe the slope over about 120 m, not the microsite. Aspect is only given for slopes of 5° or more.`,
     `<b>Soils</b>: dominant component of the USDA NRCS SSURGO map unit at each point (drainage class and surface pH), through MycoView’s relay. Left out when the USDA service is unavailable.`,
     `<b>Trees</b>: each tree’s share of iNaturalist tree records within ${TREE_R * 1000} m of the finds, against its share of tree records within ${st.bgR} km of the same sites (only trees at 3 or more sites are named in the signature). These reflect where people photograph trees.`,
     `<b>Statistics</b>: for each category, the share of find sites is compared with the share of background points (ratio with half-count smoothing; Fisher’s exact test). Higher or lower than surroundings uses each site against the median of its own background points (sign test). Labels: “Clear difference” p &lt; 0.01 with at least 5 sites, “Some evidence” p &lt; 0.05, “A hint only” p &lt; 0.2. Many comparisons are made, so some hints will be chance. These are rules of thumb, not validated statistics.`,
@@ -809,7 +830,7 @@ if (last) { if (last.mode === 'prov') { document.querySelector('input[name=mode]
 syncMode();
 (async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
 (async () => { try { const d = await getJSON(`${ENV}/vegetation?lat=41.13700&lon=-81.56500`); setChip('#src-veg', d.available ? 'live' : 'fail', d.available ? 'live' : 'unavailable'); } catch (e) { setChip('#src-veg', 'fail', 'not reachable'); } })();
-(async () => { try { await getJSON('https://api.open-meteo.com/v1/elevation?latitude=41.137&longitude=-81.565'); setChip('#src-elev', 'live', 'live'); } catch (e) { setChip('#src-elev', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } })();
+(async () => { try { const [x, y] = worldPx(41.137, -81.565); await loadTile(Math.floor(x / 256), Math.floor(y / 256)); setChip('#src-elev', 'live', 'live'); } catch (e) { setChip('#src-elev', 'fail', 'not reachable'); } })();
 (async () => { try { const d = await getJSON(`${ENV}/soil?lat=41.13700&lon=-81.56500`); if (d.available) { S.ssurgoUp = true; setChip('#src-soil', 'live', 'USDA live'); } else throw 0; } catch (e) { S.ssurgoUp = false; setChip('#src-soil', 'fail', 'USDA down · soils left out'); } })();
 })();
 </script>

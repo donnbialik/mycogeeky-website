@@ -67,6 +67,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .form{display:grid;grid-template-columns:minmax(260px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:12px;align-items:end}
 .opts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px}
 .hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.bwrap{border:1px dashed var(--line);border-radius:6px;padding:8px 10px;display:grid;gap:8px}.bwrap input[type=file]{font-size:12.5px;max-width:100%}.bwrap .err{color:var(--warn)}
 .status{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
 .status .txt{flex:1 1 320px;font-size:13px}
 .prog{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px;width:100%}
@@ -216,8 +217,15 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
       <form id="form" class="vform" autocomplete="off">
         <label>Visit date <input type="date" id="date"></label>
         <label>Look within
-          <select id="radius"><option value="0.5">500 m of the spot</option><option value="1" selected>1 km of the spot</option><option value="2">2 km</option><option value="5">5 km</option></select>
+          <select id="radius"><option value="0.5">500 m of the spot</option><option value="1" selected>1 km of the spot</option><option value="2">2 km</option><option value="5">5 km</option><option value="boundary">inside a site boundary (KML, KMZ or GeoJSON file)</option></select>
         </label>
+        <div id="bWrap" class="hidden bwrap">
+          <label>Boundary file <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json"></label>
+          <p class="hint" id="bTxt">Read in your browser; the file isn’t uploaded anywhere.</p>
+          <label>Records near the edge
+            <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its stated accuracy reaches past the edge</option></select>
+          </label>
+        </div>
         <label>Around the date
           <select id="win"><option value="7">± 1 week</option><option value="14" selected>± 2 weeks</option><option value="21">± 3 weeks</option></select>
         </label>
@@ -261,7 +269,7 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
         <button type="button" id="csvBtn">Download list (CSV)</button>
       </div>
       <div id="list"></div>
-      <p class="note">“Years found” counts the years in which the species was recorded within the radius in this window. “Years looked” counts the years in which anyone recorded any fungi there in the same window. A species found in most of the years people looked is a regular; one found once may be chance, a misidentification or simply rare. Records show where people photographed fungi, not everything that grows there. Names and photos are not identifications or edibility advice: check every find yourself.</p>
+      <p class="note">“Years found” counts the years in which the species was recorded within the radius (or boundary) in this window. “Years looked” counts the years in which anyone recorded any fungi there in the same window. A species found in most of the years people looked is a regular; one found once may be chance, a misidentification or simply rare. Records show where people photographed fungi, not everything that grows there. Names and photos are not identifications or edibility advice: check every find yourself.</p>
     </section>
 
     <section class="card" style="margin-top:14px">
@@ -275,6 +283,7 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/investigate/shared/boundary.js"></script>
 <script>
 (() => {
 'use strict';
@@ -313,22 +322,35 @@ async function getJSON(url) {
 function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'fail', 'slow'); if (cls) c.classList.add(cls); c.querySelector('.st').textContent = text; }
 
 /* ---------- state, map ---------- */
-const S = { spot: null, run: 0, years: [], species: new Map(), settings: {} };
-let map, marker, circle;
+const S = { spot: null, run: 0, years: [], species: new Map(), settings: {}, boundary: null };
+let map, marker, circle, bLayer;
+const useB = () => $('#radius').value === 'boundary';
 function initMap() {
   map = L.map('map', { scrollWheelZoom: false }).setView([41.1, -81.6], 9);
   L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom: 17, maxNativeZoom: 16, attribution: 'Basemap: <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map">USGS The National Map</a>' }).addTo(map);
-  map.on('click', e => setSpot(e.latlng.lat, e.latlng.lng));
+  map.on('click', e => { if (!useB()) setSpot(e.latlng.lat, e.latlng.lng); });
 }
 function setSpot(lat, lon, label, zoom) {
   S.spot = { lat, lon, label: label || null };
-  const r = +$('#radius').value * 1000, acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  const r = useB() ? 0 : +$('#radius').value * 1000, acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
   if (marker) marker.setLatLng([lat, lon]); else marker = L.circleMarker([lat, lon], { radius: 6, color: acc, fillColor: acc, fillOpacity: 1 }).addTo(map);
   if (circle) { circle.setLatLng([lat, lon]); circle.setRadius(r); } else circle = L.circle([lat, lon], { radius: r, color: acc, weight: 1.5, fillOpacity: .08 }).addTo(map);
   if (zoom) map.setView([lat, lon], zoom);
-  $('#spotTxt').textContent = `${label ? label + ' · ' : ''}${lat.toFixed(5)}, ${lon.toFixed(5)}. Tap the map to move it.`;
+  $('#spotTxt').textContent = useB() ? (S.boundary ? `${MVBoundary.summary(S.boundary)}. Weather is taken at ${lat.toFixed(4)}, ${lon.toFixed(4)}, inside it.` : 'Choose a boundary file.') : `${label ? label + ' · ' : ''}${lat.toFixed(5)}, ${lon.toFixed(5)}. Tap the map to move it.`;
 }
-$('#radius').addEventListener('change', () => { if (S.spot) setSpot(S.spot.lat, S.spot.lon, S.spot.label); });
+function showBoundary() {
+  const on = useB(); $('#bWrap').classList.toggle('hidden', !on);
+  if (bLayer) { bLayer.remove(); bLayer = null; }
+  if (on && S.boundary) { const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    bLayer = L.geoJSON(MVBoundary.toGeoJSON(S.boundary), { style: { color: acc, weight: 2, fillOpacity: .1 } }).addTo(map); map.fitBounds(bLayer.getBounds(), { padding: [12, 12] });
+    setSpot(S.boundary.centroid.lat, S.boundary.centroid.lon, S.boundary.name); }
+  else if (S.spot) setSpot(S.spot.lat, S.spot.lon, S.spot.label);
+  else if (on) $('#spotTxt').textContent = 'Choose a boundary file.';
+}
+$('#radius').addEventListener('change', showBoundary);
+$('#bFile').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; $('#bTxt').textContent = 'Reading…';
+  try { S.boundary = await MVBoundary.readFile(f); $('#bTxt').textContent = `${MVBoundary.summary(S.boundary)}${S.boundary.parts.length > 1 ? ` (${S.boundary.parts.length} parts: ${S.boundary.parts.slice(0, 4).join(', ')}${S.boundary.parts.length > 4 ? '…' : ''})` : ''}. Read in your browser; not uploaded.`; showBoundary(); }
+  catch (err) { S.boundary = null; $('#bTxt').innerHTML = `<span class="err">${esc(err.message)}</span>`; showBoundary(); } });
 
 /* place search */
 (function () {
@@ -374,6 +396,27 @@ async function loadYear(w) {
   else w.observers = w.taxa.length ? 1 : 0;
 }
 
+const where = st => st.boundary ? `inside ${esc(st.boundary.name)}` : `within ${fmt(st.radius, 1)} km`;
+const PV_FIELDS = '(id:!t,location:!t,obscured:!t,positional_accuracy:!t,user:(login:!t),taxon:(id:!t,name:!t,rank:!t,rank_level:!t,preferred_common_name:!t,default_photo:(square_url:!t)))', MAX_B = 4000;
+// Boundary mode: read every record in the boundary's box, keep those inside the shape (species counts can't be asked for a polygon).
+async function loadYearB(w) {
+  const st = S.settings, b = st.boundary, m = new Map(), people = new Set();
+  let base = `taxon_id=${FUNGI}&${MVBoundary.bboxParams(b)}&d1=${w.d1}&d2=${w.d2}&order_by=id&order=asc&per_page=200`;
+  if (st.who === 'user') base += `&user_id=${encodeURIComponent(st.user)}`;
+  base += st.rgOnly ? '&quality_grade=research' : '&verifiable=true';
+  w.cls = { in: 0, edge: 0, out: 0, obscured: 0 }; let idAbove = 0, n = 0;
+  while (true) {
+    const d = await qInat(() => getJSON(`${INAT}/v2/observations?${base}&id_above=${idAbove}&fields=${PV_FIELDS}`));
+    for (const o of d.results) { const [lat, lon] = String(o.location || '').split(',').map(Number);
+      const c = MVBoundary.classify(b, { lat, lon, acc: o.positional_accuracy, obscured: o.obscured }); w.cls[c]++;
+      if (c === 'out' || c === 'obscured' || (c === 'edge' && st.edge === 'drop') || !o.taxon) continue;
+      const t = o.taxon, g = m.get(t.id) || { id: t.id, name: t.name, rank: t.rank, rankLevel: t.rank_level, common: t.preferred_common_name || '', photo: t.default_photo ? t.default_photo.square_url : null, count: 0 };
+      g.count++; m.set(t.id, g); if (o.user) people.add(o.user.login); }
+    n += d.results.length; if (d.results.length < 200) break; idAbove = d.results[d.results.length - 1].id;
+    if (n >= MAX_B) { w.truncated = true; break; } }
+  w.taxa = [...m.values()]; w.records = w.taxa.reduce((a, t) => a + t.count, 0); w.observers = people.size;
+}
+
 /* ---------- 2. weather ---------- */
 async function weatherFor(st) {
   const ll = `latitude=${st.lat.toFixed(3)}&longitude=${st.lon.toFixed(3)}`, today = todayIso(), D = st.date;
@@ -416,22 +459,23 @@ function loadWx(st, run) {
 
 /* ---------- 3. run ---------- */
 async function build() {
+  if (useB() && !S.boundary) { $('#formMsg').textContent = 'Choose a boundary file (KML, KMZ or GeoJSON), or pick a distance instead.'; return; }
   if (!S.spot) { $('#formMsg').textContent = 'Set the spot first: tap the map, search a park or use your location.'; return; }
   const who = $('#who').value, user = $('#user').value.trim().replace(/^@/, '');
   if (who === 'user' && !user) { $('#formMsg').textContent = 'Enter an iNaturalist username, or switch to everyone’s finds.'; return; }
   const date = $('#date').value || todayIso();
-  S.settings = { lat: S.spot.lat, lon: S.spot.lon, label: S.spot.label, date, win: +$('#win').value, radius: +$('#radius').value, yearsBack: +$('#years').value, who, user, rgOnly: $('#rgOnly').checked };
-  store.set('visit.last', { spot: S.spot, date, radius: S.settings.radius, win: S.settings.win, years: S.settings.yearsBack, who, user });
+  S.settings = { lat: S.spot.lat, lon: S.spot.lon, label: S.spot.label, date, win: +$('#win').value, radius: useB() ? 'boundary' : +$('#radius').value, boundary: useB() ? S.boundary : null, edge: $('#bEdge').value, yearsBack: +$('#years').value, who, user, rgOnly: $('#rgOnly').checked };
+  store.set('visit.last', { spot: S.boundary && useB() ? null : S.spot, date, radius: useB() ? 1 : S.settings.radius, win: S.settings.win, years: S.settings.yearsBack, who, user });
   const st = S.settings, run = ++S.run, thisYear = new Date().getFullYear(), targetYear = +date.slice(0, 4);
   const lastYear = Math.min(thisYear, targetYear), firstYear = Math.max(FIRST_YEAR, lastYear - st.yearsBack + 1);
   S.years = []; for (let y = lastYear; y >= firstYear; y--) { const w = windowFor(y); if (w) S.years.push(w); }
   $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#out').classList.remove('hidden');
-  $('#statusTxt').innerHTML = `Looking up ${S.years.length} years of records within ${fmt(st.radius, 1)} km, ${shortDate(addDays(date, -st.win))}–${shortDate(addDays(date, st.win))} each year (about ${Math.round(S.years.length * (st.who === 'user' ? 1.1 : 2.2))} s)…`;
+  $('#statusTxt').innerHTML = `Looking up ${S.years.length} years of records ${where(st)}, ${shortDate(addDays(date, -st.win))}–${shortDate(addDays(date, st.win))} each year (about ${st.boundary ? 'a few seconds a year, more for a busy site' : Math.round(S.years.length * (st.who === 'user' ? 1.1 : 2.2)) + ' s'})…`;
   $('#wx').innerHTML = '<p class="empty">Loading weather…</p>'; $('#list').innerHTML = ''; $('#effort').innerHTML = '';
   loadWx(st, run);
   let done = 0, failed = 0;
   for (const w of S.years) { if (run !== S.run) return;
-    try { await loadYear(w); } catch (e) { w.failed = true; failed++; }
+    try { await (st.boundary ? loadYearB(w) : loadYear(w)); } catch (e) { w.failed = true; failed++; }
     done++; $('#prog').innerHTML = `<div>Years: ${done}/${S.years.length}${failed ? ` · ${failed} failed` : ''}<div class="bar"><span style="width:${100 * done / S.years.length}%"></span></div></div>`;
     renderAll(); }
   $('#statusTxt').innerHTML = `Done. ${S.years.filter(w => !w.failed).length} years looked up${failed ? `; ${failed} failed and are left out` : ''}.`;
@@ -451,14 +495,14 @@ function renderAll() {
   $('#effort').innerHTML = `<div class="years">${yrs.map(w => `<div class="yr${w.records ? '' : ' none'}" title="${w.year}: ${w.taxa ? `${fmt(w.records)} records${st.who !== 'user' ? `, ${fmt(w.observers)} observers` : ''}` : w.failed ? 'lookup failed' : 'loading'}${w.partial ? ' (window not over yet)' : ''}">
       <span class="b" style="height:${w.taxa ? Math.max(2, 46 * Math.sqrt((w.records || 0) / maxR)) : 0}px"></span><span class="l">${String(w.year).slice(2)}${w.partial ? '*' : ''}</span></div>`).join('')}</div>
     <p class="note">${A.looked.length ? `In this window, ${st.who === 'user' ? esc(st.user) + ' has' : 'people have'} recorded fungi here in ${A.looked.length} of ${A.ok.length} years: ${fmt(A.looked.reduce((a, w) => a + w.records, 0))} records${st.who !== 'user' ? `, up to ${fmt(Math.max(...A.looked.map(w => w.observers || 0)))} observers in a year` : ''}.` : 'No fungi records here in this window yet.'}
-      ${A.looked.length && A.looked.length < 4 ? ' With so few years of records, “regulars” can’t be told apart from one-off finds; widen the radius or the window.' : ''}${yrs.some(w => w.partial) ? ' * this year’s window isn’t over yet.' : ''}</p>`;
+      ${A.looked.length && A.looked.length < 4 ? ' With so few years of records, “regulars” can’t be told apart from one-off finds; widen the radius or the window.' : ''}${yrs.some(w => w.partial) ? ' * this year’s window isn’t over yet.' : ''}${bNote(st, yrs)}</p>`;
   const speciesOnly = $('#speciesOnly').checked, minY = +$('#minYears').value, q = $('#filter').value.trim().toLowerCase();
   const nLooked = A.looked.length;
   let rows = A.taxa.filter(t => (!speciesOnly || t.rankLevel <= 10) && t.years.size >= minY && (!q || t.name.toLowerCase().includes(q) || t.common.toLowerCase().includes(q)))
     .sort((a, b) => b.years.size - a.years.size || b.records - a.records);
   $('#listSub').textContent = `${rows.length} of ${A.taxa.length} taxa shown`;
   const lookedSet = new Set(A.looked.map(w => w.year));
-  const exploreBase = `https://www.inaturalist.org/observations?lat=${st.lat.toFixed(5)}&lng=${st.lon.toFixed(5)}&radius=${st.radius}${st.who === 'user' ? `&user_id=${encodeURIComponent(st.user)}` : ''}&month=${monthsFor(st)}`;
+  const exploreBase = `https://www.inaturalist.org/observations?${st.boundary ? MVBoundary.bboxParams(st.boundary) : `lat=${st.lat.toFixed(5)}&lng=${st.lon.toFixed(5)}&radius=${st.radius}`}${st.who === 'user' ? `&user_id=${encodeURIComponent(st.user)}` : ''}&month=${monthsFor(st)}`;
   $('#list').innerHTML = rows.length ? `<table class="splist"><thead><tr><th></th><th>Taxon</th><th class="num">Years found</th><th>Year by year</th><th class="num">Records</th><th class="num">Last found</th></tr></thead><tbody>${rows.slice(0, 300).map(t => {
       const share = nLooked ? t.years.size / nLooked : 0, cls = share >= 0.5 && t.years.size >= 3 ? 'reg' : share >= 0.25 && t.years.size >= 2 ? 'occ' : '';
       return `<tr><td>${t.photo ? `<img src="${esc(t.photo)}" alt="" loading="lazy" width="40" height="40">` : ''}</td>
@@ -469,6 +513,10 @@ function renderAll() {
       <p class="legend"><span><i class="yfk reg"></i>regular: found in half or more of the years people looked (3+ years)</span><span><i class="yfk occ"></i>occasional: a quarter or more (2+ years)</span><span><i class="dk on"></i>found that year</span><span><i class="dk off"></i>looked, not found</span><span><i class="dk na"></i>no fungi records that year</span></p>`
     : `<p class="empty">${A.taxa.length ? 'Nothing matches these filters; try “Found in at least 1 year”.' : A.ok.length ? 'No fungi recorded here in this window.' : 'Loading…'}</p>`;
 }
+function bNote(st, yrs) { if (!st.boundary) return '';
+  const c = { in: 0, edge: 0, out: 0, obscured: 0 }; for (const w of yrs) if (w.cls) for (const k in c) c[k] += w.cls[k];
+  const tr = yrs.filter(w => w.truncated).map(w => w.year);
+  return ` <br>Boundary: ${fmt(c.in + (st.edge === 'keep' ? c.edge : 0))} records counted inside ${esc(st.boundary.name)}; ${fmt(c.out)} in the surrounding box but outside it; ${fmt(c.obscured)} with obscured locations left out, since their true position is unknown; ${fmt(c.edge)} inside but with a stated accuracy reaching past the edge, ${st.edge === 'keep' ? 'included in that count' : 'left out'}.${tr.length ? ` Only the first ${fmt(MAX_B)} records in the box were read for ${tr.join(', ')}.` : ''}`; }
 function monthsFor(st) { const a = addDays(st.date, -st.win), b = addDays(st.date, st.win), ms = new Set(); for (let d = a; d <= b; d = addDays(d, 7)) ms.add(+d.slice(5, 7)); ms.add(+b.slice(5, 7)); return [...ms].join(','); }
 function renderWx() {
   const w = S.wx, st = S.settings;
@@ -487,9 +535,9 @@ function renderWx() {
 function renderMethods() {
   const st = S.settings;
   $('#methods').innerHTML = [
-    `<b>Records</b>: for each year, the iNaturalist species counts for Fungi (which include lichens) within ${fmt(st.radius, 1)} km of the spot, observed between ${st.win} days before and after ${shortDate(st.date)} that year${st.who === 'user' ? `, by ${esc(st.user)}` : ''}${st.rgOnly ? ', research grade only' : ', research grade and needs ID (verifiable records)'}. Each record counts once at the most specific level it was identified to; genus-level records are hidden unless you untick “Species only”.`,
+    `<b>Records</b>: for each year, ${st.boundary ? `every iNaturalist Fungi record (lichens included) in the box around the boundary file “${esc(st.boundary.fileName)}”, kept only if its point falls inside the boundary (holes excluded)${st.edge === 'drop' ? ' and its stated accuracy doesn’t reach past the edge' : ''}; each record counts under the name it carries,` : `the iNaturalist species counts for Fungi (which include lichens) within ${fmt(st.radius, 1)} km of the spot,`} observed between ${st.win} days before and after ${shortDate(st.date)} that year${st.who === 'user' ? `, by ${esc(st.user)}` : ''}${st.rgOnly ? ', research grade only' : ', research grade and needs ID (verifiable records)'}. Each record counts once at the most specific level it was identified to; genus-level records are hidden unless you untick “Species only”.`,
     `<b>Years found and years looked</b>: a year counts as “looked” if there was at least one fungi record in the window that year. “Found in 6 of 8” means recorded in 6 of the 8 years with any records. This controls for the years nobody visited, but not for how hard people looked: a year with 300 records will find more than a year with 3.`,
-    `<b>Obscured records</b>: iNaturalist places obscured observations at a random point up to about 20 km away, so they can fall in or out of a small radius by chance, and species that iNaturalist obscures by default are under-represented.`,
+    `<b>Obscured records</b>: iNaturalist places obscured observations at a random point up to about 20 km away${st.boundary ? ', so with a boundary they are left out and counted separately above. Species that iNaturalist obscures by default are therefore missing.' : ', so they can fall in or out of a small radius by chance, and species that iNaturalist obscures by default are under-represented.'}`,
     `<b>Weather</b>: Open-Meteo. Within about two weeks of today, the recent days come from its forecast service’s recent history and the coming days are forecast; older dates use the ERA5 reanalysis archive (about 9–25 km grid). The normal is the average rain in the same 14 days over the previous 10 years at the same point.`,
   ].map(x => `<li>${x}</li>`).join('');
 }
@@ -498,14 +546,14 @@ $('#csvBtn').onclick = () => {
   if (!S.A) return; const A = S.A, yrs = [...S.years].sort((a, b) => a.year - b.year), st = S.settings;
   const head = ['taxon', 'rank', 'common_name', 'years_found', 'years_looked', ...yrs.map(w => String(w.year)), 'records', 'last_found', 'inaturalist_taxon_id'];
   const rows = A.taxa.sort((a, b) => b.years.size - a.years.size || b.records - a.records).map(t => [t.name, t.rank, t.common, t.years.size, A.looked.length, ...yrs.map(w => t.years.has(w.year) ? 1 : 0), t.records, t.last, t.id]);
-  const csv = [[`# Plan a Visit: ${st.lat.toFixed(5)}, ${st.lon.toFixed(5)}, ${st.radius} km, ${st.date} ± ${st.win} days${st.who === 'user' ? ', ' + st.user : ''}`], head, ...rows].map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
+  const csv = [[`# Plan a Visit: ${st.boundary ? `boundary ${st.boundary.fileName} (${MVBoundary.summary(st.boundary)}), edge rule ${st.edge}` : `${st.lat.toFixed(5)}, ${st.lon.toFixed(5)}, ${st.radius} km`}, ${st.date} ± ${st.win} days${st.who === 'user' ? ', ' + st.user : ''}`], head, ...rows].map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })); a.download = `plan-a-visit_${st.date}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 };
 
 /* ---------- wiring ---------- */
 $('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
 $('#example').onclick = e => { e.preventDefault(); const y = new Date().getFullYear();
-  $('#date').value = `${y}-09-25`; $('#radius').value = '2'; $('#who').value = 'all'; $('#userWrap').classList.add('hidden');
+  $('#date').value = `${y}-09-25`; $('#radius').value = '2'; showBoundary(); $('#who').value = 'all'; $('#userWrap').classList.add('hidden');
   setSpot(41.12784, -81.54008, 'Sand Run Metro Park, Ohio', 13); $('#form').requestSubmit(); };
 $('#themeBtn').addEventListener('click', () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('visit.theme', r.dataset.theme); });
 initMap();

@@ -157,6 +157,7 @@ table.forays tr.detail td{background:var(--bg);white-space:normal}
 .nev{color:var(--good);font-weight:600} .nyr{color:var(--accent);text-decoration-style:dotted}
 .spb{display:inline-block;min-width:44px;padding:1px 6px;border-radius:4px;background:linear-gradient(90deg,color-mix(in oklab,var(--good) 28%,transparent) var(--w),transparent var(--w));font-family:var(--f-mono)}
 .wet{color:var(--good);font-weight:600} .dry{color:var(--warn);font-weight:600}
+#bFile{font-size:12.5px;max-width:260px}#bShape svg{display:block;width:44px;height:44px}#bShape path{fill:var(--good);fill-opacity:.18;stroke:var(--good);stroke-width:1.5;vector-effect:non-scaling-stroke}.err{color:var(--warn)}
 .h3{font:600 13.5px var(--f-body);margin:14px 0 6px}
 table.wd{font-size:12.5px}table.wd td,table.wd th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}table.wd .num{text-align:right}
 svg .grid{stroke:var(--line);stroke-width:1} svg .tick{font:10.5px var(--f-mono);fill:var(--muted)} svg .axl{font:12px var(--f-sans,sans-serif);fill:var(--muted)}
@@ -189,7 +190,7 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
 </header>
 <nav class="steps" aria-label="How to use this tool">
   <ol>
-    <li><span class="stepn">1</span><span><strong>Whose forays</strong>: one or more iNaturalist users, or a project</span></li>
+    <li><span class="stepn">1</span><span><strong>Whose forays</strong>: one or more iNaturalist users, a project, or everyone inside a site boundary</span></li>
     <li><span class="stepn">2</span><span><strong>Which period</strong>: a year, a season, a month or your own dates</span></li>
     <li><span class="stepn">3</span><span><strong>How to group</strong> a day’s records into forays</span></li>
     <li><span class="stepn">4</span><span><strong>Compare</strong> the forays, the places and the weather before them</span></li>
@@ -201,6 +202,14 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
     <div class="modes" role="radiogroup" aria-label="Records from">
       <label class="inline"><input type="radio" name="src" value="users" checked> People (iNaturalist usernames)</label>
       <label class="inline"><input type="radio" name="src" value="project"> An iNaturalist project</label>
+      <label class="inline"><input type="radio" name="src" value="site"> Everyone at a site (boundary file)</label>
+    </div>
+    <div class="opts" id="bOpts" style="margin:8px 0 10px">
+      <span class="optlabel">Site boundary</span>
+      <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json" aria-describedby="bTxt">
+      <span id="bShape"></span><span class="muted" id="bTxt">Optional for people or a project: only records inside it count. KML, KMZ or GeoJSON, read in your browser and not uploaded.</span>
+      <button type="button" class="ghost hidden" id="bClear">Remove</button>
+      <label class="inline hidden" id="bEdgeWrap">near the edge <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its accuracy reaches past the edge</option></select></label>
     </div>
     <form id="form" class="form" autocomplete="off">
       <label class="wide" id="usersWrap">Usernames <input type="text" id="users" placeholder="one or more, separated by commas"></label>
@@ -288,6 +297,7 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
   <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; weather by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (ERA5 reanalysis, CC BY 4.0). Not affiliated with or endorsed by either.</p>
 </main>
 
+<script src="/investigate/shared/boundary.js"></script>
 <script>
 (() => {
 'use strict';
@@ -295,7 +305,7 @@ const INAT = 'https://api.inaturalist.org', FUNGI = 47170;
 const METEO = 'https://archive-api.open-meteo.com/v1/archive';
 const PNF = 'Provisional Species Name', ITSF = 'DNA Barcode ITS';
 const OBS_FIELDS = '(id:!t,observed_on:!t,time_observed_at:!t,location:!t,obscured:!t,positional_accuracy:!t,public_positional_accuracy:!t,place_guess:!t,place_ids:!t,quality_grade:!t,taxon:(id:!t,name:!t,rank:!t,rank_level:!t,preferred_common_name:!t),user:(login:!t,name:!t),ofvs:(name:!t,value:!t))';
-const MAX_OBS = 10000, METEO_PER_MIN = 450, NORMAL_YEARS = 10;
+const MAX_OBS = 10000, MAX_BOX = 20000, METEO_PER_MIN = 450, NORMAL_YEARS = 10;
 
 /* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
@@ -342,7 +352,7 @@ function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'f
 const speciesKey = t => !t ? null : t.rank_level <= 10 ? (t.rank_level < 10 ? t.name.split(' ').slice(0, 2).join(' ') : t.name) : null;
 
 /* ---------- form ---------- */
-const S = { run: 0, obs: [], forays: [], settings: {}, sort: { key: 'species', dir: -1 }, open: new Set(), proj: null };
+const S = { run: 0, obs: [], forays: [], settings: {}, sort: { key: 'species', dir: -1 }, open: new Set(), proj: null, boundary: null };
 (function initForm() {
   const ys = $('#year'), thisYear = new Date().getFullYear();
   for (let y = thisYear; y >= 2008; y--) ys.insertAdjacentHTML('beforeend', `<option${y === thisYear ? ' selected' : ''}>${y}</option>`);
@@ -351,8 +361,16 @@ const S = { run: 0, obs: [], forays: [], settings: {}, sort: { key: 'species', d
     $('#yearWrap').classList.toggle('hidden', p === 'custom'); $('#seasonWrap').classList.toggle('hidden', p !== 'season');
     $('#monthWrap').classList.toggle('hidden', p !== 'month'); $('#d1Wrap').classList.toggle('hidden', p !== 'custom'); $('#d2Wrap').classList.toggle('hidden', p !== 'custom'); };
   $('#period').addEventListener('change', sync); sync();
-  const srcSync = () => { const u = document.querySelector('input[name=src]:checked').value === 'users'; $('#usersWrap').classList.toggle('hidden', !u); $('#projWrap').classList.toggle('hidden', u); };
+  const srcSync = () => { const v = document.querySelector('input[name=src]:checked').value; $('#usersWrap').classList.toggle('hidden', v !== 'users'); $('#projWrap').classList.toggle('hidden', v !== 'project');
+    if (!S.boundary) $('#bTxt').textContent = v === 'site' ? 'Required: the area to report on. KML, KMZ or GeoJSON, read in your browser and not uploaded.' : 'Optional for people or a project: only records inside it count. KML, KMZ or GeoJSON, read in your browser and not uploaded.'; };
   document.querySelectorAll('input[name=src]').forEach(r => r.addEventListener('change', srcSync)); srcSync();
+  const shape = b => { const [w, so, e, n] = b.bbox, k = Math.cos(((so + n) / 2) * Math.PI / 180), W = Math.max((e - w) * k, n - so) || 1, X = x => 2 + 40 * ((x - w) * k) / W, Y = y => 42 - 40 * (y - so) / W;
+    return `<svg viewBox="0 0 44 44" aria-hidden="true"><path fill-rule="evenodd" d="${b.polys.map(p => p.map(r => 'M' + r.map(([x, y]) => `${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join('L') + 'Z').join('')).join('')}"/></svg>`; };
+  const bSync = () => { const b = S.boundary; $('#bClear').classList.toggle('hidden', !b); $('#bEdgeWrap').classList.toggle('hidden', !b); $('#bShape').innerHTML = b ? shape(b) : '';
+    if (b) $('#bTxt').textContent = `${MVBoundary.summary(b)}${b.parts.length > 1 ? ` (${b.parts.length} parts)` : ''}. Only records inside it count.`; else srcSync(); };
+  $('#bFile').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; $('#bTxt').textContent = 'Reading…';
+    try { S.boundary = await MVBoundary.readFile(f); bSync(); } catch (err) { S.boundary = null; bSync(); $('#bTxt').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
+  $('#bClear').onclick = () => { S.boundary = null; $('#bFile').value = ''; bSync(); };
   $('#km').addEventListener('input', () => { $('#kmv').textContent = $('#km').value + ' km'; document.querySelector('input[name=grp][value=dist]').checked = true; });
   // project autocomplete
   const input = $('#proj'), list = $('#projList'); let timer = null, items = [];
@@ -378,21 +396,27 @@ function parseObs(o) {
   for (const v of o.ofvs || []) if (v && v.name) f[v.name] = v.value;
   const t = o.time_observed_at ? Date.parse(o.time_observed_at) : NaN;
   const its = String(f[ITSF] || '').replace(/[^ACGTRYSWKMBDHVN]/gi, '');
-  return { id: o.id, date: o.observed_on, t: Number.isFinite(t) ? t : null, lat, lon, hasLoc: Number.isFinite(lat) && Number.isFinite(lon), obscured: !!o.obscured,
+  return { id: o.id, date: o.observed_on, t: Number.isFinite(t) ? t : null, lat, lon, hasLoc: Number.isFinite(lat) && Number.isFinite(lon), obscured: !!o.obscured, acc: o.positional_accuracy,
     placeGuess: o.place_guess || '', placeIds: o.place_ids || [], qg: o.quality_grade, taxon: o.taxon || null, sp: speciesKey(o.taxon),
     login: o.user ? o.user.login : '?', prov: String(f[PNF] || '').trim(), seq: its.length >= 100 };
 }
 async function loadObs(run) {
   const st = S.settings; let base = `taxon_id=${FUNGI}&d1=${st.d1}&d2=${st.d2}&order_by=id&order=asc&per_page=200`;
-  base += st.src === 'users' ? `&user_id=${st.users.map(encodeURIComponent).join(',')}` : `&project_id=${st.proj.id}`;
-  let idAbove = 0, out = [], total = null;
-  while (out.length < MAX_OBS) { if (run !== S.run) return null;
+  if (st.src === 'users') base += `&user_id=${st.users.map(encodeURIComponent).join(',')}`; else if (st.src === 'project') base += `&project_id=${st.proj.id}`;
+  if (st.boundary) base += '&' + MVBoundary.bboxParams(st.boundary);
+  S.bCls = st.boundary ? { in: 0, edge: 0, out: 0, obscured: 0 } : null;
+  // With a boundary the limit is on records read from its box, since most of them may fall outside.
+  let idAbove = 0, out = [], total = null, read = 0; const cap = st.boundary ? MAX_BOX : MAX_OBS;
+  while (read < cap) { if (run !== S.run) return null;
     const d = await qInat(() => getJSON(`${INAT}/v2/observations?${base}&id_above=${idAbove}&fields=${OBS_FIELDS}`));
     if (total == null) total = d.total_results;
-    if (!d.results.length) break; out = out.concat(d.results.map(parseObs)); idAbove = d.results[d.results.length - 1].id;
-    $('#prog').innerHTML = `<div>Observations: ${fmt(out.length)} of ${fmt(Math.min(total, MAX_OBS))}<div class="bar"><span style="width:${100 * out.length / Math.max(1, Math.min(total, MAX_OBS))}%"></span></div></div>`;
+    if (!d.results.length) break; let got = d.results.map(parseObs); read += d.results.length;
+    if (st.boundary) got = got.filter(o => { const c = MVBoundary.classify(st.boundary, { lat: o.lat, lon: o.lon, acc: o.acc, obscured: o.obscured }); S.bCls[c]++; return c === 'in' || (c === 'edge' && st.edge === 'keep'); });
+    out = out.concat(got); idAbove = d.results[d.results.length - 1].id;
+    const goal = Math.max(1, Math.min(total, cap));
+    $('#prog').innerHTML = `<div>Observations: ${fmt(read)} of ${fmt(goal)}${st.boundary ? ` read, ${fmt(out.length)} inside the boundary` : ''}<div class="bar"><span style="width:${100 * read / goal}%"></span></div></div>`;
     if (d.results.length < 200) break; }
-  return { obs: out.filter(o => o.date), total };
+  return { obs: out.filter(o => o.date), total, cap };
 }
 // Each person's species before the period (and earlier in its first year), for "new ever" and "new that year".
 async function priorSpecies(login, d1, d2) {
@@ -501,24 +525,26 @@ function wxFor(D, d, norms) {
 }
 
 /* ---------- 4. run ---------- */
+const whoLabel = st => (st.src === 'users' ? st.users.join(', ') : st.src === 'project' ? st.proj.title : 'everyone') + (st.boundary ? ` at ${st.boundary.name}` : '');
 async function build() {
   const src = document.querySelector('input[name=src]:checked').value, [d1, d2, label] = periodRange();
   const users = $('#users').value.split(/[,\s]+/).map(s => s.replace(/^@/, '').trim()).filter(Boolean);
   if (src === 'users' && !users.length) { $('#formMsg').textContent = 'Enter at least one iNaturalist username.'; return; }
+  if (src === 'site' && !S.boundary) { $('#formMsg').textContent = 'Choose a site boundary file (KML, KMZ or GeoJSON) for “Everyone at a site”.'; return; }
   if (src === 'project' && !S.proj) { $('#formMsg').textContent = 'Pick a project from the list that appears as you type.'; return; }
   if (!d1 || !d2 || d1 > d2) { $('#formMsg').textContent = 'Choose a valid period.'; return; }
   S.settings = { src, users, proj: S.proj, d1, d2: d2 > todayIso() ? todayIso() : d2, label, grp: document.querySelector('input[name=grp]:checked').value, km: +$('#km').value,
-    newYear: $('#newYear').checked, newEver: $('#newEver').checked, doWx: $('#doWx').checked };
+    newYear: $('#newYear').checked, newEver: $('#newEver').checked, doWx: $('#doWx').checked, boundary: S.boundary, edge: $('#bEdge').value };
   const st = S.settings, run = ++S.run;
   store.set('foray.last', { src, users: $('#users').value, proj: S.proj, period: $('#period').value, year: $('#year').value, season: $('#season').value, month: $('#month').value, grp: st.grp, km: st.km });
   S.open.clear(); S.newSkipped = 0; S.priorFailed = 0; $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden');
-  const who = src === 'users' ? users.join(', ') : st.proj.title;
+  const who = whoLabel(st);
   $('#statusTxt').innerHTML = `Loading fungi records of <b>${esc(who)}</b>, ${esc(label)}…`;
   try {
     const r = await loadObs(run); if (!r || run !== S.run) return;
-    if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#goBtn').disabled = false; $('#formMsg').textContent = 'No fungi records found for that period. Check the usernames or project and the dates.'; return; }
-    S.obs = r.obs; S.truncated = r.total > MAX_OBS ? r.total : 0;
-    $('#statusTxt').innerHTML = `Found ${fmt(S.obs.length)} records${S.truncated ? ` (the first ${fmt(MAX_OBS)} of ${fmt(r.total)})` : ''}. Naming places${st.newEver || st.newYear ? ' and checking earlier records' : ''}…`;
+    if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#goBtn').disabled = false; $('#formMsg').textContent = st.boundary ? `No fungi records inside the boundary for that period${S.bCls ? ` (${fmt(S.bCls.out)} were nearby but outside, ${fmt(S.bCls.obscured)} had obscured locations)` : ''}.` : 'No fungi records found for that period. Check the usernames or project and the dates.'; return; }
+    S.obs = r.obs; S.truncated = r.total > r.cap ? r.total : 0; S.cap = r.cap;
+    $('#statusTxt').innerHTML = `Found ${fmt(S.obs.length)} records${S.truncated ? ` (after reading the first ${fmt(r.cap)} of ${fmt(r.total)})` : ''}. Naming places${st.newEver || st.newYear ? ' and checking earlier records' : ''}…`;
     await placeNames(S.obs); if (run !== S.run) return;
     const prior = { ever: new Map(), year: new Map() }, people = [...new Set(S.obs.map(o => o.login))];
     if (st.newEver || st.newYear) {
@@ -553,19 +579,20 @@ const COLS = [
 ];
 function minRec() { return +($('#minRec') ? $('#minRec').value : 1) || 1; }
 function shownForays() { const k = minRec(); return S.forays.filter(f => f.obs.length >= k); }
-function visibleCols() { const st = S.settings, multi = S.forays.some(f => f.people.length > 1) || (st.src === 'project') || st.users.length > 1;
+function visibleCols() { const st = S.settings, multi = S.forays.some(f => f.people.length > 1) || (st.src !== 'users') || st.users.length > 1;
   return COLS.filter(c => (c[0] !== 'people' || multi) && (c[0] !== 'newYear' || st.newYear) && (c[0] !== 'newEver' || st.newEver) && (!['rain', 'pct'].includes(c[0]) || st.doWx)); }
 function renderAll() {
   if (!S.forays.length) return;
   const st = S.settings, F = S.forays, allSp = new Set(F.flatMap(f => [...f.species.keys()])), allProv = new Set(F.flatMap(f => [...f.prov]));
   const best = [...F].sort((a, b) => b.species.size - a.species.size)[0], newEver = new Set(F.flatMap(f => [...f.newEver]));
-  $('#sumSub').textContent = `${st.src === 'users' ? st.users.join(', ') : st.proj.title} · ${st.label}`;
+  $('#sumSub').textContent = `${whoLabel(st)} · ${st.label}`;
   const tiles = [[fmt(F.length), 'forays'], [fmt(S.obs.length), 'fungi records'], [fmt(allSp.size), 'species'], [fmt(allProv.size), 'provisional names'],
     ...(st.newEver ? [[fmt(newEver.size), 'species new ever']] : []), [fmt(best.species.size), `most species in a foray (${shortDate(best.date)})`]];
   $('#tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}</div></div>`).join('');
-  $('#sumNote').innerHTML = [S.truncated ? `Only the first ${fmt(MAX_OBS)} of ${fmt(S.truncated)} records were used; choose a shorter period for the rest.` : '',
+  $('#sumNote').innerHTML = [S.truncated ? `Only the first ${fmt(S.cap)} of ${fmt(S.truncated)} records${S.bCls ? ' in the box around the boundary' : ''} were read; choose a shorter period for the rest.` : '',
     S.newSkipped ? `“New” columns are off: checking earlier records for ${S.newSkipped} people would take too long.` : '',
     S.priorFailed ? `Earlier records couldn’t be read for ${S.priorFailed} ${S.priorFailed === 1 ? 'person' : 'people'}, so their “new” counts are too high.` : '',
+    S.bCls ? `Boundary ${esc(st.boundary.name)} (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}): ${fmt(S.bCls.in + (st.edge === 'keep' ? S.bCls.edge : 0))} records inside counted; ${fmt(S.bCls.out)} nearby but outside it and ${fmt(S.bCls.obscured)} with obscured locations left out; ${fmt(S.bCls.edge)} inside but with an accuracy reaching past the edge, ${st.edge === 'keep' ? 'included in that count' : 'left out'}.` : '',
     F.some(f => f.obscured) ? 'Some records have obscured locations; their forays still group by day, but places and distances are approximate.' : '',
     st.grp === 'dist' ? `A foray is records on the same day within ${st.km} km of each other (chained), by ${st.src === 'users' && st.users.length === 1 ? 'one person' : 'anyone in the list'}.` : 'A foray is records on the same day in the same iNaturalist place (the smallest one containing each record).'].filter(Boolean).join(' ');
   renderTable(); renderScatter(); renderMonths(); renderPlaces(); renderMethods();
@@ -672,7 +699,7 @@ function renderPlaces() {
 function renderMethods() {
   const st = S.settings;
   $('#methods').innerHTML = [
-    `<b>Records</b>: iNaturalist observations of Fungi (lichens included) ${st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : `in the project “${esc(st.proj.title)}”`}, observed ${st.d1} to ${st.d2}, all quality grades. At most ${fmt(MAX_OBS)} records are read.`,
+    `<b>Records</b>: iNaturalist observations of Fungi (lichens included) ${st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : st.src === 'project' ? `in the project “${esc(st.proj.title)}”` : 'by anyone'}, observed ${st.d1} to ${st.d2}, all quality grades. At most ${fmt(MAX_OBS)} records are read.${st.boundary ? ` Records are taken from the box around the boundary file “${esc(st.boundary.fileName)}” and kept only if their point falls inside it (holes excluded)${st.edge === 'drop' ? ' and their stated accuracy does not reach past the edge' : ''}. Records with obscured locations are left out, because iNaturalist moves them up to about 20 km, so species it obscures by default are missing. The ${fmt(MAX_OBS)} limit applies to the box, so a busy area may need a shorter period. “New ever” and “new that year” are still new to the person anywhere, not new to the site.` : ''}`,
     `<b>Forays</b>: ${st.grp === 'dist' ? `records on the same date are joined into one foray when each is within ${st.km} km of another record in it (single linkage), so a day at two parks far apart makes two forays.` : 'records on the same date in the same iNaturalist place make one foray; the place is the smallest iNaturalist place containing the record, which is usually a park, preserve or town.'} Records without a location join the same person’s foray nearest in time that day. Several people out on the same day and place count as one foray.`,
     `<b>Species</b>: distinct taxa identified to species or below (subspecies and varieties count with their species). “Other” lists records identified only to genus or higher; they may or may not be different from the species found. Provisional names come from the “${PNF}” observation field and sequenced records from “${ITSF}” with at least 100 bases.`,
     `<b>New</b>: “new ever” means the person who found it had no earlier record of that species on iNaturalist; “new that year” means none earlier in that calendar year. Earlier records are read from each person’s iNaturalist species list, so a species they found but never posted still counts as new.`,

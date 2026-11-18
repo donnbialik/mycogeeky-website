@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan a Visit · MycoView</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script>try{const t=JSON.parse(localStorage.getItem('visit.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+:root{
+  /* MycoView Research Workbench palette (same as the other Workbench tools) */
+  --bg:#F2F5F3; --surface:#FFFFFF; --surface-2:#E8EFEB; --ink:#15201B; --muted:#56655E; --line:#D2DCD7;
+  --accent:#1D6B55; --accent-ink:#FFFFFF; --spore:#8A5A2B; --good:#2E7D4F; --warn:#A86E14; --bad:#B4412F;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1C2622; --ink:#E2EAE6; --muted:#93A39B; --line:#2A3631;
+  --accent:#5CC3A2; --accent-ink:#0B1310; --spore:#D39B63; --good:#5FC08A; --warn:#E0A84A; --bad:#E57A66; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--f-body)}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.01em}
+h1{font-size:22px} h2{font-size:17px} h3{font-size:14.5px}
+.muted{color:var(--muted)} .hidden{display:none!important}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+/* Link back to the MycoView site (keep in future versions of this tool) */
+.site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;margin-bottom:2px}
+.site-home:hover{text-decoration:underline}
+.sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:var(--surface);white-space:nowrap;cursor:help}
+.srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.srcchip.live .dot{background:var(--good)} .srcchip.fail .dot{background:var(--bad)} .srcchip.slow .dot{background:var(--warn)}
+.srcchip .st{color:var(--muted)}
+.steps{background:var(--surface-2);border-bottom:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right))}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px}
+.stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:600 12px/1 var(--f-body);margin-right:9px}
+.steps .stepn{margin-right:0;margin-top:-1px}
+main{max-width:1440px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) 48px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px 18px;min-width:0}
+.card h2{display:flex;align-items:center;gap:0;margin-bottom:10px}
+.card h2 .sub{font:400 12.5px var(--f-body);color:var(--muted);margin-left:10px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
+label.inline{flex-direction:row;align-items:center;gap:7px;color:var(--ink)}
+input[type=text],input[type=number],select{font:inherit;font-size:13.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:7px 9px;width:100%;min-width:0}
+input#pname{font-family:var(--f-mono)}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:5px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:8px 18px;font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.5;cursor:not-allowed}
+.form{display:grid;grid-template-columns:minmax(260px,2fr) repeat(3,minmax(140px,1fr)) auto;gap:12px;align-items:end}
+.opts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px}
+.hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.status .txt{flex:1 1 320px;font-size:13px}
+.prog{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px;width:100%}
+.prog div{font-size:12px;color:var(--muted)}
+.prog .bar{height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-top:3px}
+.prog .bar span{display:block;height:100%;width:0;background:var(--good);transition:width .3s}
+.msg{color:var(--bad);font-size:13px;margin-top:8px}
+.grid{display:grid;gap:14px;margin-top:14px}
+.g2{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{border:1px solid var(--line);border-radius:6px;padding:9px 11px;background:var(--surface)}
+.tile .v{font-family:var(--f-mono);font-size:19px}
+.tile .k{font-size:12px;color:var(--muted)}
+#map{height:360px;border-radius:6px;border:1px solid var(--line)}
+.draft{font-family:Georgia,"Source Serif 4",serif;font-size:15px;line-height:1.65;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:14px 16px;white-space:pre-wrap}
+.draft .ref{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:11.5px;letter-spacing:.03em}
+.tablewrap th{position:sticky;top:0}
+td.num,th.num{text-align:right;white-space:nowrap}
+.tablewrap{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:6px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);margin-left:4px;white-space:nowrap}
+.tag.tree{background:color-mix(in oklab,var(--good) 16%,var(--surface));color:var(--good)}
+.tag.warn{background:color-mix(in oklab,var(--warn) 16%,var(--surface));color:var(--warn)}
+.bars{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:90px;padding:4px 0 18px}
+.bars div{background:var(--good);border-radius:3px 3px 0 0;position:relative;min-height:2px}
+.bars div.z{background:var(--line)}
+.bars div span{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--muted)}
+.bars div b{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:500;color:var(--muted)}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+.note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.notes li{margin-bottom:6px}
+details.method summary{cursor:pointer;font-weight:600;color:var(--accent)}
+details.method li{margin-bottom:6px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+dialog#unused{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:18px 20px;width:min(640px,calc(100vw - 24px));box-shadow:0 14px 44px rgba(0,0,0,.3)}
+dialog#unused::backdrop{background:rgba(14,20,18,.45)}
+dialog#unused textarea{width:100%;height:260px;font:12.5px/1.5 var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+dialog#unused .row{justify-content:flex-end;margin-top:10px}
+button.rep{font-size:12px;padding:3px 9px}
+@media (max-width:980px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}.g2,.g3{grid-template-columns:1fr}}
+@media (max-width:560px){.form{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+:root{--s0:#cfd6d2;--s1:#d6ecc9;--s2:#7fc28f;--s3:#1d6b55;--s4:#8fb3d9}
+:root[data-theme="dark"]{--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s0:#3a4440;--s1:#3d5a45;--s2:#3f8f5f;--s3:#5cc3a2;--s4:#3b5f86}}
+.form{grid-template-columns:minmax(240px,2fr) minmax(170px,1.2fr) minmax(190px,1.2fr) repeat(2,minmax(120px,1fr)) auto}
+.modes{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:10px}
+.ac{position:relative;display:block}
+.aclist{position:absolute;z-index:1000;left:0;right:0;top:100%;margin:2px 0 0;padding:4px 0;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.15);max-height:280px;overflow:auto;color:var(--ink);font-size:13px}
+.aclist li{padding:6px 10px;cursor:pointer}
+.aclist li:hover,.aclist li.on{background:var(--surface-2)}
+#map{height:460px}
+ul.sig{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+ul.sig li{padding:8px 11px;border:1px solid var(--line);border-left:4px solid var(--good);border-radius:6px;background:var(--bg);font-size:13.5px}
+ul.sig li.less{border-left-color:var(--warn)}
+ul.sig li.empty{border-left-color:var(--line)}
+.ev{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;margin-right:6px;white-space:nowrap;vertical-align:1px}
+.ev-clear{background:var(--good);color:var(--accent-ink)}
+.ev-some{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--good)}
+.ev-hint{background:var(--surface-2);color:var(--muted)}
+.ev-none{background:transparent;color:var(--muted);border:1px solid var(--line)}
+table.cmp td{vertical-align:middle}
+.pb{display:inline-block;width:90px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;vertical-align:middle;margin-right:6px}
+.pb span{display:block;height:100%}
+.pb .f{background:var(--good)} .pb .b{background:var(--muted);opacity:.55}
+.pv{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.legend i.sq{border-radius:2px;width:14px}
+#elev .tile .v{font-size:15px}
+@media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
+@media (max-width:560px){.form{grid-template-columns:1fr}.pb{width:50px}}
+
+.planner{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:16px;align-items:start}
+.planner #map{height:380px}
+.vform{display:grid;gap:9px;align-content:start}
+.vform label{display:grid;gap:4px}
+.vform label.inline{display:flex}
+.years{display:flex;align-items:flex-end;gap:4px;height:70px;padding:6px 0;overflow-x:auto}
+.yr{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:26px;height:100%}
+.yr .b{display:block;width:16px;background:var(--good);border-radius:3px 3px 0 0}
+.yr.none .b{background:var(--line)}
+.yr .l{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-top:3px}
+table.splist td{vertical-align:middle}
+table.splist img{border-radius:5px;display:block;object-fit:cover}
+.yf{font-family:var(--f-mono);font-size:12.5px;padding:1px 7px;border-radius:999px;white-space:nowrap}
+.yf.reg{background:var(--good);color:var(--accent-ink)}
+.yf.occ{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--good)}
+.dots{display:inline-flex;gap:2px;flex-wrap:nowrap}
+#list{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:560px){.dots{gap:1px}.dots i{width:6px;height:6px}table.splist td,table.splist th{padding-left:4px;padding-right:4px}}
+.dots i,.dk{display:inline-block;width:8px;height:8px;border-radius:2px}
+.dots i.on,.dk.on{background:var(--good)}
+.dots i.off,.dk.off{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
+.dots i.na,.dk.na{background:transparent;box-shadow:inset 0 0 0 1px var(--line);opacity:.45}
+.yfk{display:inline-block;width:18px;height:10px;border-radius:999px}
+.yfk.reg{background:var(--good)} .yfk.occ{background:color-mix(in oklab,var(--good) 30%,var(--surface))}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.tile.ok .v{color:var(--good)} .tile.warn .v{color:var(--warn)}
+.rainbars{display:flex;align-items:flex-end;gap:3px;height:76px;margin-top:12px}
+.rb{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%}
+.rb span{display:block;width:70%;max-width:22px;background:var(--accent);border-radius:3px 3px 0 0}
+.rb.fc span{opacity:.4}
+.rb em{font-style:normal;font-family:var(--f-mono);font-size:10px;color:var(--muted);margin-top:2px}
+.rb.visit em{color:var(--ink);font-weight:600}
+@media (max-width:860px){.planner{grid-template-columns:1fr}.planner #map{height:300px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <a class="site-home" href="/investigate/tools/">← MycoView Research Workbench</a>
+    <h1>Plan a Visit</h1>
+    <p>What turns up at a spot around a date, year after year, and whether conditions look right this time.</p>
+  </div>
+  <div class="sources">
+    <span class="srcchip" id="src-inat" title="Fungi records on iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <span class="srcchip" id="src-wx" title="Recent weather and forecasts from Open-Meteo (CC BY 4.0)"><span class="dot"></span>Open-Meteo <span class="st">checking…</span></span>
+    <button id="themeBtn" class="ghost" type="button" style="font-size:12px">Theme</button>
+  </div>
+</header>
+<nav class="steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Pick the spot</strong>: tap the map, search a park, or use where you are</span></li>
+    <li><span class="stepn">2</span><span><strong>Pick the date</strong> of your visit and how far around it to look</span></li>
+    <li><span class="stepn">3</span><span><strong>See what turns up</strong> there in that window, and in how many years</span></li>
+    <li><span class="stepn">4</span><span><strong>Check conditions</strong>: recent and forecast rain against normal</span></li>
+  </ol>
+</nav>
+<main>
+  <section class="card">
+    <h2><span class="stepn">1</span>Where and when</h2>
+    <div class="planner">
+      <div>
+        <div class="row" style="margin-bottom:8px">
+          <span class="ac" style="flex:1;min-width:200px"><input type="text" id="placeQ" placeholder="Search a park or town, e.g. Furnace Run" aria-autocomplete="list" aria-controls="placeList"><ul class="aclist hidden" id="placeList" role="listbox"></ul></span>
+          <button type="button" id="hereBtn" title="Use your device’s location">Use my location</button>
+        </div>
+        <div id="map"></div>
+        <p class="hint" id="spotTxt">Tap the map to set the spot.</p>
+      </div>
+      <form id="form" class="vform" autocomplete="off">
+        <label>Visit date <input type="date" id="date"></label>
+        <label>Look within
+          <select id="radius"><option value="0.5">500 m of the spot</option><option value="1" selected>1 km of the spot</option><option value="2">2 km</option><option value="5">5 km</option></select>
+        </label>
+        <label>Around the date
+          <select id="win"><option value="7">± 1 week</option><option value="14" selected>± 2 weeks</option><option value="21">± 3 weeks</option></select>
+        </label>
+        <label>Years to look back
+          <select id="years"><option value="10">10 years</option><option value="15" selected>15 years</option><option value="20">20 years</option></select>
+        </label>
+        <label>Whose finds
+          <select id="who"><option value="all" selected>everyone’s</option><option value="user">one person’s</option></select>
+        </label>
+        <label class="hidden" id="userWrap">iNaturalist username <input type="text" id="user" placeholder="username"></label>
+        <label class="inline"><input type="checkbox" id="rgOnly"> Research grade only</label>
+        <button class="primary" id="goBtn" type="submit">See what turns up</button>
+        <p class="hint">New here? <a href="#" id="example">Try an example: Sand Run Metro Park, late September</a></p>
+        <div id="formMsg" class="msg"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="statusBox" class="status hidden">
+    <div class="txt" id="statusTxt"></div>
+    <div class="prog" id="prog"></div>
+  </section>
+
+  <div id="out" class="hidden">
+    <section class="card" style="margin-top:14px">
+      <h2>Conditions<span class="sub" id="wxSub"></span></h2>
+      <div id="wx"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>How well this spot has been looked at<span class="sub" id="effortSub"></span></h2>
+      <div id="effort"></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>What turns up here<span class="sub" id="listSub"></span></h2>
+      <div class="row" style="margin-bottom:8px">
+        <label class="inline"><input type="checkbox" id="speciesOnly" checked> Species only (hide genus and higher)</label>
+        <label class="inline">Found in at least <select id="minYears" style="width:auto"><option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option></select></label>
+        <input type="search" id="filter" placeholder="Filter by name" style="width:200px">
+        <button type="button" id="csvBtn">Download list (CSV)</button>
+      </div>
+      <div id="list"></div>
+      <p class="note">“Years found” counts the years in which the species was recorded within the radius in this window. “Years looked” counts the years in which anyone recorded any fungi there in the same window. A species found in most of the years people looked is a regular; one found once may be chance, a misidentification or simply rare. Records show where people photographed fungi, not everything that grows there. Names and photos are not identifications or edibility advice: check every find yourself.</p>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <details class="method">
+        <summary>Methods, sources and limits</summary>
+        <ul id="methods"></ul>
+      </details>
+    </section>
+  </div>
+  <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; weather by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0); basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these. Check that collecting is allowed where you go.</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(() => {
+'use strict';
+const INAT = 'https://api.inaturalist.org', FUNGI = 47170;
+const METEO_ARCHIVE = 'https://archive-api.open-meteo.com/v1/archive', METEO_FORECAST = 'https://api.open-meteo.com/v1/forecast';
+const FIRST_YEAR = 2008;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n, d = 0) => n == null || !Number.isFinite(n) ? '—' : Number(n).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: d });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const isoDay = d => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())).toISOString().slice(0, 10);
+const todayIso = () => isoDay(new Date());
+const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const shiftYear = (iso, y) => { const md = iso.slice(5); return `${y}-${md === '02-29' ? '02-28' : md}`; };
+const longDate = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const shortDate = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+function pacer(gapMs, concurrency = 1) {
+  let last = 0, active = 0; const waiting = [];
+  const next = () => { if (active >= concurrency || !waiting.length) return; active++; const { fn, res, rej } = waiting.shift();
+    const wait = Math.max(0, last + gapMs - Date.now()); last = Math.max(Date.now(), last + gapMs);
+    setTimeout(() => fn().then(res, rej).finally(() => { active--; next(); }), wait); };
+  return fn => new Promise((res, rej) => { waiting.push({ fn, res, rej }); next(); });
+}
+const qInat = pacer(1050, 1), qMeteo = pacer(250, 2);
+async function getJSON(url) {
+  for (let i = 0; i < 3; i++) {
+    let r; try { r = await fetch(url); } catch (e) { if (i === 2) throw e; await sleep(2000); continue; }
+    if (r.status === 429 || r.status >= 500) { if (i === 2) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } await sleep(4000 * (i + 1)); continue; }
+    if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    return r.json();
+  }
+}
+function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'fail', 'slow'); if (cls) c.classList.add(cls); c.querySelector('.st').textContent = text; }
+
+/* ---------- state, map ---------- */
+const S = { spot: null, run: 0, years: [], species: new Map(), settings: {} };
+let map, marker, circle;
+function initMap() {
+  map = L.map('map', { scrollWheelZoom: false }).setView([41.1, -81.6], 9);
+  L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom: 17, maxNativeZoom: 16, attribution: 'Basemap: <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map">USGS The National Map</a>' }).addTo(map);
+  map.on('click', e => setSpot(e.latlng.lat, e.latlng.lng));
+}
+function setSpot(lat, lon, label, zoom) {
+  S.spot = { lat, lon, label: label || null };
+  const r = +$('#radius').value * 1000, acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  if (marker) marker.setLatLng([lat, lon]); else marker = L.circleMarker([lat, lon], { radius: 6, color: acc, fillColor: acc, fillOpacity: 1 }).addTo(map);
+  if (circle) { circle.setLatLng([lat, lon]); circle.setRadius(r); } else circle = L.circle([lat, lon], { radius: r, color: acc, weight: 1.5, fillOpacity: .08 }).addTo(map);
+  if (zoom) map.setView([lat, lon], zoom);
+  $('#spotTxt').textContent = `${label ? label + ' · ' : ''}${lat.toFixed(5)}, ${lon.toFixed(5)}. Tap the map to move it.`;
+}
+$('#radius').addEventListener('change', () => { if (S.spot) setSpot(S.spot.lat, S.spot.lon, S.spot.label); });
+
+/* place search */
+(function () {
+  const input = $('#placeQ'), list = $('#placeList'); let timer = null, items = [];
+  const close = () => list.classList.add('hidden');
+  input.addEventListener('input', () => { clearTimeout(timer); const q = input.value.trim(); if (q.length < 2) { close(); return; }
+    timer = setTimeout(async () => { try { const d = await getJSON(`${INAT}/v1/places/autocomplete?q=${encodeURIComponent(q)}&per_page=8`);
+      items = d.results.filter(p => p.location); list.innerHTML = items.map((p, i) => `<li data-i="${i}">${esc(p.display_name)}</li>`).join(''); list.classList.toggle('hidden', !items.length); } catch (e) { close(); } }, 250); });
+  list.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); const p = items[+li.dataset.i];
+    const [lat, lon] = p.location.split(',').map(Number); input.value = p.display_name; close();
+    const zoom = p.bbox_area ? Math.max(9, Math.min(15, Math.round(12 - Math.log2(Math.max(p.bbox_area, 1e-4) / 0.01) / 2))) : 13;
+    setSpot(lat, lon, p.display_name, zoom); });
+  input.addEventListener('blur', () => setTimeout(close, 150));
+})();
+$('#hereBtn').onclick = () => {
+  if (!navigator.geolocation) { $('#formMsg').textContent = 'This browser can’t share its location.'; return; }
+  $('#hereBtn').disabled = true;
+  navigator.geolocation.getCurrentPosition(p => { $('#hereBtn').disabled = false; setSpot(p.coords.latitude, p.coords.longitude, 'Your location', 14); },
+    () => { $('#hereBtn').disabled = false; $('#formMsg').textContent = 'Couldn’t get your location; tap the map instead.'; }, { enableHighAccuracy: true, timeout: 15000 });
+};
+$('#who').addEventListener('change', () => $('#userWrap').classList.toggle('hidden', $('#who').value !== 'user'));
+
+/* ---------- 1. records, year by year ---------- */
+function windowFor(year) {
+  const st = S.settings, c = shiftYear(st.date, year), d1 = addDays(c, -st.win), d2 = addDays(c, st.win), today = todayIso();
+  if (d1 > today) return null; return { year, d1, d2: d2 > today ? today : d2, partial: d2 > today };
+}
+function baseParams() {
+  const st = S.settings;
+  let p = `taxon_id=${FUNGI}&lat=${st.lat.toFixed(5)}&lng=${st.lon.toFixed(5)}&radius=${st.radius}`;
+  if (st.who === 'user') p += `&user_id=${encodeURIComponent(st.user)}`;
+  if (st.rgOnly) p += '&quality_grade=research'; else p += '&verifiable=true';
+  return p;
+}
+async function loadYear(w) {
+  const p = `${baseParams()}&d1=${w.d1}&d2=${w.d2}`;
+  let results = [], page = 1, total = 0;
+  do { const d = await qInat(() => getJSON(`${INAT}/v1/observations/species_counts?${p}&per_page=500&page=${page}`)); total = d.total_results; results = results.concat(d.results); page++; }
+  while (results.length < total && page <= 4);
+  w.taxa = results.map(r => ({ id: r.taxon.id, name: r.taxon.name, rank: r.taxon.rank, rankLevel: r.taxon.rank_level, common: r.taxon.preferred_common_name || '', photo: r.taxon.default_photo ? r.taxon.default_photo.square_url : null, count: r.count }));
+  w.records = w.taxa.reduce((a, t) => a + t.count, 0);
+  if (S.settings.who !== 'user' && w.taxa.length) { const o = await qInat(() => getJSON(`${INAT}/v1/observations/observers?${p}&per_page=1`)); w.observers = o.total_results; }
+  else w.observers = w.taxa.length ? 1 : 0;
+}
+
+/* ---------- 2. weather ---------- */
+async function weatherFor(st) {
+  const ll = `latitude=${st.lat.toFixed(3)}&longitude=${st.lon.toFixed(3)}`, today = todayIso(), D = st.date;
+  const daysAhead = Math.round((new Date(D + 'T00:00:00Z') - new Date(today + 'T00:00:00Z')) / 864e5);
+  let mode, series = null;
+  if (daysAhead <= -6) { mode = 'past';
+    const d = await qMeteo(() => getJSON(`${METEO_ARCHIVE}?${ll}&start_date=${addDays(D, -30)}&end_date=${D}&daily=precipitation_sum,temperature_2m_max,temperature_2m_min&timezone=auto`)); series = d.daily; }
+  else if (daysAhead <= 15) { mode = daysAhead > 0 ? 'forecast' : 'recent';
+    const d = await qMeteo(() => getJSON(`${METEO_FORECAST}?${ll}&daily=precipitation_sum,temperature_2m_max,temperature_2m_min&past_days=31&forecast_days=16&timezone=auto`)); series = d.daily; }
+  else mode = 'normal';
+  // Normal: mean rain in the 14 days before the same date over the previous 10 years.
+  const y = +D.slice(0, 4), norms = (await Promise.all(Array.from({ length: 10 }, (_, k) => { const day = shiftYear(D, y - k - 1); if (day > addDays(today, -6)) return null;
+    return qMeteo(() => getJSON(`${METEO_ARCHIVE}?${ll}&start_date=${addDays(day, -14)}&end_date=${addDays(day, -1)}&daily=precipitation_sum&timezone=auto`))
+      .then(r => { const v = r.daily.precipitation_sum.filter(x => x != null); return v.length >= 12 ? v.reduce((a, b) => a + b, 0) : null; }).catch(() => null); })))
+    .filter(v => v != null);
+  const out = { mode, daysAhead, normal14: norms.length >= 5 ? norms.reduce((a, b) => a + b, 0) / norms.length : null, normalYears: norms.length };
+  if (series) {
+    const i = series.time.indexOf(D); const P = series.precipitation_sum, TX = series.temperature_2m_max, TN = series.temperature_2m_min;
+    const idx = i < 0 ? series.time.length : i;
+    const sum = (n, from = idx) => { let s = 0, k = 0; for (let j = from - n; j < from; j++) if (j >= 0 && P[j] != null) { s += P[j]; k++; } return k >= n * 0.8 ? s : null; };
+    const mean = (a, n) => { let s = 0, k = 0; for (let j = idx - n; j < idx; j++) if (j >= 0 && a[j] != null) { s += a[j]; k++; } return k ? s / k : null; };
+    out.rain7 = sum(7); out.rain14 = sum(14); out.rain30 = sum(30); out.tmax7 = mean(TX, 7); out.tmin7 = mean(TN, 7);
+    let since = null; for (let j = idx - 1, n = 1; j >= 0; j--, n++) if (P[j] != null && P[j] >= 5) { since = n; break; } out.since5mm = since;
+    // How much of the 14 days before the visit is still forecast.
+    const ti = series.time.indexOf(today); out.forecastDays = ti < 0 ? 0 : Math.max(0, Math.min(14, idx - Math.max(ti + 1, idx - 14)));
+    out.days = series.time.map((t, k) => ({ t, p: P[k], tx: TX[k], tn: TN[k], fc: t > today })).filter(x => x.t >= addDays(D, -14) && x.t <= D);
+  }
+  out.pct14 = out.rain14 != null && out.normal14 ? 100 * out.rain14 / out.normal14 : null;
+  return out;
+}
+
+function loadWx(st, run) {
+  $('#wx').innerHTML = '<p class="empty">Loading weather…</p>';
+  weatherFor(st).then(w => { if (run === S.run) { S.wx = w; renderWx(); setChip('#src-wx', 'live', 'live'); } })
+    .catch(e => { if (run !== S.run) return; const busy = e.status === 429;
+      $('#wx').innerHTML = `<p class="empty">Weather unavailable (${esc(e.message)}${busy ? ': Open-Meteo is busy' : ''}). The list of what turns up below doesn’t depend on it.</p><button type="button" id="wxRetry">Try the weather again</button>`;
+      $('#wxRetry').onclick = () => { if (run === S.run) loadWx(st, run); };
+      setChip('#src-wx', 'fail', busy ? 'busy, try again in a minute' : 'not reachable'); });
+}
+
+/* ---------- 3. run ---------- */
+async function build() {
+  if (!S.spot) { $('#formMsg').textContent = 'Set the spot first: tap the map, search a park or use your location.'; return; }
+  const who = $('#who').value, user = $('#user').value.trim().replace(/^@/, '');
+  if (who === 'user' && !user) { $('#formMsg').textContent = 'Enter an iNaturalist username, or switch to everyone’s finds.'; return; }
+  const date = $('#date').value || todayIso();
+  S.settings = { lat: S.spot.lat, lon: S.spot.lon, label: S.spot.label, date, win: +$('#win').value, radius: +$('#radius').value, yearsBack: +$('#years').value, who, user, rgOnly: $('#rgOnly').checked };
+  store.set('visit.last', { spot: S.spot, date, radius: S.settings.radius, win: S.settings.win, years: S.settings.yearsBack, who, user });
+  const st = S.settings, run = ++S.run, thisYear = new Date().getFullYear(), targetYear = +date.slice(0, 4);
+  const lastYear = Math.min(thisYear, targetYear), firstYear = Math.max(FIRST_YEAR, lastYear - st.yearsBack + 1);
+  S.years = []; for (let y = lastYear; y >= firstYear; y--) { const w = windowFor(y); if (w) S.years.push(w); }
+  $('#formMsg').textContent = ''; $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#out').classList.remove('hidden');
+  $('#statusTxt').innerHTML = `Looking up ${S.years.length} years of records within ${fmt(st.radius, 1)} km, ${shortDate(addDays(date, -st.win))}–${shortDate(addDays(date, st.win))} each year (about ${Math.round(S.years.length * (st.who === 'user' ? 1.1 : 2.2))} s)…`;
+  $('#wx').innerHTML = '<p class="empty">Loading weather…</p>'; $('#list').innerHTML = ''; $('#effort').innerHTML = '';
+  loadWx(st, run);
+  let done = 0, failed = 0;
+  for (const w of S.years) { if (run !== S.run) return;
+    try { await loadYear(w); } catch (e) { w.failed = true; failed++; }
+    done++; $('#prog').innerHTML = `<div>Years: ${done}/${S.years.length}${failed ? ` · ${failed} failed` : ''}<div class="bar"><span style="width:${100 * done / S.years.length}%"></span></div></div>`;
+    renderAll(); }
+  $('#statusTxt').innerHTML = `Done. ${S.years.filter(w => !w.failed).length} years looked up${failed ? `; ${failed} failed and are left out` : ''}.`;
+  $('#goBtn').disabled = false; renderMethods();
+}
+
+/* ---------- 4. render ---------- */
+function aggregate() {
+  const ok = S.years.filter(w => w.taxa), looked = ok.filter(w => w.records > 0), m = new Map();
+  for (const w of ok) for (const t of w.taxa) { const g = m.get(t.id) || { ...t, years: new Set(), records: 0, last: 0 }; g.years.add(w.year); g.records += t.count; g.last = Math.max(g.last, w.year); m.set(t.id, g); }
+  return { ok, looked, taxa: [...m.values()] };
+}
+function renderAll() {
+  const st = S.settings, A = aggregate(); S.A = A;
+  const yrs = [...S.years].sort((a, b) => a.year - b.year), maxR = Math.max(1, ...yrs.map(w => w.records || 0));
+  $('#effortSub').textContent = `${A.looked.length} of ${A.ok.length} years had fungi records${st.who === 'user' ? ` by ${st.user}` : ''}`;
+  $('#effort').innerHTML = `<div class="years">${yrs.map(w => `<div class="yr${w.records ? '' : ' none'}" title="${w.year}: ${w.taxa ? `${fmt(w.records)} records${st.who !== 'user' ? `, ${fmt(w.observers)} observers` : ''}` : w.failed ? 'lookup failed' : 'loading'}${w.partial ? ' (window not over yet)' : ''}">
+      <span class="b" style="height:${w.taxa ? Math.max(2, 46 * Math.sqrt((w.records || 0) / maxR)) : 0}px"></span><span class="l">${String(w.year).slice(2)}${w.partial ? '*' : ''}</span></div>`).join('')}</div>
+    <p class="note">${A.looked.length ? `In this window, ${st.who === 'user' ? esc(st.user) + ' has' : 'people have'} recorded fungi here in ${A.looked.length} of ${A.ok.length} years: ${fmt(A.looked.reduce((a, w) => a + w.records, 0))} records${st.who !== 'user' ? `, up to ${fmt(Math.max(...A.looked.map(w => w.observers || 0)))} observers in a year` : ''}.` : 'No fungi records here in this window yet.'}
+      ${A.looked.length && A.looked.length < 4 ? ' With so few years of records, “regulars” can’t be told apart from one-off finds; widen the radius or the window.' : ''}${yrs.some(w => w.partial) ? ' * this year’s window isn’t over yet.' : ''}</p>`;
+  const speciesOnly = $('#speciesOnly').checked, minY = +$('#minYears').value, q = $('#filter').value.trim().toLowerCase();
+  const nLooked = A.looked.length;
+  let rows = A.taxa.filter(t => (!speciesOnly || t.rankLevel <= 10) && t.years.size >= minY && (!q || t.name.toLowerCase().includes(q) || t.common.toLowerCase().includes(q)))
+    .sort((a, b) => b.years.size - a.years.size || b.records - a.records);
+  $('#listSub').textContent = `${rows.length} of ${A.taxa.length} taxa shown`;
+  const lookedSet = new Set(A.looked.map(w => w.year));
+  const exploreBase = `https://www.inaturalist.org/observations?lat=${st.lat.toFixed(5)}&lng=${st.lon.toFixed(5)}&radius=${st.radius}${st.who === 'user' ? `&user_id=${encodeURIComponent(st.user)}` : ''}&month=${monthsFor(st)}`;
+  $('#list').innerHTML = rows.length ? `<table class="splist"><thead><tr><th></th><th>Taxon</th><th class="num">Years found</th><th>Year by year</th><th class="num">Records</th><th class="num">Last found</th></tr></thead><tbody>${rows.slice(0, 300).map(t => {
+      const share = nLooked ? t.years.size / nLooked : 0, cls = share >= 0.5 && t.years.size >= 3 ? 'reg' : share >= 0.25 && t.years.size >= 2 ? 'occ' : '';
+      return `<tr><td>${t.photo ? `<img src="${esc(t.photo)}" alt="" loading="lazy" width="40" height="40">` : ''}</td>
+        <td><a href="${exploreBase}&taxon_id=${t.id}" target="_blank" rel="noopener"><i>${esc(t.name)}</i></a>${t.rankLevel > 10 ? ` <span class="muted">(${esc(t.rank)})</span>` : ''}${t.common ? `<div class="muted" style="font-size:12px">${esc(t.common)}</div>` : ''}</td>
+        <td class="num"><span class="yf ${cls}">${t.years.size} / ${nLooked}</span></td>
+        <td><span class="dots">${yrs.map(w => `<i class="${t.years.has(w.year) ? 'on' : lookedSet.has(w.year) ? 'off' : 'na'}" title="${w.year}"></i>`).join('')}</span></td>
+        <td class="num">${fmt(t.records)}</td><td class="num">${t.last}</td></tr>`; }).join('')}</tbody></table>${rows.length > 300 ? '<p class="note">Showing the first 300; filter to see others.</p>' : ''}
+      <p class="legend"><span><i class="yfk reg"></i>regular: found in half or more of the years people looked (3+ years)</span><span><i class="yfk occ"></i>occasional: a quarter or more (2+ years)</span><span><i class="dk on"></i>found that year</span><span><i class="dk off"></i>looked, not found</span><span><i class="dk na"></i>no fungi records that year</span></p>`
+    : `<p class="empty">${A.taxa.length ? 'Nothing matches these filters; try “Found in at least 1 year”.' : A.ok.length ? 'No fungi recorded here in this window.' : 'Loading…'}</p>`;
+}
+function monthsFor(st) { const a = addDays(st.date, -st.win), b = addDays(st.date, st.win), ms = new Set(); for (let d = a; d <= b; d = addDays(d, 7)) ms.add(+d.slice(5, 7)); ms.add(+b.slice(5, 7)); return [...ms].join(','); }
+function renderWx() {
+  const w = S.wx, st = S.settings;
+  const when = w.mode === 'normal' ? `${w.daysAhead} days away` : w.mode === 'forecast' ? `in ${w.daysAhead} day${w.daysAhead === 1 ? '' : 's'}` : w.mode === 'recent' ? (w.daysAhead === 0 ? 'today' : `${-w.daysAhead} days ago`) : 'past date';
+  $('#wxSub').textContent = `${longDate(st.date)} · ${when}`;
+  const normal = w.normal14 != null ? `${fmt(w.normal14)} mm is normal for the 14 days before this date (average of ${w.normalYears} years)` : 'no normal available';
+  if (w.mode === 'normal') { $('#wx').innerHTML = `<p>The visit is more than two weeks away, so there is no forecast yet: ${normal}. Check back within two weeks of the visit to see how this year compares.</p>`; return; }
+  const tile = (v, k, cls = '') => `<div class="tile ${cls}"><div class="v">${v}</div><div class="k">${k}</div></div>`;
+  const pc = w.pct14, verdict = pc == null ? '' : pc >= 125 ? 'wetter than normal' : pc >= 75 ? 'about normal' : pc >= 40 ? 'drier than normal' : 'much drier than normal';
+  const fc = w.forecastDays ? ` (${w.forecastDays} of the 14 days are forecast)` : '';
+  const maxP = Math.max(5, ...(w.days || []).map(d => d.p || 0));
+  $('#wx').innerHTML = `<div class="tiles">${tile(w.rain14 != null ? fmt(w.rain14) + ' mm' : '—', `rain in the 14 days before${fc}`)}${tile(pc != null ? fmt(pc) + '%' : '—', `of normal · ${verdict || '—'}`, pc == null ? '' : pc >= 75 ? 'ok' : 'warn')}${tile(w.rain30 != null ? fmt(w.rain30) + ' mm' : '—', 'rain in the 30 days before')}${tile(w.since5mm != null ? w.since5mm + ' d' : '>30 d', 'since a day with 5 mm or more')}${tile(w.tmax7 != null ? `${fmt(w.tmax7)}° / ${fmt(w.tmin7)}°C` : '—', 'mean high / low, week before')}</div>
+    ${w.days && w.days.length ? `<div class="rainbars" aria-label="Daily rain, 14 days before the visit">${w.days.map(d => `<div class="rb${d.fc ? ' fc' : ''}${d.t === st.date ? ' visit' : ''}" title="${shortDate(d.t)}: ${d.p != null ? fmt(d.p, 1) + ' mm' : 'no data'}${d.fc ? ' (forecast)' : ''}"><span style="height:${d.p ? Math.max(2, 50 * d.p / maxP) : 0}px"></span><em>${d.t.slice(8)}</em></div>`).join('')}</div><p class="note">Daily rain in the two weeks before ${shortDate(st.date)}${w.forecastDays ? '; paler bars are forecast, which gets less reliable beyond a few days' : ''}. ${normal}.</p>` : `<p class="note">${normal}.</p>`}
+    <p class="note">A rule of thumb, not a prediction: many fungi fruit a few days to two weeks after a good soaking, but temperature, the season and the species matter too. The Ecology Profile shows the rain before past finds of a particular species.</p>`;
+}
+function renderMethods() {
+  const st = S.settings;
+  $('#methods').innerHTML = [
+    `<b>Records</b>: for each year, the iNaturalist species counts for Fungi (which include lichens) within ${fmt(st.radius, 1)} km of the spot, observed between ${st.win} days before and after ${shortDate(st.date)} that year${st.who === 'user' ? `, by ${esc(st.user)}` : ''}${st.rgOnly ? ', research grade only' : ', research grade and needs ID (verifiable records)'}. Each record counts once at the most specific level it was identified to; genus-level records are hidden unless you untick “Species only”.`,
+    `<b>Years found and years looked</b>: a year counts as “looked” if there was at least one fungi record in the window that year. “Found in 6 of 8” means recorded in 6 of the 8 years with any records. This controls for the years nobody visited, but not for how hard people looked: a year with 300 records will find more than a year with 3.`,
+    `<b>Obscured records</b>: iNaturalist places obscured observations at a random point up to about 20 km away, so they can fall in or out of a small radius by chance, and species that iNaturalist obscures by default are under-represented.`,
+    `<b>Weather</b>: Open-Meteo. Within about two weeks of today, the recent days come from its forecast service’s recent history and the coming days are forecast; older dates use the ERA5 reanalysis archive (about 9–25 km grid). The normal is the average rain in the same 14 days over the previous 10 years at the same point.`,
+  ].map(x => `<li>${x}</li>`).join('');
+}
+$('#speciesOnly').onchange = $('#minYears').onchange = renderAll; $('#filter').oninput = renderAll;
+$('#csvBtn').onclick = () => {
+  if (!S.A) return; const A = S.A, yrs = [...S.years].sort((a, b) => a.year - b.year), st = S.settings;
+  const head = ['taxon', 'rank', 'common_name', 'years_found', 'years_looked', ...yrs.map(w => String(w.year)), 'records', 'last_found', 'inaturalist_taxon_id'];
+  const rows = A.taxa.sort((a, b) => b.years.size - a.years.size || b.records - a.records).map(t => [t.name, t.rank, t.common, t.years.size, A.looked.length, ...yrs.map(w => t.years.has(w.year) ? 1 : 0), t.records, t.last, t.id]);
+  const csv = [[`# Plan a Visit: ${st.lat.toFixed(5)}, ${st.lon.toFixed(5)}, ${st.radius} km, ${st.date} ± ${st.win} days${st.who === 'user' ? ', ' + st.user : ''}`], head, ...rows].map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })); a.download = `plan-a-visit_${st.date}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+};
+
+/* ---------- wiring ---------- */
+$('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
+$('#example').onclick = e => { e.preventDefault(); const y = new Date().getFullYear();
+  $('#date').value = `${y}-09-25`; $('#radius').value = '2'; $('#who').value = 'all'; $('#userWrap').classList.add('hidden');
+  setSpot(41.12784, -81.54008, 'Sand Run Metro Park, Ohio', 13); $('#form').requestSubmit(); };
+$('#themeBtn').addEventListener('click', () => { const r = document.documentElement, cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; store.set('visit.theme', r.dataset.theme); });
+initMap();
+$('#date').value = todayIso();
+const params = new URLSearchParams(location.search), last = store.get('visit.last');
+if (params.get('lat') && params.get('lng')) { setSpot(+params.get('lat'), +params.get('lng'), params.get('label') || null, 14); if (params.get('date')) $('#date').value = params.get('date'); }
+else if (last && last.spot) { setSpot(last.spot.lat, last.spot.lon, last.spot.label, 13); $('#radius').value = String(last.radius || 1); $('#win').value = String(last.win || 14); $('#years').value = String(last.years || 15);
+  if (last.who === 'user') { $('#who').value = 'user'; $('#user').value = last.user || ''; $('#userWrap').classList.remove('hidden'); } }
+(async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
+(async () => { try { await getJSON(`${METEO_FORECAST}?latitude=41.1&longitude=-81.6&daily=precipitation_sum&forecast_days=1`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); } })();
+})();
+</script>
+</body>
+</html>

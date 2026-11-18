@@ -1,0 +1,29 @@
+---
+/* Both suggested paths, with a switch between them. Without JavaScript both paths show, one after the other. */
+import {researchPaths} from '../data/tools';
+import ResearchPath from './ResearchPath.astro';
+---
+<div class="mv-path-switch" data-active-path={researchPaths[0].id}>
+ <div class="mv-path-tabs" role="tablist" aria-label="Suggested paths" hidden>
+  {researchPaths.map((p,i)=><button type="button" role="tab" id={`tab-${p.id}`} aria-controls={`path-${p.id}`} aria-selected={i===0?'true':'false'} data-path={p.id} tabindex={i===0?0:-1}>{p.audience}</button>)}
+ </div>
+ {researchPaths.map(p=><ResearchPath path={p}/>)}
+</div>
+<script is:inline>
+(function(){
+ var box=document.currentScript&&document.currentScript.previousElementSibling; if(!box||!box.classList.contains('mv-path-switch'))box=document.querySelector('.mv-path-switch'); if(!box)return;
+ var tabs=box.querySelector('.mv-path-tabs'), buttons=[].slice.call(tabs.querySelectorAll('button')), navs=[].slice.call(box.querySelectorAll('.mv-research-path'));
+ function show(id,focus){ if(!navs.some(function(n){return n.dataset.path===id;}))return;
+  box.dataset.activePath=id; document.documentElement.dataset.activePath=id;
+  navs.forEach(function(n){ var on=n.dataset.path===id; n.hidden=!on; if(on)n.setAttribute('role','tabpanel'); n.setAttribute('aria-labelledby','tab-'+n.dataset.path); });
+  buttons.forEach(function(b){ var on=b.dataset.path===id; b.setAttribute('aria-selected',on?'true':'false'); b.tabIndex=on?0:-1; if(on&&focus)b.focus(); });
+  try{localStorage.setItem('mv.path',id);}catch(e){} }
+ tabs.hidden=false;
+ buttons.forEach(function(b,i){ b.addEventListener('click',function(){show(b.dataset.path);});
+  b.addEventListener('keydown',function(e){ var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0; if(!k)return; e.preventDefault(); var n=buttons[(i+k+buttons.length)%buttons.length]; show(n.dataset.path,true); }); });
+ box.addEventListener('click',function(e){ var a=e.target.closest('a[data-path-link]'); if(!a)return; e.preventDefault(); show(a.dataset.pathLink); box.scrollIntoView({behavior:'smooth',block:'start'}); });
+ var want=(location.hash.match(/^#path-([a-z-]+)/)||[])[1], saved=null; try{saved=localStorage.getItem('mv.path');}catch(e){}
+ show(want||saved||buttons[0].dataset.path);
+ window.addEventListener('hashchange',function(){ var m=location.hash.match(/^#path-([a-z-]+)/); if(m)show(m[1]); });
+})();
+</script>

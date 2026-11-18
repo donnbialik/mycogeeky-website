@@ -42,3 +42,15 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# plan-a-visit: a self-contained page; calls iNaturalist and Open-Meteo from the browser.
+/investigate/plan-a-visit/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# foray-report: a self-contained page; calls iNaturalist and Open-Meteo from the browser.
+/investigate/foray-report/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

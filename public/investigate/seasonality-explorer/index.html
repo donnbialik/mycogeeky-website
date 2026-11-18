@@ -160,6 +160,7 @@ i.sci { font-style: italic; }
 .tnav { display: flex; gap: 8px; align-items: center; }
 button.primary { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: 0; background: var(--series); color: #fff; cursor: pointer; }
 .hidden { display: none !important; }
+.nextsteps{margin:10px 0 0;font-size:14px}
 </style>
 </head>
 <body>
@@ -870,6 +871,12 @@ function render() {
   const oldest = datasets.map(d => d.retrieved).sort((x, y) => x - y)[0];
   a += '<div class="stamp"><span>Data retrieved from iNaturalist on ' + esc(oldest.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })) + '. Counts change as observations are added and re-identified.</span>' +
        '<button class="ghost" id="copyLink">Copy link to this view</button><span id="copied"></span></div>';
+  // Next steps on the forager path: the same species (and place) in the Habitat Profiler; a spot and date in Plan a Visit.
+  if (state.taxon) { const hp = new URLSearchParams({ taxon_id: state.taxon.id, taxon: state.taxon.name });
+    if (state.taxon.common) hp.set('common', state.taxon.common);
+    if (state.placeMode === 'place' && state.place) { hp.set('place_id', state.place.id); hp.set('place', state.place.name); }
+    a += '<p class="nextsteps">Next: <a href="/investigate/habitat-profiler/?' + esc(hp.toString()) + '">profile its habitat' + (state.placeMode === 'place' && state.place ? ' in ' + esc(state.place.name) : '') + ' →</a>' +
+      (state.placeMode === 'radius' && state.lat && state.lng ? ' · <a href="/investigate/plan-a-visit/?lat=' + encodeURIComponent(state.lat) + '&lng=' + encodeURIComponent(state.lng) + '">plan a visit to this spot →</a>' : ' · <a href="/investigate/plan-a-visit/">plan a visit →</a>') + '</p>'; }
   $('answer').innerHTML = a;
   const anyData = views.some(v => v.st);
   $('charts').classList.toggle('hidden', !anyData);

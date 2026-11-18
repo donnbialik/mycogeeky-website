@@ -200,23 +200,23 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
   <section class="card">
     <h2><span class="stepn">1</span>Whose forays, and when</h2>
     <div class="modes" role="radiogroup" aria-label="Records from">
-      <label class="inline"><input type="radio" name="src" value="users" checked> People (iNaturalist usernames)</label>
-      <label class="inline"><input type="radio" name="src" value="project"> An iNaturalist project</label>
-      <label class="inline"><input type="radio" name="src" value="site"> Everyone at a site (boundary file)</label>
+      <label class="inline"><input type="radio" name="src" value="users" checked> People (iNaturalist usernames)</label><button type="button" class="mv-i" data-help="src_users" aria-label="What does People mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+      <label class="inline"><input type="radio" name="src" value="project"> An iNaturalist project</label><button type="button" class="mv-i" data-help="src_project" aria-label="What does An iNaturalist project mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+      <label class="inline"><input type="radio" name="src" value="site"> Everyone at a site (boundary file)</label><button type="button" class="mv-i" data-help="src_site" aria-label="What does Everyone at a site mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
     </div>
     <div class="opts" id="bOpts" style="margin:8px 0 10px">
-      <span class="optlabel">Site boundary</span>
+      <span class="optlabel">Site boundary<button type="button" class="mv-i" data-help="boundary" aria-label="What does Site boundary mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
       <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json" aria-describedby="bTxt">
       <span id="bShape"></span><span class="muted" id="bTxt">Optional for people or a project: only records inside it count. KML, KMZ or GeoJSON, read in your browser and not uploaded.</span>
       <button type="button" class="ghost hidden" id="bClear">Remove</button>
-      <label class="inline hidden" id="bEdgeWrap">near the edge <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its accuracy reaches past the edge</option></select></label>
+      <label class="inline hidden" id="bEdgeWrap">Records near the edge<button type="button" class="mv-i" data-help="edge" aria-label="What does Records near the edge mean?" aria-expanded="false" aria-controls="mv-pop">i</button> <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its accuracy reaches past the edge</option></select></label>
     </div>
     <form id="form" class="form" autocomplete="off">
       <label class="wide" id="usersWrap">Usernames <input type="text" id="users" placeholder="one or more, separated by commas"></label>
       <label class="wide hidden" id="projWrap">Project
         <span class="ac"><input type="text" id="proj" placeholder="Start typing a project name" aria-autocomplete="list" aria-controls="projList"><ul class="aclist hidden" id="projList" role="listbox"></ul></span>
       </label>
-      <label>Period
+      <label>Period<button type="button" class="mv-i" data-help="period" aria-label="What does Period mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <select id="period"><option value="year" selected>a year</option><option value="season">a season</option><option value="month">a month</option><option value="custom">my own dates</option></select>
       </label>
       <label id="yearWrap">Year <select id="year"></select></label>
@@ -227,15 +227,15 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
       <button class="primary" id="goBtn" type="submit">Build report</button>
     </form>
     <div class="opts">
-      <span class="optlabel">A foray is the same day and</span>
+      <span class="optlabel">A foray is records on the same day and<button type="button" class="mv-i" data-help="grouping" aria-label="What does How forays are grouped mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
       <label class="inline"><input type="radio" name="grp" value="dist" checked> within <input type="range" id="km" min="1" max="20" step="1" value="5" style="width:110px"> <b id="kmv">5 km</b></label>
       <label class="inline"><input type="radio" name="grp" value="place"> the same iNaturalist place (park)</label>
     </div>
     <div class="opts">
-      <span class="optlabel">Count species that are</span>
-      <label class="inline"><input type="checkbox" id="newYear" checked> new that year</label>
-      <label class="inline"><input type="checkbox" id="newEver" checked> new ever</label>
-      <label class="inline"><input type="checkbox" id="doWx" checked> Weather before each foray</label>
+      <span class="optlabel">Also count species that are<button type="button" class="mv-i" data-help="newopts" aria-label="What does new that year and new ever mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
+      <label class="inline"><input type="checkbox" id="newYear" checked> new that year</label><button type="button" class="mv-i" data-help="newYear" aria-label="What does New that year mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+      <label class="inline"><input type="checkbox" id="newEver" checked> new ever</label><button type="button" class="mv-i" data-help="newEver" aria-label="What does New ever mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+      <label class="inline"><input type="checkbox" id="doWx" checked> Weather before each foray</label><button type="button" class="mv-i" data-help="doWx" aria-label="What does Weather before each foray mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
     </div>
     <p class="hint">New here? <a href="#" id="example">Try an example: mycogeekyohio, fall 2025</a>. Fungi only (lichens included). Each person’s records count toward the foray they were on; several people out together on the same day and place make one foray.</p>
     <div id="formMsg" class="msg"></div>
@@ -249,14 +249,14 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
 
   <div id="out" class="hidden">
     <section class="card" style="margin-top:14px">
-      <h2>The period<span class="sub" id="sumSub"></span></h2>
+      <h2>The period<button type="button" class="mv-i" data-help="period_sum" aria-label="What does The period summary mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="sumSub"></span></h2>
       <div class="tiles" id="tiles"></div>
       <p class="note" id="sumNote"></p>
     </section>
 
     <section class="card" style="margin-top:14px">
-      <h2>Forays<span class="sub">click a heading to sort, a row to see what was found</span></h2>
-      <div class="row" style="margin-bottom:8px"><label class="inline" for="minRec">Show forays with at least</label>
+      <h2>Forays<button type="button" class="mv-i" data-help="foray" aria-label="What does a foray mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub">Sort: click a heading. Details: click a row. <b>i</b>: what a column means.</span></h2>
+      <div class="row" style="margin-bottom:8px"><label class="inline" for="minRec">Show forays with at least</label><button type="button" class="mv-i" data-help="minRec" aria-label="What does the minimum foray size mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <select id="minRec"><option value="1">1 record (all)</option><option value="3" selected>3 records</option><option value="5">5 records</option><option value="10">10 records</option></select>
         <span class="muted" id="minNote"></span></div>
       <div class="tablewrap"><table class="forays" id="forays"></table></div>
@@ -266,24 +266,24 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
 
     <div class="grid g2">
       <section class="card">
-        <h2>Productivity and rain<span class="sub" id="rainSub"></span></h2>
-        <div class="row" style="margin-bottom:6px"><label class="inline"><input type="radio" name="yv" value="species" checked> species</label><label class="inline"><input type="radio" name="yv" value="rate"> species per hour</label></div>
+        <h2>Productivity and rain<button type="button" class="mv-i" data-help="rainpanel" aria-label="What does Productivity and rain mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="rainSub"></span></h2>
+        <div class="row" style="margin-bottom:6px"><span class="muted" style="margin-right:4px">Show:</span><label class="inline"><input type="radio" name="yv" value="species" checked> species per foray</label><label class="inline"><input type="radio" name="yv" value="rate"> species per hour</label><button type="button" class="mv-i" data-help="rate" aria-label="What does Species per hour mean?" aria-expanded="false" aria-controls="mv-pop">i</button></div>
         <div id="scatter"></div>
         <p class="note" id="rainNote"></p>
-        <h3 class="h3">Wetter against drier, month by month</h3>
+        <h3 class="h3">Wetter against drier, month by month<button type="button" class="mv-i" data-help="wetdry" aria-label="What does Wetter against drier mean?" aria-expanded="false" aria-controls="mv-pop">i</button></h3>
         <div id="wetdry"></div>
         <p class="note" id="wetdryNote"></p>
       </section>
       <section class="card">
-        <h2>Month by month<span class="sub">forays and species</span></h2>
+        <h2>Month by month<button type="button" class="mv-i" data-help="months" aria-label="What does Month by month mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub">forays and species</span></h2>
         <div id="months"></div>
-        <h3 style="margin:14px 0 4px;font-size:14px">Species so far</h3>
+        <h3 style="margin:14px 0 4px;font-size:14px">Species so far<button type="button" class="mv-i" data-help="curve" aria-label="What does Species so far mean?" aria-expanded="false" aria-controls="mv-pop">i</button></h3>
         <div id="curve"></div>
       </section>
     </div>
 
     <section class="card" style="margin-top:14px">
-      <h2>Places<span class="sub" id="placeSub"></span></h2>
+      <h2>Places<button type="button" class="mv-i" data-help="places" aria-label="What does Places mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="placeSub"></span></h2>
       <div class="tablewrap"><table id="places"></table></div>
     </section>
 
@@ -298,6 +298,7 @@ svg .cline{fill:none;stroke:var(--good);stroke-width:2}
 </main>
 
 <script src="/investigate/shared/boundary.js"></script>
+<script src="/investigate/shared/help.js"></script>
 <script>
 (() => {
 'use strict';
@@ -352,6 +353,54 @@ function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'f
 const speciesKey = t => !t ? null : t.rank_level <= 10 ? (t.rank_level < 10 ? t.name.split(' ').slice(0, 2).join(' ') : t.name) : null;
 
 /* ---------- form ---------- */
+
+/* ---------- help popups: plain-language meaning of every option and column ---------- */
+MVHelp.init({
+  src_users: '<b>People.</b> Forays by one or more iNaturalist users. Type usernames separated by commas, e.g. <i>mycogeekyohio, friend1</i>. Records by everyone listed are pooled, so two people out together on the same day form one foray.',
+  src_project: '<b>An iNaturalist project.</b> Every fungi record in the project, by anyone, for the period. Useful for a club or a BioBlitz.',
+  src_site: '<b>Everyone at a site.</b> Every fungi record by anyone inside the boundary file you choose below. Use it for a survey area, a preserve or a permit area that isn’t an iNaturalist place.',
+  boundary: '<b>Site boundary.</b> A KML or KMZ file (Google Earth, Google My Maps, most GIS software) or a GeoJSON file with at least one polygon. Only records whose point falls inside count; cut-out holes are excluded. The file is read in your browser and is not uploaded.<span class="eg">Records with obscured locations are always left out, because iNaturalist moves them up to about 20 km.</span>',
+  edge: '<b>Records near the edge.</b> Every record has a stated accuracy, a circle around its point. <b>Count if the point is inside</b> keeps every record whose point is in the boundary. <b>Leave it out</b> also drops records whose circle reaches past the edge, a stricter rule that is better when the edge matters, e.g. comparing two neighbouring sites.',
+  period: '<b>Period.</b> A calendar year, a season, a month or your own dates. Seasons are meteorological: spring Mar–May, summer Jun–Aug, fall Sep–Nov, winter Dec–Feb (December of the year before).',
+  grouping: '<b>How a day’s records become forays.</b> <b>Within N km</b>: records on the same day join a foray if each is within N km of at least one other record in it (chained), so a long walk stays one foray but two parks across town become two. <b>Same iNaturalist place</b>: records on the same day in the same park or preserve, as iNaturalist knows it.<span class="eg">5 km suits most park visits; lower it if you visit several nearby spots in a day.</span>',
+  newopts: 'Checking what is new means reading each person’s earlier records, which takes extra time. Turn these off for a faster report.',
+  newYear: '<b>New that year.</b> Species the person hadn’t recorded earlier in the same calendar year, counting their records from January 1 up to the foray. The first spring foray finds almost everything “new that year”; by fall only late fruiters are.',
+  newEver: '<b>New ever.</b> The first time that person has ever recorded the species on iNaturalist, anywhere, on any earlier date. It’s a measure of a life list growing, not of rarity.<span class="eg">Example: if you photographed <i>Amanita muscaria</i> in 2021, it is never “new ever” again for you, even at a new park. Based on the identifications as they stand today, so a species you recorded under another name earlier may show as new. With several people, a species counts if it is new to whoever recorded it.</span>',
+  doWx: '<b>Weather before each foray.</b> Rain and temperature in the days before each foray date, from Open-Meteo, compared with the same days in earlier years. Adds a minute or two for a long period.',
+  foray: '<b>A foray</b> is a group of records made on the same day and close together (see “A foray is records on the same day and …” above). It is a reconstruction from records, so a visit where nothing was photographed doesn’t appear.',
+  minRec: '<b>Minimum foray size.</b> Hides forays with fewer records than this from the table and the rain comparison, e.g. a quick yard check or a single roadside photo. Totals, months, places and the CSV files still count every foray.',
+  period_sum: 'Totals for the whole period, counting every foray whatever the minimum-size setting.',
+  tile_species: '<b>Species</b>: distinct species across the period (subspecies and varieties count with their species). Records identified only to genus or higher aren’t included.',
+  tile_newEver: '<b>Species new ever</b>: species recorded for the first time ever by the person who found them, during this period. See “New ever” in the table for the rule.',
+  tile_best: 'The foray with the most species. Click its row in the table to see the list.',
+  col_n: 'The foray’s number, in date order.',
+  col_date: 'The day of the foray.',
+  col_label: '<b>Place</b>: the smallest iNaturalist place (usually a park or preserve) that holds the foray’s records; if there isn’t one, the place name on the records.',
+  col_people: 'How many different iNaturalist users recorded something on this foray.',
+  col_hours: '<b>Hours</b>: time from the first to the last record with a time. Left blank unless there are at least 3 timed records spanning 15 minutes or more, because a shorter span says nothing about how long you were out.',
+  col_obs: '<b>Records</b>: iNaturalist fungi observations (lichens included), any quality grade. One mushroom photographed twice is two records.',
+  col_species: '<b>Species</b>: distinct species on the foray, as currently identified (subspecies and varieties count with their species).',
+  col_other: '<b>Not to species</b>: distinct names among records identified only to genus or higher, e.g. <i>Mycena</i> or Russulaceae. They may or may not be species already counted.',
+  col_prov: '<b>Provisional</b>: distinct provisional species names from the “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, usually given after DNA sequencing to a species with no formal name yet.',
+  col_newYear: '<b>New that year</b>: species on this foray that the person hadn’t recorded earlier in the same calendar year.',
+  col_newEver: '<b>New ever</b>: species on this foray that the person had never recorded on iNaturalist before, anywhere.<span class="eg">Your first-ever <i>Amanita muscaria</i> counts once, on the foray where you first recorded it. Based on today’s identifications.</span>',
+  col_seq: '<b>ITS sequenced</b>: records with a DNA Barcode ITS sequence of 100 or more bases in the observation field.',
+  col_rate: '<b>Species / hour</b>: species divided by hours. Corrects a little for long days finding more; blank when hours are blank.',
+  col_rain: '<b>Rain, 14 days before</b>: total rain in the 14 days before the foray (not counting the foray day), in millimetres, at the foray’s location. 25 mm is about an inch.',
+  col_pct: '<b>Rain vs normal</b>: the 14-day rain as a percentage of the average for the same 14 calendar days over the previous 10 years at that spot (5 years for a very long report). 100% is normal; under 75% is drier than usual, 125% or more wetter.',
+  rainpanel: '<b>Productivity and rain.</b> Each dot is a foray: across is rain vs normal, up is species (or species per hour). <b>ρ</b> (Spearman’s rho) runs from −1 to 1: near 0 means no consistent pattern, positive means wetter forays tended to find more.<span class="eg">The “within the same month” figure compares forays only against others in the same month, which removes the effect of season. These describe your forays; they are not proof that rain caused the difference.</span>',
+  rate: '<b>Species per hour</b> uses only forays with a usable time span; longer forays find more species whatever the weather, so this is the fairer comparison.',
+  wetdry: '<b>Wetter against drier.</b> For each month, forays are split at 100% of normal rain and the medians compared. A month counts towards the summary line only with at least 2 forays on each side.',
+  wd_wet: 'Forays whose 14-day rain was at or above normal (100% or more).',
+  wd_dry: 'Forays whose 14-day rain was below normal (under 100%).',
+  rho_month: 'Spearman’s ρ between rain vs normal and species for that month alone, shown when the month has 4 or more forays with weather.',
+  months: '<b>Month by month.</b> Bars show the number of distinct species found in each month, with the number of forays alongside. A month with more forays usually has more species, so read the two together.',
+  curve: '<b>Species so far.</b> The running total of distinct species across the period. Steep stretches are when new species were still turning up; a flattening curve means forays were mostly re-finding the same ones.',
+  places: '<b>Places.</b> Forays grouped by place name, to see which sites were most productive over the period.',
+  pl_all: 'Distinct species across all forays at this place.',
+  pl_mean: 'The average number of species per foray at this place.',
+  pl_best: 'The most species found on a single foray at this place.',
+});
 const S = { run: 0, obs: [], forays: [], settings: {}, sort: { key: 'species', dir: -1 }, open: new Set(), proj: null, boundary: null };
 (function initForm() {
   const ys = $('#year'), thisYear = new Date().getFullYear();
@@ -573,9 +622,9 @@ let rt = null; const scheduleRender = () => { if (rt) return; rt = setTimeout(()
 const COLS = [
   ['n', '#', f => f.n, 'num'], ['date', 'Date', f => f.date], ['label', 'Place', f => f.label], ['people', 'People', f => f.people.length, 'num'],
   ['hours', 'Hours', f => f.hours, 'num'], ['obs', 'Records', f => f.obs.length, 'num'], ['species', 'Species', f => f.species.size, 'num'],
-  ['other', 'Other', f => f.other.size, 'num'], ['prov', 'Provisional', f => f.prov.size, 'num'], ['newYear', 'New that year', f => f.newYear.size, 'num'],
-  ['newEver', 'New ever', f => f.newEver.size, 'num'], ['seq', 'Sequenced', f => f.seq, 'num'], ['rate', 'Species / hour', f => f.rate, 'num'],
-  ['rain', 'Rain 14 d before', f => f.wx && f.wx.rain14 != null ? f.wx.rain14 : null, 'num'], ['pct', '% of normal', f => f.wx && f.wx.pct14 != null ? f.wx.pct14 : null, 'num'],
+  ['other', 'Not to species', f => f.other.size, 'num'], ['prov', 'Provisional', f => f.prov.size, 'num'], ['newYear', 'New that year', f => f.newYear.size, 'num'],
+  ['newEver', 'New ever', f => f.newEver.size, 'num'], ['seq', 'ITS sequenced', f => f.seq, 'num'], ['rate', 'Species / hour', f => f.rate, 'num'],
+  ['rain', 'Rain, 14 days before (mm)', f => f.wx && f.wx.rain14 != null ? f.wx.rain14 : null, 'num'], ['pct', 'Rain vs normal', f => f.wx && f.wx.pct14 != null ? f.wx.pct14 : null, 'num'],
 ];
 function minRec() { return +($('#minRec') ? $('#minRec').value : 1) || 1; }
 function shownForays() { const k = minRec(); return S.forays.filter(f => f.obs.length >= k); }
@@ -586,9 +635,9 @@ function renderAll() {
   const st = S.settings, F = S.forays, allSp = new Set(F.flatMap(f => [...f.species.keys()])), allProv = new Set(F.flatMap(f => [...f.prov]));
   const best = [...F].sort((a, b) => b.species.size - a.species.size)[0], newEver = new Set(F.flatMap(f => [...f.newEver]));
   $('#sumSub').textContent = `${whoLabel(st)} · ${st.label}`;
-  const tiles = [[fmt(F.length), 'forays'], [fmt(S.obs.length), 'fungi records'], [fmt(allSp.size), 'species'], [fmt(allProv.size), 'provisional names'],
-    ...(st.newEver ? [[fmt(newEver.size), 'species new ever']] : []), [fmt(best.species.size), `most species in a foray (${shortDate(best.date)})`]];
-  $('#tiles').innerHTML = tiles.map(([v, k]) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}</div></div>`).join('');
+  const tiles = [[fmt(F.length), 'forays', 'foray'], [fmt(S.obs.length), 'fungi records', 'col_obs'], [fmt(allSp.size), 'species', 'tile_species'], [fmt(allProv.size), 'provisional names', 'col_prov'],
+    ...(st.newEver ? [[fmt(newEver.size), 'species new ever', 'tile_newEver']] : []), [fmt(best.species.size), `most species in one foray (${shortDate(best.date)})`, 'tile_best']];
+  $('#tiles').innerHTML = tiles.map(([v, k, h]) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}${MVHelp.tip(h, k)}</div></div>`).join('');
   $('#sumNote').innerHTML = [S.truncated ? `Only the first ${fmt(S.cap)} of ${fmt(S.truncated)} records${S.bCls ? ' in the box around the boundary' : ''} were read; choose a shorter period for the rest.` : '',
     S.newSkipped ? `“New” columns are off: checking earlier records for ${S.newSkipped} people would take too long.` : '',
     S.priorFailed ? `Earlier records couldn’t be read for ${S.priorFailed} ${S.priorFailed === 1 ? 'person' : 'people'}, so their “new” counts are too high.` : '',
@@ -611,7 +660,7 @@ function renderTable() {
     if (c[0] === 'rain') return f.wx ? (f.wx.pending ? '<span class="muted" title="Weather archive lags about 5 days">soon</span>' : f.wx.error ? '<span class="muted">—</span>' : fmt(v) + ' mm') : (S.settings.doWx ? '<span class="muted">…</span>' : '—');
     if (c[0] === 'pct') return v == null ? '—' : `<span class="${v >= 125 ? 'wet' : v < 60 ? 'dry' : ''}">${fmt(v)}%</span>`;
     return fmt(v); };
-  $('#forays').innerHTML = `<thead><tr>${cols.map(c => `<th class="${c[3] || ''}${c[0] === key ? ' sorted' : ''}" data-k="${c[0]}" tabindex="0" aria-sort="${c[0] === key ? (dir > 0 ? 'ascending' : 'descending') : 'none'}">${esc(c[1])}${c[0] === key ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${rows.map(f => {
+  $('#forays').innerHTML = `<thead><tr>${cols.map(c => `<th class="${c[3] || ''}${c[0] === key ? ' sorted' : ''}" data-k="${c[0]}" tabindex="0" aria-sort="${c[0] === key ? (dir > 0 ? 'ascending' : 'descending') : 'none'}">${esc(c[1])}${MVHelp.tip('col_' + c[0], c[1])}${c[0] === key ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${rows.map(f => {
     const open = S.open.has(f.n);
     return `<tr class="frow${open ? ' open' : ''}" data-n="${f.n}">${cols.map(c => `<td class="${c[3] || ''}">${cell(c, f)}</td>`).join('')}</tr>${open ? `<tr class="detail"><td colspan="${cols.length}">${detail(f)}</td></tr>` : ''}`; }).join('')}</tbody>`;
 }
@@ -665,7 +714,7 @@ function renderScatter() {
   const within = rhos.length ? rhos.reduce((a, [r, n]) => a + r * n, 0) / rhos.reduce((a, [, n]) => a + n, 0) : null, nWithin = rhos.reduce((a, [, n]) => a + n, 0);
   const word = (r, n) => n < 8 || r == null ? 'too few forays to say' : Math.abs(r) < 0.2 ? 'little or no relationship' : `a ${Math.abs(r) < 0.4 ? 'weak' : Math.abs(r) < 0.6 ? 'moderate' : 'strong'} ${r > 0 ? 'positive' : 'negative'} relationship`;
   $('#rainNote').innerHTML = `All forays together: Spearman’s ρ = ${fmt(rho, 2)} over ${pts.length} forays, ${word(rho, pts.length)}. This mixes seasons, so part of it can be the time of year rather than the rain. ${within != null ? `<b>Within the same month</b> (months with 4 or more forays, ${nWithin} forays): average ρ = ${fmt(within, 2)}, ${word(within, nWithin)}. ` : 'No month has 4 or more forays with weather, so there is no within-month figure. '}The shaded band is roughly normal rain (75–125%); bigger dots are forays with more records.${yv === 'species' ? ' Longer forays find more species whatever the weather, so check species per hour too.' : ''} These are descriptions of your forays, not tests: a few forays per month can’t separate rain from where you went.`;
-  $('#wetdry').innerHTML = `<div class="tablewrap" style="max-height:none"><table class="wd"><thead><tr><th>Month</th><th class="num">Forays</th><th class="num">Wetter (≥100%)</th><th class="num">Median ${esc(unit)}</th><th class="num">Drier (&lt;100%)</th><th class="num">Median ${esc(unit)}</th><th class="num">ρ in month</th></tr></thead><tbody>${rowsM.map(r => `<tr><td>${MONTHS[+r.k.slice(5) - 1]} ${r.k.slice(0, 4)}</td><td class="num">${r.n}</td><td class="num">${r.nw}</td><td class="num${r.mw != null && r.md != null && r.mw > r.md ? ' wet' : ''}">${r.mw == null ? '—' : fmt(r.mw, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.nd}</td><td class="num${r.mw != null && r.md != null && r.md > r.mw ? ' dry' : ''}">${r.md == null ? '—' : fmt(r.md, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.r == null ? '—' : fmt(r.r, 2)}</td></tr>`).join('')}</tbody></table></div>`;
+  $('#wetdry').innerHTML = `<div class="tablewrap" style="max-height:none"><table class="wd"><thead><tr><th>Month</th><th class="num">Forays</th><th class="num">Wetter forays${MVHelp.tip('wd_wet', 'Wetter forays')}</th><th class="num">Median ${esc(unit)}</th><th class="num">Drier forays${MVHelp.tip('wd_dry', 'Drier forays')}</th><th class="num">Median ${esc(unit)}</th><th class="num">ρ in month${MVHelp.tip('rho_month', 'ρ in month')}</th></tr></thead><tbody>${rowsM.map(r => `<tr><td>${MONTHS[+r.k.slice(5) - 1]} ${r.k.slice(0, 4)}</td><td class="num">${r.n}</td><td class="num">${r.nw}</td><td class="num${r.mw != null && r.md != null && r.mw > r.md ? ' wet' : ''}">${r.mw == null ? '—' : fmt(r.mw, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.nd}</td><td class="num${r.mw != null && r.md != null && r.md > r.mw ? ' dry' : ''}">${r.md == null ? '—' : fmt(r.md, yv === 'rate' ? 1 : 0)}</td><td class="num">${r.r == null ? '—' : fmt(r.r, 2)}</td></tr>`).join('')}</tbody></table></div>`;
   const comp = wins + losses + ties;
   $('#wetdryNote').innerHTML = comp ? `In ${wins} of ${comp} month${comp === 1 ? '' : 's'} with at least 2 wetter and 2 drier forays, forays after wetter-than-normal weeks had the higher median${losses ? `; in ${losses} the drier ones did` : ''}${ties ? `; ${ties} tied` : ''}. “Wetter” is rain in the 14 days before at or above the 10-year normal for those days.` : 'No month has at least 2 wetter and 2 drier forays to compare.';
 }
@@ -694,7 +743,7 @@ function renderPlaces() {
     g.forays++; g.spSum += f.species.size; g.best = Math.max(g.best, f.species.size); for (const s of f.species.keys()) g.sp.add(s); for (const p of f.prov) g.prov.add(p); }
   const rows = [...m.values()].sort((a, b) => b.sp.size - a.sp.size);
   $('#placeSub').textContent = `${rows.length} place${rows.length === 1 ? '' : 's'}, named after the most specific iNaturalist place or the location most records give`;
-  $('#places').innerHTML = `<thead><tr><th>Place</th><th class="num">Forays</th><th class="num">Species, all forays</th><th class="num">Species per foray (mean)</th><th class="num">Best foray</th><th class="num">Provisional names</th></tr></thead><tbody>${rows.slice(0, 60).map(g => `<tr><td>${esc(g.label)}</td><td class="num">${g.forays}</td><td class="num">${g.sp.size}</td><td class="num">${fmt(g.spSum / g.forays, 1)}</td><td class="num">${g.best}</td><td class="num">${g.prov.size}</td></tr>`).join('')}</tbody>`;
+  $('#places').innerHTML = `<thead><tr><th>Place</th><th class="num">Forays</th><th class="num">Species, all forays${MVHelp.tip('pl_all', 'Species, all forays')}</th><th class="num">Species per foray (mean)${MVHelp.tip('pl_mean', 'Species per foray')}</th><th class="num">Best foray${MVHelp.tip('pl_best', 'Best foray')}</th><th class="num">Provisional names${MVHelp.tip('col_prov', 'Provisional names')}</th></tr></thead><tbody>${rows.slice(0, 60).map(g => `<tr><td>${esc(g.label)}</td><td class="num">${g.forays}</td><td class="num">${g.sp.size}</td><td class="num">${fmt(g.spSum / g.forays, 1)}</td><td class="num">${g.best}</td><td class="num">${g.prov.size}</td></tr>`).join('')}</tbody>`;
 }
 function renderMethods() {
   const st = S.settings;

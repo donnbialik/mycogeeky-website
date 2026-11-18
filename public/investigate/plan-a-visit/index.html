@@ -215,28 +215,28 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
         <p class="hint" id="spotTxt">Tap the map to set the spot.</p>
       </div>
       <form id="form" class="vform" autocomplete="off">
-        <label>Visit date <input type="date" id="date"></label>
-        <label>Look within
+        <label><span>Visit date<button type="button" class="mv-i" data-help="date" aria-label="What does Visit date mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span> <input type="date" id="date"></label>
+        <label><span>Look within<button type="button" class="mv-i" data-help="radius" aria-label="What does Look within mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
           <select id="radius"><option value="0.5">500 m of the spot</option><option value="1" selected>1 km of the spot</option><option value="2">2 km</option><option value="5">5 km</option><option value="boundary">inside a site boundary (KML, KMZ or GeoJSON file)</option></select>
         </label>
         <div id="bWrap" class="hidden bwrap">
-          <label>Boundary file <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json"></label>
+          <label><span>Boundary file<button type="button" class="mv-i" data-help="boundary" aria-label="What does Boundary file mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span> <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json"></label>
           <p class="hint" id="bTxt">Read in your browser; the file isn’t uploaded anywhere.</p>
-          <label>Records near the edge
+          <label><span>Records near the edge<button type="button" class="mv-i" data-help="edge" aria-label="What does Records near the edge mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
             <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its stated accuracy reaches past the edge</option></select>
           </label>
         </div>
-        <label>Around the date
+        <label><span>Around the date<button type="button" class="mv-i" data-help="win" aria-label="What does Around the date mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
           <select id="win"><option value="7">± 1 week</option><option value="14" selected>± 2 weeks</option><option value="21">± 3 weeks</option></select>
         </label>
-        <label>Years to look back
+        <label><span>Years to look back<button type="button" class="mv-i" data-help="years" aria-label="What does Years to look back mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
           <select id="years"><option value="10">10 years</option><option value="15" selected>15 years</option><option value="20">20 years</option></select>
         </label>
-        <label>Whose finds
+        <label><span>Whose finds<button type="button" class="mv-i" data-help="who" aria-label="What does Whose finds mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
           <select id="who"><option value="all" selected>everyone’s</option><option value="user">one person’s</option></select>
         </label>
         <label class="hidden" id="userWrap">iNaturalist username <input type="text" id="user" placeholder="username"></label>
-        <label class="inline"><input type="checkbox" id="rgOnly"> Research grade only</label>
+        <label class="inline"><input type="checkbox" id="rgOnly"> Research grade only</label><button type="button" class="mv-i" data-help="rg" aria-label="What does Research grade only mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <button class="primary" id="goBtn" type="submit">See what turns up</button>
         <p class="hint">New here? <a href="#" id="example">Try an example: Sand Run Metro Park, late September</a></p>
         <div id="formMsg" class="msg"></div>
@@ -251,20 +251,20 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
 
   <div id="out" class="hidden">
     <section class="card" style="margin-top:14px">
-      <h2>Conditions<span class="sub" id="wxSub"></span></h2>
+      <h2>Conditions<button type="button" class="mv-i" data-help="conditions" aria-label="What does Conditions mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="wxSub"></span></h2>
       <div id="wx"></div>
     </section>
 
     <section class="card" style="margin-top:14px">
-      <h2>How well this spot has been looked at<span class="sub" id="effortSub"></span></h2>
+      <h2>How well this spot has been looked at<button type="button" class="mv-i" data-help="effort" aria-label="What does How well this spot has been looked at mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="effortSub"></span></h2>
       <div id="effort"></div>
     </section>
 
     <section class="card" style="margin-top:14px">
-      <h2>What turns up here<span class="sub" id="listSub"></span></h2>
+      <h2>What turns up here<button type="button" class="mv-i" data-help="list" aria-label="What does What turns up here mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="listSub"></span></h2>
       <div class="row" style="margin-bottom:8px">
-        <label class="inline"><input type="checkbox" id="speciesOnly" checked> Species only (hide genus and higher)</label>
-        <label class="inline">Found in at least <select id="minYears" style="width:auto"><option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option></select></label>
+        <label class="inline"><input type="checkbox" id="speciesOnly" checked> Species only (hide genus and higher)</label><button type="button" class="mv-i" data-help="speciesOnly" aria-label="What does Species only mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+        <label class="inline">Found in at least<button type="button" class="mv-i" data-help="minYears" aria-label="What does Found in at least mean?" aria-expanded="false" aria-controls="mv-pop">i</button> <select id="minYears" style="width:auto"><option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option></select></label>
         <input type="search" id="filter" placeholder="Filter by name" style="width:200px">
         <button type="button" id="csvBtn">Download list (CSV)</button>
       </div>
@@ -284,6 +284,7 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="/investigate/shared/boundary.js"></script>
+<script src="/investigate/shared/help.js"></script>
 <script>
 (() => {
 'use strict';
@@ -322,6 +323,31 @@ async function getJSON(url) {
 function setChip(id, cls, text) { const c = $(id); c.classList.remove('live', 'fail', 'slow'); if (cls) c.classList.add(cls); c.querySelector('.st').textContent = text; }
 
 /* ---------- state, map ---------- */
+
+/* ---------- help popups ---------- */
+MVHelp.init({
+  date: '<b>Visit date.</b> The day you plan to go, or a past day you want to look back on. The tool looks at the same weeks of the year in earlier years, and at the weather before this date.',
+  radius: '<b>Look within.</b> How far around the spot to count records: 500 m for one trail or stand, 1–2 km for a park, 5 km for an area. Bigger finds more but mixes habitats.<span class="eg">Choose <b>inside a site boundary</b> to use the exact shape of a survey area from a KML, KMZ or GeoJSON file instead of a circle.</span>',
+  boundary: '<b>Boundary file.</b> A KML or KMZ file (Google Earth, Google My Maps, most GIS software) or a GeoJSON file with at least one polygon. Only records whose point falls inside count; cut-out holes are excluded. Read in your browser, not uploaded.<span class="eg">Records with obscured locations are left out, because iNaturalist moves them up to about 20 km.</span>',
+  edge: '<b>Records near the edge.</b> Every record has a stated accuracy, a circle around its point. <b>Count if the point is inside</b> keeps every record whose point is in the boundary. <b>Leave it out</b> also drops records whose circle reaches past the edge, a stricter rule for when the edge matters.',
+  win: '<b>Around the date.</b> Which part of each earlier year to look at. ± 2 weeks around Sep 25 means Sep 11 to Oct 9, in every year. A wider window finds more but blurs early and late fruiters together.',
+  years: '<b>Years to look back.</b> How many earlier years to check, this year included. More years make “found in 6 of 10” more trustworthy, as long as people were recording there.',
+  who: '<b>Whose finds.</b> <b>Everyone’s</b>: what anyone on iNaturalist has recorded here. <b>One person’s</b>: only one user’s records, e.g. to see what you have found here before.',
+  rg: '<b>Research grade only.</b> Only records whose identification has been agreed by the community. Safer names, but fewer records, and hard groups (many LBMs, crusts) mostly drop out.',
+  conditions: '<b>Conditions.</b> Rain and temperature before the visit date at the spot, compared with normal for those days. For a date in the next two weeks the last days are forecast; for a past date it’s what actually fell.',
+  rain14: '<b>Rain in the 14 days before</b> the visit date, not counting the day itself, in millimetres. 25 mm is about an inch. Many fungi fruit a few days to two weeks after a good soaking.',
+  pct: '<b>Rain vs normal.</b> The 14-day rain as a percentage of the average for the same 14 days in the previous 10 years at this spot. 100% is normal. 125% or more: wetter than normal; 75–125%: about normal; 40–75%: drier; under 40%: much drier.',
+  rain30: '<b>Rain in the 30 days before</b> the visit date, for the longer picture: a wet month can carry a dry fortnight.',
+  since5: '<b>Days since a day with 5 mm or more.</b> How long since the last real rain (about 0.2 inch in a day). A short count after a dry spell is often when things start popping.',
+  temp: '<b>Mean high / low</b>: the average daily maximum and minimum temperature over the 7 days before the visit date, in °C.',
+  effort: '<b>How well this spot has been looked at.</b> One bar per year: how many fungi records people made here in the window. Years with no records weren’t “looked at”, so a species missing then tells you nothing. Hover or tap a bar for the numbers.',
+  list: '<b>What turns up here.</b> Everything recorded here in the window across the years, most consistent first. Click a name to open those records on iNaturalist.',
+  speciesOnly: 'Hide records identified only to genus or higher, e.g. <i>Mycena</i> sp.; untick to see them.',
+  minYears: 'Only list taxa found in at least this many separate years. 2 or more removes one-off finds and gives a list of what is reliably there.',
+  yearsFound: '<b>Years found.</b> “6 / 10” means the species was recorded in 6 of the 10 years when anyone recorded any fungi here in this window. Years with no records at all aren’t counted against it.<span class="eg"><b>Regular</b> (green): found in half or more of those years, and in at least 3. <b>Occasional</b>: a quarter or more, and at least 2.</span>',
+  dots: '<b>Year by year</b>, oldest on the left. Solid green: found that year. Grey with an outline: people recorded fungi here that year, but not this. Faint outline: no fungi records here at all that year.',
+  records: 'How many records of this taxon across all the years, in the window. One fruiting photographed by several people counts several times.',
+});
 const S = { spot: null, run: 0, years: [], species: new Map(), settings: {}, boundary: null };
 let map, marker, circle, bLayer;
 const useB = () => $('#radius').value === 'boundary';
@@ -503,7 +529,7 @@ function renderAll() {
   $('#listSub').textContent = `${rows.length} of ${A.taxa.length} taxa shown`;
   const lookedSet = new Set(A.looked.map(w => w.year));
   const exploreBase = `https://www.inaturalist.org/observations?${st.boundary ? MVBoundary.bboxParams(st.boundary) : `lat=${st.lat.toFixed(5)}&lng=${st.lon.toFixed(5)}&radius=${st.radius}`}${st.who === 'user' ? `&user_id=${encodeURIComponent(st.user)}` : ''}&month=${monthsFor(st)}`;
-  $('#list').innerHTML = rows.length ? `<table class="splist"><thead><tr><th></th><th>Taxon</th><th class="num">Years found</th><th>Year by year</th><th class="num">Records</th><th class="num">Last found</th></tr></thead><tbody>${rows.slice(0, 300).map(t => {
+  $('#list').innerHTML = rows.length ? `<table class="splist"><thead><tr><th></th><th>Taxon</th><th class="num">Years found${MVHelp.tip('yearsFound', 'Years found')}</th><th>Year by year${MVHelp.tip('dots', 'Year by year')}</th><th class="num">Records${MVHelp.tip('records', 'Records')}</th><th class="num">Last found</th></tr></thead><tbody>${rows.slice(0, 300).map(t => {
       const share = nLooked ? t.years.size / nLooked : 0, cls = share >= 0.5 && t.years.size >= 3 ? 'reg' : share >= 0.25 && t.years.size >= 2 ? 'occ' : '';
       return `<tr><td>${t.photo ? `<img src="${esc(t.photo)}" alt="" loading="lazy" width="40" height="40">` : ''}</td>
         <td><a href="${exploreBase}&taxon_id=${t.id}" target="_blank" rel="noopener"><i>${esc(t.name)}</i></a>${t.rankLevel > 10 ? ` <span class="muted">(${esc(t.rank)})</span>` : ''}${t.common ? `<div class="muted" style="font-size:12px">${esc(t.common)}</div>` : ''}</td>
@@ -528,7 +554,7 @@ function renderWx() {
   const pc = w.pct14, verdict = pc == null ? '' : pc >= 125 ? 'wetter than normal' : pc >= 75 ? 'about normal' : pc >= 40 ? 'drier than normal' : 'much drier than normal';
   const fc = w.forecastDays ? ` (${w.forecastDays} of the 14 days are forecast)` : '';
   const maxP = Math.max(5, ...(w.days || []).map(d => d.p || 0));
-  $('#wx').innerHTML = `<div class="tiles">${tile(w.rain14 != null ? fmt(w.rain14) + ' mm' : '—', `rain in the 14 days before${fc}`)}${tile(pc != null ? fmt(pc) + '%' : '—', `of normal · ${verdict || '—'}`, pc == null ? '' : pc >= 75 ? 'ok' : 'warn')}${tile(w.rain30 != null ? fmt(w.rain30) + ' mm' : '—', 'rain in the 30 days before')}${tile(w.since5mm != null ? w.since5mm + ' d' : '>30 d', 'since a day with 5 mm or more')}${tile(w.tmax7 != null ? `${fmt(w.tmax7)}° / ${fmt(w.tmin7)}°C` : '—', 'mean high / low, week before')}</div>
+  $('#wx').innerHTML = `<div class="tiles">${tile(w.rain14 != null ? fmt(w.rain14) + ' mm' : '—', `rain in the 14 days before${fc}${MVHelp.tip('rain14', 'rain in the 14 days before')}`)}${tile(pc != null ? fmt(pc) + '%' : '—', `of normal: ${verdict || '—'}${MVHelp.tip('pct', 'of normal')}`, pc == null ? '' : pc >= 75 ? 'ok' : 'warn')}${tile(w.rain30 != null ? fmt(w.rain30) + ' mm' : '—', `rain in the 30 days before${MVHelp.tip('rain30', 'rain in the 30 days before')}`)}${tile(w.since5mm != null ? w.since5mm + ' d' : '>30 d', `days since a day with 5 mm or more${MVHelp.tip('since5', 'days since 5 mm')}`)}${tile(w.tmax7 != null ? `${fmt(w.tmax7)}° / ${fmt(w.tmin7)}°C` : '—', `mean high / low, week before${MVHelp.tip('temp', 'mean high and low')}`)}</div>
     ${w.days && w.days.length ? `<div class="rainbars" aria-label="Daily rain, 14 days before the visit">${w.days.map(d => `<div class="rb${d.fc ? ' fc' : ''}${d.t === st.date ? ' visit' : ''}" title="${shortDate(d.t)}: ${d.p != null ? fmt(d.p, 1) + ' mm' : 'no data'}${d.fc ? ' (forecast)' : ''}"><span style="height:${d.p ? Math.max(2, 50 * d.p / maxP) : 0}px"></span><em>${d.t.slice(8)}</em></div>`).join('')}</div><p class="note">Daily rain in the two weeks before ${shortDate(st.date)}${w.forecastDays ? '; paler bars are forecast, which gets less reliable beyond a few days' : ''}. ${normal}.</p>` : `<p class="note">${normal}.</p>`}
     <p class="note">A rule of thumb, not a prediction: many fungi fruit a few days to two weeks after a good soaking, but temperature, the season and the species matter too. The Ecology Profile shows the rain before past finds of a particular species.</p>`;
 }

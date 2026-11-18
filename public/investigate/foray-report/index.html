@@ -674,7 +674,7 @@ else if (last) { $('#users').value = last.users || ''; if (last.src === 'project
   for (const k of ['period', 'year', 'season', 'month']) if (last[k]) $('#' + k).value = last[k]; $('#period').dispatchEvent(new Event('change'));
   if (last.grp === 'place') document.querySelector('input[name=grp][value=place]').checked = true; if (last.km) { $('#km').value = last.km; $('#kmv').textContent = last.km + ' km'; } }
 (async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
-(async () => { try { await getJSON(`${METEO}?latitude=41.1&longitude=-81.6&start_date=2024-01-01&end_date=2024-01-02&daily=precipitation_sum`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } })();
+(async () => { try { await getJSON(`${METEO}?latitude=41.1&longitude=-81.6&start_date=2024-01-01&end_date=2024-01-02&daily=precipitation_sum`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); } })();
 })();
 </script>
 </body>

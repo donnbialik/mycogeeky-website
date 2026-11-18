@@ -160,6 +160,8 @@ table.splist img{border-radius:5px;display:block;object-fit:cover}
 .yf.reg{background:var(--good);color:var(--accent-ink)}
 .yf.occ{background:color-mix(in oklab,var(--good) 22%,var(--surface));color:var(--good)}
 .dots{display:inline-flex;gap:2px;flex-wrap:nowrap}
+#list{overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media (max-width:560px){.dots{gap:1px}.dots i{width:6px;height:6px}table.splist td,table.splist th{padding-left:4px;padding-right:4px}}
 .dots i,.dk{display:inline-block;width:8px;height:8px;border-radius:2px}
 .dots i.on,.dk.on{background:var(--good)}
 .dots i.off,.dk.off{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line)}
@@ -418,7 +420,7 @@ async function build() {
   $('#statusTxt').innerHTML = `Looking up ${S.years.length} years of records within ${fmt(st.radius, 1)} km, ${shortDate(addDays(date, -st.win))}–${shortDate(addDays(date, st.win))} each year (about ${Math.round(S.years.length * (st.who === 'user' ? 1.1 : 2.2))} s)…`;
   $('#wx').innerHTML = '<p class="empty">Loading weather…</p>'; $('#list').innerHTML = ''; $('#effort').innerHTML = '';
   weatherFor(st).then(w => { if (run === S.run) { S.wx = w; renderWx(); setChip('#src-wx', 'live', 'live'); } })
-    .catch(e => { if (run === S.run) { $('#wx').innerHTML = `<p class="empty">Weather unavailable (${esc(e.message)}).</p>`; setChip('#src-wx', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } });
+    .catch(e => { if (run === S.run) { $('#wx').innerHTML = `<p class="empty">Weather unavailable (${esc(e.message)}).</p>`; setChip('#src-wx', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); } });
   let done = 0, failed = 0;
   for (const w of S.years) { if (run !== S.run) return;
     try { await loadYear(w); } catch (e) { w.failed = true; failed++; }
@@ -505,7 +507,7 @@ if (params.get('lat') && params.get('lng')) { setSpot(+params.get('lat'), +param
 else if (last && last.spot) { setSpot(last.spot.lat, last.spot.lon, last.spot.label, 13); $('#radius').value = String(last.radius || 1); $('#win').value = String(last.win || 14); $('#years').value = String(last.years || 15);
   if (last.who === 'user') { $('#who').value = 'user'; $('#user').value = last.user || ''; $('#userWrap').classList.remove('hidden'); } }
 (async () => { try { await getJSON(`${INAT}/v1/observations?per_page=0&taxon_id=${FUNGI}`); setChip('#src-inat', 'live', 'live'); } catch (e) { setChip('#src-inat', 'fail', 'not reachable'); } })();
-(async () => { try { await getJSON(`${METEO_FORECAST}?latitude=41.1&longitude=-81.6&daily=precipitation_sum&forecast_days=1`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'daily limit reached' : 'not reachable'); } })();
+(async () => { try { await getJSON(`${METEO_FORECAST}?latitude=41.1&longitude=-81.6&daily=precipitation_sum&forecast_days=1`); setChip('#src-wx', 'live', 'live'); } catch (e) { setChip('#src-wx', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); } })();
 })();
 </script>
 </body>

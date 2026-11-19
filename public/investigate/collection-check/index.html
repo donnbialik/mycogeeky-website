@@ -98,7 +98,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <li><span class="stepn">1</span><span><strong>Whose records</strong>: an iNaturalist username, and optionally a date</span></li>
     <li><span class="stepn">2</span><span><strong>Check the fields</strong>: confirm which observation fields mean voucher, plate, sequence or GenBank</span></li>
     <li><span class="stepn">3</span><span><strong>See the gaps</strong>: each check lists the records it caught, with links</span></li>
-    <li><span class="stepn">4</span><span><strong>Export</strong>: download the list as a spreadsheet to work through</span></li>
+    <li><span class="stepn">4</span><span><strong>Keep or discard</strong>: see which species are rarely documented in your state, and export either list</span></li>
   </ol>
 </nav>
 <main>
@@ -131,6 +131,31 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   <div class="checks" id="checks"></div>
   <div class="row" style="margin-top:14px"><button class="btn sec" type="button" id="csvBtn">Download the flagged records (CSV)</button><a href="/investigate/field/tracking/">Why each link in the chain matters →</a></div>
 </section>
+
+<section id="s-rare" class="hidden">
+  <h2><span class="n">4</span>Keep or discard? Rarely documented species</h2>
+  <p class="muted small" style="margin:0 0 10px">For each species in these records, how often has <em>anyone else</em> recorded it in a region, and how many of those records carry an ITS sequence? Provisionals are always kept. This measures how well documented a species is on iNaturalist, not whether it is rare or threatened; <a href="#rare-why">why</a>.</p>
+  <form class="row" id="rareForm">
+    <label class="f">Region (your state)<input type="text" id="place1" placeholder="e.g. Ohio" autocomplete="off" list="placeList1" required></label>
+    <label class="f">Second region for comparison (optional): an ecoregion, county or park<input type="text" id="place2" placeholder="e.g. Northern Allegheny Plateau" autocomplete="off" list="placeList2"></label>
+    <datalist id="placeList1"></datalist><datalist id="placeList2"></datalist>
+  </form>
+  <div class="row" style="margin-top:10px">
+    <label class="f">Rarely documented means<select id="cutMode"><option value="pct">in the bottom % of species</option><option value="n">at most this many records</option></select></label>
+    <label class="f">&nbsp;<input type="text" id="cutVal" value="25" style="width:70px" inputmode="numeric"></label>
+    <label class="f">Rarely sequenced means fewer than<input type="text" id="seqVal" value="5" style="width:70px" inputmode="numeric"></label>
+    <label class="f">Look at<select id="scope"><option value="v">my vouchered records</option><option value="all">all my records</option></select></label>
+    <button class="btn" type="button" id="rareBtn">Rank my species</button>
+  </div>
+  <div id="rareProg" class="row hidden" style="margin-top:10px"><progress id="rbar" max="1" value="0"></progress><span class="small muted" id="rtext"></span></div>
+  <div id="rareMsg"></div>
+  <div id="rareOut"></div>
+  <details class="note" id="rare-why" style="margin-top:12px"><summary><b>How “rarely documented” is worked out, and its limits</b></summary>
+    <p>The tool downloads how many verifiable iNaturalist records every fungus species has in the region, <b>leaving out your own records</b>, and ranks each of your species against all the others. “Bottom 25%” follows a common definition of rarity in ecology (the quarter of species with the fewest records); some researchers prefer 10%. Any cutoff is a choice, so the tool always shows the actual numbers.</p>
+    <p>In most regions a large share of fungus species have only one or two records, so a percentage cutoff often works out to “recorded once or twice here”. The tool tells you what your cutoff became.</p>
+    <p>Few records can mean a species is genuinely rare, or only that few people have looked, or that it’s small, short-lived or hard to identify. Records can also be misidentified. Treat a flag as a reason to keep a specimen, not as a statement about conservation status. See <a href="/investigate/field/drying/#fungarium">A fungarium at home</a>.</p>
+  </details>
+</section>
 <p class="muted small">Part of the <a href="/investigate/field/">Field Research Toolkit</a>. Data from the public <a href="https://api.inaturalist.org/v1/docs/">iNaturalist API</a>, read in your browser.</p>
 </main>
 <script type="application/json" id="mv-tour">{"key":"collection-check","steps":[
@@ -138,6 +163,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
  {"sel":"#s-who","title":"Whose records","body":"<p>Enter an iNaturalist username. A date limits it to recent seasons. It reads up to the most recent 5,000 fungi records.</p>"},
  {"sel":"#s-who","title":"What it looks at","body":"<p>The observation fields on each record: voucher numbers, sequencing plates, the “DNA Barcode ITS” field, GenBank accessions and provisional names.</p>"},
  {"sel":"#s-who","title":"What it checks","body":"<p>For example: a provisional name with no specimen behind it, a sequence with no voucher, a voucher never sequenced, a plate with no sequence added, or a sequence not yet in GenBank.</p>"},
+ {"sel":"#s-who","title":"Keep or discard?","body":"<p>After the check, step 4 ranks each of your species by how often <em>others</em> have recorded and sequenced it in your state, and optionally a second region such as an ecoregion. Provisionals and rarely documented species are flagged to keep.</p>"},
  {"sel":"#s-who","title":"What it can’t know","body":"<p>It only knows what the records say. If a specimen sits in your herbarium but the observation doesn’t mention it, the tool will count it as missing, which is itself worth fixing.</p>"}
 ]}</script>
 <script src="/investigate/guide-tour.js" defer></script>
@@ -161,7 +187,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   var NEG = /^(no\b|n$|false$|0$|none$|-$|n\/?a$|not selected$|not collected$)/i;
   function roleOf(n) { for (var i = 0; i < ROLES.length; i++) if (ROLES[i][2](n)) return ROLES[i][0]; return null; }
 
-  var S = { obs: [], user: '', stop: false, off: new Set(store.get('collectionCheck.off') || []), extra: store.get('collectionCheck.extra') || {} };
+  var S = window.MVCheck = { obs: [], user: '', stop: false, off: new Set(store.get('collectionCheck.off') || []), extra: store.get('collectionCheck.extra') || {} };
   var CHECKS = [
     { id: 'prov-nov', sev: 'high', title: 'Provisional name, no voucher', why: 'A provisional species with no kept specimen can’t be examined, re-sequenced or described.', test: function (r) { return r.prov && !r.vouchered; } },
     { id: 'seq-nov', sev: 'high', title: 'Sequence, but no voucher recorded', why: 'If the name on the sequence is ever questioned, there’s no specimen on record to check it against.', test: function (r) { return r.its && !r.vouchered; } },
@@ -197,7 +223,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   }
   function slim(o) {
     var f = {}; (o.ofvs || []).forEach(function (v) { if (v && v.name) f[v.name] = v.value; });
-    return { id: o.id, name: o.taxon ? (o.taxon.name || '') : '', common: o.taxon && o.taxon.preferred_common_name || '', rank: o.taxon ? o.taxon.rank_level : null, date: o.observed_on || '', place: o.place_guess || '', qg: o.quality_grade || '', f: f };
+    return { id: o.id, tid: o.taxon ? o.taxon.id : null, anc: o.taxon && o.taxon.ancestor_ids || [], name: o.taxon ? (o.taxon.name || '') : '', common: o.taxon && o.taxon.preferred_common_name || '', rank: o.taxon ? o.taxon.rank_level : null, date: o.observed_on || '', place: o.place_guess || '', qg: o.quality_grade || '', f: f };
   }
   function fieldsPresent() {
     var m = new Map();
@@ -236,6 +262,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
         + (hits.length ? '<div class="chkbody"><div class="scroll"><table><thead><tr><th>Observation</th><th>Taxon</th><th>Observed</th><th>Place</th><th>What the record says</th></tr></thead><tbody>' + rows + '</tbody></table></div>' + (hits.length > 500 ? '<p class="small muted">Showing the first 500; the CSV has all ' + hits.length + '.</p>' : '') + '</div>' : '<div class="chkbody small muted">None found.</div>') + '</details>';
     }).join('');
     $('#s-fields').classList.remove('hidden'); $('#s-res').classList.remove('hidden');
+    document.dispatchEvent(new CustomEvent('mvcheck:render'));
   }
   function csv() {
     var lines = [['check', 'observation_id', 'url', 'taxon', 'observed_on', 'place', 'record_says']];
@@ -259,6 +286,114 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   $('#addField').addEventListener('click', function () { var n = $('#extraName').value.trim(); if (!n) return; S.extra[n] = $('#extraRole').value; store.set('collectionCheck.extra', S.extra); $('#extraName').value = ''; if (S.obs.length) render(); });
   $('#csvBtn').addEventListener('click', csv);
   var u0 = new URLSearchParams(location.search).get('user') || store.get('collectionCheck.user'); if (u0) $('#user').value = u0;
+})();
+</script>
+<script>
+/* Section 4: rank the user's species by how often others have recorded (and sequenced) them in a region. */
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var API = 'https://api.inaturalist.org/v1';
+  var store = { get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } } };
+  var places = {}, cache = {}, busy = false, last = null;
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function msg(h, cls) { $('#rareMsg').innerHTML = h ? '<div class="' + (cls || 'note') + '">' + h + '</div>' : ''; }
+  document.addEventListener('mvcheck:render', function () { $('#s-rare').classList.remove('hidden'); if (last) draw(); });
+  ['place1', 'place2'].forEach(function (id, k) {
+    var el = $('#' + id), saved = store.get('collectionCheck.' + id); if (saved && saved.name) { el.value = saved.name; places[saved.name] = saved.id; }
+    var t; el.addEventListener('input', function () { clearTimeout(t); var q = el.value.trim(); if (q.length < 3 || places[q]) return; t = setTimeout(function () {
+      fetch(API + '/places/autocomplete?per_page=8&q=' + encodeURIComponent(q)).then(function (r) { return r.json(); }).then(function (j) {
+        var dl = $('#placeList' + (k + 1)); dl.innerHTML = ''; (j.results || []).forEach(function (p) { places[p.display_name] = p.id; var o = document.createElement('option'); o.value = p.display_name; dl.appendChild(o); }); }).catch(function () {});
+    }, 300); });
+  });
+  async function resolvePlace(name) {
+    if (!name) return null; if (places[name]) return { id: places[name], name: name };
+    var j = await (await fetch(API + '/places/autocomplete?per_page=1&q=' + encodeURIComponent(name))).json();
+    var p = (j.results || [])[0]; if (!p) throw new Error('No iNaturalist place called “' + name + '”'); places[p.display_name] = p.id; return { id: p.id, name: p.display_name };
+  }
+  function speciesOf(id, anc, rankName) { return rankName === 'species' || !anc || anc.length < 2 ? id : anc[anc.length - 2]; }
+  // All species counts for a place, excluding one user; optional observation-field filter. One request per 500 species, one a second.
+  async function counts(placeId, user, field, label) {
+    var key = [placeId, user, field].join('|'); if (cache[key]) return cache[key];
+    var m = new Map(), page = 1, total = null;
+    while (true) {
+      var url = API + '/observations/species_counts?taxon_id=47170&verifiable=true&per_page=500&page=' + page + '&place_id=' + placeId + '&not_user_id=' + encodeURIComponent(user) + (field ? '&field:' + encodeURIComponent(field) : '');
+      var r = await fetch(url); if (r.status === 429) { await sleep(5000); continue; } if (!r.ok) throw new Error('iNaturalist returned ' + r.status);
+      var j = await r.json(); if (total == null) total = j.total_results || 0;
+      (j.results || []).forEach(function (x) { var t = x.taxon || {}; var sp = speciesOf(t.id, t.ancestor_ids, t.rank); m.set(sp, (m.get(sp) || 0) + x.count); });
+      $('#rtext').textContent = label + ': ' + Math.min(page * 500, total).toLocaleString() + ' of ' + total.toLocaleString() + ' species';
+      if (!j.results || j.results.length < 500) break; page++; await sleep(1000);
+    }
+    cache[key] = m; return m;
+  }
+  function cutoff(m) {
+    var mode = $('#cutMode').value, v = parseFloat($('#cutVal').value);
+    if (mode === 'n') return { t: isFinite(v) ? Math.floor(v) : 1, desc: 'at most ' + (isFinite(v) ? Math.floor(v) : 1) + ' record' + (v === 1 ? '' : 's') };
+    var arr = Array.from(m.values()).sort(function (a, b) { return a - b; }); var pct = isFinite(v) ? Math.min(100, Math.max(1, v)) : 25;
+    var t = arr.length ? arr[Math.max(0, Math.ceil(arr.length * pct / 100) - 1)] : 0;
+    var share = arr.length ? arr.filter(function (x) { return x <= t; }).length / arr.length : 0;
+    return { t: t, desc: 'the bottom ' + pct + '%, which here means ' + t + ' record' + (t === 1 ? '' : 's') + ' or fewer by others (' + Math.round(share * 100) + '% of species, because of ties)' };
+  }
+  async function run() {
+    if (busy) return; var S = window.MVCheck; if (!S || !S.obs.length) { msg('Check someone’s records first (step 1).', 'err'); return; }
+    busy = true; $('#rareBtn').disabled = true; $('#rareProg').classList.remove('hidden'); msg('');
+    try {
+      var p1 = await resolvePlace($('#place1').value.trim()), p2 = await resolvePlace($('#place2').value.trim());
+      store.set('collectionCheck.place1', p1); store.set('collectionCheck.place2', p2);
+      var res = [];
+      for (var p of [p1, p2]) { if (!p) continue;
+        var all = await counts(p.id, S.user, '', p.name + ' · all records'); await sleep(1000);
+        var seq = await counts(p.id, S.user, 'DNA Barcode ITS', p.name + ' · sequenced records'); await sleep(500);
+        res.push({ place: p, all: all, seq: seq }); }
+      last = res; draw();
+    } catch (e) { msg('Couldn’t finish: ' + esc(e.message) + '.', 'err'); }
+    busy = false; $('#rareBtn').disabled = false; $('#rareProg').classList.add('hidden');
+  }
+  function draw() {
+    var S = window.MVCheck, res = last, seqMin = parseFloat($('#seqVal').value); if (!isFinite(seqMin)) seqMin = 5;
+    var scope = $('#scope').value, recs = S.obs.filter(function (r) { return scope === 'all' || r.vouchered; });
+    var cuts = res.map(function (x) { return cutoff(x.all); });
+    var sp = new Map();
+    recs.forEach(function (r) {
+      var prov = r.prov || /\bsp\. ['‘’]/.test(r.name); var key = (r.rank != null && r.rank <= 10 && r.tid) ? speciesOf(r.tid, r.anc, r.rank === 10 ? 'species' : '') : null;
+      var k = prov ? 'p:' + (r.prov || r.name) : key ? 's:' + key : 'x:' + r.name;
+      if (!sp.has(k)) sp.set(k, { name: r.prov || r.name, common: r.common, sid: key, prov: !!prov, coarse: !key && !prov, ids: [] });
+      sp.get(k).ids.push(r.id);
+    });
+    var rows = Array.from(sp.values()).map(function (o) {
+      o.per = res.map(function (x, i) { var n = o.sid ? (x.all.get(o.sid) || 0) : null, q = o.sid ? (x.seq.get(o.sid) || 0) : null; return { n: n, q: q, rare: n != null && n <= cuts[i].t, rseq: q != null && q < seqMin }; });
+      if (o.prov) { o.v = 'Keep: provisional'; o.c = 'k'; }
+      else if (o.coarse) { o.v = 'Identify to species first'; o.c = 'x'; }
+      // The first region decides; a second region adds context (it would otherwise only ever add keeps).
+      else if (o.per[0].rare) { o.v = 'Keep: rarely documented' + (o.per[1] ? (o.per[1].rare ? ' in both regions' : ' (not in ' + res[1].place.name + ')') : ''); o.c = 'k'; o.why = 'doc'; }
+      else if (o.per[0].rseq) { o.v = 'Keep: rarely sequenced'; o.c = 'k'; o.why = 'seq'; }
+      else { o.v = 'Well documented: candidate to discard once identified' + (o.per[1] && o.per[1].rare ? ' (but rarely documented in ' + res[1].place.name + ')' : ''); o.c = 'd'; }
+      if (o.prov) o.why = 'prov';
+      return o;
+    });
+    var order = { k: 0, x: 1, d: 2 }; rows.sort(function (a, b) { return order[a.c] - order[b.c] || (a.per[0] && b.per[0] ? (a.per[0].n || 0) - (b.per[0].n || 0) : 0) || a.name.localeCompare(b.name); });
+    var warn = res.map(function (x) { return x.all.size < 500 ? '<div class="note"><b>' + esc(x.place.name) + '</b> has only ' + x.all.size + ' fungus species recorded by others, too few for a reliable ranking. Treat its column with caution.</div>' : ''; }).join('');
+    var head = '<tr><th>Species</th><th>Your records</th>' + res.map(function (x) { return '<th>' + esc(x.place.name) + '<br><span class="muted">records · sequenced, by others</span></th>'; }).join('') + '<th>Suggestion</th></tr>';
+    var body = rows.map(function (o) {
+      return '<tr><td><i>' + esc(o.name) + '</i>' + (o.common ? ' <span class="muted">' + esc(o.common) + '</span>' : '') + '</td><td>' + o.ids.slice(0, 4).map(function (id) { return '<a href="https://www.inaturalist.org/observations/' + id + '">' + id + '</a>'; }).join(' ') + (o.ids.length > 4 ? ' +' + (o.ids.length - 4) : '') + '</td>'
+        + o.per.map(function (p) { return '<td>' + (p.n == null ? '—' : '<b' + (p.rare ? ' style="color:var(--wb-bad)"' : '') + '>' + p.n + '</b> · <span' + (p.rseq ? ' style="color:var(--wb-warn)"' : '') + '>' + p.q + '</span>') + '</td>'; }).join('')
+        + '<td>' + esc(o.v) + '</td></tr>';
+    }).join('');
+    var nk = rows.filter(function (o) { return o.c === 'k'; }).length, nd = rows.filter(function (o) { return o.c === 'd'; }).length, nx = rows.filter(function (o) { return o.c === 'x'; }).length;
+    $('#rareOut').innerHTML = warn + '<p class="small">Rarely documented: ' + res.map(function (x, i) { return '<b>' + esc(x.place.name) + '</b>: ' + esc(cuts[i].desc); }).join('; ') + '. Rarely sequenced: fewer than ' + seqMin + ' sequenced records by others.</p>'
+      + '<div class="stats"><span><b>' + nk + '</b>to keep (' + rows.filter(function (o) { return o.why === 'prov'; }).length + ' provisional, ' + rows.filter(function (o) { return o.why === 'doc'; }).length + ' rarely documented, ' + rows.filter(function (o) { return o.why === 'seq'; }).length + ' rarely sequenced)</span><span><b>' + nd + '</b>well documented</span><span><b>' + nx + '</b>to identify first</span></div>'
+      + '<div class="scroll"><table><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>'
+      + '<div class="row" style="margin-top:10px"><button class="btn sec" type="button" id="rareCsv">Download this list (CSV)</button></div>';
+    $('#rareCsv').addEventListener('click', function () {
+      var L = [['species', 'your_observations'].concat(res.flatMap(function (x) { return [x.place.name + ' records by others', x.place.name + ' sequenced by others']; })).concat(['suggestion'])];
+      rows.forEach(function (o) { L.push([o.name, o.ids.join(' ')].concat(o.per.flatMap(function (p) { return [p.n, p.q]; })).concat([o.v])); });
+      var text = L.map(function (l) { return l.map(function (x) { x = String(x == null ? '' : x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'rarely-documented-' + (window.MVCheck.user || 'records') + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    });
+  }
+  $('#rareBtn').addEventListener('click', run);
+  ['cutMode', 'cutVal', 'seqVal', 'scope'].forEach(function (id) { $('#' + id).addEventListener('change', function () { if (id === 'cutMode') $('#cutVal').value = $('#cutMode').value === 'pct' ? '25' : '1'; if (last) draw(); }); });
 })();
 </script>
 <script>

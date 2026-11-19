@@ -197,6 +197,7 @@ table.ph tr.eff td{font-weight:600;border-bottom:2px solid var(--line)}
 details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:pointer;font-weight:600;color:var(--accent)} details.recon ul{margin:6px 0 0;padding-left:18px}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 18px;font-size:12.5px}.vgrid b{display:block;font-size:12px;margin-bottom:2px}.vgrid label{margin:2px 0}
 #vTable td.vn{font-family:var(--f-mono);font-size:11.5px;white-space:nowrap} #vTable td.dates{font-family:var(--f-mono);font-size:11.5px;white-space:nowrap}
+.tag.new{background:color-mix(in oklab,var(--good) 20%,var(--surface));color:var(--good)}
 .dl{display:flex;flex-wrap:wrap;gap:8px 4px;align-items:center} .dl button{margin-right:2px} .dl .mv-i{margin-right:12px}
 #map{height:420px}
 @media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
@@ -306,6 +307,18 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
     </section>
 
     <section class="card" style="margin-top:14px">
+      <h2>Compared with a baseline list<button type="button" class="mv-i" data-help="baseline" aria-label="What does Compared with a baseline list mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="blSub"></span></h2>
+      <div class="row"><input type="file" id="blFile" accept=".csv,.tsv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+        <span class="muted" id="blTxt">A past species list for this site (CSV, Excel or text), e.g. an earlier inventory or the NPSpecies list. Read in your browser, not uploaded.</span>
+        <button type="button" class="ghost hidden" id="blClear">Remove</button></div>
+      <div class="row hidden" id="blCols" style="margin-top:6px"><label class="inline">Names from <select id="blName" style="width:auto"></select></label><button type="button" class="mv-i" data-help="bl_cols" aria-label="What does Names from mean?" aria-expanded="false" aria-controls="mv-pop">i</button></div>
+      <div class="tiles" id="blTiles" style="margin-top:10px"></div>
+      <p class="note" id="blNote"></p>
+      <details class="recon hidden" id="blMissBox"><summary id="blMissSum">Baseline species not found in this survey</summary><div class="tablewrap" style="max-height:420px;margin-top:6px"><table id="blMissing"></table></div></details>
+      <div class="row hidden" id="blDl" style="margin-top:8px"><button type="button" id="dlNew">New to the site (CSV)</button><button type="button" id="dlMiss">Baseline not re-found (CSV)</button><button type="button" id="dlRes">Name matches (CSV)</button><button type="button" class="mv-i" data-help="dl_bl" aria-label="What does baseline downloads mean?" aria-expanded="false" aria-controls="mv-pop">i</button></div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
       <h2>Vouchers and specimens<button type="button" class="mv-i" data-help="vouchers" aria-label="What does Vouchers and specimens mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="vSub"></span></h2>
       <div class="tiles" id="vTiles"></div>
       <div class="vfields" id="vFields"></div>
@@ -322,6 +335,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
         <input type="search" id="ckFilter" placeholder="Filter by name or group" style="width:240px">
         <label class="inline">Sort <select id="ckSort" style="width:auto"><option value="tax" selected>by group (taxonomic)</option><option value="days">by survey days found</option><option value="records">by records</option><option value="name">by name</option><option value="first">by first found</option></select></label>
         <label class="inline"><input type="checkbox" id="ckOther"> Also list records not identified to species</label><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+        <label class="inline hidden" id="ckNewWrap"><input type="checkbox" id="ckNew"> Only species new to the site</label><span class="hidden" id="ckNewTip"><button type="button" class="mv-i" data-help="ck_new" aria-label="What does new to the site mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span><span hidden><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
       </div>
       <div class="tablewrap" style="max-height:640px"><table class="ck" id="ck"></table></div>
       <p class="note">Sort: choose above. <b>i</b>: what a column means. Click a name to open its records on iNaturalist. Group headings show the number of species in that group.</p>
@@ -421,6 +435,17 @@ MVHelp.init({
   v_nums: 'Every voucher or catalogue number on the record, with the field it came from, e.g. “OMDL Number: OMDL02426”.',
   c_vouch: 'Records of this species with a voucher specimen.',
   dl_spec: '<b>Specimens CSV</b>: one row per vouchered record with its classification, voucher numbers, repository, GenBank accession, sequencing plate, collector, coordinates and iNaturalist link. The columns cover what NPS asks for in the annual report: classification, number of specimens, where collected, and where kept.',
+  baseline: '<b>Compared with a baseline list.</b> Load a past species list for the site, e.g. an earlier inventory, a park checklist or the NPSpecies list, to see which species this survey found again, which are <b>new to the site</b>, and which listed species weren’t found. Names are matched exactly, then allowing a different Latin ending (<i>violacea</i> / <i>violaceum</i>), then through synonyms on iNaturalist, so an older name on the list still matches the current one. The file stays in your browser; it is remembered until you remove it.',
+  bl_cols: 'Which column holds the names. If the list has separate Genus and Species columns, they are joined. Authors, “sp.”, “cf.”, “gp.” and varieties are ignored; names with no species epithet are not used. If the list has a Kingdom column, only fungi (and slime molds) are used; a Group, Class or Order column is used to recognise lichens and slime molds so the options above apply to the list too.',
+  bl_base: 'Distinct species on the list after the “What counts” options (e.g. without lichens).',
+  bl_refound: 'Listed species that this survey recorded, by name, Latin ending or synonym.',
+  bl_new: '<b>New to the site</b>: species this survey recorded that aren’t on the list under any name the tool could match. Check these by eye before reporting them: a species listed under a name iNaturalist doesn’t record as a synonym will look new.',
+  bl_poss: '<b>Possible matches to check</b>: species whose epithet and family match a name on the list that has a different genus, e.g. <i>Exsudoporus frostii</i> and “<i>Boletellus frostii</i>”. Usually the list has an old or misfiled genus, but sometimes they are different species. Type “possible” in the checklist filter to see them.',
+  bl_prov: 'Provisional names can’t be compared with a list of formal names, so they are counted separately.',
+  bl_total: 'Species known from the site: everything on the list plus the species new in this survey.',
+  ck_new: 'Show only the species this survey recorded that aren’t on the baseline list.',
+  c_base: '<b>listed</b>: on the baseline list under the same name. <b>as …</b>: on the list under that spelling or older name. <b>possible</b>: same epithet and family as a list name with another genus; check it. <b>new</b>: not on the list.',
+  dl_bl: '<b>New to the site</b>: the species not on the list, with records, survey days, first date and voucher counts. <b>Baseline not re-found</b>: listed species this survey didn’t record. <b>Name matches</b>: every survey species with the list name it was matched to and how, to check the matching.',
   rg: '<b>Research grade only.</b> Only records whose identification the community has agreed. Fewer, safer names; hard groups drop out.',
   summary: 'Totals for the survey with the options above. A <b>survey day</b> is a date with at least one record.',
   t_species: '<b>Species</b>: distinct species (subspecies and varieties count with their species), plus provisional names if that option is on.',
@@ -551,11 +576,141 @@ async function build() {
     await loadTaxa(S.obs, run); if (run !== S.run) return;
     for (const o of S.obs) { o.L = lineage(o.taxon); o.lichen = isLichen(o.L); o.slime = (o.taxon.ancestor_ids || []).includes(SLIME); o.year = +o.date.slice(0, 4); o.month = +o.date.slice(5, 7); }
     $('#statusTxt').textContent = `Done. ${fmt(S.obs.length)} records read.`; $('#out').classList.remove('hidden');
-    renderAll();
+    renderAll(); if (BL.entries.length) blSynonyms(run);
   } catch (e) { setChip('#src-inat', 'fail', e.status === 429 ? 'busy, try again in a minute' : 'not reachable'); $('#statusTxt').textContent = `Couldn’t finish: ${e.message}. Try again in a minute.`; }
   finally { if (run === S.run) $('#goBtn').disabled = false; }
 }
 $('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
+
+/* ---------- baseline list ---------- */
+// A past checklist for the site, matched to the survey by name: exact, spelling (Latin endings), then synonyms from iNaturalist.
+const BL = { file: null, rows: [], cols: [], choice: '', entries: [], res: store.get('survey.nameres') || {}, syn: {}, busy: false };
+async function readTable(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'xlsx' || ext === 'xls') {
+    if (!window.XLSX) await new Promise((ok, bad) => { const sc = document.createElement('script'); sc.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js'; sc.onload = ok; sc.onerror = () => bad(new Error('Couldn’t load the spreadsheet reader; save the sheet as CSV and try that.')); document.head.appendChild(sc); });
+    const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+  }
+  const text = (await file.text()).replace(/^﻿/, ''), lines = text.split(/\r?\n/).filter(l => l.trim());
+  const sep = (lines[0].match(/\t/g) || []).length ? '\t' : (lines[0].match(/,/g) || []).length ? ',' : (lines[0].match(/;/g) || []).length ? ';' : null;
+  if (!sep) return [['name'], ...lines.map(l => [l])];
+  const parse = l => { const out = []; let cur = '', q = false; for (let i = 0; i < l.length; i++) { const c = l[i]; if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === sep) { out.push(cur); cur = ''; } else cur += c; } out.push(cur); return out; };
+  return lines.map(parse);
+}
+const RANK_WORDS = /^(sp|spp|cf|aff|nr|gp|group|s\.l|s\.s|sensu|agg|complex|sect|var|f|subsp|ssp|forma|x|×)\.?$/i;
+function nameKey(str) { // 'Lactarius theiogalus gp. (Bull.) Gray' -> {key:'lactarius theiogalus', genus:'lactarius'}
+  const t = String(str || '').replace(/["“”‘’']/g, ' ').replace(/\(.*?\)/g, ' ').trim().split(/\s+/).filter(Boolean); if (!t.length) return null;
+  const g = t[0].replace(/[^A-Za-z-]/g, ''); if (!/^[A-Z][a-z-]+$/.test(g)) return null;
+  const e = t[1] && !RANK_WORDS.test(t[1]) && /^[a-z][a-z-]+\.?$/.test(t[1]) ? t[1].replace(/\.$/, '') : null;
+  return { genus: g.toLowerCase(), key: e ? `${g} ${e}`.toLowerCase() : null };
+}
+const stemOf = e => e.replace(/(ensis|ense|us|um|a|is|e|os|on|ae|ii|i)$/, '');
+const stemKey = k => { const [g, e] = k.split(' '); return e ? `${g} ${stemOf(e)}` : k; };
+function blColumns() {
+  const head = BL.rows[0].map(h => String(h).trim()), opt = [];
+  const gi = head.findIndex(h => /^genus$/i.test(h)), si = head.findIndex(h => /^(species|specific ?epithet|epithet)$/i.test(h));
+  if (gi >= 0 && si >= 0) opt.push({ v: `gs:${gi}:${si}`, label: `${head[gi]} + ${head[si]}` });
+  head.forEach((h, i) => { if (h) opt.push({ v: `c:${i}`, label: h }); });
+  const guess = opt.find(o => o.v.startsWith('gs:')) || opt.find(o => /scientific ?name|^taxon( ?name)?$|^name$|^species$|latin|binomial/i.test(o.label)) || opt[0];
+  BL.cols = opt; BL.choice = guess ? guess.v : '';
+  $('#blName').innerHTML = opt.map(o => `<option value="${esc(o.v)}"${o.v === BL.choice ? ' selected' : ''}>${esc(o.label)}</option>`).join('');
+  $('#blCols').classList.toggle('hidden', opt.length < 2);
+}
+function blEntries() { // one entry per distinct species key, with lichen and slime flags from whatever columns exist
+  const head = BL.rows[0].map(h => String(h).trim().toLowerCase()), col = n => head.indexOf(n), [kind, a, b] = BL.choice.split(':');
+  const ki = col('kingdom'), pi = col('phylum'), ci = col('class'), oi = col('order'), gri = col('group'), gei = col('genus'), fi = col('family');
+  const m = new Map(); let skipped = 0, nonFungal = 0, genusOnly = 0;
+  for (const r of BL.rows.slice(1)) {
+    const king = ki >= 0 ? String(r[ki] || '').trim() : '', phy = pi >= 0 ? String(r[pi] || '').trim() : '', grp = gri >= 0 ? String(r[gri] || '').trim() : '';
+    const slime = /myxo/i.test(phy) || /slime/i.test(grp) || (/protozoa/i.test(king) && /myxo|mycetozoa/i.test(phy));
+    if (ki >= 0 && king && !/fung/i.test(king) && !slime) { nonFungal++; continue; }
+    const raw = kind === 'gs' ? (() => { const g = String(r[+a] || '').trim(), sp = String(r[+b] || '').trim(); return sp.toLowerCase().startsWith(g.toLowerCase() + ' ') ? sp : `${g} ${sp}`; })() : String(r[+a] || '');
+    const nk = nameKey(raw); if (!nk) { skipped++; continue; } if (!nk.key) { genusOnly++; continue; }
+    const cls = ci >= 0 ? String(r[ci] || '').trim() : '', ord = oi >= 0 ? String(r[oi] || '').trim() : '', gen = gei >= 0 ? String(r[gei] || '').trim() : nk.genus;
+    const lichen = (/lichen/i.test(grp) && !/non-?lichen/i.test(grp)) || LICHEN_CLASSES.has(cls) || LICHEN_ORDERS.has(ord) || LICHEN_GENERA.has(gen.replace(/^./, c => c.toUpperCase()));
+    if (!m.has(nk.key)) m.set(nk.key, { key: nk.key, name: raw.trim().replace(/\s+/g, ' '), lichen, slime, group: grp || ord || cls || '', family: fi >= 0 ? String(r[fi] || '').trim().toLowerCase() : '', rows: 0 });
+    m.get(nk.key).rows++;
+  }
+  BL.entries = [...m.values()]; BL.stats = { skipped, nonFungal, genusOnly };
+}
+async function blLoad(file) {
+  $('#blTxt').textContent = 'Reading…';
+  try { BL.rows = await readTable(file); if (BL.rows.length < 2 && !(BL.rows[0] || []).length) throw new Error('The file looks empty.');
+    BL.file = file.name; blColumns(); blEntries(); $('#blClear').classList.remove('hidden');
+    blRemember();
+    blStatus(); if (A) renderAll(); }
+  catch (e) { BL.rows = []; BL.entries = []; $('#blTxt').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+}
+// Keep only the columns the matching uses, so a big inventory fits in the browser's storage.
+function blRemember() {
+  const head = BL.rows[0].map(h => String(h).trim()), want = new Set();
+  head.forEach((h, i) => { if (/^(kingdom|phylum|class|order|family|genus|species|specific ?epithet|epithet|group)$/i.test(h) || /scientific ?name|^taxon( ?name)?$|^name$|latin|binomial/i.test(h)) want.add(i); });
+  const [kind, a, b] = BL.choice.split(':'); want.add(+a); if (kind === 'gs') want.add(+b); want.add(0);
+  const idx = [...want].sort((x, y) => x - y), ki = head.findIndex(h => /^kingdom$/i.test(h)), pi = head.findIndex(h => /^phylum$/i.test(h)), gi = head.findIndex(h => /^group$/i.test(h));
+  // Same rule as blEntries: fungi, plus anything that reads as a slime mold; rows with no kingdom are kept.
+  const keep = r => { const king = ki >= 0 ? String(r[ki] || '').trim() : '', phy = pi >= 0 ? String(r[pi] || '') : '', grp = gi >= 0 ? String(r[gi] || '') : '';
+    return ki < 0 || !king || /fung/i.test(king) || /myxo/i.test(phy) || /slime/i.test(grp) || (/protozoa/i.test(king) && /myxo|mycetozoa/i.test(phy)); };
+  const rows = [idx.map(i => head[i]), ...BL.rows.slice(1).filter(keep).map(r => idx.map(i => r[i] ?? ''))];
+  const remap = v => { const [k, x, y] = v.split(':'); return k === 'gs' ? `gs:${idx.indexOf(+x)}:${idx.indexOf(+y)}` : `c:${idx.indexOf(+x)}`; };
+  try { localStorage.setItem('survey.baseline', JSON.stringify({ file: BL.file, rows, choice: remap(BL.choice), nonFungal: (BL.stats || {}).nonFungal || 0 })); BL.saved = true; } catch (e) { BL.saved = false; }
+}
+function blStatus() { const st = BL.stats || {}; $('#blTxt').textContent = BL.entries.length ? `${BL.file}: ${fmt(BL.entries.length)} fungal species${st.nonFungal ? `, ${fmt(st.nonFungal)} non-fungal rows skipped` : ''}${st.genusOnly ? `, ${fmt(st.genusOnly)} genus-only names not used` : ''}${st.skipped ? `, ${fmt(st.skipped)} rows without a name` : ''}.${BL.saved === false ? ' Too big to remember in this browser; load it again next time.' : ''}` : `${BL.file}: no species names found in that column; choose another under “Names from”.`; }
+// Synonyms of the survey's own species (cheap, batched), then targeted lookups of baseline names that might be old names for them.
+async function blSynonyms(run) {
+  if (BL.busy || !A || !BL.entries.length) return; BL.busy = true;
+  try {
+    const ids = [...new Set([...A.units.values()].filter(u => !u.prov).map(u => u.taxonId))].filter(id => !BL.syn[id]);
+    for (let i = 0; i < ids.length; i += 30) { if (run !== S.run) return;
+      $('#blNote').textContent = `Checking synonyms on iNaturalist: survey species ${fmt(Math.min(i + 30, ids.length))} of ${fmt(ids.length)}…`;
+      const d = await qInat(() => getJSON(`${INAT}/v1/taxa/${ids.slice(i, i + 30).join(',')}?all_names=true&per_page=30`));
+      for (const t of d.results) BL.syn[t.id] = (t.names || []).filter(n => n.lexicon === 'scientific-names').map(n => nameKey(n.name)).filter(x => x && x.key).map(x => x.key); }
+    renderBaseline(false);
+    const cand = blCandidates().filter(k => !(k in BL.res)).slice(0, 400);
+    for (let i = 0; i < cand.length; i++) { if (run !== S.run) return; const k = cand[i];
+      $('#blNote').textContent = `Looking up older names on iNaturalist: ${fmt(i + 1)} of ${fmt(cand.length)} (remembered for next time)…`;
+      try { const d = await qInat(() => getJSON(`${INAT}/v1/taxa?q=${encodeURIComponent(k)}&is_active=any&per_page=8`));
+        const hit = d.results.find(t => t.name.toLowerCase() === k) || d.results.find(t => t.name.toLowerCase().startsWith(k + ' '));
+        BL.res[k] = hit ? { id: hit.id, active: hit.is_active, cur: hit.is_active ? [hit.id] : (hit.current_synonymous_taxon_ids || []) } : { none: 1 }; }
+      catch (e) { break; }
+      if (i % 20 === 19) { try { localStorage.setItem('survey.nameres', JSON.stringify(BL.res)); } catch (e) {} renderBaseline(false); } }
+    try { localStorage.setItem('survey.nameres', JSON.stringify(BL.res)); } catch (e) {}
+  } finally { BL.busy = false; if (A) renderBaseline(true); }
+}
+function blUsable() { const o = A.o; return BL.entries.filter(e => (o.lichen || !e.lichen) && (o.slime || !e.slime)); }
+function blMatch() { // -> per unit key: {how, base}; per baseline key: unit key
+  const base = blUsable(), byKey = new Map(base.map(e => [e.key, e])), byStem = new Map(); for (const e of base) { const s = stemKey(e.key); if (!byStem.has(s)) byStem.set(s, []); byStem.get(s).push(e); }
+  const unit = new Map(), hit = new Map(), named = [...A.units.values()].filter(u => !u.prov), idToUnit = new Map(named.map(u => [u.taxonId, u]));
+  const set = (u, e, how) => { if (!unit.has(u.key)) unit.set(u.key, { how, base: e }); if (!hit.has(e.key)) hit.set(e.key, u.key); };
+  for (const u of named) { const k = u.name.toLowerCase(); if (byKey.has(k)) set(u, byKey.get(k), 'exact'); }
+  for (const u of named) { if (unit.has(u.key)) continue; const c = (byStem.get(stemKey(u.name.toLowerCase())) || []).find(e => !hit.has(e.key)) || (byStem.get(stemKey(u.name.toLowerCase())) || [])[0]; if (c) set(u, c, 'spelling'); }
+  for (const u of named) { if (unit.has(u.key)) continue; for (const k of BL.syn[u.taxonId] || []) if (byKey.has(k)) { set(u, byKey.get(k), 'synonym'); break; } }
+  for (const e of base) { if (hit.has(e.key)) continue; const r = BL.res[e.key]; if (!r || r.none) continue; for (const id of r.cur || []) { const u = idToUnit.get(id); if (u) { set(u, e, 'synonym'); break; } } }
+  // Same epithet and same family but a different genus: often a misfiled or outdated genus on the list. Flagged to check, not counted either way.
+  for (const u of named) { if (unit.has(u.key) || !u.L.family) continue; const ep = stemOf(u.name.toLowerCase().split(' ')[1] || ''); if (!ep) continue;
+    const e = base.find(x => !hit.has(x.key) && x.family && x.family === u.L.family.toLowerCase() && stemOf(x.key.split(' ')[1] || '') === ep); if (e) set(u, e, 'possible'); }
+  return { base, unit, hit };
+}
+function blCandidates() { // baseline names that share an epithet stem with a survey species they don't already match
+  const M = blMatch(), stems = new Set([...A.units.values()].filter(u => !u.prov && !M.unit.has(u.key)).map(u => stemOf(u.name.toLowerCase().split(' ')[1] || '')));
+  return M.base.filter(e => !M.hit.has(e.key) && stems.has(stemOf(e.key.split(' ')[1] || ''))).map(e => e.key);
+}
+function renderBaseline(final) {
+  const on = BL.entries.length > 0 && !!A;
+  for (const id of ['#blMissBox', '#blDl', '#ckNewWrap', '#ckNewTip']) $(id).classList.toggle('hidden', !on);
+  if (!on) { $('#blTiles').innerHTML = ''; $('#blNote').textContent = ''; $('#blSub').textContent = ''; BL.M = null; return; }
+  const M = blMatch(); BL.M = M; const named = [...A.units.values()].filter(u => !u.prov), prov = A.units.size - named.length;
+  const hows = [...M.unit.values()].map(x => x.how), cnt = h => hows.filter(x => x === h).length, poss = cnt('possible');
+  const newN = named.filter(u => !M.unit.has(u.key)).length, refound = M.hit.size - poss, missing = M.base.length - M.hit.size, syn = cnt('synonym'), sp = cnt('spelling');
+  $('#blSub').textContent = BL.file;
+  $('#blTiles').innerHTML = [tile(fmt(M.base.length), 'species on the baseline list', 'bl_base'), tile(fmt(refound), 'of them found again', 'bl_refound'), tile(fmt(newN), 'species new to the site', 'bl_new'), tile(fmt(poss), 'possible matches to check', 'bl_poss'),
+    tile(fmt(prov), 'provisional names (not compared)', 'bl_prov'), tile(fmt(M.base.length + newN), 'site total, baseline plus new', 'bl_total')].join('');
+  $('#blNote').innerHTML = `${fmt(refound - syn - sp)} matched by name, ${fmt(sp)} by a different Latin ending (e.g. <i>violacea</i> / <i>violaceum</i>) and ${fmt(syn)} through iNaturalist synonyms (an older name on the list). ${poss ? `${fmt(poss)} more share an epithet and family with a list name under a different genus (e.g. a misfiled or old genus); they are counted neither as new nor as found again until you check them (type “possible” in the checklist filter). ` : ''}${final === false ? '' : `${fmt(missing)} baseline species were not found in this survey.`} Check “new” species against the list by eye before reporting them: a name iNaturalist doesn’t know as a synonym will look new.`;
+  $('#blMissSum').textContent = `Baseline species not found in this survey (${fmt(missing)})`;
+  const miss = M.base.filter(e => !M.hit.has(e.key)).sort((a, b) => a.name.localeCompare(b.name));
+  $('#blMissing').innerHTML = `<thead><tr><th>Name on the list</th><th>Group</th><th>Current name on iNaturalist</th></tr></thead><tbody>${miss.map(e => { const r = BL.res[e.key]; return `<tr><td><i>${esc(e.name)}</i></td><td>${esc(e.group)}</td><td>${r && !r.none && !r.active && r.cur && r.cur.length ? '<span class="muted">renamed</span>' : r && r.none ? '<span class="muted">not found</span>' : ''}</td></tr>`; }).join('')}</tbody>`;
+}
+function baselineOf(u) { if (!BL.M || u.kind === 'other') return null; if (u.prov) return { how: 'prov' }; return BL.M.unit.get(u.key) || { how: 'new' }; }
 
 /* ---------- vouchers ---------- */
 // Observation fields are named freely on iNaturalist, so voucher fields are recognised by name and sorted into roles.
@@ -634,7 +789,7 @@ function accumulation(days, perms = 100) {
 
 /* ---------- 4. render ---------- */
 let A = null;
-function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderRecon(); renderVouchers(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
+function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderRecon(); renderBaseline(); renderVouchers(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
 const srcLabel = st => (st.src === 'project' ? st.proj.title : st.src === 'users' ? st.users.join(', ') : 'Everyone') + (st.boundary ? ` · inside ${st.boundary.name}` : '');
 const tile = (v, k, h) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}${MVHelp.tip(h, k)}</div></div>`;
 function inatSearch(extra) { const st = S.settings; let q = `d1=${st.d1}&d2=${st.d2}`;
@@ -753,25 +908,28 @@ function renderYears() {
 }
 function monthsStrip(arr) { const mx = Math.max(1, ...arr); return `<span class="mstrip">${arr.map((v, i) => `<i class="${v ? 'on' : ''}" style="${v ? `opacity:${0.35 + 0.65 * v / mx}` : ''}" title="${MONTHS[i]}: ${v} record${v === 1 ? '' : 's'}"></i>`).join('')}</span>`; }
 const TAXSORT = (a, b) => { for (const r of ['phylum', 'class', 'order', 'family']) { const x = a.L[r] || '~', y = b.L[r] || '~'; if (x !== y) return x < y ? -1 : 1; } return a.name.localeCompare(b.name); };
+const blCell = u => { const b = baselineOf(u); if (!b) return ''; if (b.how === 'new') return '<span class="tag new">new</span>'; if (b.how === 'prov') return '<span class="muted">provisional</span>'; if (b.how === 'possible') return `<span class="tag warn">possible</span> <i>${esc(b.base.name)}</i>?`; return b.how === 'exact' ? 'listed' : `<span class="muted">as</span> <i>${esc(b.base.name)}</i>`; };
 function renderChecklist() {
   const q = $('#ckFilter').value.trim().toLowerCase(), sort = $('#ckSort').value, withOther = $('#ckOther').checked;
   let rows = [...A.units.values()].map(u => ({ ...u, kind: 'sp' }));
   if (withOther) rows = rows.concat([...A.other.values()].map(g => ({ ...g, kind: 'other', years: new Set(), months: new Array(12).fill(0), first: '', last: '', seq: 0, rg: 0, vouch: 0 })));
-  if (q) rows = rows.filter(u => [u.name, u.common, ...Object.values(u.L)].join(' ').toLowerCase().includes(q));
+  if (q) rows = rows.filter(u => [u.name, u.common, ...Object.values(u.L), (baselineOf(u) || {}).how === 'possible' ? 'possible' : ''].join(' ').toLowerCase().includes(q));
+  if (BL.M && $('#ckNew').checked) rows = rows.filter(u => (baselineOf(u) || {}).how === 'new');
+  const blOn = !!BL.M;
   const sorter = { tax: (a, b) => TAXSORT(a, b) || (a.kind === 'other') - (b.kind === 'other'), days: (a, b) => b.days.size - a.days.size || a.name.localeCompare(b.name), records: (a, b) => b.records - a.records || a.name.localeCompare(b.name), name: (a, b) => a.name.localeCompare(b.name), first: (a, b) => (a.first || '9') < (b.first || '9') ? -1 : (a.first || '9') > (b.first || '9') ? 1 : a.name.localeCompare(b.name) }[sort];
   rows.sort(sorter);
   const famCount = new Map(); for (const u of A.units.values()) { const k = [u.L.phylum, u.L.class, u.L.order, u.L.family].join('|'); famCount.set(k, (famCount.get(k) || 0) + 1); }
   let lastKey = null; const body = [];
   for (const u of rows) {
     if (sort === 'tax') { const k = [u.L.phylum, u.L.class, u.L.order, u.L.family].join('|'); if (k !== lastKey) { lastKey = k;
-      body.push(`<tr class="grp"><td colspan="9">${['phylum', 'class', 'order', 'family'].map(r => u.L[r] ? `<span class="gk">${r}</span> ${esc(u.L[r])}` : '').filter(Boolean).join(' <span class="muted">›</span> ') || '<span class="muted">group not known</span>'} <span class="muted">· ${famCount.get(k) || 0} species</span></td></tr>`); } }
+      body.push(`<tr class="grp"><td colspan="${blOn ? 10 : 9}">${['phylum', 'class', 'order', 'family'].map(r => u.L[r] ? `<span class="gk">${r}</span> ${esc(u.L[r])}` : '').filter(Boolean).join(' <span class="muted">›</span> ') || '<span class="muted">group not known</span>'} <span class="muted">· ${famCount.get(k) || 0} species</span></td></tr>`); } }
     const link = u.prov ? inatSearch(`field:${encodeURIComponent(PNF)}=${encodeURIComponent(u.name)}`) : inatSearch(`taxon_id=${u.taxonId}`);
     const nm = u.prov ? `<i>${esc(u.name)}</i> <span class="tag">provisional</span>` : u.kind === 'other' ? `<i>${esc(u.name)}</i> <span class="muted">(${esc(u.rank)} only)</span>` : `<i>${esc(u.name)}</i>`;
     body.push(`<tr${u.kind === 'other' ? ' class="oth"' : ''}><td><a href="${esc(link)}" target="_blank" rel="noopener">${nm}</a>${u.common ? `<div class="muted cm">${esc(u.common)}</div>` : ''}${u.lichen ? ' <span class="tag">lichen</span>' : ''}${u.slime ? ' <span class="tag">slime mold</span>' : ''}</td>
       <td class="num">${fmt(u.records)}</td><td class="num">${fmt(u.days.size)}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.years.size)}</td><td class="num dates">${u.first ? (u.first === u.last ? u.first : `${u.first}<br>${u.last}`) : ''}</td>
-      <td>${u.kind === 'other' ? '' : monthsStrip(u.months)}</td><td class="num">${u.seq ? fmt(u.seq) : ''}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.rg)}</td><td class="num">${u.vouch ? fmt(u.vouch) : ''}</td></tr>`);
+      <td>${u.kind === 'other' ? '' : monthsStrip(u.months)}</td><td class="num">${u.seq ? fmt(u.seq) : ''}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.rg)}</td><td class="num">${u.vouch ? fmt(u.vouch) : ''}</td>${blOn ? `<td>${blCell(u)}</td>` : ''}</tr>`);
   }
-  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Survey days${MVHelp.tip('c_days', 'Survey days')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th><th class="num">Vouchers${MVHelp.tip('c_vouch', 'Vouchers')}</th></tr></thead><tbody>${body.join('')}</tbody>`;
+  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Survey days${MVHelp.tip('c_days', 'Survey days')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th><th class="num">Vouchers${MVHelp.tip('c_vouch', 'Vouchers')}</th>${blOn ? `<th>Baseline${MVHelp.tip('c_base', 'Baseline')}</th>` : ''}</tr></thead><tbody>${body.join('')}</tbody>`;
   $('#ckSub').textContent = `${fmt(rows.filter(r => r.kind === 'sp').length)} species${q ? ' match the filter' : ''}`;
 }
 function renderPheno() {
@@ -814,8 +972,8 @@ function download(name, text, type = 'text/csv') { const a = document.createElem
 const slug = () => { const st = S.settings; return `${(st.src === 'project' ? st.proj.slug || 'project' : st.src === 'users' ? st.users.join('-') : (st.boundary ? st.boundary.name : 'site')).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}_${st.d1}_${st.d2}`; };
 const xml = s => String(s ?? '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 $('#dlCk').onclick = () => { const rows = [...A.units.values()].sort(TAXSORT);
-  download(`checklist_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'genus', 'species', 'provisional', 'common_name', 'records', 'survey_days', 'years', 'first_found', 'last_found', ...MONTHS.map(m => m.toLowerCase()), 'its_sequenced_records', 'research_grade_records', 'vouchered_records', 'lichen', 'inaturalist_taxon_id'],
-    ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.L.genus || (u.prov ? '' : u.name.split(' ')[0]), u.name, u.prov ? 'yes' : '', u.common, u.records, u.days.size, [...u.years].sort().join(' '), u.first, u.last, ...u.months, u.seq, u.rg, u.vouch, u.lichen ? 'yes' : '', u.taxonId])])); };
+  download(`checklist_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'genus', 'species', 'provisional', 'common_name', 'records', 'survey_days', 'years', 'first_found', 'last_found', ...MONTHS.map(m => m.toLowerCase()), 'its_sequenced_records', 'research_grade_records', 'vouchered_records', 'lichen', 'inaturalist_taxon_id', ...(BL.M ? ['baseline_status', 'baseline_name'] : [])],
+    ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.L.genus || (u.prov ? '' : u.name.split(' ')[0]), u.name, u.prov ? 'yes' : '', u.common, u.records, u.days.size, [...u.years].sort().join(' '), u.first, u.last, ...u.months, u.seq, u.rg, u.vouch, u.lichen ? 'yes' : '', u.taxonId, ...(BL.M ? (b => [b.how === 'exact' ? 'listed' : b.how === 'spelling' ? 'listed (spelling)' : b.how === 'synonym' ? 'listed (synonym)' : b.how === 'possible' ? 'possible match, check' : b.how === 'prov' ? 'provisional' : 'new to the site', b.base ? b.base.name : ''])(baselineOf(u)) : [])])])); };
 $('#dlDwc').onclick = () => { const o = A.o;
   download(`darwin-core_${slug()}.csv`, csv([['occurrenceID', 'catalogNumber', 'institutionCode', 'basisOfRecord', 'eventDate', 'year', 'month', 'day', 'recordedBy', 'scientificName', 'taxonRank', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'vernacularName', 'decimalLatitude', 'decimalLongitude', 'coordinateUncertaintyInMeters', 'geodeticDatum', 'informationWithheld', 'locality', 'identificationVerificationStatus', 'otherCatalogNumbers', 'disposition', 'associatedSequences', 'occurrenceRemarks', 'license'],
     ...A.recs.map(r => { const u = unitOf(r, o); return [`https://www.inaturalist.org/observations/${r.id}`, r.id, 'iNaturalist', 'HumanObservation', r.date, r.year, r.month, +r.date.slice(8, 10), r.uname || r.login, r.taxon.name, r.taxon.rank, r.slime ? 'Protozoa' : 'Fungi', r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', r.taxon.preferred_common_name || '',
@@ -827,6 +985,10 @@ $('#dlKml').onclick = () => download(`records_${slug()}.kml`, `<?xml version="1.
 $('#dlSpec').onclick = () => { const V = A.recs.filter(r => r.v.vouchered).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
   download(`specimens_${slug()}.csv`, csv([['date', 'scientific_name', 'provisional_name', 'phylum', 'class', 'order', 'family', 'genus', 'number_of_specimens', 'voucher_numbers', 'repository', 'voucher_flag', 'genbank_accessions', 'its_sequenced', 'sequencing_plate', 'collector', 'observer', 'latitude', 'longitude', 'coordinate_uncertainty_m', 'coordinates_obscured', 'locality', 'inaturalist_url'],
     ...V.map(r => [r.date, r.taxon.name, r.prov, r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', 1, r.v.nums.join(' | '), r.v.repo.join('; '), r.v.flag == null ? '' : r.v.flag ? 'yes' : 'no', r.v.genbank.join(' | '), r.seq ? 'yes' : '', r.v.plate.join('; '), collector(r), r.login, r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.obscured ? 'yes' : '', r.place, `https://www.inaturalist.org/observations/${r.id}`])])); };
+$('#dlNew').onclick = () => { const rows = [...A.units.values()].filter(u => !u.prov && !BL.M.unit.has(u.key)).sort(TAXSORT);
+  download(`new-to-site_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'species', 'records', 'survey_days', 'first_found', 'vouchered_records', 'its_sequenced_records', 'inaturalist_taxon_id'], ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.name, u.records, u.days.size, u.first, u.vouch, u.seq, u.taxonId])])); };
+$('#dlMiss').onclick = () => download(`baseline-not-refound_${slug()}.csv`, csv([['name_on_list', 'group', 'inaturalist_status'], ...BL.M.base.filter(e => !BL.M.hit.has(e.key)).sort((a, b) => a.name.localeCompare(b.name)).map(e => { const r = BL.res[e.key]; return [e.name, e.group, r ? (r.none ? 'not found' : r.active ? 'current' : 'renamed') : 'not looked up']; })]));
+$('#dlRes').onclick = () => download(`baseline-matches_${slug()}.csv`, csv([['survey_species', 'baseline_name', 'matched_by'], ...[...A.units.values()].filter(u => !u.prov).sort(TAXSORT).map(u => { const b = BL.M.unit.get(u.key); return [u.name, b ? b.base.name : '', b ? b.how : 'new to the site']; })]));
 $('#dlDays').onclick = () => download(`survey-days_${slug()}.csv`, csv([['date', 'records', 'species', 'observers', 'observer_usernames'], ...[...A.days.values()].sort((a, b) => a.date < b.date ? -1 : 1).map(d => [d.date, d.records, d.units.size, d.people.size, [...d.people].join(' ')])]));
 $('#dlYears').onclick = () => download(`year-by-year_${slug()}.csv`, csv([['year', 'survey_days', 'records', 'observers', 'species', 'new_to_survey', 'running_total'], ...S.yrs.map(g => [g.y, g.days, g.records, g.people.size, g.units.size, g.newN, g.cum])]));
 
@@ -836,6 +998,11 @@ for (const id of ['#optLichen', '#optSlime', '#optProv', '#optProvSp', '#optRG']
 $('#vFields').addEventListener('change', e => { const n = e.target.dataset && e.target.dataset.vf; if (n == null) return; if (e.target.checked) vOff.delete(n); else vOff.add(n); store.set('survey.voff', [...vOff]); renderAll(); });
 let vT = 0; $('#vExtra').addEventListener('input', () => { clearTimeout(vT); vT = setTimeout(() => { store.set('survey.vextra', $('#vExtra').value); if (A) renderAll(); }, 500); });
 $('#vExtra').value = store.get('survey.vextra') || '';
+$('#blFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) blLoad(f).then(() => { if (A) blSynonyms(S.run); }); });
+$('#blName').addEventListener('change', () => { BL.choice = $('#blName').value; blEntries(); blStatus(); blRemember(); if (A) { renderAll(); blSynonyms(S.run); } });
+$('#blClear').onclick = () => { BL.rows = []; BL.entries = []; BL.file = null; BL.M = null; $('#blFile').value = ''; $('#blCols').classList.add('hidden'); $('#blClear').classList.add('hidden'); try { localStorage.removeItem('survey.baseline'); } catch (e) {} $('#blTxt').textContent = 'A past species list for this site (CSV, Excel or text). Read in your browser, not uploaded.'; if (A) renderAll(); };
+$('#ckNew').addEventListener('change', renderChecklist);
+(() => { try { const v = JSON.parse(localStorage.getItem('survey.baseline')); if (v && v.rows) { BL.rows = v.rows; BL.file = v.file; blColumns(); if (v.choice && BL.cols.some(c => c.v === v.choice)) { BL.choice = v.choice; $('#blName').value = v.choice; } blEntries(); BL.stats.nonFungal += v.nonFungal || 0; blStatus(); $('#blClear').classList.remove('hidden'); } } catch (e) {} })();
 document.querySelectorAll('input[name=grank]').forEach(r => r.addEventListener('change', renderGroups));
 $('#ckFilter').addEventListener('input', () => renderChecklist()); $('#ckSort').addEventListener('change', renderChecklist); $('#ckOther').addEventListener('change', renderChecklist);
 $('#example').onclick = e => { e.preventDefault(); document.querySelector('input[name=src][value=project]').checked = true; $('#usersWrap').classList.add('hidden'); $('#projWrap').classList.remove('hidden');

@@ -4,7 +4,7 @@
 // Buttondown username for the launch-updates sign-up form
 // (Buttondown → Settings → your username). Leave empty until the account exists:
 // the form then shows that sign-up is not open yet instead of failing.
-export const buttondownUsername = '';
+export const buttondownUsername = 'mycoview';
 
 // Interests a person can tick on the sign-up form. Each one becomes a Buttondown tag.
 export const interests: [tag: string, label: string][] = [

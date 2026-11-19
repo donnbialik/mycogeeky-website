@@ -196,6 +196,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 .wb-steps{background:var(--wb-surface-2);border-bottom:1px solid var(--wb-line);padding:10px max(16px,env(safe-area-inset-right));color:var(--wb-ink);margin:0;border-radius:0}
 .wb-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
 .wb-steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.wb-hint{margin:8px 0 0;font-size:13px;color:var(--wb-muted)}
+.wb-hint button{font:inherit;color:var(--wb-accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 </style>
 </head>
@@ -208,7 +210,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   </div>
   <div class="wb-sources">
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
-    <button type="button" id="guideBtn">Guide</button><button id="wbThemeBtn" type="button">Theme</button>
+    <button type="button" id="guideBtn">▶ Take the tour</button><button id="wbThemeBtn" type="button">Theme</button>
   </div>
 </header>
 <nav class="wb-steps" aria-label="How to use this tool">
@@ -1387,9 +1389,19 @@ window.addEventListener('resize', tourPlace);
 loadHash();
 writeForm();
 load();
+// The tour no longer opens by itself: first-time visitors get a "New here?" prompt in the
+// how-to strip instead, and anyone can start it from the "Take the tour" button.
 let seenGuide = false;
 try { seenGuide = localStorage.getItem('inatSeasonGuideSeen') === '1'; } catch (e) { /* treat as a first visit */ }
-if (!seenGuide) tourShow(0);
+if (!seenGuide) {
+  const strip = document.querySelector('.wb-steps');
+  if (strip) {
+    const hint = document.createElement('p'); hint.className = 'wb-hint';
+    hint.innerHTML = 'New here? <button type="button">Take the one-minute tour →</button>';
+    hint.querySelector('button').addEventListener('click', () => { hint.remove(); tourShow(0); });
+    strip.appendChild(hint);
+  }
+}
 })();
 </script>
 <script>

@@ -3,7 +3,7 @@
  * reads the page (and switches the visible results tab). The real-example walkthrough can fill form fields and choose
  * groups when the user presses "Fill this in for me"; the user always presses Fetch / Run themselves, and the tour waits
  * until that work has finished. Nothing is sent anywhere by the tour itself.
- * First visit: offers the tours once (remembered in this browser only). Any time: the "Guided tour" button.
+ * Tours never open by themselves. First visit: a "New here?" prompt in the how-to bar. Any time: the "Take the tour" button.
  * To add a walk-through video later, set VIDEO_URL below; a "Watch the walk-through" link then appears.
  */
 (() => {
@@ -341,10 +341,10 @@
     const theme = $('#themeBtn');
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = (theme ? theme.className + ' ' : '') + 'mvt-start'; btn.id = 'tourBtn';
-    btn.textContent = '▶ Guided tour'; btn.setAttribute('aria-label', 'Guided tour'); btn.addEventListener('click', () => { if (pop) end(); menu(); });
+    btn.textContent = '▶ Take the tour'; btn.setAttribute('aria-label', 'Take the guided tour'); btn.addEventListener('click', () => { if (pop) end(); menu(); });
     if (theme && theme.parentNode) theme.parentNode.insertBefore(btn, theme); else document.body.prepend(btn);
     const stepsBar = $("nav.steps");
-    if (stepsBar) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
+    if (stepsBar && !seen()) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
       h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
     for (const [, v] of Object.entries(SECTIONS)) {
       const host = v.where(); if (!host) continue;
@@ -355,7 +355,6 @@
       b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pop) end(); markSeen(); if (!pop) open(); begin(v.steps); });
       head.appendChild(b);
     }
-    if (!seen()) setTimeout(menu, 900);                    // offer the tours once, after the page has drawn
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

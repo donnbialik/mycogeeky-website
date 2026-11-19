@@ -196,8 +196,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
       tick('Counting your GBIF records');
       if (who) {
         gb = (await get(GBIF + '/occurrence/search?datasetKey=' + INAT_DS + '&recordedBy=' + encodeURIComponent(who) + (fungi ? '&kingdomKey=' + GBIF_FUNGI : '') + '&limit=0')).count;
-        setCard('gbif', gb, ['https://www.gbif.org/occurrence/search?dataset_key=' + INAT_DS + '&recorded_by=' + encodeURIComponent(who) + (fungi ? '&taxon_key=' + GBIF_FUNGI : ''), 'See them on GBIF'],
-          'Listed on GBIF as “' + esc(who) + '”. If someone else uses the same display name, their records are counted too.');
+        // GBIF's website ignores the old backbone taxon key (its default taxonomy changed), so the link filters by person only.
+        // The count above still uses the API's kingdom filter. Checked on gbif.org, 19 Nov 2026.
+        setCard('gbif', gb, ['https://www.gbif.org/occurrence/search?dataset_key=' + INAT_DS + '&recorded_by=' + encodeURIComponent(who), fungi ? 'See all your records on GBIF' : 'See them on GBIF'],
+          'Listed on GBIF as “' + esc(who) + '”.' + (fungi ? ' The GBIF link shows all your shared records, not only fungi.' : '') + ' If someone else uses the same display name, their records are counted too.');
       } else setCard('gbif', 'None yet', null, sample.results && sample.results.length ? 'Your open-licence Research Grade records weren’t found on GBIF yet. GBIF updates from iNaturalist regularly, so recent records can take a while.' : 'Only Research Grade observations with a CC0, CC-BY or CC-BY-NC licence go to GBIF. None of these qualify yet; check the licence in your iNaturalist settings.', true);
     } catch (e) { setCard('gbif', '?', null, 'Couldn’t reach GBIF (' + esc(e.message) + ').', true); }
     tick('Reading sequenced records');

@@ -19,6 +19,15 @@ export const GET: APIRoute = () => {
   'use strict';
   var TOOLS = ${JSON.stringify(toolData)};
   var PATHS = ${JSON.stringify(pathData)};
+  // Links to iNaturalist (observations, taxa, people) open in a new tab, so a report's results aren't lost.
+  // Delegated, so it also covers links the tools add to the page after it loads.
+  if (!window.__mvInatTabs) { window.__mvInatTabs = true;
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null; if (!a || a.target) return;
+      if (!/^https?:\\/\\/([a-z0-9-]+\\.)*inaturalist\\.(org|ca|nz|[a-z]{2,3}(\\.[a-z]{2})?)\\//i.test(a.href)) return;
+      a.target = '_blank'; a.rel = 'noopener';
+    }, true);
+  }
   if (document.querySelector('.mvtb')) return;
   var here = location.pathname.replace(/index\\.html$/, '');
   var tool = TOOLS.filter(function (t) { return t.href && here === t.href; })[0];

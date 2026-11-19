@@ -1,0 +1,68 @@
+---
+import Base from '../../layouts/Base.astro';
+import BuiltOnINat from '../../components/BuiltOnINat.astro';
+// How park fungal surveys turn iNaturalist observations into evidence a land manager can use.
+// Ties to iNaturalist's message: share observations with the people making decisions.
+const steps = [
+  ['01', 'Observe, with permission', 'Survey a park or preserve under a collecting permit, or simply observe where collecting isn’t allowed. Every find goes on iNaturalist with photos, date and location.'],
+  ['02', 'Keep the evidence', 'Where the permit allows, keep a specimen and get the interesting ones sequenced. A sequenced voucher turns “probably” into a record someone can check.'],
+  ['03', 'Pull it together', 'The Survey Report gathers every fungi record from the park: an annotated checklist by group, year-by-year results, when species fruit, and a map.'],
+  ['04', 'Say how complete it is', 'A completeness estimate (Chao2) shows roughly how many species are still unrecorded, so a short list isn’t mistaken for a poor site.'],
+  ['05', 'Hand it over', 'The report exports in the formats land managers and databases use: Darwin Core, GeoJSON and KML, ready for a permit report or a management plan.'],
+];
+---
+<Base title="From observations to decisions" description="How fungal observations on iNaturalist become a park survey report a land manager can use: checklist, completeness, seasonality, maps and Darwin Core files.">
+<div class="station-page">
+  <section class="station-hero station-hero-solo"><div class="station-hero-copy">
+    <p class="eyebrow">INVESTIGATE / FROM OBSERVATIONS TO DECISIONS</p>
+    <h1>Observations that <em>land managers can use.</em></h1>
+    <p class="lead">Fungi are rarely part of park management plans, often because nobody has shown what’s there. A season of careful iNaturalist observations can change that.</p>
+    <div class="station-actions"><a class="station-button" href="/investigate/survey-report/">Open the Survey Report →</a></div>
+  </div></section>
+
+  <BuiltOnINat context="This approach" />
+
+  <section class="station-content" id="how">
+    <div class="station-section-head"><h2>HOW A SURVEY BECOMES EVIDENCE</h2><span>OBSERVE / KEEP / REPORT</span></div>
+    <ol class="mv-otd-steps">{steps.map(([n, t, b]) => <li><span>{n}</span><h3>{t}</h3><p>{b}</p></li>)}</ol>
+  </section>
+
+  <section class="station-content" id="honest">
+    <div class="station-section-head"><h2>WHAT A REPORT CAN AND CAN’T SAY</h2><span>KEEPING IT HONEST</span></div>
+    <div class="mv-otd-two">
+      <div><h3>It can show</h3><ul><li>Which fungi have been recorded, by whom and when</li><li>Which records are backed by a specimen or a DNA sequence</li><li>When in the year species fruit at the site</li><li>Roughly how complete the inventory is</li></ul></div>
+      <div><h3>It can’t show</h3><ul><li>Species that fruit rarely, are tiny or are hard to photograph, which are under-recorded</li><li>Absence: not finding something isn’t proof it isn’t there</li><li>Verified identifications for every record</li></ul></div>
+    </div>
+    <p class="mv-otd-note">Include these limits with any report you hand over, so a land manager knows exactly what the numbers mean. They’re listed on the Survey Report’s card in the <a href="/investigate/#workbench">Toolbox</a>.</p>
+  </section>
+
+  <section class="station-content" id="start">
+    <div class="station-section-head"><h2>START WITH YOUR OWN PLACE</h2><span>PARKS / PRESERVES / BACKYARDS</span></div>
+    <div class="mv-otd-links">
+      <a href="/investigate/survey-report/"><strong>Survey Report →</strong><span>Build the report from an iNaturalist project, a survey team or a boundary file.</span></a>
+      <a href="/investigate/field/"><strong>Field Research Toolkit →</strong><span>Photograph, number, dry and store specimens so they hold up as evidence.</span></a>
+      <a href="/one-place/"><strong>One place, a thousand questions →</strong><span>Start a long-term inventory of a single place.</span></a>
+    </div>
+  </section>
+</div>
+</Base>
+<style>
+.mv-otd-steps{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.mv-otd-steps li{background:#fffefa;border:1px solid #d6ded1;border-top:4px solid #3f7a55;border-radius:7px;padding:18px}
+.mv-otd-steps li:nth-child(even){border-top-color:#d8ed43}
+.mv-otd-steps span{font:500 .7rem var(--mv-mono);letter-spacing:.1em;color:#46624d}
+.mv-otd-steps h3{font:600 1.2rem var(--mv-serif);letter-spacing:0;color:#17372e;margin:8px 0 6px}
+.mv-otd-steps p{font-size:.92rem;color:#46624d;line-height:1.5;margin:0}
+.mv-otd-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mv-otd-two>div{background:#fffefa;border:1px solid #d6ded1;border-radius:8px;padding:16px 20px}
+.mv-otd-two>div:first-child{border-top:4px solid #328253}.mv-otd-two>div:last-child{border-top:4px solid #b47d20}
+.mv-otd-two h3{font:600 1.15rem var(--mv-serif);letter-spacing:0;margin:0 0 6px;color:#17372e}
+.mv-otd-two li{color:#2f4a3c;margin-bottom:5px;line-height:1.5}
+.mv-otd-note{color:#46624d;margin-top:12px}
+.mv-otd-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.mv-otd-links a{display:block;background:#fffefa;border:1px solid #d6ded1;border-radius:8px;padding:16px 18px;text-decoration:none;color:#17372e}
+.mv-otd-links a:hover{border-color:#3f7a55}
+.mv-otd-links strong{display:block;font:600 1.1rem var(--mv-serif);margin-bottom:4px}
+.mv-otd-links span{color:#46624d;font-size:.93rem}
+@media(max-width:700px){.mv-otd-two{grid-template-columns:1fr}}
+</style>

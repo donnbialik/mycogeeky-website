@@ -1424,3 +1424,9 @@ sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;pad
 .mv-guide-table th{font:600 .72rem var(--v5-mono);letter-spacing:.08em;text-transform:uppercase;color:#46624d;background:#f1f4ec}
 .mv-guide-table td span{font-size:.85rem;color:#54695b}
 .mv-guide-table td:nth-child(2){white-space:nowrap}
+
+/* "Built on iNaturalist" statement (BuiltOnINat.astro) */
+.mv-inat-band{width:min(1180px,calc(100% - 44px));margin:22px auto;border-left:4px solid #74ac00;background:#fffefa;border-radius:6px;padding:12px 18px;box-shadow:0 0 0 1px #d6ded1 inset}
+.mv-inat-band p{margin:0;color:#2f4a3c;font-size:.98rem;line-height:1.55;max-width:none}
+.mv-inat-band a{color:#1c4837}
+.mv-inat-plain{width:auto;margin:14px 0}

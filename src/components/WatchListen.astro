@@ -1,0 +1,48 @@
+---
+/**
+ * "Watch & listen": The MycoGeeky Podcast (Buzzsprout player + featured YouTube episode)
+ * and The MycoView channel (featured video). Featured episodes are set in src/data/media.ts.
+ * Videos use YouTube's privacy-enhanced embed (youtube-nocookie.com); see /privacy/.
+ */
+import { featuredMycoGeekyVideo, featuredMycoViewVideo, featuredPodcastEpisode, podcastShowId } from '../data/media';
+import { mycogeekyYouTube, mycoviewYouTube, podcastUrl } from '../data/site';
+const yt = (id: string) => `https://www.youtube-nocookie.com/embed/${id}`;
+const player = `https://www.buzzsprout.com/${podcastShowId}/episodes/${featuredPodcastEpisode.id}?client_source=small_player&iframe=true`;
+---
+<section class="station-content mv-media" id="watch-and-listen">
+  <div class="station-section-head"><h2>WATCH &amp; LISTEN</h2><span>PODCAST / VIDEO</span></div>
+
+  <div class="mv-media-show">
+    <div class="mv-media-intro">
+      <p class="eyebrow">THE MYCOGEEKY PODCAST</p>
+      <h3>Long conversations with the people who grow, hunt and study fungi.</h3>
+      <p>Where MycoGeeky started: cultivators, foragers, researchers and educators, talking at length. New episodes still come out, on Buzzsprout and on YouTube.</p>
+      <p class="mv-media-links"><a href={podcastUrl}>All episodes ↗</a><a href={mycogeekyYouTube}>MycoGeeky on YouTube ↗</a></p>
+    </div>
+    <div class="mv-media-items">
+      <figure class="mv-media-item">
+        <figcaption><span>LISTEN · {featuredPodcastEpisode.date}</span>{featuredPodcastEpisode.title}</figcaption>
+        <iframe class="mv-audio" src={player} title={`Podcast player: ${featuredPodcastEpisode.title}`} loading="lazy" frameborder="0" scrolling="no"></iframe>
+      </figure>
+      <figure class="mv-media-item">
+        <figcaption><span>WATCH · {featuredMycoGeekyVideo.date}</span>{featuredMycoGeekyVideo.title}</figcaption>
+        <div class="mv-video"><iframe src={yt(featuredMycoGeekyVideo.id)} title={`YouTube video: ${featuredMycoGeekyVideo.title}`} loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+      </figure>
+    </div>
+  </div>
+
+  <div class="mv-media-show">
+    <div class="mv-media-intro">
+      <p class="eyebrow">THE MYCOVIEW</p>
+      <h3>Learn to notice what most people walk past.</h3>
+      <p>Interviews, livestreams and field lessons for anyone going deeper into fungi, from curious beginner to serious amateur.</p>
+      <p class="mv-media-links"><a href={mycoviewYouTube}>The MycoView on YouTube ↗</a></p>
+    </div>
+    <div class="mv-media-items">
+      <figure class="mv-media-item">
+        <figcaption><span>WATCH · FEATURED</span>{featuredMycoViewVideo.title}</figcaption>
+        <div class="mv-video"><iframe src={yt(featuredMycoViewVideo.id)} title={`YouTube video: ${featuredMycoViewVideo.title}`} loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+      </figure>
+    </div>
+  </div>
+</section>

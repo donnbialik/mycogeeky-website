@@ -1360,6 +1360,16 @@ html:not([data-active-path]) .mv-tool-step:not([data-path=provisional-taxonomist
 .mv-media-item figcaption span{display:block;font:500 .66rem var(--mv-mono);letter-spacing:.1em;color:#46624d;margin-bottom:5px}
 .mv-video{position:relative;aspect-ratio:16/9;background:#173d30;border-radius:4px;overflow:hidden}
 .mv-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.mv-audio{display:block;width:100%;height:200px;border:0}
+.mv-audio{display:block;width:100%;height:200px;border:0;overflow:hidden}
 @media(max-width:850px){.mv-media-show{grid-template-columns:1fr}}
 @media(max-width:600px){.mv-media-items{grid-template-columns:1fr}}
+
+/* Homepage "Real questions": stack cards 01 and 02 beside the live survey card so neither
+   stretches to the survey card's full height (Nov 2026). Below 1100px the existing 2- and
+   1-column layouts apply. */
+@media(min-width:1101px){
+  .mv-research-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);grid-template-rows:auto auto}
+  .mv-research-grid>.mv-research-card{grid-column:1}
+  .mv-research-grid>.mv-survey-card{grid-column:2;grid-row:1 / span 2}
+  .mv-research-card h3{margin-top:14px}
+}

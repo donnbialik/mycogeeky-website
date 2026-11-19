@@ -1,9 +1,9 @@
 // Links and settings shared across MycoView: footer, support block, newsletter, privacy page.
 // Leave a value empty ('') to hide the link or block that uses it.
 
-// Contact email shown in the footer and on the privacy page. Set it once mail to this address
-// actually arrives (see the Cloudflare Email Routing steps); until then visitors are sent to iNaturalist.
-export const contactEmail = '';
+// Contact email shown in the footer, on the privacy page and on About. Mail to it is forwarded
+// by Cloudflare Email Routing. Empty it to send visitors to iNaturalist instead.
+export const contactEmail = 'mycoview@mycoview.com';
 export const inaturalistProfile = 'https://www.inaturalist.org/people/mycogeekyohio';
 
 // Support

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/investigate/toolbar.js" defer></script><!-- MycoView tool bar (built from src/data/tools.ts) -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="See where your iNaturalist observations went: records shared with GBIF, DNA sequences and GenBank accessions, provisional names that now have a species name, projects your records feed, and identifications you've added for others.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap">
+<title>Observation Footprint · MycoView</title>
+<script>try{const t=JSON.parse(localStorage.getItem('footprint.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 var(--f-body);background:var(--wb-bg);color:var(--wb-ink)}
+main{padding:8px max(16px,env(safe-area-inset-right)) 60px;max-width:1240px;margin:0 auto}
+section{background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:10px;padding:18px 20px;margin:14px 0}
+h2{margin:0 0 6px;font-size:17px}
+h2 .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);text-align:center;font-size:13px;line-height:24px;margin-right:8px}
+.muted{color:var(--wb-muted)} .small{font-size:13px}
+a{color:var(--wb-accent)}
+.row{display:flex;gap:10px 14px;align-items:flex-end;flex-wrap:wrap}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--wb-muted)}
+input[type=text],select{font:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--wb-line);border-radius:6px;background:var(--wb-surface);color:var(--wb-ink)}
+.btn{font:500 13.5px var(--f-body);padding:8px 16px;border-radius:7px;border:1px solid var(--wb-accent);background:var(--wb-accent);color:var(--wb-accent-ink);cursor:pointer}
+.btn.sec{background:transparent;color:var(--wb-accent)}
+.btn:disabled{opacity:.45;cursor:default}
+progress{width:260px;height:12px}
+.err{padding:8px 12px;border-radius:7px;background:var(--wb-surface-2);border-left:4px solid var(--wb-bad);font-size:13px;margin:10px 0}
+.note{padding:8px 12px;border-radius:7px;background:var(--wb-surface-2);font-size:13px;margin:10px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:10px}
+.card{border:1px solid var(--wb-line);border-radius:9px;padding:14px 16px;border-top:4px solid var(--wb-accent);display:flex;flex-direction:column;gap:4px}
+.card .k{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--wb-muted)}
+.card .v{font:600 32px/1.1 var(--f-display);color:var(--wb-ink)}
+.card .d{font-size:13px;color:var(--wb-muted)}
+.card a.more{font-size:13px;margin-top:auto;padding-top:6px}
+.card.wait .v{color:var(--wb-muted)}
+.card.na{border-top-color:var(--wb-line)}
+.sub{margin-top:14px}
+.sub h3{font-size:14.5px;margin:0 0 6px}
+.scroll{max-height:340px;overflow:auto;border:1px solid var(--wb-line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--wb-line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--wb-surface-2);position:sticky;top:0}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font:500 12px var(--f-mono);color:var(--wb-muted);margin:4px 0 2px}
+.chain b{color:var(--wb-ink);font-weight:600}
+.wb-hint{font-size:12.5px;color:var(--wb-muted)}
+.hidden{display:none!important}
+/* ---- MycoView Research Workbench frame (same as the other Workbench tools) ---- */
+:root{--f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --wb-bg:#F2F5F3;--wb-surface:#FFFFFF;--wb-surface-2:#E8EFEB;--wb-ink:#15201B;--wb-muted:#56655E;--wb-line:#D2DCD7;--wb-accent:#1D6B55;--wb-accent-ink:#FFFFFF;--wb-good:#2E7D4F;--wb-warn:#A86E14;--wb-bad:#B4412F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}}
+:root[data-theme="dark"]{--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}
+body{font-family:var(--f-body)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
+.wb-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--wb-line);background:var(--wb-surface);color:var(--wb-ink);margin:0}
+.wb-brand{display:flex;flex-direction:column;gap:2px}
+.wb-brand h1{font-size:22px;margin:0;color:var(--wb-ink)}
+.wb-brand p{margin:0;color:var(--wb-muted);font-size:12.5px;line-height:1.5}
+.wb-top .site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--wb-accent);text-decoration:none;margin-bottom:2px}
+.wb-top .site-home:hover{text-decoration:underline}
+.wb-sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wb-top .srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--wb-line);border-radius:999px;font-size:12px;background:var(--wb-surface);color:var(--wb-ink);white-space:nowrap;cursor:help}
+.wb-top .srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--wb-muted)}
+.wb-top .srcchip.live .dot{background:var(--wb-good)} .wb-top .srcchip.fail .dot{background:var(--wb-bad)}
+.wb-top .srcchip .st{color:var(--wb-muted)}
+.wb-top button{font:500 12px var(--f-body);border:1px solid var(--wb-line);background:transparent;color:var(--wb-ink);border-radius:5px;padding:6px 12px;cursor:pointer;margin:0;height:auto}
+.wb-top button:hover{border-color:var(--wb-accent)}
+.wb-steps{background:var(--wb-surface-2);border-bottom:1px solid var(--wb-line);padding:10px max(16px,env(safe-area-inset-right));color:var(--wb-ink);margin:0;border-radius:0}
+.wb-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.wb-steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
+
+</style>
+</head>
+<body>
+<header class="wb-top">
+  <div class="wb-brand">
+    <a id="siteHome" class="site-home" href="/investigate/#workbench">← MycoView Research Workbench</a>
+    <h1>Observation Footprint</h1>
+    <p>Where your iNaturalist observations went: into GBIF for researchers, into DNA databases, into named species, into projects and surveys, and into other people’s identifications.</p>
+  </div>
+  <div class="wb-sources">
+    <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <span class="srcchip" id="wb-src-gbif" title="Live data from GBIF"><span class="dot"></span>GBIF <span class="st">checking…</span></span>
+    <span class="wb-hint" data-tour-hint hidden>New here?</span>
+    <button id="tourBtn" type="button" data-tour-start>▶ Take the tour</button>
+    <button id="wbThemeBtn" type="button">Theme</button>
+  </div>
+</header>
+<nav class="wb-steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Whose observations</strong>: an iNaturalist username, fungi or all life</span></li>
+    <li><span class="stepn">2</span><span><strong>See the footprint</strong>: GBIF, DNA, names, projects and identifications</span></li>
+    <li><span class="stepn">3</span><span><strong>Follow the links</strong>: every number opens the records behind it</span></li>
+  </ol>
+</nav>
+<main>
+<section id="s-who">
+  <h2><span class="n">1</span>Whose observations?</h2>
+  <form class="row" id="whoForm">
+    <label class="f">iNaturalist username<input type="text" id="user" placeholder="e.g. mycogeekyohio" autocomplete="off" spellcheck="false" required></label>
+    <label class="f">Which observations<select id="scope"><option value="fungi">Fungi (including lichens)</option><option value="all">All life</option></select></label>
+    <button class="btn" type="submit" id="goBtn">Show the footprint</button>
+  </form>
+  <p class="muted small" style="margin:8px 0 0">Reads public data from iNaturalist and GBIF, a request about every second. Nothing is written anywhere, and nothing about you is stored except the username in this browser.</p>
+  <div id="prog" class="row hidden" style="margin-top:10px"><progress id="pbar" max="1" value="0"></progress><span class="small muted" id="ptext"></span></div>
+  <div id="msg"></div>
+</section>
+
+<section id="s-out" class="hidden">
+  <h2><span class="n">2</span>Where they went</h2>
+  <div class="chain" id="chain"></div>
+  <div class="cards" id="cards"></div>
+  <div class="sub hidden" id="namedWrap"><h3>Provisional names that now have a species name</h3><p class="small muted" style="margin:0 0 6px">Records you gave a provisional name whose iNaturalist identification is now a described species. Worth a look: sometimes it means the species was described, sometimes only that the provisional was matched to an existing name.</p><div class="scroll"><table><thead><tr><th>Provisional name on the record</th><th>Now identified as</th><th>Records</th></tr></thead><tbody id="namedBody"></tbody></table></div></div>
+  <div class="sub hidden" id="projWrap"><h3>Projects your records feed</h3><p class="small muted" style="margin:0 0 6px">Projects you’ve joined, and how many of your records each one includes.</p><div class="scroll"><table><thead><tr><th>Project</th><th>Your records</th></tr></thead><tbody id="projBody"></tbody></table></div></div>
+  <div class="note" style="margin-top:14px"><b>What this can’t show:</b> which studies used your observations. GBIF counts papers that cite the iNaturalist dataset as a whole, but it can’t say which individual records a paper used, so no tool can list “papers that used your observations” yet. Project counts only cover projects you’ve joined.</div>
+</section>
+<p class="muted small">Part of the <a href="/investigate/field/">Field Research Toolkit</a>. Data from the public <a href="https://api.inaturalist.org/v1/docs/">iNaturalist API</a> and the <a href="https://www.gbif.org/developer/summary">GBIF API</a>, read in your browser.</p>
+</main>
+<script type="application/json" id="mv-tour">{"key":"observation-footprint","steps":[
+ {"title":"Observation Footprint","body":"<p>Every observation you post can travel much further than iNaturalist. This shows where yours went: to researchers, into DNA databases, into named species, and into other people’s identifications.</p>"},
+ {"sel":"#s-who","title":"Whose observations","body":"<p>Any iNaturalist username works. Choose fungi only, or all life.</p>"},
+ {"sel":"#s-who","title":"GBIF","body":"<p>Research Grade observations with an open licence are shared with GBIF, the global database researchers download from. The tool counts how many of yours are there.</p>"},
+ {"sel":"#s-who","title":"DNA and names","body":"<p>For sequenced fungi: how many records carry an ITS sequence, a GenBank accession or MycoMap results, and which provisional names now carry a species name.</p>"},
+ {"sel":"#s-who","title":"What it can’t show","body":"<p>Which papers used your records. GBIF tracks citations for the iNaturalist dataset as a whole, not for individual records, so the tool says so rather than guessing.</p>"}
+]}</script>
+<script src="/investigate/guide-tour.js" defer></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var INAT = 'https://api.inaturalist.org/v1', GBIF = 'https://api.gbif.org/v1', INAT_DS = '50c9509d-22c7-4a22-a47d-8c48425ef4a7', FUNGI = 47170, GBIF_FUNGI = 5;
+  var OPEN = 'cc0,cc-by,cc-by-nc';
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function fmt(n) { return n == null ? '—' : Number(n).toLocaleString(); }
+  function msg(h, cls) { $('#msg').innerHTML = h ? '<div class="' + (cls || 'note') + '">' + h + '</div>' : ''; }
+  // One request at a time, about a second apart, with back-off if asked to slow down.
+  var last = 0;
+  async function get(url) {
+    for (var i = 0; i < 4; i++) {
+      var w = last + 1050 - Date.now(); if (w > 0) await sleep(w); last = Date.now();
+      var r; try { r = await fetch(url); } catch (e) { await sleep(2000); continue; }
+      if (r.status === 429 || r.status >= 500) { await sleep(5000 * (i + 1)); continue; }
+      if (!r.ok) { var e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+      return r.json();
+    }
+    throw new Error('the service isn’t responding; try again in a minute');
+  }
+  var steps = 0, done = 0;
+  function tick(t) { done++; $('#pbar').max = steps; $('#pbar').value = Math.min(done, steps); $('#ptext').textContent = t; }
+  var CARDS = [
+    ['obs', 'Observations', 'Posted to iNaturalist'],
+    ['rg', 'Research Grade', 'Agreed to species by the community'],
+    ['gbif', 'Shared with GBIF', 'Available to researchers worldwide'],
+    ['seq', 'With a DNA sequence', 'An ITS barcode in the “DNA Barcode ITS” field'],
+    ['gb', 'In GenBank', 'Records carrying a GenBank accession'],
+    ['mm', 'With MycoMap results', 'Sequence or BLAST links to MycoMap'],
+    ['prov', 'Provisional names', 'Records carrying a provisional species name'],
+    ['ids', 'IDs for others', 'Current identifications you’ve added to other people’s observations'],
+    ['cite', 'Papers citing the iNaturalist dataset', 'The dataset your shared records belong to; not a count of papers that used yours']
+  ];
+  function cards() { $('#cards').innerHTML = CARDS.map(function (c) { return '<div class="card wait" id="c-' + c[0] + '"><span class="k">' + esc(c[1]) + '</span><span class="v">…</span><span class="d">' + esc(c[2]) + '</span></div>'; }).join(''); }
+  function setCard(id, v, more, note, na) {
+    var el = $('#c-' + id); if (!el) return; el.classList.remove('wait'); if (na) el.classList.add('na');
+    el.querySelector('.v').textContent = typeof v === 'number' ? fmt(v) : v;
+    if (note) el.querySelector('.d').innerHTML = note;
+    if (more) el.insertAdjacentHTML('beforeend', '<a class="more" href="' + esc(more[0]) + '">' + esc(more[1]) + ' →</a>');
+  }
+  function obsUrl(q) { return 'https://www.inaturalist.org/observations?' + q; }
+
+  async function run(login, scope) {
+    var fungi = scope === 'fungi', tq = fungi ? '&taxon_id=' + FUNGI : '', U = encodeURIComponent(login);
+    steps = 12; done = 0; cards(); $('#s-out').classList.remove('hidden'); $('#chain').innerHTML = '';
+    $('#namedWrap').classList.add('hidden'); $('#projWrap').classList.add('hidden');
+    var u = await get(INAT + '/users/' + U); var user = u.results && u.results[0]; if (!user) throw new Error('no iNaturalist user called “' + login + '”');
+    tick('Counting observations');
+    var base = 'user_id=' + user.id + tq;
+    var all = (await get(INAT + '/observations?' + base + '&per_page=0')).total_results; setCard('obs', all, [obsUrl('user_id=' + U + tq + '&place_id=any'), 'See them']);
+    tick('Counting Research Grade');
+    var rg = (await get(INAT + '/observations?' + base + '&quality_grade=research&per_page=0')).total_results; setCard('rg', rg, [obsUrl('user_id=' + U + tq + '&quality_grade=research&place_id=any'), 'See them']);
+    tick('Counting identifications');
+    var ids = (await get(INAT + '/identifications?user_id=' + user.id + '&own_observation=false&current=true' + tq + '&per_page=0')).total_results;
+    setCard('ids', ids, ['https://www.inaturalist.org/identifications?user_id=' + U, 'See them']);
+    // GBIF: find how GBIF names this person by looking up one of their shared records, then count.
+    tick('Finding your records in GBIF');
+    var gb = null, who = null;
+    try {
+      var sample = await get(INAT + '/observations?' + base + '&quality_grade=research&license=' + OPEN + '&d2=' + new Date(Date.now() - 45 * 864e5).toISOString().slice(0, 10) + '&order_by=observed_on&order=desc&per_page=5');
+      for (var i = 0; i < (sample.results || []).length && !who; i++) {
+        var g = await get(GBIF + '/occurrence/search?datasetKey=' + INAT_DS + '&catalogNumber=' + sample.results[i].id + '&limit=1');
+        if (g.results && g.results[0] && g.results[0].recordedBy) who = g.results[0].recordedBy;
+      }
+      tick('Counting your GBIF records');
+      if (who) {
+        gb = (await get(GBIF + '/occurrence/search?datasetKey=' + INAT_DS + '&recordedBy=' + encodeURIComponent(who) + (fungi ? '&kingdomKey=' + GBIF_FUNGI : '') + '&limit=0')).count;
+        setCard('gbif', gb, ['https://www.gbif.org/occurrence/search?dataset_key=' + INAT_DS + '&recorded_by=' + encodeURIComponent(who) + (fungi ? '&taxon_key=' + GBIF_FUNGI : ''), 'See them on GBIF'],
+          'Listed on GBIF as “' + esc(who) + '”. If someone else uses the same display name, their records are counted too.');
+      } else setCard('gbif', 'None yet', null, sample.results && sample.results.length ? 'Your open-licence Research Grade records weren’t found on GBIF yet. GBIF updates from iNaturalist regularly, so recent records can take a while.' : 'Only Research Grade observations with a CC0, CC-BY or CC-BY-NC licence go to GBIF. None of these qualify yet; check the licence in your iNaturalist settings.', true);
+    } catch (e) { setCard('gbif', '?', null, 'Couldn’t reach GBIF (' + esc(e.message) + ').', true); }
+    tick('Reading sequenced records');
+    var seqObs = await pages(base + '&field:' + encodeURIComponent('DNA Barcode ITS'), 'sequenced records');
+    var nSeq = seqObs.length, nGb = 0, nMm = 0;
+    seqObs.forEach(function (o) { var gbHit = false, mmHit = false;
+      (o.ofvs || []).forEach(function (v) { var n = v.name || '', val = String(v.value || ''); if (/gen\s*bank/i.test(n) && val.trim() && !/^(no|none|n\/?a|-)$/i.test(val.trim())) gbHit = true; if (/mycomap\.com/i.test(val)) mmHit = true; });
+      if (gbHit) nGb++; if (mmHit) nMm++; });
+    var sq = 'user_id=' + U + tq + '&place_id=any&field:DNA%20Barcode%20ITS=';
+    setCard('seq', nSeq, nSeq ? [obsUrl(sq), 'See them'] : null, null, !nSeq);
+    setCard('gb', nGb, null, nSeq ? 'Of ' + fmt(nSeq) + ' sequenced records' : null, !nGb);
+    setCard('mm', nMm, null, nSeq ? 'Of ' + fmt(nSeq) + ' sequenced records' : null, !nMm);
+    tick('Reading provisional names');
+    var provObs = await pages(base + '&field:' + encodeURIComponent('Provisional Species Name'), 'records with a provisional name');
+    setCard('prov', provObs.length, provObs.length ? [obsUrl('user_id=' + U + tq + '&place_id=any&field:Provisional%20Species%20Name='), 'See them'] : null, null, !provObs.length);
+    var named = new Map();
+    provObs.forEach(function (o) { var t = o.taxon; if (!t || t.rank_level !== 10 || /\bsp\.\s*['‘’]/.test(t.name)) return;
+      var pv = ((o.ofvs || []).filter(function (v) { return v.name === 'Provisional Species Name'; })[0] || {}).value; if (!pv) return;
+      pv = String(pv).trim(); if (!/\bsp\.|['‘’]/.test(pv) || pv.toLowerCase() === t.name.toLowerCase()) return; // only real provisional codes that now carry a different, described name
+      var k = pv + '→' + t.name; if (!named.has(k)) named.set(k, { pv: pv, t: t.name, tid: t.id, ids: [] }); named.get(k).ids.push(o.id); });
+    if (named.size) { $('#namedWrap').classList.remove('hidden');
+      $('#namedBody').innerHTML = Array.from(named.values()).sort(function (a, b) { return b.ids.length - a.ids.length; }).map(function (n) { return '<tr><td>' + esc(n.pv) + '</td><td><a href="https://www.inaturalist.org/taxa/' + n.tid + '"><i>' + esc(n.t) + '</i></a></td><td>' + n.ids.slice(0, 5).map(function (id) { return '<a href="https://www.inaturalist.org/observations/' + id + '">' + id + '</a>'; }).join(' ') + (n.ids.length > 5 ? ' +' + (n.ids.length - 5) : '') + '</td></tr>'; }).join(''); }
+    tick('Reading your projects');
+    try {
+      var pj = await get(INAT + '/users/' + user.id + '/projects?per_page=100'), rows = [], list = (pj.results || []).slice(0, 40);
+      steps += list.length;
+      for (var j = 0; j < list.length; j++) { var p = list[j]; tick('Projects: ' + (j + 1) + ' of ' + list.length);
+        var c = (await get(INAT + '/observations?project_id=' + p.id + '&' + base + '&per_page=0')).total_results; if (c) rows.push({ p: p, c: c }); }
+      rows.sort(function (a, b) { return b.c - a.c; });
+      if (rows.length) { $('#projWrap').classList.remove('hidden'); $('#projBody').innerHTML = rows.map(function (r) { return '<tr><td><a href="https://www.inaturalist.org/projects/' + r.p.id + '">' + esc(r.p.title) + '</a></td><td><a href="' + obsUrl('project_id=' + r.p.id + '&user_id=' + U + tq + '&place_id=any') + '">' + fmt(r.c) + '</a></td></tr>'; }).join(''); }
+    } catch (e) { /* projects are optional */ }
+    tick('Counting citations');
+    try { var lit = await get(GBIF + '/literature/search?gbifDatasetKey=' + INAT_DS + '&limit=0'); setCard('cite', lit.count, ['https://www.gbif.org/resource/search?contentType=literature&gbifDatasetKey=' + INAT_DS, 'See them on GBIF']); }
+    catch (e) { setCard('cite', '?', null, 'Couldn’t reach GBIF.', true); }
+    $('#chain').innerHTML = '<b>' + fmt(all) + '</b> observed → <b>' + fmt(rg) + '</b> Research Grade → <b>' + (gb == null ? '—' : fmt(gb)) + '</b> in GBIF' + (nSeq ? ' · <b>' + fmt(nSeq) + '</b> sequenced → <b>' + fmt(nGb) + '</b> in GenBank' : '');
+    $('#ptext').textContent = 'Done.';
+  }
+  // All observations matching a query, 200 at a time (stops at 5,000).
+  async function pages(q, label) {
+    var out = [], idAbove = 0, total = null;
+    while (out.length < 5000) {
+      var d = await get(INAT + '/observations?' + q + '&per_page=200&order_by=id&order=asc&id_above=' + idAbove);
+      if (total == null) { total = d.total_results || 0; steps += Math.ceil(Math.min(total, 5000) / 200); }
+      var r = d.results || []; if (!r.length) break; out = out.concat(r); idAbove = r[r.length - 1].id;
+      tick('Reading ' + label + ': ' + fmt(out.length) + ' of ' + fmt(total)); if (r.length < 200) break;
+    }
+    return out;
+  }
+  $('#whoForm').addEventListener('submit', async function (e) {
+    e.preventDefault(); var login = $('#user').value.trim().replace(/^@/, ''); if (!login) return;
+    try { localStorage.setItem('footprint.user', login); } catch (x) { /* storage unavailable */ }
+    $('#goBtn').disabled = true; $('#prog').classList.remove('hidden'); msg('');
+    try { await run(login, $('#scope').value); } catch (x) { msg('Couldn’t finish: ' + esc(x.message) + '.', 'err'); }
+    $('#goBtn').disabled = false;
+  });
+  var qs = new URLSearchParams(location.search), u0 = qs.get('user'); if (!u0) { try { u0 = localStorage.getItem('footprint.user'); } catch (x) { /* storage unavailable */ } }
+  if (u0) $('#user').value = u0; if (qs.get('scope') === 'all') $('#scope').value = 'all';
+})();
+</script>
+<script>
+/* Workbench frame: Theme button and source status chips (same behaviour as the other tools). */
+(function(){
+  var KEY='footprint.theme', r=document.documentElement;
+  var b=document.getElementById('wbThemeBtn');
+  if(b)b.addEventListener('click',function(){var cur=r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark';try{localStorage.setItem(KEY,JSON.stringify(r.dataset.theme))}catch(e){}});
+  function chip(id,url){var c=document.getElementById(id);function set(cls,txt){if(!c)return;c.classList.remove('live','fail');c.classList.add(cls);c.querySelector('.st').textContent=txt}
+    fetch(url).then(function(x){set(x.ok?'live':'fail',x.ok?'live':'not reachable')},function(){set('fail','not reachable')});}
+  chip('wb-src-inat','https://api.inaturalist.org/v1/observations?per_page=0&taxon_id=47170');
+  chip('wb-src-gbif','https://api.gbif.org/v1/occurrence/search?limit=0&datasetKey=50c9509d-22c7-4a22-a47d-8c48425ef4a7');
+})();
+</script>
+</body>
+</html>

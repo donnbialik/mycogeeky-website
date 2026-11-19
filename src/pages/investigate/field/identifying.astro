@@ -1,0 +1,80 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// Identifying fungi on iNaturalist: how IDs and Research Grade work, adding IDs you can stand behind,
+// what identifiers need from observers, DNA-backed records and provisional names. Written for the January ID-a-Thon.
+const sources = [
+  { cite: 'iNaturalist Help. <em>What is the Data Quality Assessment and how do observations qualify to become “Research Grade”?</em>', url: 'https://help.inaturalist.org/support/solutions/articles/151000169936' },
+  { cite: 'iNaturalist Help. <em>What are the Community Taxon and the Observation Taxon?</em>', url: 'https://help.inaturalist.org/support/solutions/articles/151000173076' },
+  { cite: 'iNaturalist. <em>Building a global movement for nature</em>: webinar FAQs (adding IDs you can confirm; refining to broader groups; keeping non-Research-Grade observations; the January ID-a-Thon), November 2026.', url: 'https://www.inaturalist.org/blog/139715-building-a-global-movement-for-nature-webinar-recording-resources' },
+  { cite: 'iNaturalist. <em>Identifier Profile: @sofiazed1</em> (tips for identifiable fungus observations).', url: 'https://www.inaturalist.org/blog/90024-identifier-profile-sofiazed1' },
+  { cite: 'iNaturalist. <em>Identifier Profile: @arielbonkoski</em>, September 2026 (few fungi identifiers; iNaturalist as a home base for DNA-sequenced fungi).', url: 'https://www.inaturalist.org/blog/136609' },
+  { cite: 'iNaturalist. <em>Provisional Taxa Pilot</em>, December 2025 (names in the form Genus sp. ‘Label’, supported by an observation with the “DNA Barcode ITS” field).', url: 'https://www.inaturalist.org/blog/120944-provisional-taxa-pilot' },
+  { cite: 'iNaturalist. <em>ID-a-thon Results</em>, January 2026 (the first ID-a-thon ran from 15 December 2025).', url: 'https://www.inaturalist.org/blog/123284-id-a-thon-results' },
+  { cite: 'Mycota Lab. <em>Using temporary code names for documenting macrofungi.</em>', url: 'https://mycotalab.substack.com/p/using-temporary-code-names-for-documenting' },
+  { cite: 'Cooper J. <em>Identifying fungi in New Zealand</em> (why most fungi can’t be named reliably from photos), iNaturalist NZ journal.', url: 'https://inaturalist.nz/journal/cooperj/35101-identifying-fungi-in-new-zealand' },
+];
+const tour = [
+  { title: 'Identifying fungi on iNaturalist', body: '<p>Fungi have far fewer identifiers than other common groups. This page covers how identifications work, how to add ones you can stand behind, and how DNA-backed records and provisional names fit in.</p>' },
+  { sel: '#how', title: 'How an ID becomes Research Grade', body: '<p>At least two identifications, more than two-thirds agreeing, at species level. Research Grade records with an open licence are shared with GBIF.</p>' },
+  { sel: '#safe', title: 'IDs you can stand behind', body: '<p>Only add what you can confirm from the photos. A correct genus or family is more useful than a guessed species.</p>' },
+  { sel: '#observers', title: 'Help identifiers help you', body: '<p>Most fungi go unidentified because a key view or note is missing, not because nobody looked.</p>' },
+  { sel: '#dna', title: 'DNA and provisional names', body: '<p>Sequences go in the “DNA Barcode ITS” field. Provisional names like Genus sp. ‘IN01’ mark species known from DNA but not yet described.</p>' },
+  { sel: '#idathon', title: 'Join the ID-a-Thon', body: '<p>iNaturalist runs an ID-a-Thon each January. Here’s a fungi-friendly way to take part, even as a beginner.</p>' },
+];
+---
+<FieldGuide title="Identifying fungi on iNaturalist" description="How identifications and Research Grade work on iNaturalist, how to add fungi IDs you can stand behind, what identifiers need from observers, and how DNA barcodes and provisional names fit in. Ready for the January ID-a-Thon." eyebrow="FIELD RESEARCH TOOLKIT / IDENTIFYING FUNGI" heading="More fungi than <em>people to name them.</em>" lead="Fungi have far fewer identifiers on iNaturalist than other common groups. You don’t need to be an expert to help: you need to know what you can confirm, and what to leave for someone else." tourKey="field-identifying" tour={tour} sources={sources} current="identify">
+
+<section id="how">
+  <p class="mv-guide-kicker">How it works</p>
+  <h2>Identifications are a vote, and two-thirds wins.</h2>
+  <p>Every identification on an observation counts towards the <strong>Community Taxon</strong>: the taxon that more than two-thirds of identifiers agree with. An observation needs at least two identifications to have one.<sup class="mv-ref"><a href="#sources">2</a></sup> When the Community Taxon reaches species level and the other quality checks pass (a photo, a date, a location, a wild organism), the observation becomes <strong>Research Grade</strong>.<sup class="mv-ref"><a href="#sources">1</a></sup> Since October 2025, the Community Taxon and the Observation Taxon must also agree for an observation to be Research Grade.<sup class="mv-ref"><a href="#sources">2</a></sup></p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>Needs ID</h3><p>Not settled yet. For fungi this is normal, and often stays that way for a long time.</p></div>
+    <div class="mv-guide-card"><h3>Research Grade</h3><p>Agreed at species level. Research Grade observations with an open licence are shared with GBIF, where researchers download them.<sup class="mv-ref"><a href="#sources">3</a></sup></p></div>
+    <div class="mv-guide-card"><h3>Not Research Grade isn’t worthless</h3><p>iNaturalist’s advice is to keep them: the right person may find them years later, and a record of where something was is irreplaceable.<sup class="mv-ref"><a href="#sources">3</a></sup></p></div>
+  </div>
+</section>
+
+<section id="safe">
+  <p class="mv-guide-kicker">Adding identifications</p>
+  <h2>Name only what you can confirm from the photos.</h2>
+  <p>iNaturalist’s guidance is simple: add an ID you can confirm yourself from the evidence, and if species level is too hard, refine to a broader group so the right experts find it.<sup class="mv-ref"><a href="#sources">3</a></sup> With fungi this matters more than most groups. Many species can’t be told apart from photos at all, and in some regions most fungi haven’t even been described.<sup class="mv-ref"><a href="#sources">8</a></sup></p>
+  <div class="mv-guide-do">
+    <div><h3>Helpful</h3><ul><li>Moving “Unknown” or “Life” to Fungi, or to mushrooms, polypores or cup fungi</li><li>A genus you’re sure of (for example, <em>Russula</em> from the brittle flesh and no latex)</li><li>Agreeing with a species only when you’d have reached it yourself</li><li>A comment explaining why, when you disagree</li></ul></div>
+    <div><h3>Not helpful</h3><ul><li>Agreeing because the suggestion looks plausible</li><li>A species name for a group that needs a microscope or DNA</li><li>Accepting the computer-vision suggestion without checking it</li><li>Pushing a sequenced record away from what its DNA says</li></ul></div>
+  </div>
+</section>
+
+<section id="observers">
+  <p class="mv-guide-kicker">For observers</p>
+  <h2>Help identifiers help you.</h2>
+  <p>Experienced fungi identifiers ask for the same things over and over: several photos from different angles, in focus, with one wide shot of the habitat; any bruising or colour change; and a spore print when you can.<sup class="mv-ref"><a href="#sources">4</a></sup> Add what the photos can’t show in the notes: the substrate (soil, wood, which tree), the nearest trees, smell, and whether you kept a specimen.</p>
+  <div class="mv-guide-ext">
+    <a href="/investigate/field/photography/">Phone photos<small>The seven views and getting them sharp</small></a>
+    <a href="/investigate/field/genus-notes/">Genus notes<small>What to catch for six tricky groups</small></a>
+  </div>
+</section>
+
+<section id="dna">
+  <p class="mv-guide-kicker">DNA-backed records</p>
+  <h2>When a sequence settles it.</h2>
+  <p>iNaturalist has become a home base for documenting DNA-sequenced fungi.<sup class="mv-ref"><a href="#sources">5</a></sup> A sequenced observation carries its ITS sequence in the <strong>“DNA Barcode ITS”</strong> observation field, and often a voucher number and a link to the sequence results. When you identify a sequenced record, the DNA outranks the photos: check the sequence result before adding a different name.</p>
+  <h3 style="margin-top:16px">Provisional names</h3>
+  <p>Many sequenced fungi don’t match any described species. North American mycologists give them temporary code names, usually built from a place code and a number, such as <em>Amanita</em> sp. ‘IN01’, or a related name plus a code when there’s a close lookalike, such as <em>Hygrocybe</em> sp. ‘conica-IN04’.<sup class="mv-ref"><a href="#sources">7</a></sup> In December 2025 iNaturalist began a pilot allowing provisional taxa in that form, each supported by an observation with the “DNA Barcode ITS” field.<sup class="mv-ref"><a href="#sources">6</a></sup> It started with Cortinariaceae; by November 2026, provisional taxa appear across many fungal genera. You’ll also see the name in a “Provisional Species Name” observation field on many records.</p>
+  <div class="mv-guide-note"><p><strong>Identifying to a provisional name:</strong> only do it for a sequenced record whose result points to that name, or when you know the group well enough to recognise it. A provisional name on an unsequenced photo is usually a guess.</p></div>
+  <p>MycoView’s <a href="/investigate/provisional-finder/">Provisional Finder</a> and <a href="/investigate/its-bin-comparator/">ITS Bin Comparator</a> help with sequenced records and provisional names.</p>
+</section>
+
+<section id="idathon">
+  <p class="mv-guide-kicker">The ID-a-Thon</p>
+  <h2>A fungi-friendly way to join in each January.</h2>
+  <p>iNaturalist ran its first ID-a-Thon over the 2025–26 winter<sup class="mv-ref"><a href="#sources">9</a></sup> and plans another in January, with resources for building identification skills.<sup class="mv-ref"><a href="#sources">3</a></sup> Fungi are a good place to help: there are far fewer fungi identifiers than for other common groups.<sup class="mv-ref"><a href="#sources">5</a></sup></p>
+  <ol class="mv-guide-steps">
+    <li><h3>Start where you live</h3><p>Open the <a href="https://www.inaturalist.org/observations/identify">Identify page</a>, set the place to your county or state and the taxon to Fungi. Local species are the ones you know best.</p></li>
+    <li><h3>Sweep the unknowns</h3><p>Filter to “Unknown” or Life and move mushrooms to Fungi. It needs no expertise, and it puts them in front of fungi identifiers.</p></li>
+    <li><h3>Pick one group</h3><p>Choose a genus or group you know well (polypores, boletes, <em>Amanita</em>) and work through it. Depth beats breadth.</p></li>
+    <li><h3>Leave a reason</h3><p>A short comment on why (“white spores, free gills, volva”) teaches the observer and the next identifier.</p></li>
+  </ol>
+</section>
+
+</FieldGuide>

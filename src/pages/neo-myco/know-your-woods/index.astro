@@ -1,4 +1,5 @@
 ---
+import Photo from '../../../components/Photo.astro';
 import NeoMyco from '../../../layouts/NeoMyco.astro';
 import NeoTerm from '../../../components/NeoTerm.astro';
 // Know Your Woods explains the idea and why it matters. The step-by-step how-to lives on /one-place/.
@@ -36,7 +37,7 @@ const reasons=[
 <section class="wrap section" id="club">
   <div class="section-heading"><p class="kicker">03 / HOW IT CONNECTS TO NEO MYCO</p><h2>Your inventory, <em>part of a bigger picture.</em></h2></div>
   <div class="intro"><p class="lead">At club events, our mission is to sequence everything we find, except <NeoTerm term="oversampled taxa" id="oversampled-kyw">Species that already have plenty of reliable DNA sequences in public databases, usually common and easy-to-recognize fungi. One more sequence of them adds little, so we spend sequencing on finds that can still teach us something.</NeoTerm>. Home and trail inventories are where many of the most interesting finds will first turn up.</p><p>Bring standout finds from your inventory to club events, compare notes with other members, and learn how to voucher a specimen so it can be sequenced. Each member’s place adds to a shared picture of Northeast Ohio’s fungi.</p></div>
-  <div class="return-record"><img src="https://inaturalist-open-data.s3.amazonaws.com/photos/715327092/large.jpg" alt="Inocybe communis from Donn Bialik’s front yard" loading="lazy"/><div><p class="kicker">A PLACE TO BEGIN</p><h2>It can start at home.</h2><p>Donn’s front-yard inventory connects a familiar place to a newly described species. See how the records, the DNA barcode and the publication fit together.</p><a href="/neo-myco/#field-record">Open the <i>Inocybe communis</i> field record →</a></div></div>
+  <div class="return-record"><Photo src="inocybe-communis-front-yard-2026.jpg" alt="Inocybe communis from Donn Bialik’s front yard" loading="lazy" display={760} /><div><p class="kicker">A PLACE TO BEGIN</p><h2>It can start at home.</h2><p>Donn’s front-yard inventory connects a familiar place to a newly described species. See how the records, the DNA barcode and the publication fit together.</p><a href="/neo-myco/#field-record">Open the <i>Inocybe communis</i> field record →</a></div></div>
 </section>
 
 <section class="join wrap">

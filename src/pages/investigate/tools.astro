@@ -1,4 +1,0 @@
----
-import Base from '../../layouts/Base.astro';import ToolCard from '../../components/ToolCard.astro';import {tools} from '../../data/tools';import PathSwitch from '../../components/PathSwitch.astro';
----
-<Base title="Research Workbench"><section class="page-hero container"><p class="eyebrow">INVESTIGATE / WORKBENCH</p><h1>Research Workbench.</h1><p class="lead">Tools can be experimental, updated, replaced, or archived. Whether a tool can be opened and whether its results have been scientifically evaluated are separate questions, so each card shows both.</p></section><section class="section"><div class="container"><PathSwitch/><div class="feature-grid three">{tools.map(tool=><ToolCard tool={tool}/>)}</div></div></section></Base>

@@ -1,3 +1,7 @@
 # Research Navigator moved from its working name (Nov 2026). Keep old links working.
 /investigate/study-designer        /investigate/research-navigator/  301
 /investigate/study-designer/       /investigate/research-navigator/  301
+
+# The separate Workbench page was merged into the Toolbox section of /investigate/ (Nov 2026).
+/investigate/tools        /investigate/#workbench  301
+/investigate/tools/       /investigate/#workbench  301

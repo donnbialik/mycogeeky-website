@@ -18,7 +18,7 @@ Open http://localhost:4321. Before committing: `npm run check` and `npm run buil
 - `/curious/` — Curiosity Generator
 - `/investigate/` — Research pathway
 - `/investigate/learn/` — Research learning
-- `/investigate/tools/` — Tool registry
+- `/investigate/#workbench` — Toolbox (tool registry); `/investigate/tools/` redirects here
 - `/investigate/resources/` — External scientific resources
 - `/connect/` — Collaborations, Neo Myco, MycoView
 - `/about/` — Personal story and philosophy

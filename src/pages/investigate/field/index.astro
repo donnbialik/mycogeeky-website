@@ -1,0 +1,54 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// Field Research Toolkit hub: what collecting for science involves, with guides, tools and the outside tools we recommend.
+const guides = [
+  ['Start to finish', 'What one collection involves, from the woods to GenBank, over a day and a half.', '/investigate/field/start-to-finish/'],
+  ['Phone photos', 'The seven views, getting close-ups sharp on a phone, and the ten-second check.', '/investigate/field/photography/'],
+  ['Specimen tracking', 'Why the specimen, photos, record and sequence must stay linked, and how.', '/investigate/field/tracking/'],
+  ['Drying & storage', 'Temperature, timing and storage that keep DNA intact, from published protocols.', '/investigate/field/drying/'],
+  ['Genus notes', 'What to catch in the field for Amanita, Cortinarius, milkcaps, Russula, boletes and waxcaps.', '/investigate/field/genus-notes/'],
+];
+const tools = [
+  ['Collection Planner', 'How many collections a day you can actually finish, from your evening, morning and dehydrator.', '/investigate/collection-planner/'],
+  ['Collection Check', 'Enter an iNaturalist username and see which records are missing a step.', '/investigate/collection-check/'],
+];
+const tour = [
+  { title: 'The Field Research Toolkit', body: '<p>Guides and tools for collecting fungi for science: not what to buy, but what the work looks like, and how to keep up with it.</p>' },
+  { sel: '#guides', title: 'Five guides', body: '<p>Each has its own short walk-through. Start with “Start to finish” for the whole picture.</p>' },
+  { sel: '#tools', title: 'Two tools', body: '<p>One plans how much you can collect. The other checks your iNaturalist records for collections that stalled partway.</p>' },
+  { sel: '#others', title: 'Tools from others', body: '<p>Where someone has already built a good tool, we link to it rather than copy it.</p>' },
+];
+---
+<FieldGuide title="Field Research Toolkit" description="Guides and tools for collecting fungi for science: the full workflow, phone photography, specimen tracking, drying and storage, genus-specific field notes, a collection planner and a record checker." eyebrow="FIELD RESEARCH TOOLKIT" heading="What collecting for science <em>actually looks like.</em>" lead="Not a gear list. How to photograph, number, dry and store a collection so it’s still useful in ten years, and tools that help you keep up." tourKey="field-hub" tour={tour} current="hub">
+
+<section id="guides">
+  <p class="mv-guide-kicker">Guides</p>
+  <h2>Learn the workflow</h2>
+  <div class="mv-guide-grid">{guides.map(([t, d, h]) => <a class="mv-guide-card mv-hub-card" href={h}><h3>{t} →</h3><p>{d}</p></a>)}</div>
+</section>
+
+<section id="tools">
+  <p class="mv-guide-kicker">Tools</p>
+  <h2>Keep up with it</h2>
+  <div class="mv-guide-grid">{tools.map(([t, d, h]) => <a class="mv-guide-card mv-hub-card mv-hub-tool" href={h}><h3>{t} →</h3><p>{d}</p></a>)}</div>
+</section>
+
+<section id="others">
+  <p class="mv-guide-kicker">Tools from others</p>
+  <h2>Already built, and good</h2>
+  <p>Alan Rockefeller’s free tools handle labels and voucher numbers. FunDiS publishes the sequencing protocol and printable field slips most of these guides draw on.</p>
+  <div class="mv-guide-ext">
+    <a href="https://dikarya.us/labels">Herbarium Label Generator ↗<small>Alan Rockefeller · dikarya.us</small></a>
+    <a href="https://dikarya.us/voucher-labels">Voucher labels ↗<small>Alan Rockefeller · dikarya.us</small></a>
+    <a href="https://dikarya.us/voucher-sync">Voucher sync ↗<small>Alan Rockefeller · dikarya.us</small></a>
+    <a href="https://fundis.org/sequence">Sequencing protocol ↗<small>FunDiS</small></a>
+    <a href="https://www.fundis.org/field-data-slips">Field data slips ↗<small>FunDiS</small></a>
+  </div>
+</section>
+
+</FieldGuide>
+<style>
+.mv-hub-card{text-decoration:none;display:block;border-top:4px solid #3f7a55}
+.mv-hub-card:hover{border-color:#3f7a55}
+.mv-hub-tool{border-top-color:#d8ed43}
+</style>

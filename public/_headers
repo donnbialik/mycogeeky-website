@@ -60,3 +60,15 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Collection Planner: a self-contained page; makes no outside requests.
+/investigate/collection-planner/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Collection Check: a self-contained page that calls the public iNaturalist API from the browser.
+/investigate/collection-check/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

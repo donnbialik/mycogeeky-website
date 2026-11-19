@@ -1373,3 +1373,48 @@ html:not([data-active-path]) .mv-tool-step:not([data-path=provisional-taxonomist
   .mv-research-grid>.mv-survey-card{grid-column:2;grid-row:1 / span 2}
   .mv-research-card h3{margin-top:14px}
 }
+
+/* ---------- Field Research Toolkit guide pages (FieldGuide.astro) ---------- */
+.mv-guide button.station-button{border:0;cursor:pointer;font:700 1rem var(--v5-sans)}
+.mv-guide-hint{color:#cfdcc6;font-size:.9rem;margin-top:14px}
+.mv-guide-nav{width:min(1180px,calc(100% - 44px));margin:18px auto 0;display:flex;flex-wrap:wrap;gap:6px 8px}
+.mv-guide-nav a{font:500 .78rem var(--v5-mono);letter-spacing:.03em;text-decoration:none;color:#17372e;border:1px solid #cbd6c7;border-radius:30px;padding:6px 12px;background:#fffefa}
+.mv-guide-nav a:hover{border-color:#3f7a55}
+.mv-guide-nav a[aria-current=page]{background:#173d30;border-color:#173d30;color:#f7f7eb}
+.mv-guide-body{width:min(1180px,calc(100% - 44px));margin:auto}
+.mv-guide-body>section{padding:30px 0 6px}
+.mv-guide-body h2{font:600 clamp(1.6rem,2.6vw,2.15rem)/1.15 var(--mv-serif);letter-spacing:-.01em;color:#17372e;margin:0 0 10px}
+.mv-guide-body h3{font:600 1.22rem/1.25 var(--mv-serif);letter-spacing:0;color:#17372e;margin:0 0 6px}
+.mv-guide-body p,.mv-guide-body li{color:#2f4a3c;font-size:1.02rem;line-height:1.62}
+.mv-guide-body p{max-width:760px;margin:0 0 12px}
+.mv-guide-body a{color:#1c4837}
+.mv-guide-kicker{font:500 .7rem var(--v5-mono);letter-spacing:.1em;text-transform:uppercase;color:#46624d;margin:0 0 6px}
+.mv-guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin:14px 0}
+.mv-guide-card{background:#fffefa;border:1px solid #d6ded1;border-radius:8px;padding:18px 20px}
+.mv-guide-card p{font-size:.95rem;margin:0 0 8px}
+.mv-guide-card p:last-child{margin-bottom:0}
+.mv-guide-steps{list-style:none;margin:14px 0;padding:0;counter-reset:mvstep;display:grid;gap:12px}
+.mv-guide-steps>li{counter-increment:mvstep;position:relative;background:#fffefa;border:1px solid #d6ded1;border-left:4px solid #3f7a55;border-radius:7px;padding:16px 18px 14px 60px}
+.mv-guide-steps>li::before{content:counter(mvstep,decimal-leading-zero);position:absolute;left:16px;top:16px;font:600 .82rem var(--v5-mono);color:#46624d}
+.mv-guide-steps>li p{margin:0 0 6px;font-size:.97rem}
+.mv-guide-when{display:inline-block;font:500 .68rem var(--v5-mono);letter-spacing:.08em;text-transform:uppercase;color:#46624d;background:#e9efe5;border-radius:4px;padding:2px 7px;margin-bottom:6px}
+.mv-guide-photo{display:flex;align-items:center;justify-content:center;text-align:center;min-height:170px;border:2px dashed #b9c7b5;border-radius:8px;background:repeating-linear-gradient(135deg,#f4f5ee 0 12px,#eef1e8 12px 24px);color:#5a6f60;font:500 .78rem var(--v5-mono);padding:16px;margin:10px 0}
+.mv-guide-note{background:#fff0d2;border-left:4px solid #b47d20;border-radius:6px;padding:12px 16px;margin:14px 0;max-width:820px}
+.mv-guide-note p{margin:0;font-size:.96rem}
+.mv-guide-do{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.mv-guide-do>div{border-radius:8px;padding:16px 18px;background:#fffefa;border:1px solid #d6ded1}
+.mv-guide-do>div:first-child{border-top:4px solid #328253}
+.mv-guide-do>div:last-child{border-top:4px solid #ba4c44}
+.mv-guide-do ul{margin:6px 0 0;padding-left:18px}
+.mv-guide-do li{font-size:.95rem;margin-bottom:4px}
+.mv-guide-ext{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.mv-guide-ext a{display:inline-block;background:#fffefa;border:1px solid #cbd6c7;border-radius:6px;padding:9px 13px;font-weight:600;font-size:.92rem;text-decoration:none}
+.mv-guide-ext a:hover{border-color:#3f7a55}
+.mv-guide-ext a small{display:block;font-weight:400;color:#54695b;font-size:.78rem}
+.mv-guide-sources{width:min(1180px,calc(100% - 44px));margin:24px auto 0;border-top:1px solid #cbd6c7;padding-top:18px}
+.mv-guide-sources h2{font:700 1.02rem var(--v5-sans);letter-spacing:.07em;text-transform:uppercase;margin:0 0 10px}
+.mv-guide-sources ol{margin:0;padding-left:22px}
+.mv-guide-sources li{font-size:.88rem;line-height:1.5;color:#2f4a3c;margin-bottom:6px}
+.mv-guide-sources a{word-break:break-word;color:#1c4837}
+sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;padding:0 1px}
+@media(max-width:700px){.mv-guide-do{grid-template-columns:1fr}.mv-guide-steps>li{padding-left:18px;padding-top:36px}.mv-guide-steps>li::before{top:12px}}

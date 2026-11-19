@@ -1,0 +1,73 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// "Don't miss this" notes: what to record in the field for genera where the key features are lost by evening.
+// Each card links to the sources it was written from.
+type Card = { id: string; genus: string; why: string; miss: string[]; src: [string, string][] };
+const cards: Card[] = [
+  { id: 'amanita', genus: 'Amanita', why: 'Identification often starts at the stem base, which is usually underground, and the veil remnants on the cap wash or rub off easily.',
+    miss: ['Dig out the whole base with a knife. A snapped stem loses the volva, the bulb and its rim or scales.', 'Photograph cap warts or patches before handling: rain, rubbing and transport remove them.', 'Collect young and mature specimens if you can; immature ones may not show every feature yet.', 'Note the trees nearby.', 'Do not taste Amanita.', 'Take a spore print: whether the spores are amyloid can be needed to place it in a section.'],
+    src: [['MushroomExpert: Amanita', 'https://www.mushroomexpert.com/amanita'], ['Fungus Fact Friday #172', 'https://fungusfactfriday.com/?p=942'], ['First Nature: Amanita', 'https://first-nature.com/fungi/amanita-a-simple-key.php'], ['Ovrebo & Justice 2020, Oklahoma Native Plant Record', 'https://ojs.library.okstate.edu/osu/index.php/ONPR/article/download/8321/7633']] },
+  { id: 'cortinarius', genus: 'Cortinarius', why: 'The young gill colour and the cobweb-like veil (cortina) are among the most useful features, and both are gone or rust-brown by maturity.',
+    miss: ['Collect young buttons as well as mature mushrooms.', 'Photograph young gills: violet, cream or olive tones turn rusty as the spores mature.', 'Photograph the cortina on a young specimen, and any veil remnants or rusty ring on the stem.', 'Photograph the stem base and bulb, including its rim and colour, and cut one in half.', 'Some groups are separated by UV fluorescence or KOH reactions on the base; note them if you can test.'],
+    src: [['Fungus Fact Friday #186', 'https://www.fungusfactfriday.com/?p=1224'], ['Notes on collecting Cortinarius', 'https://mushroomhobby.com/legacy/COLLECTING_CORTINARIUS/index.htm'], ['First Nature: Cortinariaceae', 'https://www.first-nature.com/fungi/~cortinariaceae.php'], ['nacorts.com: spring corts', 'https://nacorts.com/2024/07/07/working-notes-on-spring-corts/']] },
+  { id: 'lactarius', genus: 'Lactarius and milkcaps', why: 'The latex (milk) is central to identification, and it changes colour, stains the gills and dries up. None of that survives to the evening.',
+    miss: ['Cut across the gills and record the latex colour straight away.', 'Look again after 5–10 minutes and photograph any change. Some change only after an hour.', 'Note what colour the latex stains the gills or flesh.', 'Note any smell (some have a maple-syrup smell).', 'Photograph the stem for small darker pits (scrobicules).'],
+    src: [['Pat Leonard, Lactarius (QMS, 2017)', 'https://qldfungi.org.au/wp-content/uploads/Meetings-Presentations/QMS-Presentation-Pat-Leonard-Lactarius-2017.pdf'], ['Fungus Fact Friday #176', 'https://fungusfactfriday.com/?p=1008'], ['Wikipedia: Lactarius', 'https://en.wikipedia.org/wiki/Lactarius'], ['Mushroom The Journal: fragrant Lactarius', 'https://mushroomthejournal.com/greatlakesdata/Taxa/DullcSecti855.html']] },
+  { id: 'russula', genus: 'Russula', why: 'Many species are told apart by spore print colour and by features that change or vanish on drying, so the fresh notes carry most of the weight.',
+    miss: ['Take a spore print on white paper: the exact shade from white to orange-yellow matters.', 'Note smell, and any colour change in the cut flesh, before drying.', 'Photograph the cut flesh after about five minutes as well as straight away; some slowly turn pink, red, grey or black.', 'Write down cap colour, including the centre and the edge, because photos do not always show it accurately.'],
+    src: [['Russulales News: in the field', 'https://www2.muse.it/russulales-news/tc_in_the_field.asp'], ['MushroomExpert: Russula', 'https://mushroomexpert.com/russula.html'], ['Scottish Fungi: field characteristics', 'https://sites.google.com/site/scottishfungi/identification/field-characteristics'], ['FunDiS: photography of macrofungi', 'https://www.fundis.org/blog/photography-of-macrofungi'], ['Mushroom The Journal: red Russula', 'https://mushroomthejournal.com/greatlakesdata/Taxa/RedRuSubge1261.html']] },
+  { id: 'boletes', genus: 'Boletes', why: 'Bruising and staining reactions are used heavily, and they are fastest and most reliable on fresh specimens. Some blue stains fade or turn brown.',
+    miss: ['Press the pore surface and cut the flesh within about 30 minutes of picking, and photograph the result.', 'Photograph again a few minutes later: some stain blue then brown, or blue then fade.', 'No colour change is a result too. Record it.', 'Photograph the stem surface closely: net pattern (reticulation), scabers or dots.', 'Cut one top to bottom to show the flesh and tubes.'],
+    src: [['Mushroom Appreciation: bruising', 'https://mushroom-appreciation.com/identifying-mushrooms.html'], ['Mushroom Appreciation: boletes', 'https://www.mushroom-appreciation.com/all-about-boletes.html'], ['MushroomExpert: Boletus key', 'https://www.mushroomexpert.com/boletus_06.html'], ['iNaturalist Luxembourg: documenting mushrooms', 'https://inaturalist.lu/posts/3531-documenting-mushrooms']] },
+  { id: 'waxcaps', genus: 'Waxcaps (Hygrocybe and relatives)', why: 'Bright colours fade as they dry and age (red to orange to yellow), and sliminess disappears. Fresh colour and texture are hard to recover afterwards.',
+    miss: ['Photograph colours before collecting, in even light.', 'Note whether the cap and stem are slimy, greasy or dry when fresh.', 'Collect several mushrooms: features are best judged across a fresh collection.'],
+    src: [['MushroomExpert: waxy caps', 'https://mushroomexpert.com/hygrophoraceae.html'], ['Mushroom The Journal: Hygrocybe', 'https://mushroomthejournal.com/greatlakesdata/Taxa/HygroGenus77.html']] },
+];
+const tour = [
+  { title: 'Genus notes: don’t miss this', body: '<p>For some genera, the feature you need most is gone by the time you get home: latex dries, veils fall off, colours fade, a stain turns brown. These cards list what to catch in the field.</p>' },
+  { sel: '#cards', title: 'One card per group', body: '<p>Each card says why the group is easy to lose, then what to photograph or write down before you leave. Sources are at the foot of each card.</p>' },
+  { sel: '#amanita', title: 'An example', body: '<p>For <em>Amanita</em>, the base is often the answer, and it’s usually underground. Snap the stem and you’ve lost it.</p>' },
+  { sel: '#general', title: 'For everything else', body: '<p>The same habits cover most other genera: the whole base, young and old specimens, a cut section, and notes on anything that might change.</p>' },
+];
+---
+<FieldGuide title="Genus notes: don’t miss this" description="What to photograph and record in the field for Amanita, Cortinarius, Lactarius, Russula, boletes and waxcaps, before the features that identify them disappear." eyebrow="FIELD RESEARCH TOOLKIT / GENUS NOTES" heading="Catch it now, <em>or it’s gone by evening.</em>" lead="Latex dries, veils fall away, colours fade and stains turn brown. For these groups, a few minutes in the field saves a collection from being unidentifiable." tourKey="field-genus-notes" tour={tour} current="genus">
+
+
+<section id="cards">
+  <div class="mv-genus-grid">
+    {cards.map((c) => (
+      <article class="mv-guide-card mv-genus" id={c.id}>
+        <h2><em>{c.genus}</em></h2>
+        <p class="mv-genus-why">{c.why}</p>
+        <p class="mv-guide-kicker">Don’t miss</p>
+        <ul>{c.miss.map((m) => <li>{m}</li>)}</ul>
+        <p class="mv-genus-src">Sources: {c.src.map(([t, u], i) => <>{i > 0 && ' · '}<a href={u}>{t}</a></>)}</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<section id="general">
+  <p class="mv-guide-kicker">For every genus</p>
+  <h2>The habits that cover most of the rest</h2>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>The whole base</h3><p>Dig, don’t snap.</p></div>
+    <div class="mv-guide-card"><h3>Young and old</h3><p>Several specimens at different ages, when there are enough.</p></div>
+    <div class="mv-guide-card"><h3>Cut one</h3><p>Top to bottom, photographed now and a few minutes later.</p></div>
+    <div class="mv-guide-card"><h3>Write down what changes</h3><p>Smell, latex, bruising, sliminess, fresh colour.</p></div>
+  </div>
+  <p>More on the photos themselves: <a href="/investigate/field/photography/">Phone photos</a>.</p>
+</section>
+
+</FieldGuide>
+<style>
+.mv-genus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+.mv-genus{border-top:4px solid #3f7a55;scroll-margin-top:20px}
+.mv-genus:nth-child(3n+2){border-top-color:#d8ed43}
+.mv-genus:nth-child(3n){border-top-color:#b08a1e}
+.mv-genus h2{font-size:1.45rem!important;margin-bottom:6px!important}
+.mv-genus .mv-genus-why{color:#46624d!important}
+.mv-genus ul{margin:4px 0 12px;padding-left:18px}
+.mv-genus li{font-size:.93rem!important;margin-bottom:5px;line-height:1.5!important}
+.mv-genus .mv-genus-src{font-size:.8rem!important;color:#54695b!important;border-top:1px solid #e2e8de;padding-top:8px;margin-top:auto}
+</style>

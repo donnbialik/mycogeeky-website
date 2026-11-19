@@ -1,0 +1,90 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// Drying and storing specimens. Every recommendation below is traced to a numbered source at the foot of the page.
+const sources = [
+  { cite: 'FunDiS. <em>Dry your specimens.</em> Fungal Diversity Survey sequencing protocol.', url: 'https://fundis.org/sequence/collect-dry/dry-your-specimens' },
+  { cite: 'FunDiS. <em>Processing fungal specimens.</em>', url: 'https://www.fundis.org/processing-fungal-specimens' },
+  { cite: 'FunDiS. <em>Temporary storage of vouchers.</em>', url: 'https://fundis.org/sequence/voucher/temporary-storage' },
+  { cite: 'Queensland Government. <em>Fungi collection manual</em> (drying at 40–45 °C).', url: 'https://www.qld.gov.au/__data/assets/pdf_file/0032/67478/fungi-coll-manual.pdf' },
+  { cite: 'Diversity 14(4): 239 (2022), on drying temperature and DNA quality in fungal specimens; recommends 30 °C for 48 h, then storage with silica gel, and cites Hosaka &amp; Uno at 35 °C for 48 h.', url: 'https://www.mdpi.com/1424-2818/14/4/239' },
+  { cite: 'Scientific Reports (2017). Comparison of drying methods for preserving mushroom DNA.', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5462775/' },
+];
+const tour = [
+  { title: 'Drying and storage', body: '<p>A dried mushroom is the evidence behind everything that comes later: the DNA sequence, a second look under the microscope, or a new species description. This page covers how to dry it without damaging that evidence.</p>' },
+  { sel: '#why', title: 'Why it matters', body: '<p>Heat and moisture both damage DNA. Too hot, and you cook it. Too slow or too damp, and the specimen rots or moulds.</p>' },
+  { sel: '#temperature', title: 'The temperature', body: '<p>FunDiS recommends 110–120 °F (43–50 °C), and warns that above 155 °F (68 °C) can damage DNA. Lower settings are gentler but take longer.</p>' },
+  { sel: '#when-dry', title: 'When it’s done', body: '<p>“Cracker dry”: it snaps rather than bends. That takes 12–48 hours depending on size and how wet it was.</p>' },
+  { sel: '#rack', title: 'Keep it sorted on the rack', body: '<p>The rack is where collections get mixed up. Keep each one apart, in a known order, and photograph each tray before it goes in.</p>' },
+  { sel: '#storage', title: 'Storing it', body: '<p>Dried fungi soak up moisture from the air, and moisture degrades DNA. Seal it, label it, and add desiccant if your storage is humid.</p>' },
+  { sel: '#sources', title: 'Sources', body: '<p>Every number on this page comes from one of these. Where they disagree, the page says so.</p>' },
+];
+---
+<FieldGuide title="Drying and storing specimens" description="How to dry and store fungal specimens so their DNA survives: temperature, timing, keeping collections apart and storage, from published protocols." eyebrow="FIELD RESEARCH TOOLKIT / DRYING & STORAGE" heading="Dry it right, <em>or the DNA is gone.</em>" lead="A specimen you can sequence in five years starts in the dehydrator tonight. Here’s what the protocols say, and why." tourKey="field-drying" tour={tour} sources={sources} current="drying">
+
+<section id="why">
+  <p class="mv-guide-kicker">Why it matters</p>
+  <h2>The dried specimen is the evidence.</h2>
+  <p>Once a mushroom is dried and labelled, it becomes a voucher: the physical record someone can go back to, re-measure, re-sequence or name. A photo can’t be sequenced. A rotten or overheated specimen often can’t either.</p>
+  <p>Two things work against you. <strong>Heat</strong> breaks DNA down, so drying too hot ruins a specimen even though it looks fine.<sup class="mv-ref"><a href="#sources">1</a></sup> <strong>Moisture</strong> lets the specimen rot or mould while it dries, and goes on damaging DNA after it’s dry if it’s stored damp.<sup class="mv-ref"><a href="#sources">3</a></sup> Start drying as soon as you can after collecting.<sup class="mv-ref"><a href="#sources">1</a></sup></p>
+</section>
+
+<section id="temperature">
+  <p class="mv-guide-kicker">The temperature</p>
+  <h2>Warm, not hot. Use a dehydrator with a thermostat.</h2>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>110–120 °F (43–50 °C)</h3><p>The FunDiS recommendation, for a dehydrator with temperature control.<sup class="mv-ref"><a href="#sources">1</a></sup></p></div>
+    <div class="mv-guide-card"><h3>Never above 155 °F (68 °C)</h3><p>FunDiS warns that temperatures above this can damage DNA.<sup class="mv-ref"><a href="#sources">1</a></sup> Many food dehydrators go higher than that, so check the dial.</p></div>
+    <div class="mv-guide-card"><h3>Lower is gentler</h3><p>Other protocols go lower: 40–45 °C in a Queensland manual,<sup class="mv-ref"><a href="#sources">4</a></sup> and 30 °C for 48 hours in a 2022 study of DNA quality, which also cites 35 °C for 48 hours.<sup class="mv-ref"><a href="#sources">5</a></sup> Lower settings take longer, so the dehydrator is full for longer.</p></div>
+  </div>
+  <div class="mv-guide-note"><p><strong>Where the sources differ:</strong> they agree that high heat is the risk. They don’t agree on one best setting, so “low and steady, and never hot” is the safe reading. A 2017 comparison of drying methods for mushroom DNA is listed below if you want the detail.<sup class="mv-ref"><a href="#sources">6</a></sup></p></div>
+  <div class="mv-guide-photo">Photo to come: the dehydrator, with the thermostat set</div>
+</section>
+
+<section id="when-dry">
+  <p class="mv-guide-kicker">When it’s done</p>
+  <h2>“Cracker dry”: it snaps, it doesn’t bend.</h2>
+  <p>FunDiS describes a finished specimen as cracker dry, or as dry as potato chips. That usually takes 12 to 48 hours, depending on how big and how wet the mushroom was.<sup class="mv-ref"><a href="#sources">1</a></sup><sup class="mv-ref"><a href="#sources">2</a></sup> A thick bolete stem takes far longer than a small <em>Mycena</em>, so check each collection rather than the whole rack at once.</p>
+  <div class="mv-guide-do">
+    <div><h3>Done</h3><ul><li>Snaps cleanly when bent</li><li>Feels light, with no cool or soft spots</li><li>The thickest part (stem base, bulb, cap centre) is dry too</li></ul></div>
+    <div><h3>Not yet</h3><ul><li>Bends or feels leathery</li><li>The centre of the stem or cap is still soft</li><li>Feels heavier than it looks</li></ul></div>
+  </div>
+  <p>If you slice a large specimen to help it dry, keep every piece together with the same number.</p>
+</section>
+
+<section id="rack">
+  <p class="mv-guide-kicker">On the rack</p>
+  <h2>The dehydrator is where collections get mixed up.</h2>
+  <p>FunDiS advises keeping contact between species to a minimum and labelling specimens on the rack.<sup class="mv-ref"><a href="#sources">1</a></sup> Specimens that touch can pass tissue and spores to each other, and a single swapped label undoes everything else you did right.</p>
+  <ol class="mv-guide-steps">
+    <li><span class="mv-guide-when">Loading</span><p>Put each collection in its own spot, with space around it, and its number (the corner of its field slip, or a printed label) right beside it. Another way, which I use: lay collections out in the order you made the observations, starting from a fixed point (12 o’clock on a round dehydrator), so position gives the order.</p></li>
+    <li><span class="mv-guide-when">Before it goes in</span><p>Photograph each tray. Some mushrooms dry down to look very different, and the photo lets you match them up in the morning.</p></li>
+    <li><span class="mv-guide-when">Mixed sizes</span><p>Put the slow, thick collections where you can reach them without disturbing the rest, because they’ll stay on after the others come off.</p></li>
+    <li><span class="mv-guide-when">Unloading</span><p>Bag one collection at a time, with its label, before you touch the next. Never take several off the rack and sort them afterwards.</p></li>
+    <li><span class="mv-guide-when">If in doubt</span><p>If you can’t confidently say which collection a dried piece belongs to, discard it, or make a new observation of it and note what happened.</p></li>
+  </ol>
+  <div class="mv-guide-photo">Photo to come: a loaded rack, with each collection’s number beside it</div>
+  <p>More on numbering and keeping things matched: <a href="/investigate/field/tracking/">Specimen tracking</a>.</p>
+</section>
+
+<section id="storage">
+  <p class="mv-guide-kicker">Storage</p>
+  <h2>Keep it dry once it’s dry.</h2>
+  <p>Dried fungi absorb moisture from the air, and that moisture degrades DNA. FunDiS recommends adding desiccant if the relative humidity where you store specimens is above 50%.<sup class="mv-ref"><a href="#sources">3</a></sup></p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>Seal it</h3><p>A sealed bag for each collection, with its label inside the bag, not only written on the outside.</p></div>
+    <div class="mv-guide-card"><h3>Know your humidity</h3><p>An inexpensive hygrometer tells you whether your storage space is above 50%. If it is, add desiccant (silica gel) to the bags or the box.<sup class="mv-ref"><a href="#sources">3</a></sup><sup class="mv-ref"><a href="#sources">5</a></sup></p></div>
+    <div class="mv-guide-card"><h3>Store it where you can find it</h3><p>Pick one grouping and stick to it: by month, by foray event, or by sequencing plate. Storing by plate means any sequencing result leads you straight back to the specimen. The <a href="/investigate/plate-tagger/">Plate Tagger</a> writes the plate onto each iNaturalist observation.</p></div>
+  </div>
+</section>
+
+<section id="routine">
+  <p class="mv-guide-kicker">How I do it</p>
+  <h2>My setup</h2>
+  <p>I use an inexpensive round, stacking dehydrator, and there are many very similar versions. It’s the one I recommend as a first dehydrator. Whatever you buy, check that it has a thermostat you can set below 155 °F (68 °C).<sup class="mv-ref"><a href="#sources">1</a></sup></p>
+  <div class="mv-guide-ext"><a href="https://a.co/d/06su6Qnr">The dehydrator I use ↗<small>Amazon · many similar versions exist</small></a></div>
+  <div class="mv-guide-photo">Photo to come: the dehydrator</div>
+  <p>Collections go on in observation order, starting at 12 o’clock, and I photograph every tray. They come off and get bagged the next morning, in about 30 minutes, and the bags are grouped by month, by sequencing plate, or by foray event.</p>
+  <p>Planning how many collections your dehydrator can handle in a week? Try the <a href="/investigate/collection-planner/">Collection Planner</a>.</p>
+</section>
+
+</FieldGuide>

@@ -1,4 +1,5 @@
 ---
+import BuiltOnINat from '../components/BuiltOnINat.astro';
 import Photo from '../components/Photo.astro';
 import Base from '../layouts/Base.astro';
 import CuriosityGenerator from '../components/CuriosityGenerator';
@@ -28,6 +29,8 @@ const paths=[
       <p class="mv-hero-aside">No credentials required. Just curiosity.</p>
     </div>
   </section>
+
+  <BuiltOnINat context="Everything on MycoView" />
 
   <nav class="mv-pathways" aria-label="Ways to explore MycoView">
     {paths.map(p=><a href={p.href} class="mv-pathway"><span class="mv-pathway-icon" aria-hidden="true">{p.icon}</span><span><strong>{p.name}</strong><small>{p.desc}</small></span><span class="mv-pathway-arrow" aria-hidden="true">→</span></a>)}

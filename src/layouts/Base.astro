@@ -15,6 +15,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // Preview image used when a page is shared on Facebook, iNaturalist forums, Discord, etc.
 const shareImage = await getImage({ src: shareImageSource, width: 1200, height: 630, fit: 'cover', format: 'jpg', quality: 80 });
 const shareImageUrl = new URL(shareImage.src, Astro.site);
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { contactEmail, donateUrl, inaturalistProfile, mycogeekyYouTube, mycoviewYouTube, podcastUrl, shopUrl } from '../data/site';
 ---
 <!doctype html>
 <html lang="en">
@@ -55,10 +57,36 @@ const shareImageUrl = new URL(shareImage.src, Astro.site);
     </div>
   </header>
   <main id="main"><slot /></main>
-  <footer>
-    <div class="container footer-inner">
-      <span>MycoView · Curiosity, evidence, and connection.</span>
-      <span>Guided by MycoGeeky. Built for curious people.</span>
+  <footer class="mv-footer">
+    <div class="container mv-footer-grid">
+      <div class="mv-footer-brand">
+        <a class="brand" href="/" aria-label="MycoView home"><span class="mycoview-brand-symbol" aria-hidden="true">◉</span><span>MycoView<small>SEE FUNGI DIFFERENTLY.</small></span></a>
+        <p>Curiosity, evidence, and connection. Guided by MycoGeeky. Built for curious people.</p>
+        <NewsletterForm tone="dark" id="footer-news" />
+      </div>
+      <nav class="mv-footer-col" aria-label="Site">
+        <h2>Explore</h2>
+        {nav.map(([label, url]) => <a href={url}>{label}</a>)}
+        <a href="/investigate/#workbench">Research Toolbox</a>
+        <a href="/neo-myco/">NEO Myco</a>
+      </nav>
+      <nav class="mv-footer-col" aria-label="Watch and listen">
+        <h2>Watch &amp; listen</h2>
+        <a href={mycoviewYouTube}>The MycoView on YouTube ↗</a>
+        <a href={mycogeekyYouTube}>MycoGeeky on YouTube ↗</a>
+        <a href={podcastUrl}>The MycoGeeky Podcast ↗</a>
+        <a href={inaturalistProfile}>iNaturalist ↗</a>
+      </nav>
+      <nav class="mv-footer-col" aria-label="Support">
+        <h2>Support</h2>
+        {shopUrl && <a href={shopUrl}>Shop on Etsy ↗</a>}
+        {donateUrl && <a href={donateUrl}>Donate with PayPal ↗</a>}
+        {contactEmail ? <a href={`mailto:${contactEmail}`}>{contactEmail}</a> : <a href={inaturalistProfile}>Message us on iNaturalist ↗</a>}
+      </nav>
+    </div>
+    <div class="container mv-footer-base">
+      <span>© {new Date().getFullYear()} Donn Bialik · MycoView</span>
+      <a href="/privacy/">Privacy</a>
     </div>
   </footer>
 </body>

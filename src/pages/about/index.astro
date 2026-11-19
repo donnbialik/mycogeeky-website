@@ -1,7 +1,8 @@
 ---
 import Photo from '../../components/Photo.astro';
 import Base from '../../layouts/Base.astro';
-const email = 'mycogeeky@mycogeeky.com';
+import { contactEmail } from '../../data/site';
+const email = contactEmail;
 const inquiry = (subject: string) => `mailto:${email}?subject=${encodeURIComponent(subject)}`;
 const bio = 'Donn Bialik, known as MycoGeeky, is an independent mycology researcher, educator, and community builder based in Northeast Ohio. He hosted more than 130 episodes of The MycoGeeky Podcast over four years, sharing in-depth conversations about mushrooms and helping enthusiasts develop practical skills. His current work includes collaborative species descriptions and permitted fungal surveys. Through MycoView and the developing Northeast Ohio Mycology Collaborative (NEO Myco), he brings together scientific storytelling, accessible research tools, and opportunities to learn and contribute. His guiding question: what could people who love mushrooms discover together?';
 const talks = [

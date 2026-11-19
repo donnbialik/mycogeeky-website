@@ -1,0 +1,13 @@
+---
+/**
+ * <NeoTerm term="oversampled taxa" id="oversampled">Plain-language definition.</NeoTerm>
+ * A term with an explanation that opens on hover or keyboard focus, and on tap
+ * (touch screens have no hover). Escape or tapping elsewhere closes it.
+ * Use it on pages built with the NeoMyco layout: the open/close behaviour is
+ * src/scripts/neo-term.ts, which that layout loads.
+ */
+interface Props { term: string; id: string }
+const { term, id } = Astro.props;
+const tipId = `term-${id}`;
+---
+<span class="neo-term" data-neo-term><button type="button" class="neo-term-btn" aria-expanded="false" aria-controls={tipId} aria-describedby={tipId}>{term}<span class="neo-term-mark" aria-hidden="true">?</span></button><span class="neo-term-tip" id={tipId} role="tooltip"><slot /></span></span>

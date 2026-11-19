@@ -1,4 +1,48 @@
 ---
 import NeoMyco from '../../../layouts/NeoMyco.astro';
+import NeoTerm from '../../../components/NeoTerm.astro';
+// Know Your Woods explains the idea and why it matters. The step-by-step how-to lives on /one-place/.
+const reasons=[
+  ['01','You’ll find more than you expect','Most fungi fruit briefly and only when conditions line up. One visit sees a sliver of what lives in a place; repeat visits, across seasons and years, fill the picture in.'],
+  ['02','The place starts to answer questions','Which species come back to the same log? What fruits after a wet July, and what doesn’t? An inventory turns a list of finds into patterns you can actually compare.'],
+  ['03','Your records become shared data','Observations with dates, photos and habitat notes on iNaturalist can be used by researchers, park staff and other naturalists, long after the walk is over.'],
+  ['04','Familiar places still hold discoveries','Ordinary yards and trails are under-documented precisely because they feel ordinary. A front-yard find led to a GenBank sequence and a published species description.'],
+];
 ---
-<NeoMyco title="Know Your Woods — NEO Myco" description="Start documenting the fungi of a familiar place, one visit and one useful observation at a time."><section class="wrap section guide"><p class="kicker">NEO MYCO FIELD NOTE / KNOW YOUR WOODS</p><h1>Get to know <br/><em>one place well.</em></h1><p class="lead">You don’t need to travel far to encounter unanswered questions. Return to a familiar place and start noticing its fungal life.</p><p>Know Your Woods is a developing NEO Myco initiative. These practices give you a way to begin now, before organized programs launch.</p><div class="guide-steps"><article><p class="kicker">01 / CHOOSE YOUR PLACE</p><h2>Somewhere you can return.</h2><p>Choose a manageable patch of woodland, a park, or your own property. Check access rules. Observing and photographing do not automatically give you permission to collect.</p></article><article><p class="kicker">02 / LOOK, THEN LOOK AGAIN</p><h2>Build a habit of noticing.</h2><p>Return across seasons and different conditions. Note the date, recent weather, route, and time spent looking. A visit without visible mushrooms is worth recording too; it does not mean fungi are absent.</p></article><article><p class="kicker">03 / MAKE A USEFUL OBSERVATION</p><h2>Keep the mushroom in context.</h2><p>Photograph it in place, then capture useful views of the cap, underside, and stem where possible. Record what it is growing on and nearby trees. Nearby trees are clues, not proof of a particular host relationship.</p></article><article><p class="kicker">04 / SHARE WHAT YOU CAN SUPPORT</p><h2>You don’t need a species name to begin.</h2><p>Post observations to iNaturalist with a date, appropriate location privacy, and habitat notes. Use an identification you can support, even if it is broad. Welcome suggestions and retain uncertainty when evidence is incomplete.</p><a href="https://www.inaturalist.org/">Explore iNaturalist ↗</a></article><article><p class="kicker">05 / FOLLOW A QUESTION</p><h2>Let the records lead somewhere.</h2><p>Which fungi return to the same log? What changes with the season? Which finds need closer study? If you collect with permission, label and preserve material so it stays linked to its observation. Microscopy and sequencing can be useful next steps when a question calls for them.</p></article></div><aside class="note"><strong>A growing record, not a complete inventory.</strong><p>What you find depends on timing, weather, search effort, and identification methods. Keep those limits visible as you compare visits and share results.</p></aside><div class="return-record"><img src="https://inaturalist-open-data.s3.amazonaws.com/photos/715327092/large.jpg" alt="Inocybe communis from Donn Bialik’s front yard" loading="lazy"/><div><p class="kicker">A PLACE TO BEGIN</p><h2>It can start at home.</h2><p>Donn’s front-yard observations connect a familiar place to a newly described species. See how the records, DNA evidence, and publication fit together.</p><a href="/neo-myco/#field-record">Open the Inocybe field record →</a></div></div></section></NeoMyco>
+<NeoMyco title="Know Your Woods — NEO Myco" description="Keep a fungal inventory of your own yard or a nearby trail: one place, visited again and again. Why it matters, and how NEO Myco members will build on it.">
+<section class="wrap section guide">
+  <p class="kicker">NEO MYCO / KNOW YOUR WOODS</p>
+  <h1>A fungal inventory of a place <em>you already know.</em></h1>
+  <p class="lead">Your yard. The trail you walk every week. Know Your Woods is a simple idea: pick one place, keep returning, and record every fungus you find there. Over time, that place starts to tell you things.</p>
+  <p>It’s the everyday version of what NEO Myco is about, and you can start now, before the club launches in 2027.</p>
+  <div class="hero-actions"><a class="button" href="/one-place/#get-started">Start your inventory: step-by-step guide <span>→</span></a><a class="text-link" href="#why">Why it’s worth doing ↓</a></div>
+</section>
+
+<section class="wrap section" id="what">
+  <div class="section-heading"><p class="kicker">01 / WHAT IT IS</p><h2>One place. <em>Every fungus. Over time.</em></h2></div>
+  <div class="intro"><p class="lead">A fungal inventory is a running list of the fungi recorded in one defined place, built from repeat visits.</p><p>What makes it useful isn’t the length of the list. It’s that you search the same area each time and note how you looked: the date, the weather, your route and how long you spent. That turns “I saw this once” into a record you can compare from season to season and year to year. A visit with no mushrooms counts too.</p></div>
+  <div class="practice-grid kyw-kinds">
+    <article><span class="number">AT HOME</span><h3>Your yard or property</h3><p>The easiest place to return to, at any hour and in any weather. Lawns, mulch beds, tree roots and woodpiles all host different fungi. You decide what you can collect.</p></article>
+    <article><span class="number">NEARBY</span><h3>A trail you can walk often</h3><p>Choose a fixed route or a defined loop in a park or preserve and stick to it. Check the site’s rules: permission to walk and photograph is not permission to collect.</p></article>
+  </div>
+</section>
+
+<section class="mission" id="why"><div class="wrap section">
+  <p class="kicker">02 / WHY IT’S WORTH DOING</p>
+  <div class="section-heading"><h2>Small place. <em>Real science.</em></h2></div>
+  <ol class="pipeline">{reasons.map(([n,title,body])=><li><span class="number">{n}</span><h3>{title}</h3><p>{body}</p></li>)}</ol>
+</div></section>
+
+<section class="wrap section" id="club">
+  <div class="section-heading"><p class="kicker">03 / HOW IT CONNECTS TO NEO MYCO</p><h2>Your inventory, <em>part of a bigger picture.</em></h2></div>
+  <div class="intro"><p class="lead">At club events, our mission is to sequence everything we find, except <NeoTerm term="oversampled taxa" id="oversampled-kyw">Species that already have plenty of reliable DNA sequences in public databases, usually common and easy-to-recognize fungi. One more sequence of them adds little, so we spend sequencing on finds that can still teach us something.</NeoTerm>. Home and trail inventories are where many of the most interesting finds will first turn up.</p><p>Bring standout finds from your inventory to club events, compare notes with other members, and learn how to voucher a specimen so it can be sequenced. Each member’s place adds to a shared picture of Northeast Ohio’s fungi.</p></div>
+  <div class="return-record"><img src="https://inaturalist-open-data.s3.amazonaws.com/photos/715327092/large.jpg" alt="Inocybe communis from Donn Bialik’s front yard" loading="lazy"/><div><p class="kicker">A PLACE TO BEGIN</p><h2>It can start at home.</h2><p>Donn’s front-yard inventory connects a familiar place to a newly described species. See how the records, the DNA barcode and the publication fit together.</p><a href="/neo-myco/#field-record">Open the <i>Inocybe communis</i> field record →</a></div></div>
+</section>
+
+<section class="join wrap">
+  <p class="kicker">READY WHEN YOU ARE</p>
+  <h2>Pick your place. <br/><em>Make the first visit.</em></h2>
+  <p>The step-by-step guide covers choosing and defining your place, recording on iNaturalist, setting up a project and keeping the science honest. It also shows a live example: Donn’s own home inventory.</p>
+  <div class="hero-actions"><a class="button" href="/one-place/#get-started">Open the step-by-step guide <span>→</span></a><a class="text-link" href="/one-place/#example">See the live example →</a><a class="text-link" href="/neo-myco/#join">Get NEO Myco launch updates →</a></div>
+</section>
+</NeoMyco>

@@ -99,32 +99,43 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 <main>
 <section id="inputs">
   <h2><span class="n">1</span>Your numbers</h2>
-  <p class="muted small">The starting values are examples, not recommendations. Time yourself for a week and put in your own. Everything is saved in this browser only.</p>
+  <p class="muted small">Everyone works at a different speed, so there are no defaults: fill in your own times. Time each step for a few collections if you’re not sure. Fields marked “optional” can be left blank. Everything is saved in this browser only.</p>
   <div class="grid">
-    <div class="grp" id="g-time"><h3>Time you have</h3>
-      <label class="f">Weekday evening<span><input type="number" min="0" step="5" data-k="eveWd"> <span class="u">min</span></span></label>
-      <label class="f">Weekend evening<span><input type="number" min="0" step="5" data-k="eveWe"> <span class="u">min</span></span></label>
-      <label class="f">Weekday morning<span><input type="number" min="0" step="5" data-k="mornWd"> <span class="u">min</span></span></label>
-      <label class="f">Weekend morning<span><input type="number" min="0" step="5" data-k="mornWe"> <span class="u">min</span></span></label>
-      <label class="f">Fixed evening set-up<span><input type="number" min="0" step="5" data-k="fixed"> <span class="u">min</span></span></label>
-      <p class="sum">Fixed set-up is evening time that doesn’t depend on how many collections you have (getting the printer and dehydrator going). Morning time is the morning <em>after</em> collecting, when that day’s collections come off the dehydrator.</p>
+    <div class="grp" id="g-time"><h3>Time you have at home</h3>
+      <label class="f">Weekday evening<span><input type="number" min="0" step="5" data-k="eveWd" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Weekday morning<span><input type="number" min="0" step="5" data-k="mornWd" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Weekend evening<span><input type="number" min="0" step="5" data-k="eveWe" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Weekend morning<span><input type="number" min="0" step="5" data-k="mornWe" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Set-up each evening <small class="muted">(optional)</small><span><input type="number" min="0" step="5" data-k="fixed" placeholder="0"> <span class="u">min</span></span></label>
+      <p class="sum">Morning time is the morning <em>after</em> collecting, when that day’s collections come off the dehydrator. Set-up is time that doesn’t depend on how many you have, like getting the printer going.</p>
     </div>
     <div class="grp" id="g-per"><h3>Minutes per collection · evening</h3>
-      <label class="f">Photos, upload, notes<span><input type="number" min="0" step="1" data-k="upload"> <span class="u">min</span></span></label>
-      <label class="f">Labels and field slip<span><input type="number" min="0" step="1" data-k="label"> <span class="u">min</span></span></label>
-      <label class="f">Spore print, cut, prep<span><input type="number" min="0" step="1" data-k="prep"> <span class="u">min</span></span></label>
-      <label class="f">Load dehydrator<span><input type="number" min="0" step="1" data-k="load"> <span class="u">min</span></span></label>
+      <label class="f">Upload, notes, ID<span><input type="number" min="0" step="1" data-k="upload" placeholder="0"> <span class="u">min</span></span></label>
+      <label class="f">Labels or field slip<span><input type="number" min="0" step="1" data-k="label" placeholder="0"> <span class="u">min</span></span></label>
+      <label class="f">Spore print, cut, prep<span><input type="number" min="0" step="1" data-k="prep" placeholder="0"> <span class="u">min</span></span></label>
+      <label class="f">Lay out on the dehydrator<span><input type="number" min="0" step="1" data-k="load" placeholder="0"> <span class="u">min</span></span></label>
+      <label class="f">Photograph each tray <small class="muted">(per tray)</small><span><input type="number" min="0" step="1" data-k="trayPhoto" placeholder="0"> <span class="u">min</span></span></label>
       <h3 style="margin-top:12px">Minutes per collection · morning</h3>
-      <label class="f">Check, bag, label, store<span><input type="number" min="0" step="1" data-k="bag"> <span class="u">min</span></span></label>
+      <label class="f">Check, bag, label, store<span><input type="number" min="0" step="1" data-k="bag" placeholder=""> <span class="u">min</span></span></label>
       <p class="sum" id="perSum"></p>
     </div>
     <div class="grp" id="g-dry"><h3>Dehydrator</h3>
-      <label class="f">Trays<span><input type="number" min="1" step="1" data-k="trays"> <span class="u"></span></span></label>
-      <label class="f">Collections per tray<span><input type="number" min="1" step="1" data-k="perTray"> <span class="u"></span></span></label>
-      <label class="f">Typical drying time<span><input type="number" min="1" step="1" data-k="dryH"> <span class="u">hours</span></span></label>
+      <label class="f">Trays<span><input type="number" min="0" step="1" data-k="trays" placeholder=""> <span class="u"></span></span></label>
+      <label class="f">Collections per tray<span><input type="number" min="0" step="1" data-k="perTray" placeholder=""> <span class="u"></span></span></label>
+      <label class="f">Typical drying time<span><input type="number" min="0" step="1" data-k="dryH" placeholder=""> <span class="u">hours</span></span></label>
       <p class="sum" id="drySum"></p>
+      <h3 style="margin-top:12px">In the field <small class="muted">(optional)</small></h3>
+      <label class="f">Weekday time collecting<span><input type="number" min="0" step="5" data-k="fieldWd" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Weekend time collecting<span><input type="number" min="0" step="5" data-k="fieldWe" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Minutes per collection in the field<span><input type="number" min="0" step="1" data-k="perField" placeholder=""> <span class="u">min</span></span></label>
+      <label class="f">Your own cap, weekday<span><input type="number" min="0" step="1" data-k="capWd" placeholder=""> <span class="u"></span></span></label>
+      <label class="f">Your own cap, weekend<span><input type="number" min="0" step="1" data-k="capWe" placeholder=""> <span class="u"></span></span></label>
+      <p class="sum">Leave the field time blank on days you collect until you run out of energy: then only the work at home limits you.</p>
     </div>
   </div>
+  <details class="note" style="margin-top:14px"><summary><b>How Donn does it</b> (an example, not a recommendation)</summary>
+    <p style="margin:8px 0 0">On a weekday I collect for 1–2 hours and bring home 20–30 collections, never more than 40. About an hour that evening goes on labels and getting everything onto the dehydrator, laid out in the order I made the observations, starting at the 12 o’clock position on my round dehydrator. I photograph each tray, because some mushrooms dry to look very different. Bagging the next morning takes about 30 minutes. On weekends I collect until I drop.</p>
+  </details>
 </section>
 
 <section id="today">
@@ -139,93 +150,114 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   <p class="muted small">Mark the days you collect. A day’s limit depends on that evening, the next morning, and whether the dehydrator is still full from the day before.</p>
   <div style="overflow:auto"><table><thead><tr><th>Day</th><th>Collecting?</th><th>Limit</th><th>Limited by</th></tr></thead><tbody id="weekBody"></tbody></table></div>
   <p class="note" id="weekSum"></p>
-  <div class="row" style="margin-top:12px"><button class="btn sec" type="button" id="resetBtn">Reset to the examples</button><a href="/investigate/field/start-to-finish/">What each step involves →</a></div>
+  <div class="row" style="margin-top:12px"><button class="btn sec" type="button" id="resetBtn">Clear my numbers</button><a href="/investigate/field/start-to-finish/">What each step involves →</a></div>
 </section>
 <p class="muted small">Part of the <a href="/investigate/field/">Field Research Toolkit</a>. This page makes no outside requests.</p>
 </main>
 <script type="application/json" id="mv-tour">{"key":"collection-planner","steps":[
  {"title":"Collection Planner","body":"<p>The limit on a good day in the woods isn’t the woods. It’s the evening of uploading and labelling, the morning of bagging, and how much your dehydrator holds. This planner finds which one runs out first.</p>"},
  {"sel":"#g-time","title":"Your time","body":"<p>How long you have on a weekday and a weekend day. The morning counts because that’s when yesterday’s collections come off the dehydrator.</p>"},
- {"sel":"#g-per","title":"Minutes per collection","body":"<p>How long each step takes for one collection. Guess first, then time yourself for a week and correct it.</p>"},
- {"sel":"#g-dry","title":"Your dehydrator","body":"<p>How many collections fit, and how long a typical load takes. If drying takes more than a day, the dehydrator is still full tomorrow, and the planner accounts for that.</p>"},
- {"sel":"#today","title":"Your limit","body":"<p>The smallest of the three is your daily limit. The highlighted bar is the step holding you back, which is the one worth improving.</p>"},
+ {"sel":"#g-per","title":"Minutes per collection","body":"<p>How long each step takes you for one collection. Everyone is different, so there are no defaults. Guess first, then time a few and correct it.</p>"},
+ {"sel":"#g-dry","title":"Your dehydrator","body":"<p>How many collections fit, and how long a typical load takes. If drying takes more than a day, the dehydrator is still full tomorrow, and the planner accounts for that. Below it, optional limits from the field: your time collecting, and a cap of your own.</p>"},
+ {"sel":"#today","title":"Your limit","body":"<p>The smallest of these is your daily limit. The highlighted bar is the step holding you back, which is the one worth improving.</p>"},
  {"sel":"#week","title":"Your week","body":"<p>Mark the days you collect. Back-to-back collecting days share the dehydrator, so the planner shows what that does to each day’s limit.</p>"}
 ]}</script>
 <script src="/investigate/guide-tour.js" defer></script>
 <script>
 (function () {
   'use strict';
-  var KEY = 'collectionPlanner.v1';
-  var EX = { eveWd: 90, eveWe: 150, mornWd: 20, mornWe: 40, upload: 8, label: 3, prep: 4, load: 2, bag: 3, trays: 5, perTray: 4, dryH: 24, fixed: 10 };
-  var V = Object.assign({}, EX);
-  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) Object.keys(EX).forEach(function (k) { if (typeof saved[k] === 'number' && isFinite(saved[k])) V[k] = saved[k]; }); } catch (e) { /* storage unavailable */ }
+  var KEY = 'collectionPlanner.v2';
+  var KEYS = ['eveWd', 'mornWd', 'eveWe', 'mornWe', 'fixed', 'upload', 'label', 'prep', 'load', 'trayPhoto', 'bag', 'trays', 'perTray', 'dryH', 'fieldWd', 'fieldWe', 'perField', 'capWd', 'capWe'];
+  var V = {}; KEYS.forEach(function (k) { V[k] = null; });
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) KEYS.forEach(function (k) { if (typeof saved[k] === 'number' && isFinite(saved[k])) V[k] = saved[k]; }); } catch (e) { /* storage unavailable */ }
   var DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   var WEEK = ['off', 'wd', 'off', 'wd', 'off', 'we', 'we'];
   try { var w = JSON.parse(localStorage.getItem(KEY + '.week') || 'null'); if (Array.isArray(w) && w.length === 7) WEEK = w; } catch (e) { /* storage unavailable */ }
   var $ = function (s) { return document.querySelector(s); };
   var inputs = [].slice.call(document.querySelectorAll('input[data-k]'));
-  inputs.forEach(function (el) { el.value = V[el.dataset.k]; el.addEventListener('input', function () { var n = parseFloat(el.value); V[el.dataset.k] = isFinite(n) && n >= 0 ? n : 0; save(); render(); }); });
+  inputs.forEach(function (el) { if (V[el.dataset.k] != null) el.value = V[el.dataset.k]; el.addEventListener('input', function () { var n = parseFloat(el.value); V[el.dataset.k] = el.value.trim() !== '' && isFinite(n) && n >= 0 ? n : null; save(); render(); }); });
   function save() { try { localStorage.setItem(KEY, JSON.stringify(V)); localStorage.setItem(KEY + '.week', JSON.stringify(WEEK)); } catch (e) { /* storage unavailable */ } }
-  function perEvening() { return V.upload + V.label + V.prep + V.load; }
-  function spaces() { return Math.max(0, Math.floor(V.trays) * Math.floor(V.perTray)); }
-  // Days a load occupies the dehydrator: up to 24 h counts as one day (in tonight, off tomorrow), longer loads tie it up for whole extra days.
-  function dryDays() { return Math.max(1, Math.ceil(V.dryH / 24)); }
-  function fl(x) { return x === Infinity ? Infinity : Math.max(0, Math.floor(x + 1e-9)); }
-  function limitsFor(evening, morning, dryFree) {
-    var pe = perEvening(), ev = pe > 0 ? fl((evening - V.fixed) / pe) : Infinity, mo = V.bag > 0 ? fl(morning / V.bag) : Infinity;
-    var dr = dryFree;
-    var lim = Math.min(ev, mo, dr), by = lim === ev ? 'evening' : lim === mo ? 'morning' : 'dehydrator';
-    return { ev: ev, mo: mo, dr: dr, lim: lim === Infinity ? 0 : lim, by: by };
+  function n0(k) { return V[k] == null ? 0 : V[k]; }
+  function has(k) { return V[k] != null && V[k] > 0; }
+  function perEvening() { return n0('upload') + n0('label') + n0('prep') + n0('load'); }
+  function spaces() { return has('trays') && has('perTray') ? Math.floor(V.trays) * Math.floor(V.perTray) : 0; }
+  // Days a load occupies the dehydrator: up to 24 h counts as one day (in tonight, off tomorrow); longer loads tie it up for whole extra days.
+  function dryDays() { return Math.max(1, Math.ceil(n0('dryH') / 24)); }
+  function missing() {
+    var m = [];
+    if (!has('eveWd')) m.push('weekday evening time'); if (!has('mornWd')) m.push('weekday morning time');
+    if (perEvening() + n0('trayPhoto') <= 0) m.push('at least one evening step'); if (!has('bag')) m.push('morning minutes per collection');
+    if (!has('trays') || !has('perTray')) m.push('dehydrator trays and collections per tray'); if (!has('dryH')) m.push('drying time');
+    return m;
   }
-  var LABEL = { evening: 'Evening time', morning: 'Morning time', dehydrator: 'Dehydrator space' };
+  // Largest number of collections whose evening work fits: set-up + n × steps + one photo per tray used.
+  function eveningMax(evening, cap) {
+    var n = 0, pe = perEvening(), tp = n0('trayPhoto'), per = Math.max(1, Math.floor(n0('perTray')));
+    while (n < cap && n0('fixed') + (n + 1) * pe + Math.ceil((n + 1) / per) * tp <= evening) n++;
+    return n;
+  }
+  function limitsFor(kind, morning, dryFree) {
+    var evening = kind === 'we' ? V.eveWe : V.eveWd;
+    var big = 100000, L = { ev: eveningMax(evening, big), mo: Math.floor(morning / V.bag + 1e-9), dr: dryFree, fi: Infinity, cap: Infinity };
+    var ft = kind === 'we' ? V.fieldWe : V.fieldWd; if (ft != null && ft > 0 && has('perField')) L.fi = Math.floor(ft / V.perField + 1e-9);
+    var c = kind === 'we' ? V.capWe : V.capWd; if (c != null && c > 0) L.cap = Math.floor(c);
+    var order = [['ev', 'evening'], ['mo', 'morning'], ['dr', 'dehydrator'], ['fi', 'field'], ['cap', 'cap']];
+    L.lim = Math.min(L.ev, L.mo, L.dr, L.fi, L.cap); L.by = order.filter(function (o) { return L[o[0]] === L.lim; })[0][1];
+    return L;
+  }
+  var LABEL = { evening: 'Evening time', morning: 'Morning time', dehydrator: 'Dehydrator space', field: 'Time in the field', cap: 'Your own cap' };
   function fmt(n) { return n === Infinity ? '—' : String(n); }
+  function weReady() { return has('eveWe') && has('mornWe'); }
   function render() {
-    var pe = perEvening();
-    $('#perSum').textContent = pe + ' min per collection in the evening, ' + V.bag + ' min the next morning.';
+    var pe = perEvening(), m = missing();
+    $('#perSum').textContent = (pe || n0('trayPhoto') || has('bag')) ? pe + ' min per collection in the evening' + (n0('trayPhoto') ? ', plus ' + n0('trayPhoto') + ' min per tray photographed' : '') + (has('bag') ? ', and ' + V.bag + ' min the next morning.' : '.') : '';
     var dd = dryDays();
-    $('#drySum').textContent = spaces() + ' spaces. ' + (dd === 1 ? 'A load is off by the next day, so the full dehydrator is free each evening.' : 'A load takes ' + dd + ' days, so on average ' + Math.floor(spaces() / dd) + ' spaces come free each day.') + '';
+    $('#drySum').textContent = spaces() ? spaces() + ' spaces. ' + (dd === 1 ? 'A load is off by the next day, so the whole dehydrator is free each evening.' : 'A load takes ' + dd + ' days, so on average ' + Math.floor(spaces() / dd) + ' spaces come free each day.') : '';
+    if (m.length) {
+      $('#limits').innerHTML = '<div class="big"><div class="k">Still needed</div><div class="why" style="font-size:14px;margin-top:6px">Fill in ' + m.join(', ') + ' to see your limit.</div></div>';
+      $('#bars').innerHTML = ''; $('#advice').innerHTML = 'Not sure how long a step takes? Time the next few collections you process, and come back.'; $('#weekBody').innerHTML = ''; $('#weekSum').innerHTML = '';
+      return;
+    }
     var perDay = dd === 1 ? spaces() : Math.floor(spaces() / dd);
-    var wd = limitsFor(V.eveWd, V.mornWd, perDay), we = limitsFor(V.eveWe, V.mornWe, perDay);
-    $('#limits').innerHTML = big('Weekday', wd) + big('Weekend day', we);
-    $('#bars').innerHTML = '<p class="small muted" style="margin:0 0 4px">Weekday, by step</p>' + bars(wd) + '<p class="small muted" style="margin:10px 0 4px">Weekend day, by step</p>' + bars(we);
+    var wd = limitsFor('wd', V.mornWd, perDay), we = weReady() ? limitsFor('we', V.mornWe, perDay) : null;
+    $('#limits').innerHTML = big('Weekday', wd) + (we ? big('Weekend day', we) : '<div class="big"><div class="k">Weekend day</div><div class="why" style="margin-top:6px">Fill in weekend evening and morning time.</div></div>');
+    $('#bars').innerHTML = '<p class="small muted" style="margin:0 0 4px">Weekday, by step</p>' + bars(wd) + (we ? '<p class="small muted" style="margin:10px 0 4px">Weekend day, by step</p>' + bars(we) : '');
     $('#advice').innerHTML = advice(wd);
     renderWeek();
   }
   function big(k, L) { return '<div class="big"><div class="k">' + k + '</div><div class="v">' + L.lim + '</div><div class="why">collections a day · limited by <b>' + LABEL[L.by].toLowerCase() + '</b></div></div>'; }
   function bars(L) {
-    var vals = [['Evening time', L.ev, 'evening'], ['Morning time', L.mo, 'morning'], ['Dehydrator space', L.dr, 'dehydrator']];
-    var max = Math.max.apply(null, vals.map(function (v) { return v[1] === Infinity ? 0 : v[1]; })) || 1;
-    return vals.map(function (v) { var w = v[1] === Infinity ? 100 : Math.round(100 * v[1] / max); return '<div class="bar' + (v[2] === L.by ? ' lim' : '') + '"><span>' + v[0] + '</span><span class="t"><i style="width:' + w + '%"></i></span><b>' + fmt(v[1]) + '</b></div>'; }).join('');
+    var vals = [['Evening time', L.ev, 'evening'], ['Morning time', L.mo, 'morning'], ['Dehydrator space', L.dr, 'dehydrator'], ['Time in the field', L.fi, 'field'], ['Your own cap', L.cap, 'cap']].filter(function (v) { return v[1] !== Infinity; });
+    var max = Math.max.apply(null, vals.map(function (v) { return v[1]; })) || 1;
+    return vals.map(function (v) { var w = Math.round(100 * v[1] / max); return '<div class="bar' + (v[2] === L.by ? ' lim' : '') + '"><span>' + v[0] + '</span><span class="t"><i style="width:' + w + '%"></i></span><b>' + fmt(v[1]) + '</b></div>'; }).join('');
   }
   function advice(L) {
-    if (L.by === 'evening') return '<b>Evening time is the bottleneck on weekdays.</b> Each collection costs ' + perEvening() + ' minutes that evening. Shaving the slowest step (often uploading and notes) raises the limit more than anything else; printing a whole day’s labels at once, for example with <a href="https://dikarya.us/labels">Alan Rockefeller’s label generator</a>, helps.';
-    if (L.by === 'morning') return '<b>Morning time is the bottleneck on weekdays.</b> Bagging happens the morning after collecting. If mornings are tight, bag in the evening when a load is already dry, or collect less the night before a busy morning.';
-    return '<b>The dehydrator is the bottleneck.</b> More trays, smaller pieces that dry faster, or skipping collecting the day after a big haul all help. See <a href="/investigate/field/drying/">Drying &amp; storage</a> for why heat shouldn’t be turned up instead.';
+    if (L.by === 'evening') return '<b>Evening time is what limits you on weekdays.</b> Each collection costs ' + perEvening() + ' minutes that evening. Speeding up the slowest step raises the limit most; printing a whole day’s labels at once, for example with <a href="https://dikarya.us/labels">Alan Rockefeller’s label generator</a>, helps.';
+    if (L.by === 'morning') return '<b>Morning time is what limits you on weekdays.</b> Bagging happens the morning after collecting. If mornings are tight, collect less the day before a busy morning.';
+    if (L.by === 'field') return '<b>Time in the field is what limits you on weekdays.</b> Your work at home could handle more than you can find in the time you have.';
+    if (L.by === 'cap') return '<b>Your own cap is what limits you on weekdays.</b> You have room to spare at home: the cap is doing its job.';
+    return '<b>The dehydrator is what limits you.</b> More trays or skipping collecting the day after a big haul both help. See <a href="/investigate/field/drying/">Drying &amp; storage</a> for why turning up the heat isn’t the answer.';
   }
   function renderWeek() {
-    var dd = dryDays(), sp = spaces(), body = '', total = 0;
-    // Simulate the week twice so Monday sees Sunday's load; each day's collections occupy the dehydrator for dd days.
-    var used = new Array(14).fill(0), res = [];
+    var dd = dryDays(), sp = spaces(), body = '', total = 0, used = new Array(14).fill(0), res = [];
+    // Run the week twice so Monday sees Sunday's load; each day's collections occupy the dehydrator for dd days.
     for (var pass = 0; pass < 14; pass++) {
       var d = pass % 7, kind = WEEK[d];
-      if (kind === 'off') { res[pass] = null; continue; }
-      var eve = kind === 'we' ? V.eveWe : V.eveWd;
-      var morn = (d + 1) % 7 >= 5 ? V.mornWe : V.mornWd; // Saturday and Sunday mornings have weekend hours
-      var free = Math.max(0, sp - used[pass]);
-      var L = limitsFor(eve, morn, free);
-      res[pass] = L;
+      if (kind === 'off' || (kind === 'we' && !weReady())) { res[pass] = null; continue; }
+      var morn = (d + 1) % 7 >= 5 && has('mornWe') ? V.mornWe : V.mornWd; // Saturday and Sunday mornings have weekend hours
+      var L = limitsFor(kind, morn, Math.max(0, sp - used[pass])); res[pass] = L;
       for (var k = 1; k < dd && pass + k < 14; k++) used[pass + k] += L.lim;
     }
     for (var i = 0; i < 7; i++) {
-      var L = res[i + 7], opt = function (v, t) { return '<option value="' + v + '"' + (WEEK[i] === v ? ' selected' : '') + '>' + t + '</option>'; };
-      if (L) total += L.lim;
-      body += '<tr><td>' + DAYS[i] + '</td><td><select data-day="' + i + '" aria-label="' + DAYS[i] + '">' + opt('off', 'Not collecting') + opt('wd', 'Weekday hours') + opt('we', 'Weekend hours') + '</select></td><td class="num">' + (L ? L.lim : '—') + '</td><td>' + (L ? LABEL[L.by] : '') + '</td></tr>';
+      var R = res[i + 7], opt = function (v, t) { return '<option value="' + v + '"' + (WEEK[i] === v ? ' selected' : '') + '>' + t + '</option>'; };
+      if (R) total += R.lim;
+      body += '<tr><td>' + DAYS[i] + '</td><td><select data-day="' + i + '" aria-label="' + DAYS[i] + '">' + opt('off', 'Not collecting') + opt('wd', 'Weekday hours') + opt('we', 'Weekend hours') + '</select></td><td class="num">' + (R ? R.lim : '—') + '</td><td>' + (R ? LABEL[R.by] : (WEEK[i] === 'we' ? 'Fill in weekend times' : '')) + '</td></tr>';
     }
     $('#weekBody').innerHTML = body;
     [].forEach.call(document.querySelectorAll('select[data-day]'), function (s) { s.addEventListener('change', function () { WEEK[+s.dataset.day] = s.value; save(); render(); }); });
     $('#weekSum').innerHTML = 'Up to <b>' + total + '</b> collections this week that you can finish properly.' + (dd > 1 ? ' Drying takes ' + dd + ' days, so collecting on back-to-back days shares the dehydrator.' : '');
   }
-  $('#resetBtn').addEventListener('click', function () { V = Object.assign({}, EX); WEEK = ['off', 'wd', 'off', 'wd', 'off', 'we', 'we']; inputs.forEach(function (el) { el.value = V[el.dataset.k]; }); save(); render(); });
+  $('#resetBtn').addEventListener('click', function () { KEYS.forEach(function (k) { V[k] = null; }); WEEK = ['off', 'wd', 'off', 'wd', 'off', 'we', 'we']; inputs.forEach(function (el) { el.value = ''; }); save(); render(); });
   render();
 })();
 </script>

@@ -1,7 +1,6 @@
 ---
 import FieldGuide from '../../../components/FieldGuide.astro';
 // Drying and storing specimens. Every recommendation below is traced to a numbered source at the foot of the page.
-// Placeholders marked "Donn:" are for his own setup and are not presented as recommendations.
 const sources = [
   { cite: 'FunDiS. <em>Dry your specimens.</em> Fungal Diversity Survey sequencing protocol.', url: 'https://fundis.org/sequence/collect-dry/dry-your-specimens' },
   { cite: 'FunDiS. <em>Processing fungal specimens.</em>', url: 'https://www.fundis.org/processing-fungal-specimens' },
@@ -15,7 +14,7 @@ const tour = [
   { sel: '#why', title: 'Why it matters', body: '<p>Heat and moisture both damage DNA. Too hot, and you cook it. Too slow or too damp, and the specimen rots or moulds.</p>' },
   { sel: '#temperature', title: 'The temperature', body: '<p>FunDiS recommends 110–120 °F (43–50 °C), and warns that above 155 °F (68 °C) can damage DNA. Lower settings are gentler but take longer.</p>' },
   { sel: '#when-dry', title: 'When it’s done', body: '<p>“Cracker dry”: it snaps rather than bends. That takes 12–48 hours depending on size and how wet it was.</p>' },
-  { sel: '#rack', title: 'Keep it sorted on the rack', body: '<p>The rack is where collections get mixed up. Keep each one apart, with its number travelling beside it.</p>' },
+  { sel: '#rack', title: 'Keep it sorted on the rack', body: '<p>The rack is where collections get mixed up. Keep each one apart, in a known order, and photograph each tray before it goes in.</p>' },
   { sel: '#storage', title: 'Storing it', body: '<p>Dried fungi soak up moisture from the air, and moisture degrades DNA. Seal it, label it, and add desiccant if your storage is humid.</p>' },
   { sel: '#sources', title: 'Sources', body: '<p>Every number on this page comes from one of these. Where they disagree, the page says so.</p>' },
 ];
@@ -57,9 +56,11 @@ const tour = [
   <h2>The dehydrator is where collections get mixed up.</h2>
   <p>FunDiS advises keeping contact between species to a minimum and labelling specimens on the rack.<sup class="mv-ref"><a href="#sources">1</a></sup> Specimens that touch can pass tissue and spores to each other, and a single swapped label undoes everything else you did right.</p>
   <ol class="mv-guide-steps">
-    <li><span class="mv-guide-when">Loading</span><p>Put each collection in its own spot, with space around it, and its number (the corner of its field slip, or a printed label) right beside it.</p></li>
+    <li><span class="mv-guide-when">Loading</span><p>Put each collection in its own spot, with space around it, and its number (the corner of its field slip, or a printed label) right beside it. Another way, which I use: lay collections out in the order you made the observations, starting from a fixed point (12 o’clock on a round dehydrator), so position gives the order.</p></li>
+    <li><span class="mv-guide-when">Before it goes in</span><p>Photograph each tray. Some mushrooms dry down to look very different, and the photo lets you match them up in the morning.</p></li>
     <li><span class="mv-guide-when">Mixed sizes</span><p>Put the slow, thick collections where you can reach them without disturbing the rest, because they’ll stay on after the others come off.</p></li>
     <li><span class="mv-guide-when">Unloading</span><p>Bag one collection at a time, with its label, before you touch the next. Never take several off the rack and sort them afterwards.</p></li>
+    <li><span class="mv-guide-when">If in doubt</span><p>If you can’t confidently say which collection a dried piece belongs to, discard it, or make a new observation of it and note what happened.</p></li>
   </ol>
   <div class="mv-guide-photo">Photo to come: a loaded rack, with each collection’s number beside it</div>
   <p>More on numbering and keeping things matched: <a href="/investigate/field/tracking/">Specimen tracking</a>.</p>
@@ -72,14 +73,17 @@ const tour = [
   <div class="mv-guide-grid">
     <div class="mv-guide-card"><h3>Seal it</h3><p>A sealed bag for each collection, with its label inside the bag, not only written on the outside.</p></div>
     <div class="mv-guide-card"><h3>Know your humidity</h3><p>An inexpensive hygrometer tells you whether your storage space is above 50%. If it is, add desiccant (silica gel) to the bags or the box.<sup class="mv-ref"><a href="#sources">3</a></sup><sup class="mv-ref"><a href="#sources">5</a></sup></p></div>
-    <div class="mv-guide-card"><h3>Store it where you can find it</h3><p>If you send tissue for sequencing, storing bags by plate number means any result leads you straight back to the specimen. The <a href="/investigate/plate-tagger/">Plate Tagger</a> writes the plate onto each iNaturalist observation.</p></div>
+    <div class="mv-guide-card"><h3>Store it where you can find it</h3><p>Pick one grouping and stick to it: by month, by foray event, or by sequencing plate. Storing by plate means any sequencing result leads you straight back to the specimen. The <a href="/investigate/plate-tagger/">Plate Tagger</a> writes the plate onto each iNaturalist observation.</p></div>
   </div>
 </section>
 
 <section id="routine">
   <p class="mv-guide-kicker">How I do it</p>
   <h2>My setup</h2>
-  <div class="mv-guide-note"><p><strong>Donn:</strong> your dehydrator model and setting, how many collections fit per tray, how long a typical load takes, and how you store bags. This box is a placeholder until you send those details.</p></div>
+  <p>I use an inexpensive round, stacking dehydrator, and there are many very similar versions. It’s the one I recommend as a first dehydrator. Whatever you buy, check that it has a thermostat you can set below 155 °F (68 °C).<sup class="mv-ref"><a href="#sources">1</a></sup></p>
+  <!-- DEHYDRATOR-LINK: add the model and link when Donn sends them. -->
+  <div class="mv-guide-photo">Photo to come: the dehydrator</div>
+  <p>Collections go on in observation order, starting at 12 o’clock, and I photograph every tray. They come off and get bagged the next morning, in about 30 minutes, and the bags are grouped by month, by sequencing plate, or by foray event.</p>
   <p>Planning how many collections your dehydrator can handle in a week? Try the <a href="/investigate/collection-planner/">Collection Planner</a>.</p>
 </section>
 

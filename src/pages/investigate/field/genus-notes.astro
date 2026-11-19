@@ -1,7 +1,7 @@
 ---
 import FieldGuide from '../../../components/FieldGuide.astro';
 // "Don't miss this" notes: what to record in the field for genera where the key features are lost by evening.
-// DRAFT for Donn's review. Each card links to the sources it was written from.
+// Each card links to the sources it was written from.
 type Card = { id: string; genus: string; why: string; miss: string[]; src: [string, string][] };
 const cards: Card[] = [
   { id: 'amanita', genus: 'Amanita', why: 'Identification often starts at the stem base, which is usually underground, and the veil remnants on the cap wash or rub off easily.',
@@ -32,9 +32,6 @@ const tour = [
 ---
 <FieldGuide title="Genus notes: don’t miss this" description="What to photograph and record in the field for Amanita, Cortinarius, Lactarius, Russula, boletes and waxcaps, before the features that identify them disappear." eyebrow="FIELD RESEARCH TOOLKIT / GENUS NOTES" heading="Catch it now, <em>or it’s gone by evening.</em>" lead="Latex dries, veils fall away, colours fade and stains turn brown. For these groups, a few minutes in the field saves a collection from being unidentifiable." tourKey="field-genus-notes" tour={tour} current="genus">
 
-<section>
-  <div class="mv-guide-note"><p><strong>Draft for review.</strong> These notes are summarised from the sources on each card and are being checked by Donn before they’re final.</p></div>
-</section>
 
 <section id="cards">
   <div class="mv-genus-grid">

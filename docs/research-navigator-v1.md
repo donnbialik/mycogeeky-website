@@ -25,7 +25,7 @@ All choices are changeable using Previous. Related pathways allow jumping to the
 - `src/data/researchFrameworks.ts`: independently editable typed resource library and 15 unique framework definitions; each has question types, methods, prerequisites, inferential limits, pitfalls, next steps, and related frameworks.
 - `src/components/ResearchNavigator.tsx`: generic five-stage interface, evidence-awareness and export.
 - `src/pages/investigate/study-designer/index.astro`: legacy URL remains functional and hosts the new Navigator.
-- `src/styles/mycoview.css`: navigator-specific responsive layout.
+- `src/styles/site.css`: navigator-specific responsive layout.
 - `src/data/tools.ts`: Workbench registry entry.
 Future: migrate legacy `/investigate/study-designer/` route to `/investigate/research-navigator/` with a redirect only when desired. Avoid breaking existing links at launch.
 

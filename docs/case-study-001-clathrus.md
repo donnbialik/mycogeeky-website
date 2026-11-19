@@ -41,7 +41,7 @@ Answers may be revised; no scoring, no account, no backend writes.
 - src/components/ClathrusCaseStudy.tsx — interactive chapter/choice interface.
 - src/pages/investigate/case-studies/clathrus-archeri.astro — editorial article and attribution.
 - src/pages/investigate/case-studies/index.astro — expandable case-study directory.
-- src/styles/mycoview.css — image, chapters, controls, response cards, mobile presentation.
+- src/styles/site.css — image, chapters, controls, response cards, mobile presentation.
 - src/components/ResearchNavigator.tsx — query parameter preselection for BIO-01.
 - src/pages/investigate/index.astro — entry point.
 

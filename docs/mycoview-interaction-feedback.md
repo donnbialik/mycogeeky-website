@@ -24,7 +24,7 @@ Success confirmation (e.g. a brief copied) is green; operational failure is red 
 - Flagship Clathrus case study: green/amber/red interpretation feedback and clear description without grading visitors.
 - Workbench ToolCard: available/planned, lifecycle maturity, scientific review and methodology limitations displayed separately. Unavailable cards do not invent routes.
 - Live Crane Hollow SurveyDashboard: loading, partial response, failed response, fully loaded; retry for partial/failed; missing values remain dashes.
-- Tokens, styles and responsive behavior: src/styles/mycoview.css.
+- Tokens, styles and responsive behavior: src/styles/site.css.
 
 ## Before merging
 - [ ] npm run check and npm run build

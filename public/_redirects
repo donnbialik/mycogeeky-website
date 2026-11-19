@@ -5,3 +5,9 @@
 # The separate Workbench page was merged into the Toolbox section of /investigate/ (Nov 2026).
 /investigate/tools        /investigate/#workbench  301
 /investigate/tools/       /investigate/#workbench  301
+
+# Older top-level sections (Nov 2026).
+/explore    /discover/  301
+/explore/   /discover/  301
+/curious    /learn/     301
+/curious/   /learn/     301

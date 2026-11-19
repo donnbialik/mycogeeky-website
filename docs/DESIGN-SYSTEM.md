@@ -4,10 +4,10 @@
 Curious, scientifically rigorous, warm, irreverent without becoming frivolous. Explain uncertainty rather than overselling results. Invite people to contribute without implying expertise is irrelevant.
 
 ## Palette
-Paper `#F6F4EC`; Forest `#19352E`; Sage `#B5C7A1`; Amber `#D9A45C`; Slate `#263C47`. Provisional until tested against actual photographs, accessibility contrast, and tool visualizations.
+The live tokens are the `--mv-*` custom properties at the top of `src/styles/mycoview.css` (dark forest `#10382c`, ink `#17372e`, cream `#f8f7f1`, mist `#e9efe5`, chartreuse accent). Older token sets remain in `global.css` and `v5.css` and should be retired. NEO Myco has its own palette in `src/styles/neomyco.css`.
 
 ## Typography
-Fraunces for expressive editorial headings; DM Sans for navigation, body, forms and research interfaces. Web fonts currently load from Google Fonts; self-host later if performance/privacy require it.
+Source Serif 4 for editorial headings; IBM Plex Sans for navigation, body, forms and research interfaces; IBM Plex Mono for kickers, labels and data. Web fonts currently load from Google Fonts; self-host later if performance/privacy require it.
 
 ## Components
 Base layout, feature cards, tool cards, interactive React question picker. Add buttons, filters, data tables, evidence/provenance panels and forms as tools mature. Respect reduced motion, keyboard access, visible focus, and WCAG contrast.

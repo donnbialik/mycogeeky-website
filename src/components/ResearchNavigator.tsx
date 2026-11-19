@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import ResearchJourney from './ResearchJourney';
 import {lessons,learningEvidence} from '../data/researchLessons';
-import {areas,evidenceLabels,frameworkById,frameworksForArea,frameworks,resourceLibrary,type AreaId,type EvidenceId,type Framework} from '../data/researchFrameworks';
+import {areas,evidenceLabels,frameworkById,frameworksForArea,frameworks,resourceLibrary,type AreaId,type EvidenceId} from '../data/researchFrameworks';
 
 type Stage=0|1|2|3|4;
 type Goal='understand'|'audit'|'survey'|'collaborate';

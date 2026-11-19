@@ -346,7 +346,7 @@
     const stepsBar = $("nav.steps");
     if (stepsBar) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
       h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
-    for (const [k, v] of Object.entries(SECTIONS)) {
+    for (const [, v] of Object.entries(SECTIONS)) {
       const host = v.where(); if (!host) continue;
       const head = host.matches('details') ? host.querySelector('summary h2') : host.querySelector('h3, h2');
       if (!head) continue;

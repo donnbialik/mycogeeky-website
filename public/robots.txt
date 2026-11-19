@@ -1,0 +1,7 @@
+# MycoView — https://mycoview.com
+User-agent: *
+# The Barcode Reliability Explorer is a restricted reviewer preview.
+Disallow: /explorer/
+Disallow: /api/
+
+Sitemap: https://mycoview.com/sitemap-index.xml

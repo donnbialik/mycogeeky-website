@@ -368,8 +368,9 @@ const OBS_FIELDS = '(id:!t,observed_on:!t,location:!t,obscured:!t,positional_acc
 const MAX_READ = 40000;
 const RANKS = ['phylum', 'class', 'order', 'family', 'genus'];
 // Lichen-forming groups (approximate): almost wholly lichenised classes and orders, plus basidiolichen genera.
-const LICHEN_CLASSES = new Set(['Lecanoromycetes', 'Arthoniomycetes', 'Lichinomycetes', 'Candelariomycetes', 'Coniocybomycetes']);
-const LICHEN_ORDERS = new Set(['Verrucariales', 'Pyrenulales', 'Trypetheliales', 'Strigulales', 'Monoblastiales']);
+// iNaturalist's Lichinomycetes also holds non-lichens (earth tongues, Geoglossales; resin fungi, Sareales), so that class is handled by order.
+const LICHEN_CLASSES = new Set(['Lecanoromycetes', 'Arthoniomycetes']);
+const LICHEN_ORDERS = new Set(['Candelariales', 'Coniocybales', 'Lichinales', 'Vezdaeales', 'Verrucariales', 'Pyrenulales', 'Trypetheliales', 'Strigulales', 'Monoblastiales']);
 const LICHEN_GENERA = new Set(['Lichenomphalia', 'Multiclavula', 'Cora', 'Dictyonema', 'Acantholichen', 'Lepidostroma']);
 
 /* ---------- helpers ---------- */
@@ -406,14 +407,14 @@ MVHelp.init({
   users: 'iNaturalist usernames separated by commas, e.g. <i>mycogeekyohio, friend1</i>.',
   dates: '<b>Dates</b>: the observation dates to include. Use the whole survey (e.g. 2018 to today) for a final report, or one year for an annual report such as the NPS Investigator’s Annual Report.',
   whatcounts: 'These change the report straight away, without reading the records again. The downloads follow them too.',
-  lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes and Coniocybomycetes, the orders Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
+  lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes and Arthoniomycetes, the orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>. Earth tongues (Geoglossales) are not lichens and are kept, although iNaturalist now places them in the same class as some lichens.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
   slime: '<b>Include slime molds</b> (Mycetozoa, e.g. <i>Lycogala</i>, <i>Stemonitis</i>). They aren’t fungi, but many fungal surveys record them.',
   prov: '<b>Count provisional names as species.</b> A record with a “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, counts as that species even if iNaturalist only has it to genus. Usually these are DNA-sequenced and not yet formally named. Turn off to count only formally named species.',
   provsp: '<b>A record with both a species ID and a provisional name.</b> Some records are identified to a named species on iNaturalist and also carry a “Provisional Species Name”, often because sequencing showed the name is wrong or covers more than one species. <b>The provisional name</b> (default) counts them as the provisional species. <b>The species</b> counts them under the iNaturalist name, so provisional names count only on records identified to genus or above.',
   recon: '<b>Matching iNaturalist’s numbers.</b> Step by step, why the totals here differ from the project page or Explore: records that aren’t fungi, the lichen and slime mold options, iNaturalist counting names above species as “species”, and provisional names.',
-  vouchers: '<b>Vouchers and specimens.</b> Records with a voucher specimen, found from their iNaturalist observation fields: a yes/no field such as “Voucher Specimen Taken?”, or a number field such as “Voucher Number(s)”, a fungarium ID, “OMDL Number” or “Herbarium Catalog Number”. This is the list for the specimen part of a permit report, e.g. the NPS Investigator’s Annual Report.',
+  vouchers: '<b>Vouchers and specimens.</b> Records with a voucher specimen, found from their iNaturalist observation fields: a yes/no field such as “Voucher Specimen Taken?”, or a number field such as “Voucher Number(s)”, a fungarium ID, “OMDL Number” or “Herbarium Catalog Number”, or a sequencing plate number such as “Mycota Lab Plate Number”, since sequenced tissue comes from a kept specimen. This is the list for the specimen part of a permit report, e.g. the NPS Investigator’s Annual Report.',
   vextra: 'If your voucher field has a name the tool doesn’t recognise, type its exact name here (several separated by commas). Any value in it, other than no, none or similar, counts the record as vouchered.',
-  v_rec: 'Records counted as vouchered: a yes in a voucher yes/no field, or a value in a voucher or catalogue number field.',
+  v_rec: 'Records counted as vouchered: a yes in a voucher yes/no field, a value in a voucher or catalogue number field, or a sequencing plate number (tissue taken from a kept specimen). Untick a field above to stop it counting.',
   v_spp: 'Different taxa among the vouchered records, provisional names included, and names above species where that is all a voucher is identified to.',
   v_its: 'Vouchered records with a DNA Barcode ITS sequence of 100 or more bases.',
   v_gb: 'Vouchered records with a GenBank accession in a GenBank field.',
@@ -562,7 +563,7 @@ const V_ROLES = [
   ['flag', 'Voucher taken? (yes/no)', n => /voucher/i.test(n) && (/\?\s*$/.test(n) || /(taken|collected)\b/i.test(n) || /^vouchered$/i.test(n.trim()))],
   ['genbank', 'GenBank accession', n => /gen\s*bank/i.test(n)],
   ['repo', 'Repository', n => /herbarium name|accession location|repository|fungarium accession location|deposited (at|in)|institution/i.test(n)],
-  ['plate', 'Sequencing plate', n => /plate (number|no|#)|plate$/i.test(n)],
+  ['plate', 'Sequencing plate (counts as a voucher)', n => /plate (number|no|#)|plate$/i.test(n)],
   ['num', 'Voucher or catalogue number', n => /voucher|accession|fungarium (id|number|#)|herbarium (catalog|number|#|id)|catalog(ue)? (number|no|#)|omdl number|collection (number|no|#)|specimen (number|id|no|#)|tag\/accession/i.test(n)],
 ];
 const NEG = /^(no\b|n$|false$|0$|none$|-$|n\/?a$|not selected$|not collected$)/i;
@@ -579,9 +580,10 @@ function voucherOf(r, F) {
     if (fd.role === 'flag') v.flag = v.flag === true ? true : !NEG.test(val);
     else if (fd.role === 'num') { if (!NEG.test(val)) v.nums.push(`${fd.name}: ${val}`); }
     else if (fd.role === 'genbank') { if (!NEG.test(val)) v.genbank.push(val.replace(/^https?:\/\/www\.ncbi\.nlm\.nih\.gov\/nuccore\//i, '')); }
-    else if (!NEG.test(val)) v[fd.role].push(val); }
+    else if (!NEG.test(val)) { v[fd.role].push(val); if (fd.role === 'plate') v.platev = true; } }
   v.genbank = [...new Set(v.genbank)];
-  v.vouchered = v.flag === true || v.nums.length > 0; v.conflict = v.flag === false && v.nums.length > 0;
+  // A sequencing plate number means tissue was taken from a kept specimen, so it counts as a voucher (untick the field if not).
+  v.vouchered = v.flag === true || v.nums.length > 0 || !!v.platev; v.conflict = v.flag === false && (v.nums.length > 0 || !!v.platev);
   return v;
 }
 
@@ -691,9 +693,9 @@ function renderVouchers() {
   const rows = [...V].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
   $('#vTable').innerHTML = V.length ? `<thead><tr><th>Date</th><th>Taxon</th><th>Voucher numbers${MVHelp.tip('v_nums', 'Voucher numbers')}</th><th>Repository</th><th>GenBank</th><th>ITS</th><th>Plate</th><th>Collector</th><th>Location</th></tr></thead><tbody>${rows.slice(0, 600).map(r => `<tr><td class="dates">${r.date}</td>
       <td><a href="https://www.inaturalist.org/observations/${r.id}" target="_blank" rel="noopener"><i>${esc(r.prov || r.taxon.name)}</i></a>${r.prov ? ' <span class="tag">provisional</span>' : ''}</td>
-      <td class="vn">${r.v.nums.map(esc).join('<br>') || (r.v.flag ? '<span class="muted">vouchered, no number</span>' : '')}</td><td>${esc(r.v.repo.join('; '))}</td><td>${r.v.genbank.map(a => /^[A-Z]{1,2}\d{5,8}(\.\d+)?$/.test(a) ? `<a href="https://www.ncbi.nlm.nih.gov/nuccore/${esc(a)}" target="_blank" rel="noopener">${esc(a)}</a>` : esc(a)).join('<br>')}</td>
+      <td class="vn">${r.v.nums.map(esc).join('<br>') || (r.v.platev ? '<span class="muted">on a sequencing plate</span>' : r.v.flag ? '<span class="muted">vouchered, no number</span>' : '')}</td><td>${esc(r.v.repo.join('; '))}</td><td>${r.v.genbank.map(a => /^[A-Z]{1,2}\d{5,8}(\.\d+)?$/.test(a) ? `<a href="https://www.ncbi.nlm.nih.gov/nuccore/${esc(a)}" target="_blank" rel="noopener">${esc(a)}</a>` : esc(a)).join('<br>')}</td>
       <td>${r.seq ? 'yes' : ''}</td><td>${esc(r.v.plate.join('; '))}</td><td>${esc(collector(r))}</td><td class="dates">${r.hasLoc ? `${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}${r.obscured ? ' <span class="tag warn">obscured</span>' : ''}` : ''}</td></tr>`).join('')}</tbody>` : '';
-  $('#vNote').innerHTML = [rows.length > 600 ? `Showing the first 600 of ${fmt(rows.length)}; the CSV has them all.` : '', conflict ? `${fmt(conflict)} record${conflict === 1 ? ' says' : 's say'} no voucher was taken but carr${conflict === 1 ? 'ies' : 'y'} a voucher number; ${conflict === 1 ? 'it is' : 'they are'} counted as vouchered. Worth checking.` : '',
+  $('#vNote').innerHTML = [rows.length > 600 ? `Showing the first 600 of ${fmt(rows.length)}; the CSV has them all.` : '', conflict ? `${fmt(conflict)} record${conflict === 1 ? ' says' : 's say'} no voucher was taken but carr${conflict === 1 ? 'ies' : 'y'} a voucher or plate number; ${conflict === 1 ? 'it is' : 'they are'} counted as vouchered. Worth checking.` : '',
     V.some(r => r.obscured) ? 'Obscured locations are iNaturalist’s public coordinates, not where the specimen was collected; use your own records or iNaturalist’s export with hidden coordinates (for project curators) for the specimen report.' : ''].filter(Boolean).join(' ');
 }
 const collector = r => { for (const n of ["Collector's name", 'Collector', 'Collected by', 'Collector name']) if (r.f[n] && String(r.f[n]).trim()) return String(r.f[n]).trim(); return r.uname || r.login; };
@@ -799,7 +801,7 @@ function renderMethods() {
   const st = S.settings, o = A.o, c = S.chao || {};
   $('#methods').innerHTML = [
     `<b>Source</b>: iNaturalist records of Fungi${o.slime ? ' and Mycetozoa (slime molds)' : ''} ${st.src === 'project' ? `in the project “${esc(st.proj.title)}” (id ${st.proj.id})` : st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : 'by anyone'}, observed ${st.d1} to ${st.d2}, read on ${todayIso()} through the iNaturalist API${o.rg ? ', research grade only' : ', all quality grades'}.${st.boundary ? ` Records were kept only if their point fell inside the boundary file “${esc(st.boundary.fileName)}” (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}, holes excluded)${st.edge === 'drop' ? ' and their stated accuracy did not reach past its edge' : ''}; records with obscured locations were excluded.` : ''}`,
-    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes, Coniocybomycetes; Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
+    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (classes Lecanoromycetes and Arthoniomycetes; orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
     `<b>Effort</b>: a survey day is a date with at least one record. Species accumulation is the mean of 100 random orderings of the ${fmt(A.days.size)} survey days, with the central 95% of orderings shaded.`,
     `<b>Richness estimate</b>: incidence-based Chao2 with the bias correction (m−1)/m and a log-normal 95% interval (Chao 1987; Chao & Chiu 2016), from Q1 = ${fmt(c.Q1)} species on one day and Q2 = ${fmt(c.Q2)} on two, over m = ${fmt(c.m)} days. Sample coverage follows Chao & Jost (2012). Fruiting-body surveys detect only species that fruited and were recorded, so the estimate is a lower bound.`,
     `<b>Identification</b>: iNaturalist identifications are not all verified; ${fmt(A.recs.length ? 100 * A.recs.filter(r => r.qg === 'research').length / A.recs.length : 0)}% of the records used are research grade, and ${fmt(A.recs.filter(r => r.seq).length)} have an ITS sequence.`,

@@ -4,35 +4,45 @@
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <title>iNat Seasonality Explorer · MycoView</title>
+<script>try{const t=JSON.parse(localStorage.getItem('seasonality.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
 :root {
   color-scheme: light;
-  --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f0efec;
-  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
-  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
-  --series: #2a78d6; --series-wash: rgba(42,120,214,0.10); --series-b: #eb6834; --wash-b: rgba(235,104,52,0.12);
-  --now: #0b0b0b; --whisk: #52514e; --warn-bg: #fff6df; --warn-ink: #5c4300; --warn-border: #fab219;
-  --h0: #f0efec; --h1: #cde2fb; --h2: #86b6ef; --h3: #3987e5; --h4: #1c5cab; --h5: #0d366b;
+  --page: #F2F5F3; --surface: #FFFFFF; --surface-2: #E8EFEB;
+  --ink: #15201B; --ink-2: #56655E; --muted: #6B7A73;
+  --grid: #E1E8E4; --axis: #C3CFC9; --border: #D2DCD7;
+  --series: #1D6B55; --series-wash: rgba(29,107,85,0.10); --series-b: #8A5A2B; --wash-b: rgba(138,90,43,0.12);
+  --now: #15201B; --whisk: #56655E; --warn-bg: #FBF1DE; --warn-ink: #6B4708; --warn-border: #A86E14;
+  --h0: #E8EFEB; --h1: #D6ECC9; --h2: #A6D4AD; --h3: #5FAE7F; --h4: #2A7F5C; --h5: #134A3A;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #2c2c2a;
-    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
-    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
-    --series: #3987e5; --series-wash: rgba(57,135,229,0.14); --series-b: #d95926; --wash-b: rgba(217,89,38,0.18);
-    --now: #f0efec; --whisk: #c3c2b7; --warn-bg: #2e2610; --warn-ink: #f6dc9a; --warn-border: #fab219;
-    --h0: #262624; --h1: #0d366b; --h2: #1c5cab; --h3: #3987e5; --h4: #86b6ef; --h5: #cde2fb;
+    --page: #0E1412; --surface: #151D1A; --surface-2: #1C2622;
+    --ink: #E2EAE6; --ink-2: #B4C2BB; --muted: #93A39B;
+    --grid: #2A3631; --axis: #3A4842; --border: #2A3631;
+    --series: #5CC3A2; --series-wash: rgba(92,195,162,0.16); --series-b: #D39B63; --wash-b: rgba(211,155,99,0.18);
+    --now: #E2EAE6; --whisk: #B4C2BB; --warn-bg: #2E2610; --warn-ink: #F6DC9A; --warn-border: #E0A84A;
+    --h0: #1C2622; --h1: #1E3B30; --h2: #2A5A45; --h3: #3F8F5F; --h4: #5CC3A2; --h5: #B9ECD8;
   }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0E1412; --surface: #151D1A; --surface-2: #1C2622;
+    --ink: #E2EAE6; --ink-2: #B4C2BB; --muted: #93A39B;
+    --grid: #2A3631; --axis: #3A4842; --border: #2A3631;
+    --series: #5CC3A2; --series-wash: rgba(92,195,162,0.16); --series-b: #D39B63; --wash-b: rgba(211,155,99,0.18);
+    --now: #E2EAE6; --whisk: #B4C2BB; --warn-bg: #2E2610; --warn-ink: #F6DC9A; --warn-border: #E0A84A;
+    --h0: #1C2622; --h1: #1E3B30; --h2: #2A5A45; --h3: #3F8F5F; --h4: #5CC3A2; --h5: #B9ECD8;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--ink);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 48px; }
-header.top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-h1 { font-size: 20px; margin: 0; }
-header.top span { color: var(--ink-2); font-size: 14px; }
+  font: 14px/1.5 var(--f-body); }
+main { max-width: 1440px; margin: 0 auto; padding: 18px max(16px,env(safe-area-inset-right)) 48px; }
 h2 { font-size: 16px; margin: 0; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
 
@@ -101,7 +111,7 @@ input:focus, select:focus, button:focus-visible { outline: 2px solid var(--serie
 .conf.lv0 .why, .conf.lv1 .why { color: inherit; }
 .hintbar { margin-top: 8px; font-size: 13px; color: var(--ink-2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .pill { display: inline-block; font-weight: 650; padding: 1px 10px; border-radius: 999px; background: var(--surface-2); }
-.pill.in { background: var(--series); color: #fff; }
+.pill.in { background: var(--series); color: var(--surface); }
 
 .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
 .sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
@@ -109,7 +119,7 @@ input:focus, select:focus, button:focus-visible { outline: 2px solid var(--serie
 .seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 6px; overflow: hidden; }
 .seg button { font: inherit; font-size: 13px; padding: 5px 10px; border: 0; background: transparent; color: var(--ink-2); cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--axis); }
-.seg button.on { background: var(--series); color: #fff; font-weight: 600; }
+.seg button.on { background: var(--series); color: var(--surface); font-weight: 600; }
 .seg button:disabled { opacity: .45; cursor: default; }
 .explain { font-size: 13px; color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 7px 10px; margin: 6px 0 4px; }
 svg { display: block; width: 100%; }
@@ -159,19 +169,57 @@ i.sci { font-style: italic; }
 #tourCard p { margin: 0 0 14px; font-size: 14px; color: var(--ink-2); }
 .tstep { font-size: 12px; color: var(--muted); font-weight: 600; }
 .tnav { display: flex; gap: 8px; align-items: center; }
-button.primary { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: 0; background: var(--series); color: #fff; cursor: pointer; }
+button.primary { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: 0; background: var(--series); color: var(--surface); cursor: pointer; }
 .hidden { display: none !important; }
 .nextsteps{margin:10px 0 0;font-size:14px}
+
+/* ---- MycoView Research Workbench frame (same as the other Workbench tools) ---- */
+:root{--f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --wb-bg:#F2F5F3;--wb-surface:#FFFFFF;--wb-surface-2:#E8EFEB;--wb-ink:#15201B;--wb-muted:#56655E;--wb-line:#D2DCD7;--wb-accent:#1D6B55;--wb-accent-ink:#FFFFFF;--wb-good:#2E7D4F;--wb-warn:#A86E14;--wb-bad:#B4412F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}}
+:root[data-theme="dark"]{--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}
+body{font-family:var(--f-body)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
+.wb-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--wb-line);background:var(--wb-surface);color:var(--wb-ink);margin:0}
+.wb-brand{display:flex;flex-direction:column;gap:2px}
+.wb-brand h1{font-size:22px;margin:0;color:var(--wb-ink)}
+.wb-brand p{margin:0;color:var(--wb-muted);font-size:12.5px;line-height:1.5}
+.wb-top .site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--wb-accent);text-decoration:none;margin-bottom:2px}
+.wb-top .site-home:hover{text-decoration:underline}
+.wb-sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wb-top .srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--wb-line);border-radius:999px;font-size:12px;background:var(--wb-surface);color:var(--wb-ink);white-space:nowrap;cursor:help}
+.wb-top .srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--wb-muted)}
+.wb-top .srcchip.live .dot{background:var(--wb-good)} .wb-top .srcchip.fail .dot{background:var(--wb-bad)}
+.wb-top .srcchip .st{color:var(--wb-muted)}
+.wb-top button{font:500 12px var(--f-body);border:1px solid var(--wb-line);background:transparent;color:var(--wb-ink);border-radius:5px;padding:6px 12px;cursor:pointer;margin:0;height:auto}
+.wb-top button:hover{border-color:var(--wb-accent)}
+.wb-steps{background:var(--wb-surface-2);border-bottom:1px solid var(--wb-line);padding:10px max(16px,env(safe-area-inset-right));color:var(--wb-ink);margin:0;border-radius:0}
+.wb-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.wb-steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 </style>
 </head>
 <body>
-<main>
-  <a id="siteHome" class="hidden" href="/investigate/#workbench" style="display:inline-block;margin-bottom:10px;font-size:13px;color:var(--ink-2);text-decoration:none">← MycoView Research Workbench</a>
-  <header class="top">
+<header class="wb-top">
+  <div class="wb-brand">
+    <a id="siteHome" class="site-home" href="/investigate/#workbench">← MycoView Research Workbench</a>
     <h1>iNat Seasonality Explorer</h1>
-    <span>When is it actually being found where you hunt? Live data from iNaturalist.</span>
-    <button type="button" class="ghost" id="guideBtn" style="margin-left:auto">Guide</button>
-  </header>
+    <p>When is it actually being found where you hunt? Live data from iNaturalist.</p>
+  </div>
+  <div class="wb-sources">
+    <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <button type="button" id="guideBtn">Guide</button><button id="wbThemeBtn" type="button">Theme</button>
+  </div>
+</header>
+<nav class="wb-steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Choose what</strong>: a species, genus, family or any group</span></li>
+    <li><span class="stepn">2</span><span><strong>Choose where and whose</strong>: a place, near a point, or worldwide; one observer or everyone</span></li>
+    <li><span class="stepn">3</span><span><strong>Narrow the evidence</strong>: quality grade, a provisional species name, or DNA-sequenced records only</span></li>
+    <li><span class="stepn">4</span><span><strong>Read the season</strong>: through the year and year by year, or compare with another group, place or span of years</span></li>
+  </ol>
+</nav>
+<main>
 
   <section class="card">
     <div class="main3">
@@ -1334,7 +1382,7 @@ window.addEventListener('scroll', tourPlace, { passive: true });
 window.addEventListener('resize', tourPlace);
 
 // Link back to the MycoView site, shown only when the page is served from a website (keep in future versions of this tool)
-if (/^https?:$/.test(location.protocol)) $('siteHome').classList.remove('hidden');
+
 
 loadHash();
 writeForm();
@@ -1342,6 +1390,17 @@ load();
 let seenGuide = false;
 try { seenGuide = localStorage.getItem('inatSeasonGuideSeen') === '1'; } catch (e) { /* treat as a first visit */ }
 if (!seenGuide) tourShow(0);
+})();
+</script>
+<script>
+/* Workbench frame: Theme button and iNaturalist status chip (same behaviour as the other tools). */
+(function(){
+  var KEY='seasonality.theme', r=document.documentElement;
+  var b=document.getElementById('wbThemeBtn');
+  if(b)b.addEventListener('click',function(){var cur=r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark';try{localStorage.setItem(KEY,JSON.stringify(r.dataset.theme))}catch(e){}});
+  var chip=document.getElementById('wb-src-inat');
+  function set(cls,txt){if(!chip)return;chip.classList.remove('live','fail');chip.classList.add(cls);chip.querySelector('.st').textContent=txt}
+  fetch('https://api.inaturalist.org/v1/observations?per_page=0&taxon_id=47170').then(function(x){set(x.ok?'live':'fail',x.ok?'live':'not reachable')},function(){set('fail','not reachable')});
 })();
 </script>
 </body>

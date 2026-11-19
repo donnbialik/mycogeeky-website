@@ -15,11 +15,13 @@ const tour = [
   { sel: '#temperature', title: 'The temperature', body: '<p>FunDiS recommends 110–120 °F (43–50 °C), and warns that above 155 °F (68 °C) can damage DNA. Lower settings are gentler but take longer.</p>' },
   { sel: '#when-dry', title: 'When it’s done', body: '<p>“Cracker dry”: it snaps rather than bends. That takes 12–48 hours depending on size and how wet it was.</p>' },
   { sel: '#rack', title: 'Keep it sorted on the rack', body: '<p>The rack is where collections get mixed up. Keep each one apart, in a known order, and photograph each tray before it goes in.</p>' },
+  { sel: '#times', title: 'Starting points', body: '<p>Suggested settings and times by type of collection. They are guides: size, weight, wetness and species all change it, and boletes in particular take a long time.</p>' },
   { sel: '#storage', title: 'Storing it', body: '<p>Dried fungi soak up moisture from the air, and moisture degrades DNA. Seal it, label it, and add desiccant if your storage is humid.</p>' },
+  { sel: '#fungarium', title: 'A fungarium at home', body: '<p>Keep specimens findable, dry and honestly recorded, and decide what is worth keeping: provisionals and rare species stay; common, identified species can go.</p>' },
   { sel: '#sources', title: 'Sources', body: '<p>Every number on this page comes from one of these. Where they disagree, the page says so.</p>' },
 ];
 ---
-<FieldGuide title="Drying and storing specimens" description="How to dry and store fungal specimens so their DNA survives: temperature, timing, keeping collections apart and storage, from published protocols." eyebrow="FIELD RESEARCH TOOLKIT / DRYING & STORAGE" heading="Dry it right, <em>or the DNA is gone.</em>" lead="A specimen you can sequence in five years starts in the dehydrator tonight. Here’s what the protocols say, and why." tourKey="field-drying" tour={tour} sources={sources} current="drying">
+<FieldGuide title="Drying and storing specimens" description="How to dry and store fungal specimens so their DNA survives: temperature and time guides, keeping collections apart, storage, and keeping a fungarium at home." eyebrow="FIELD RESEARCH TOOLKIT / DRYING & STORAGE" heading="Dry it right, <em>or the DNA is gone.</em>" lead="A specimen you can sequence in five years starts in the dehydrator tonight. Here’s what the protocols say, and why." tourKey="field-drying" tour={tour} sources={sources} current="drying">
 
 <section id="why">
   <p class="mv-guide-kicker">Why it matters</p>
@@ -51,6 +53,22 @@ const tour = [
   <p>If you slice a large specimen to help it dry, keep every piece together with the same number.</p>
 </section>
 
+<section id="times">
+  <p class="mv-guide-kicker">Starting points</p>
+  <h2>Time and temperature: a guide, not a rule.</h2>
+  <p>Every collection dries differently. Size, weight, how wet it was and the species all change how long it takes, so use these as a place to start and go by the snap test, not the clock.</p>
+  <div style="overflow:auto"><table class="mv-guide-table">
+    <thead><tr><th>Collection</th><th>Setting</th><th>Expect</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Small and thin</strong><br><span>e.g. <em>Mycena</em>, <em>Marasmius</em>, small brown gilled mushrooms</span></td><td>110–120 °F (43–50 °C)</td><td>The short end of the 12–48 hours.<sup class="mv-ref"><a href="#sources">1</a></sup> Check early; they can be done overnight.</td></tr>
+      <tr><td><strong>Medium gilled mushrooms</strong><br><span>e.g. <em>Russula</em>, <em>Cortinarius</em>, most mid-sized caps</span></td><td>110–120 °F (43–50 °C)</td><td>Somewhere in the middle. Thick stems and cap centres are the last parts to dry.</td></tr>
+      <tr><td><strong>Large, fleshy or wet</strong><br><span>e.g. boletes, big <em>Amanita</em>, thick-stemmed or waterlogged collections</span></td><td>110–120 °F (43–50 °C)</td><td>The long end, and sometimes longer. <strong>Boletes in particular tend to take a long time.</strong> Slicing them helps; keep every piece with its number.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted" style="font-size:.9rem">The setting comes from FunDiS;<sup class="mv-ref"><a href="#sources">1</a></sup> the time ranges by type are from experience, not from a study.</p>
+  <div class="mv-guide-note"><p><strong>No thermostat?</strong> Many cheap dehydrators have only an on/off switch, so you can’t set the temperature or know what it is. Put an oven or probe thermometer on a tray for one run to see what yours actually reaches. If it goes above 155 °F (68 °C), it’s not suitable for specimens you want to sequence.<sup class="mv-ref"><a href="#sources">1</a></sup></p></div>
+</section>
+
 <section id="rack">
   <p class="mv-guide-kicker">On the rack</p>
   <h2>The dehydrator is where collections get mixed up.</h2>
@@ -77,12 +95,31 @@ const tour = [
   </div>
 </section>
 
+<section id="fungarium">
+  <p class="mv-guide-kicker">A fungarium at home</p>
+  <h2>A collection you can actually use.</h2>
+  <p>A home fungarium is just your dried specimens, kept so that any one of them can be found from its record, and its record found from it.</p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>Findable</h3><p>Pick one way to group the bags, by month, foray event or sequencing plate, and note it on the observation (a voucher field, or the plate via the <a href="/investigate/plate-tagger/">Plate Tagger</a>). The test: given an observation, can you put your hand on the bag in a minute?</p></div>
+    <div class="mv-guide-card"><h3>Dry</h3><p>Sealed bags, label inside, desiccant if the room is above 50% humidity.<sup class="mv-ref"><a href="#sources">3</a></sup> Boxes or bins keep the bags flat and out of the light.</p></div>
+    <div class="mv-guide-card"><h3>Honest</h3><p>The record should say what you actually have. If a specimen is thrown away, update its voucher field so nobody goes looking for it later. The <a href="/investigate/collection-check/">Collection Check</a> shows where records and specimens may have drifted apart.</p></div>
+  </div>
+  <h3 style="margin-top:20px">What to keep</h3>
+  <p>A home fungarium can’t keep everything forever. How Geeky decides:</p>
+  <div class="mv-guide-do">
+    <div><h3>Keep</h3><ul><li>Every provisional species</li><li>Rarely collected species</li><li>Anything not yet confidently identified</li></ul></div>
+    <div><h3>Discard, once identified</h3><ul><li>Known, described, common species, once the identification is settled (for example, by its sequence)</li></ul></div>
+  </div>
+  <p>When you discard one, note it on the observation (for example, in the voucher field), so the record doesn’t point to a specimen that’s gone.</p>
+  <p>Not sure whether something is rare? The <a href="/investigate/provisional-finder/">Provisional Finder</a> shows how often a provisional has been collected and sequenced, and who else has it. If a specimen might become the basis of a new species description, talk to a public herbarium about depositing it rather than keeping it only at home.</p>
+</section>
+
 <section id="routine">
-  <p class="mv-guide-kicker">How I do it</p>
+  <p class="mv-guide-kicker">How Geeky does it</p>
   <h2>My setup</h2>
-  <p>I use an inexpensive round, stacking dehydrator, and there are many very similar versions. It’s the one I recommend as a first dehydrator. Whatever you buy, check that it has a thermostat you can set below 155 °F (68 °C).<sup class="mv-ref"><a href="#sources">1</a></sup></p>
-  <div class="mv-guide-ext"><a href="https://a.co/d/06su6Qnr">The dehydrator I use ↗<small>Amazon · many similar versions exist</small></a></div>
-  <div class="mv-guide-photo">Photo to come: the dehydrator</div>
+  <p>I use two dehydrators. One is an inexpensive round, stacking one with no temperature control; there are many very similar versions, and it’s a cheap way to start. The other has a thermostat. If you’re buying one for specimens you want sequenced, get one with a thermostat if you can, or check what a basic one actually reaches before you trust it (see “No thermostat?” above).</p>
+  <div class="mv-guide-ext"><a href="https://a.co/d/06su6Qnr">The round dehydrator I use ↗<small>Amazon · no temperature control · many similar versions</small></a></div>
+  <div class="mv-guide-photo">Photo to come: the dehydrators</div>
   <p>Collections go on in observation order, starting at 12 o’clock, and I photograph every tray. They come off and get bagged the next morning, in about 30 minutes, and the bags are grouped by month, by sequencing plate, or by foray event.</p>
   <p>Planning how many collections your dehydrator can handle in a week? Try the <a href="/investigate/collection-planner/">Collection Planner</a>.</p>
 </section>

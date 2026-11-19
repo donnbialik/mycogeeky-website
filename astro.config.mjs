@@ -3,7 +3,7 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 
 // Standalone tools live in public/investigate/<tool>/ (plain HTML), so the sitemap lists them by hand.
-const tools = ['provisional-finder', 'its-bin-comparator', 'seasonality-explorer', 'ecology-profile', 'habitat-profiler', 'plan-a-visit', 'foray-report', 'survey-report', 'plate-tagger', 'collection-planner', 'collection-check'];
+const tools = ['provisional-finder', 'its-bin-comparator', 'seasonality-explorer', 'ecology-profile', 'habitat-profiler', 'plan-a-visit', 'foray-report', 'survey-report', 'plate-tagger', 'collection-planner', 'collection-check', 'observation-footprint'];
 
 export default defineConfig({
   output: 'static',

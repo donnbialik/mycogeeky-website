@@ -72,3 +72,9 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
+
+# Observation Footprint: a self-contained page that calls the public iNaturalist and GBIF APIs from the browser.
+/investigate/observation-footprint/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

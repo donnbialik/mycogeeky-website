@@ -7,7 +7,7 @@ const {discipline:d}=Astro.props;
 const other=disciplines.filter(item=>item.slug!==d.slug);
 ---
 <Base title={d.title} description={d.summary}>
-<section class="page-hero container discipline-page-head"><p class="eyebrow"><a href="/investigate/resources/">RESEARCH RESOURCES</a> / WHO DOES WHAT</p><div class="discipline-page-lead"><div><h1>{d.title}</h1><p class="lead">{d.question}</p><p>{d.summary}</p></div><DisciplineArt kind={d.icon} accent={d.accent}/></div></section>
+<section class="station-hero station-hero-split discipline-page-head"><div class="station-hero-copy"><p class="eyebrow"><a href="/investigate/resources/">RESEARCH RESOURCES</a> / WHO DOES WHAT</p><h1>{d.title}</h1><p class="lead">{d.question}</p><p class="station-hero-note">{d.summary}</p></div><div class="station-hero-aside"><DisciplineArt kind={d.icon} accent={d.accent}/></div></section>
 <section class="section"><div class="container discipline-lesson">
 <div class="discipline-main">
 <p class="eyebrow">THE BIG PICTURE</p><h2>What does this work involve?</h2><p>{d.intro}</p>

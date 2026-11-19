@@ -16,7 +16,7 @@ export const interests: [tag: string, label: string][] = [
 
 // "The basics". Use 'To be announced' for anything not settled yet.
 export const basics: [label: string, value: string][] = [
-  ['Organizer', 'Donn Bialik (MycoGeeky), founder. More organizers to be announced.'],
+  ['Organizer', 'MycoGeeky, founder. More organizers to be announced.'],
   ['Area', 'Northeast Ohio. Counties and parks to be announced.'],
   ['First events', '2027. Dates to be announced.'],
   ['How often', 'To be announced.'],

@@ -1418,3 +1418,9 @@ html:not([data-active-path]) .mv-tool-step:not([data-path=provisional-taxonomist
 .mv-guide-sources a{word-break:break-word;color:#1c4837}
 sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;padding:0 1px}
 @media(max-width:700px){.mv-guide-do{grid-template-columns:1fr}.mv-guide-steps>li{padding-left:18px;padding-top:36px}.mv-guide-steps>li::before{top:12px}}
+
+.mv-guide-table{border-collapse:collapse;width:100%;min-width:620px;margin:12px 0;background:#fffefa;border:1px solid #d6ded1;border-radius:8px}
+.mv-guide-table th,.mv-guide-table td{border-bottom:1px solid #e2e8de;padding:11px 14px;text-align:left;vertical-align:top;font-size:.95rem;color:#2f4a3c;line-height:1.5}
+.mv-guide-table th{font:600 .72rem var(--v5-mono);letter-spacing:.08em;text-transform:uppercase;color:#46624d;background:#f1f4ec}
+.mv-guide-table td span{font-size:.85rem;color:#54695b}
+.mv-guide-table td:nth-child(2){white-space:nowrap}

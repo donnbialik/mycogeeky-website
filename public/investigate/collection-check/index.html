@@ -52,6 +52,12 @@ td.fv{font-family:var(--f-mono);font-size:11.5px;color:var(--wb-muted);max-width
 .fieldlist .role{font:500 10.5px var(--f-mono);color:var(--wb-muted);text-transform:uppercase}
 .wb-hint{font-size:12.5px;color:var(--wb-muted)}
 .hidden{display:none!important}
+.grp-w{border:1px solid var(--wb-line);border-radius:8px;padding:12px 14px;margin:10px 0}
+.grp-w h3{margin:0 0 6px;font-size:14px}
+.fopt{padding:6px 8px;border:1px solid var(--wb-line);border-radius:6px;margin:4px 0;cursor:pointer;font-size:13px}
+.fopt:hover,.fopt.sel{border-color:var(--wb-accent)}
+.pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;background:var(--wb-surface-2)}
+.p-ok{color:var(--wb-good)} .p-bad{color:var(--wb-bad)}
 /* ---- MycoView Research Workbench frame (same as the other Workbench tools) ---- */
 :root{--f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --wb-bg:#F2F5F3;--wb-surface:#FFFFFF;--wb-surface-2:#E8EFEB;--wb-ink:#15201B;--wb-muted:#56655E;--wb-line:#D2DCD7;--wb-accent:#1D6B55;--wb-accent-ink:#FFFFFF;--wb-good:#2E7D4F;--wb-warn:#A86E14;--wb-bad:#B4412F}
@@ -99,6 +105,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <li><span class="stepn">2</span><span><strong>Check the fields</strong>: confirm which observation fields mean voucher, plate, sequence or GenBank</span></li>
     <li><span class="stepn">3</span><span><strong>See the gaps</strong>: each check lists the records it caught, with links</span></li>
     <li><span class="stepn">4</span><span><strong>Keep or discard</strong>: see which species are rarely documented in your state, and export either list</span></li>
+    <li><span class="stepn">5</span><span><strong>Write it back</strong> (optional): add the keep reason to your own observations</span></li>
   </ol>
 </nav>
 <main>
@@ -111,7 +118,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <button class="btn" type="submit" id="goBtn">Check records</button>
     <button class="btn sec hidden" type="button" id="stopBtn">Stop</button>
   </form>
-  <p class="muted small" style="margin:8px 0 0">Reads fungi observations (including lichens) one page of 200 at a time, about one request a second as iNaturalist asks. Nothing is written to iNaturalist.</p>
+  <p class="muted small" style="margin:8px 0 0">Reads fungi observations (including lichens) one page of 200 at a time, about one request a second as iNaturalist asks. Nothing is written to iNaturalist unless you use step 5.</p>
   <div id="prog" class="row hidden" style="margin-top:10px"><progress id="pbar" max="1" value="0"></progress><span class="small muted" id="ptext"></span></div>
   <div id="msg"></div>
 </section>
@@ -155,6 +162,36 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <p>In most regions a large share of fungus species have only one or two records, so a percentage cutoff often works out to “recorded once or twice here”. The tool tells you what your cutoff became.</p>
     <p>Few records can mean a species is genuinely rare, or only that few people have looked, or that it’s small, short-lived or hard to identify. Records can also be misidentified. Treat a flag as a reason to keep a specimen, not as a statement about conservation status. See <a href="/investigate/field/drying/#fungarium">A fungarium at home</a>.</p>
   </details>
+</section>
+
+<section id="s-write" class="hidden">
+  <h2><span class="n">5</span>Write the keep reason to iNaturalist (optional)</h2>
+  <p class="muted small" style="margin:0 0 10px">Adds the suggestion from step 4 to each observation as an observation field, so the reason a specimen was kept travels with its record. Only your own observations, and nothing is written until you preview and confirm.</p>
+  <div class="grp-w">
+    <h3>a. Choose the field</h3>
+    <p class="small muted" style="margin:0 0 6px">Recommended: a text field you create once on iNaturalist (Observation fields → New), named for example <b>Voucher keep reason (MycoView)</b>, with allowed values <code>provisional|rarely documented|rarely sequenced|well documented</code>.</p>
+    <div class="row"><input type="text" id="wFieldQ" value="Voucher keep reason" style="min-width:280px"><button class="btn sec" type="button" id="wFieldSearch">Find field</button><span class="small" id="wFieldChosen"></span></div>
+    <div id="wFieldResults"></div>
+  </div>
+  <div class="grp-w">
+    <h3>b. Connect to iNaturalist</h3>
+    <p class="small" style="margin:0 0 6px">Sign in to iNaturalist and open <a href="https://www.inaturalist.org/users/api_token" target="_blank" rel="noopener">inaturalist.org/users/api_token</a>. Copy the <code>api_token</code> value and paste it here. It stays in this page’s memory, is sent only to iNaturalist, and is gone when you close the page. Tokens last about 24 hours.</p>
+    <textarea id="wToken" rows="2" placeholder="eyJhbGciOi…" style="width:100%;font:12px var(--f-mono);padding:6px 8px;border:1px solid var(--wb-line);border-radius:6px;background:var(--wb-surface);color:var(--wb-ink)"></textarea>
+    <div class="row" style="margin-top:6px"><button class="btn sec" type="button" id="wVerify">Verify token</button><span class="small" id="wWho"></span></div>
+  </div>
+  <div class="grp-w">
+    <h3>c. Preview, then write</h3>
+    <div class="row"><label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="wOverwrite"> Replace existing values that differ</label>
+      <label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="wWell" checked> Include “well documented”</label>
+      <button class="btn sec" type="button" id="wPreview">Preview changes</button>
+      <button class="btn" type="button" id="wWrite" disabled>Write</button>
+      <button class="btn sec" type="button" id="wStop" disabled>Stop</button></div>
+    <div id="wMsg"></div>
+    <div id="wPrev"></div>
+    <div class="row hidden" id="wProgRow" style="margin-top:8px"><progress id="wBar" max="1" value="0"></progress><span class="small muted" id="wProg"></span></div>
+    <div id="wLogWrap" class="hidden" style="margin-top:10px"><div class="scroll" style="max-height:220px"><table id="wLog"><thead><tr><th>Time</th><th>Observation</th><th>Action</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+      <div class="row" style="margin-top:6px"><button class="btn sec" type="button" id="wLogCsv">Download the log (CSV)</button></div></div>
+  </div>
 </section>
 <p class="muted small">Part of the <a href="/investigate/field/">Field Research Toolkit</a>. Data from the public <a href="https://api.inaturalist.org/v1/docs/">iNaturalist API</a>, read in your browser.</p>
 </main>
@@ -222,8 +259,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     return out.slice(0, max);
   }
   function slim(o) {
-    var f = {}; (o.ofvs || []).forEach(function (v) { if (v && v.name) f[v.name] = v.value; });
-    return { id: o.id, tid: o.taxon ? o.taxon.id : null, anc: o.taxon && o.taxon.ancestor_ids || [], name: o.taxon ? (o.taxon.name || '') : '', common: o.taxon && o.taxon.preferred_common_name || '', rank: o.taxon ? o.taxon.rank_level : null, date: o.observed_on || '', place: o.place_guess || '', qg: o.quality_grade || '', f: f };
+    var f = {}, fid = {}; (o.ofvs || []).forEach(function (v) { if (v && v.name) f[v.name] = v.value; if (v && v.field_id) fid[v.field_id] = { id: v.id, uuid: v.uuid, value: v.value }; });
+    return { id: o.id, tid: o.taxon ? o.taxon.id : null, anc: o.taxon && o.taxon.ancestor_ids || [], name: o.taxon ? (o.taxon.name || '') : '', common: o.taxon && o.taxon.preferred_common_name || '', rank: o.taxon ? o.taxon.rank_level : null, date: o.observed_on || '', place: o.place_guess || '', qg: o.quality_grade || '', f: f, fid: fid };
   }
   function fieldsPresent() {
     var m = new Map();
@@ -372,6 +409,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
       if (o.prov) o.why = 'prov';
       return o;
     });
+    window.MVRare = { rows: rows, res: res }; document.dispatchEvent(new CustomEvent('mvrare:render'));
     var order = { k: 0, x: 1, d: 2 }; rows.sort(function (a, b) { return order[a.c] - order[b.c] || (a.per[0] && b.per[0] ? (a.per[0].n || 0) - (b.per[0].n || 0) : 0) || a.name.localeCompare(b.name); });
     var warn = res.map(function (x) { return x.all.size < 500 ? '<div class="note"><b>' + esc(x.place.name) + '</b> has only ' + x.all.size + ' fungus species recorded by others, too few for a reliable ranking. Treat its column with caution.</div>' : ''; }).join('');
     var head = '<tr><th>Species</th><th>Your records</th>' + res.map(function (x) { return '<th>' + esc(x.place.name) + '<br><span class="muted">records · sequenced, by others</span></th>'; }).join('') + '<th>Suggestion</th></tr>';
@@ -394,6 +432,98 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   }
   $('#rareBtn').addEventListener('click', run);
   ['cutMode', 'cutVal', 'seqVal', 'scope'].forEach(function (id) { $('#' + id).addEventListener('change', function () { if (id === 'cutMode') $('#cutVal').value = $('#cutMode').value === 'pct' ? '25' : '1'; if (last) draw(); }); });
+})();
+</script>
+<script>
+/* Section 5: write the step-4 keep reason to the user's own observations as an observation field (preview first). */
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var API = 'https://api.inaturalist.org/v1';
+  var VAL = { prov: 'provisional', doc: 'rarely documented', seq: 'rarely sequenced', well: 'well documented' };
+  var W = { token: '', me: null, field: null, jobs: [], stop: false, busy: false, log: [] };
+  try { W.field = JSON.parse(localStorage.getItem('collectionCheck.writeField') || 'null'); } catch (e) { /* storage unavailable */ }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  async function api(path, opts) {
+    opts = opts || {}; var h = { Accept: 'application/json' }; if (W.token) h.Authorization = W.token; if (opts.body) h['Content-Type'] = 'application/json';
+    var r = await fetch(API + path, { method: opts.method || 'GET', headers: h, body: opts.body ? JSON.stringify(opts.body) : undefined });
+    var d = null; try { d = await r.json(); } catch (e) { /* empty body */ }
+    if (!r.ok) { var m = d && d.error && d.error.original && (d.error.original.error || (d.error.original.errors || []).join('; ')) || (d && (d.error || d.message)) || ('HTTP ' + r.status); var err = new Error(typeof m === 'string' ? m : JSON.stringify(m)); err.status = r.status; throw err; }
+    return d;
+  }
+  function showField() { $('#wFieldChosen').innerHTML = W.field ? 'Using <b>' + esc(W.field.name) + '</b> (ID ' + W.field.id + ')' + (W.field.allowed ? ' · allowed: ' + esc(W.field.allowed) : '') : ''; ready(); }
+  function allowedList() { return W.field && W.field.allowed ? W.field.allowed.split('|').map(function (x) { return x.trim().toLowerCase(); }) : null; }
+  function ready() { $('#wWrite').disabled = W.busy || !W.jobs.some(function (j) { return j.act === 'add' || j.act === 'update'; }) || !W.me || !W.field; }
+  document.addEventListener('mvrare:render', function () { $('#s-write').classList.remove('hidden'); W.jobs = []; $('#wPrev').innerHTML = ''; ready(); });
+  $('#wFieldSearch').addEventListener('click', async function () {
+    var q = $('#wFieldQ').value.trim(); if (!q) return;
+    try { var d = await api('/observation_fields/autocomplete?per_page=10&q=' + encodeURIComponent(q));
+      $('#wFieldResults').innerHTML = (d.results || []).length ? d.results.map(function (f) { return '<div class="fopt" data-id="' + f.id + '"><b>' + esc(f.name) + '</b> <span class="pill">' + esc(f.datatype) + '</span> <span class="small muted">ID ' + f.id + ' · used ' + (f.values_count || 0) + '× ' + (f.allowed_values ? '· allowed: ' + esc(f.allowed_values) : '') + '</span></div>'; }).join('') : '<p class="small muted">No matching field. Create it on iNaturalist first (Observation fields → New), then search again.</p>';
+      [].forEach.call(document.querySelectorAll('#wFieldResults .fopt'), function (el) { el.addEventListener('click', function () {
+        var f = d.results.filter(function (x) { return x.id === +el.dataset.id; })[0];
+        if (f.datatype !== 'text') { $('#wMsg').innerHTML = '<div class="err">That field is “' + esc(f.datatype) + '”; the keep reason needs a text field.</div>'; return; }
+        W.field = { id: f.id, name: f.name, allowed: f.allowed_values || '' }; try { localStorage.setItem('collectionCheck.writeField', JSON.stringify(W.field)); } catch (e) { /* storage unavailable */ }
+        $('#wMsg').innerHTML = ''; [].forEach.call(document.querySelectorAll('#wFieldResults .fopt'), function (x) { x.classList.toggle('sel', x === el); }); showField(); W.jobs = []; $('#wPrev').innerHTML = '';
+      }); });
+    } catch (e) { $('#wFieldResults').innerHTML = '<div class="err">' + esc(e.message) + '</div>'; }
+  });
+  $('#wVerify').addEventListener('click', async function () {
+    W.token = $('#wToken').value.trim().replace(/^.*"api_token"\s*:\s*"([^"]+)".*$/s, '$1'); $('#wWho').textContent = 'Checking…';
+    try { var d = await api('/users/me'); W.me = d.results[0]; var S = window.MVCheck;
+      if (S && S.user && W.me.login.toLowerCase() !== S.user.toLowerCase()) { $('#wWho').innerHTML = '<span class="pill p-bad">Signed in as ' + esc(W.me.login) + ', but these are ' + esc(S.user) + '’s records. You can only write to your own.</span>'; W.me = null; }
+      else $('#wWho').innerHTML = '<span class="pill p-ok">Signed in as ' + esc(W.me.login) + '</span>';
+    } catch (e) { W.me = null; $('#wWho').innerHTML = '<span class="pill p-bad">' + (e.status === 401 ? 'Token rejected: it may have expired. Get a fresh one.' : esc(e.message)) + '</span>'; }
+    ready();
+  });
+  $('#wPreview').addEventListener('click', function () {
+    var R = window.MVRare, S = window.MVCheck; if (!R || !W.field) { $('#wMsg').innerHTML = '<div class="err">' + (!W.field ? 'Choose a field first.' : 'Run step 4 first.') + '</div>'; return; }
+    var byId = new Map(S.obs.map(function (r) { return [r.id, r]; })), allowed = allowedList(), over = $('#wOverwrite').checked, well = $('#wWell').checked, bad = new Set();
+    W.jobs = [];
+    R.rows.forEach(function (o) {
+      var v = o.c === 'x' ? null : o.c === 'd' ? (well ? VAL.well : null) : VAL[o.why]; if (!v) return;
+      if (allowed && allowed.indexOf(v) < 0) { bad.add(v); return; }
+      o.ids.forEach(function (id) { var r = byId.get(id); if (!r) return; var cur = r.fid && r.fid[W.field.id];
+        var act = !cur ? 'add' : String(cur.value).trim().toLowerCase() === v ? 'same' : over ? 'update' : 'keep existing';
+        W.jobs.push({ id: id, name: o.name, v: v, cur: cur ? cur.value : '', ofv: cur ? cur.id : null, act: act }); });
+    });
+    var n = function (a) { return W.jobs.filter(function (j) { return j.act === a; }).length; };
+    $('#wMsg').innerHTML = bad.size ? '<div class="err">The field’s allowed values don’t include: ' + Array.from(bad).map(esc).join(', ') + '. Those records are left out. Add the values to the field on iNaturalist, or choose another field.</div>' : '';
+    $('#wPrev').innerHTML = '<p class="small"><b>' + n('add') + '</b> to add · <b>' + n('update') + '</b> to update · ' + n('same') + ' already right · ' + n('keep existing') + ' have a different value (left alone unless you tick “Replace”).</p>'
+      + '<div class="scroll" style="max-height:300px"><table><thead><tr><th>Observation</th><th>Species</th><th>Now</th><th>Will be</th><th>Action</th></tr></thead><tbody>'
+      + W.jobs.slice(0, 1000).map(function (j) { return '<tr><td><a href="https://www.inaturalist.org/observations/' + j.id + '">' + j.id + '</a></td><td><i>' + esc(j.name) + '</i></td><td>' + esc(j.cur) + '</td><td>' + esc(j.v) + '</td><td>' + esc(j.act) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    ready();
+  });
+  function log(id, action, result) { var t = new Date().toLocaleTimeString(); W.log.push([t, id, action, result]); $('#wLogWrap').classList.remove('hidden');
+    var tr = document.createElement('tr'); tr.innerHTML = '<td class="small">' + t + '</td><td><a href="https://www.inaturalist.org/observations/' + id + '">' + id + '</a></td><td class="small">' + esc(action) + '</td><td class="small">' + esc(result) + '</td>'; $('#wLog tbody').prepend(tr); }
+  $('#wStop').addEventListener('click', function () { W.stop = true; $('#wStop').disabled = true; });
+  $('#wWrite').addEventListener('click', async function () {
+    var jobs = W.jobs.filter(function (j) { return j.act === 'add' || j.act === 'update'; }); if (!jobs.length || !W.me) return;
+    if (!confirm('Write “' + W.field.name + '” to ' + jobs.length + ' of your iNaturalist observations?')) return;
+    W.busy = true; W.stop = false; ready(); $('#wStop').disabled = false; $('#wProgRow').classList.remove('hidden'); $('#wBar').max = jobs.length; $('#wBar').value = 0;
+    var ok = 0, bad = 0, byId = new Map(window.MVCheck.obs.map(function (r) { return [r.id, r]; }));
+    for (var i = 0; i < jobs.length; i++) {
+      if (W.stop) { $('#wMsg').innerHTML = '<div class="note">Stopped after ' + i + ' of ' + jobs.length + '. Preview again to carry on; records already written show as “already right”.</div>'; break; }
+      var j = jobs[i]; $('#wProg').textContent = (i + 1) + ' / ' + jobs.length + ': ' + j.id + ' → ' + j.v;
+      var body = { observation_field_value: { observation_id: j.id, observation_field_id: W.field.id, value: j.v } };
+      try {
+        var d = j.act === 'update' && j.ofv ? await api('/observation_field_values/' + j.ofv, { method: 'PUT', body: body }) : await api('/observation_field_values', { method: 'POST', body: body });
+        var r = byId.get(j.id); if (r) { r.fid = r.fid || {}; r.fid[W.field.id] = { id: (d && d.id) || j.ofv, value: j.v }; }
+        j.act = 'same'; ok++; log(j.id, (j.cur ? 'update ' + j.cur + ' → ' : 'add ') + j.v, 'ok');
+      } catch (e) {
+        bad++; log(j.id, 'write ' + j.v, ((e.status || '') + ' ' + e.message).trim());
+        if (e.status === 401) { $('#wMsg').innerHTML = '<div class="err">The token expired or was rejected. Paste a fresh one, verify it, preview and write again.</div>'; W.me = null; break; }
+        if (e.status === 429) { log(j.id, 'rate limited', 'waiting 60 s'); await sleep(60000); }
+      }
+      $('#wBar').value = i + 1; if (i < jobs.length - 1) await sleep(1100);
+    }
+    $('#wProg').textContent = 'Done: ' + ok + ' written, ' + bad + ' failed.'; W.busy = false; $('#wStop').disabled = true; ready();
+  });
+  $('#wLogCsv').addEventListener('click', function () {
+    var text = [['time', 'observation_id', 'action', 'result']].concat(W.log).map(function (l) { return l.map(function (x) { x = String(x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'keep-reason-write-log.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  });
+  showField();
 })();
 </script>
 <script>

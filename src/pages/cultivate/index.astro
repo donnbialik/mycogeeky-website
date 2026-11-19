@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { podcastUrl } from '../../data/site';
+// A single page on why cultivation belongs in a broader interest in fungi, until fuller
+// cultivation guides exist. Written in Donn's voice.
+const cycle = [
+  ['01', 'Spores or a culture', 'It starts small: spores, or a piece of living tissue grown out on agar.'],
+  ['02', 'Mycelium', 'Fine threads spread through grain or sawdust. This is the fungus itself, and where it spends most of its life.'],
+  ['03', 'Pins', 'When conditions change, tiny knots appear: the first sign that mushrooms are on the way.'],
+  ['04', 'Fruiting', 'Over a few days the pins become mushrooms, and you see every stage, not only the finished one.'],
+  ['05', 'Spores again', 'Mature mushrooms release spores, and the cycle can begin again.'],
+];
+const reasons = [
+  ['FOOD', 'Grow your own.', 'Oysters, lion’s mane and many other mushrooms can be grown at home. Cultivation is a hands-on way to explore fungi as a food source.'],
+  ['MEDICINE', 'Follow the research.', 'Many people start growing because they’re curious about medicinal mushrooms. Growing a species yourself is a way to get to know it while you follow the evidence. Talk with your clinician before using any mushroom for your health.'],
+  ['SCIENCE', 'A bridge to taxonomy.', 'Sterile technique, keeping cultures alive and documenting growth are the same careful habits field and lab work depend on. Cultivation turns the life of a fungus into something you can observe and record.'],
+];
+---
+<Base title="Cultivate" description="Why growing mushrooms belongs in a broader interest in fungi: watch the whole life cycle, from culture to spores, up close.">
+<div class="station-page">
+<section class="station-hero station-hero-split"><div class="station-hero-copy">
+  <p class="eyebrow">CULTIVATE / STAY CURIOUS. STAY CULTIVATING.</p>
+  <h1>See the whole life <em>of a mushroom.</em></h1>
+  <p class="lead">In the woods, you meet a mushroom for a few days at most. Grow one, and you get to watch everything that happens before and after.</p>
+  <a class="station-button" href="#why">Why I grow ↓</a>
+</div><Photo src="young-mycologist-oyster-harvest.jpg" alt="Young grower holding up a large oyster mushroom harvest" loading="eager" decoding="async" /></section>
+
+<section class="station-content mv-cult" id="why">
+  <div class="station-section-head"><h2>WHY I GROW</h2><span>CURIOSITY / PATIENCE / WONDER</span></div>
+  <div class="mv-cult-story">
+    <h3>Mushrooms are ephemeral. <em>Cultivation lets you stay with them.</em></h3>
+    <div>
+      <p>Most of what I study shows up for a few days and then it’s gone. A mushroom on a foray is a snapshot: one moment in a life that mostly happens out of sight, underground or inside a log.</p>
+      <p>Cultivating changed that for me. Since I started growing in 2022, I’ve watched species go from a culture, to a block of white mycelium, to the first pins, to a full flush, and then drop spores to start again. Seeing the whole cycle up close, day by day, gave me a more direct relationship with how fungi grow, and a much deeper appreciation for just how miraculous they really are.</p>
+      <p>Whatever brings you to it, if you’re even a little curious about mushrooms, I believe growing one is one of the most rewarding ways to go deeper.</p>
+    </div>
+  </div>
+</section>
+
+<section class="station-content mv-cult" id="life-cycle">
+  <div class="station-section-head"><h2>THE LIFE CYCLE, UP CLOSE</h2><span>WHAT YOU GET TO WATCH</span></div>
+  <ol class="mv-cult-cycle">{cycle.map(([n, title, body]) => <li><span>{n}</span><h3>{title}</h3><p>{body}</p></li>)}</ol>
+</section>
+
+<section class="station-content mv-cult" id="where">
+  <div class="station-section-head"><h2>WHERE IT CAN TAKE YOU</h2><span>FOOD / MEDICINE / SCIENCE</span></div>
+  <div class="mv-cult-reasons">{reasons.map(([k, title, body]) => <article><p class="eyebrow">{k}</p><h3>{title}</h3><p>{body}</p></article>)}</div>
+</section>
+
+<section class="station-content mv-cult" id="updates">
+  <div class="station-section-head"><h2>COMING NEXT</h2><span>GUIDES / RESOURCES</span></div>
+  <div class="mv-cult-next">
+    <div>
+      <h3>Cultivation guides are on the way.</h3>
+      <p>I’m building out cultivation guides and resources here. Until they’re ready, The MycoGeeky Podcast is the place to start: it began as a show about growing mushrooms, with long conversations with cultivators.</p>
+      <p class="mv-cult-links"><a href={podcastUrl}>Listen to The MycoGeeky Podcast ↗</a><a href="/discover/#watch-and-listen">Watch &amp; listen on MycoView →</a></p>
+      <p class="mv-cult-note">Before you grow any species, check the laws where you live.</p>
+    </div>
+    <div class="mv-support-card"><h3>Hear when the first guides go up</h3><NewsletterForm id="cultivate-news" /></div>
+  </div>
+</section>
+</div>
+</Base>
+<style>
+.station-hero>img{object-position:center 30%}
+@media(max-width:700px){.station-hero>img{height:340px!important}}
+.mv-cult-story{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:clamp(22px,4vw,56px);padding:18px 0}
+.mv-cult-story h3{font:600 clamp(1.7rem,2.8vw,2.4rem)/1.12 var(--mv-serif);color:#17372e;margin:0}
+.mv-cult-story h3 em{color:#3f7a55}
+.mv-cult-story p{color:#2f4a3c;font-size:1.05rem;line-height:1.65;margin:0 0 14px;max-width:680px}
+.mv-cult-cycle{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.mv-cult-cycle li{background:#fffefa;border:1px solid #d6ded1;border-top:4px solid #3f7a55;border-radius:7px;padding:18px}
+.mv-cult-cycle li:nth-child(even){border-top-color:#d8ed43}
+.mv-cult-cycle span{font:500 .7rem var(--mv-mono);letter-spacing:.1em;color:#46624d}
+.mv-cult-cycle h3{font:600 1.25rem var(--mv-serif);color:#17372e;margin:8px 0 6px}
+.mv-cult-cycle p{font-size:.9rem;color:#46624d;line-height:1.5;margin:0}
+.mv-cult-reasons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:10px}
+.mv-cult-reasons article{background:#fffefa;border:1px solid #d6ded1;border-radius:7px;padding:22px}
+.mv-cult-reasons h3{font:600 1.45rem var(--mv-serif);color:#17372e;margin:8px 0 8px}
+.mv-cult-reasons p:not(.eyebrow){color:#46624d;line-height:1.55;margin:0}
+.mv-cult-next{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(22px,4vw,48px);align-items:start;padding-top:6px}
+.mv-cult-next h3{font:600 1.6rem var(--mv-serif);color:#17372e;margin:0 0 10px}
+.mv-cult-next p{color:#2f4a3c;line-height:1.6;max-width:640px}
+.mv-cult-links{display:flex;flex-wrap:wrap;gap:8px 20px}
+.mv-cult-links a{color:#1c4837;font-weight:600}
+.mv-cult-note{font-size:.88rem;color:#5c6d5f!important}
+@media(max-width:1000px){.mv-cult-cycle{grid-template-columns:repeat(2,minmax(0,1fr))}.mv-cult-cycle li:last-child{grid-column:1/-1}}
+@media(max-width:850px){.mv-cult-story,.mv-cult-next,.mv-cult-reasons{grid-template-columns:1fr}}
+@media(max-width:520px){.mv-cult-cycle{grid-template-columns:1fr}}
+</style>

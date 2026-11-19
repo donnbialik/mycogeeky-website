@@ -1,10 +1,9 @@
 // NEO Myco settings and the facts shown in "The basics" on /neo-myco/.
 // Edit the text here; the page updates on the next build.
 
-// Buttondown username for the launch-updates sign-up form
-// (Buttondown → Settings → your username). Leave empty until the account exists:
-// the form then shows that sign-up is not open yet instead of failing.
-export const buttondownUsername = 'mycoview';
+// Buttondown account for the launch-updates sign-up form: shared with the MycoView newsletter,
+// set in src/data/site.ts. If it is emptied there, the form says sign-up is not open yet.
+export { buttondownUsername } from './site';
 
 // Interests a person can tick on the sign-up form. Each one becomes a Buttondown tag.
 export const interests: [tag: string, label: string][] = [

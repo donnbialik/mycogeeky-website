@@ -1,0 +1,27 @@
+---
+/**
+ * <SupportBlock /> — the "stay in touch and support" block: newsletter, shop, donate.
+ * Links come from src/data/site.ts; an empty value hides that option.
+ * <SupportBlock compact /> renders a single line (for tool pages and footnotes).
+ */
+import NewsletterForm from './NewsletterForm.astro';
+import { buttondownUsername, donateUrl, shopUrl } from '../data/site';
+interface Props { compact?: boolean; id?: string }
+const { compact = false, id = 'support' } = Astro.props;
+---
+{compact ? (
+  <p class="mv-support-line">MycoView’s tools are free to use. {donateUrl && <a href={donateUrl}>Support them with a donation ↗</a>}{donateUrl && shopUrl && ' · '}{shopUrl && <a href={shopUrl}>Visit the MycoGeeky shop ↗</a>}</p>
+) : (
+  <section class="mv-support station-content" id={id} aria-labelledby={`${id}-title`}>
+    <div class="mv-support-head">
+      <p class="eyebrow">STAY IN TOUCH · SUPPORT THE WORK</p>
+      <h2 id={`${id}-title`}>Keep MycoView growing.</h2>
+      <p>MycoView, its research tools and The MycoView channel are free and independent. If they’ve helped you, here’s how to keep them going.</p>
+    </div>
+    <div class="mv-support-grid">
+      {buttondownUsername && <div class="mv-support-card"><h3>Get updates</h3><p>New tools, field stories and episodes, a few times a year.</p><NewsletterForm id={`${id}-news`} /></div>}
+      {shopUrl && <div class="mv-support-card"><h3>Shop</h3><p>MycoGeeky goods on Etsy. Purchases support the work behind MycoView.</p><a class="station-button" href={shopUrl}>Visit the Etsy shop ↗</a></div>}
+      {donateUrl && <div class="mv-support-card"><h3>Donate</h3><p>A gift through PayPal helps keep the tools online and the research going.</p><a class="station-button" href={donateUrl}>Donate with PayPal ↗</a></div>}
+    </div>
+  </section>
+)}

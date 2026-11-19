@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import { contactEmail, inaturalistProfile } from '../../data/site';
+// Keep this page true to what the site actually does. If a page adds a new outside service
+// (an embed, a script, an API the browser calls), add it here.
+const updated = '19 November 2026';
+---
+<Base title="Privacy" description="What MycoView collects (very little), which outside services the site and its research tools contact, and how to reach us.">
+<div class="station-page">
+<section class="station-hero station-hero-solo"><div class="station-hero-copy">
+  <p class="eyebrow">MYCOVIEW / PRIVACY</p>
+  <h1>Privacy, <em>in plain language.</em></h1>
+  <p class="lead">MycoView has no analytics, no ads and no tracking cookies. We don’t sell or share information about you. Some pages and tools do contact outside services, and this page lists them.</p>
+  <p class="station-hero-note">Last updated {updated}.</p>
+</div></section>
+
+<article class="mv-legal">
+  <section>
+    <h2>Hosting</h2>
+    <p>MycoView is hosted on Cloudflare Pages. Like any web host, Cloudflare handles each request to the site, which includes your IP address and browser details, in order to deliver pages and protect the site. See <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare’s privacy policy</a>.</p>
+  </section>
+
+  <section>
+    <h2>Fonts</h2>
+    <p>The site’s typefaces load from Google Fonts, so your browser contacts Google’s servers, which receive your IP address and browser details. See <a href="https://policies.google.com/privacy">Google’s privacy policy</a>.</p>
+  </section>
+
+  <section>
+    <h2>Research tools</h2>
+    <p>The tools in the Research Toolbox run in your browser. When you use one, your browser asks outside services directly for the data it needs. Depending on the tool, these include:</p>
+    <ul>
+      <li><strong>iNaturalist</strong>: observations, taxa, places and people you search for</li>
+      <li><strong>Open-Meteo</strong>: past and forecast weather for a location</li>
+      <li><strong>ISRIC SoilGrids</strong>: soil estimates for a location</li>
+      <li><strong>USGS National Map</strong> and elevation tiles hosted on Amazon Web Services: map backgrounds and elevation</li>
+      <li><strong>GBIF</strong> and <strong>NCBI</strong>: occurrence records and DNA sequences</li>
+      <li><strong>cdnjs</strong> (Cloudflare): the map library some tools use</li>
+    </ul>
+    <p>Those services see the request, including your IP address and what was asked for, such as a place or a set of coordinates. The Ecology Profile also sends a location’s coordinates through MycoView’s own server to USDA Soil Data Access and USGS LANDFIRE. Those answers are cached so repeat lookups are fast; we don’t keep a record of who asked.</p>
+    <p><strong>Saved settings.</strong> Some tools remember your choices, such as light or dark theme, recent settings, or whether you’ve seen a guided tour, in your browser’s local storage. That information stays on your device and is never sent to us. Clearing this site’s data in your browser removes it.</p>
+    <p><strong>Sequencing Plate Tagger.</strong> The iNaturalist API token you paste in stays in the page’s memory, is sent only to iNaturalist, and is gone when you close the page.</p>
+  </section>
+
+  <section>
+    <h2>Photos from other sites</h2>
+    <p>Some photos are shown directly from other servers: iNaturalist’s photo storage, Wikimedia Commons, and, for a few portraits on the research-pathways page, the websites of the organizations involved. Your browser loads those images from those servers.</p>
+  </section>
+
+  <section>
+    <h2>Email sign-ups</h2>
+    <p>The MycoView newsletter and NEO Myco launch updates are sent with Buttondown. When you sign up, Buttondown stores your email address and anything else you choose to give: for NEO Myco, your name, town or county, interests and how you heard about us. We use it only to send MycoView and NEO Myco news. Every email has an unsubscribe link, and you can ask us to delete your details at any time. See <a href="https://buttondown.com/legal/privacy">Buttondown’s privacy policy</a>.</p>
+  </section>
+
+  <section>
+    <h2>The restricted Barcode Reliability Explorer</h2>
+    <p>Invited reviewers sign in to the restricted Explorer through Cloudflare Access, which handles the sign-in. The Explorer stores each reviewer’s email address with the reviews they submit, along with a log of changes, so every review can be traced to the person who made it. Nothing from the public site is added to it.</p>
+  </section>
+
+  <section>
+    <h2>Links to other sites</h2>
+    <p>Links to Etsy, PayPal, YouTube, Buzzsprout, iNaturalist and other sites take you to services with their own privacy policies.</p>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <p>{contactEmail ? <>Email <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.</> : <>Send a message on <a href={inaturalistProfile}>iNaturalist</a>.</>} If something here changes, this page will be updated and its date changed.</p>
+  </section>
+</article>
+</div>
+</Base>
+<style>
+.mv-legal{max-width:760px;margin:0 auto;padding:44px clamp(18px,4vw,28px) 24px;color:#22392f;line-height:1.6}
+.mv-legal section{margin-bottom:30px}
+.mv-legal h2{font:600 1.5rem var(--mv-serif);color:#17372e;margin:0 0 10px}
+.mv-legal ul{padding-left:1.2em}
+.mv-legal li{margin:5px 0}
+.mv-legal a{color:#1c4837;text-decoration:underline;text-underline-offset:3px}
+</style>

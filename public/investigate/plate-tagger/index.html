@@ -4,21 +4,23 @@
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <title>Sequencing Plate Tagger · MycoView</title>
+<script>try{const t=JSON.parse(localStorage.getItem('platetagger.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
-  :root{color-scheme:light;--bg:#f9f9f7;--card:#fcfcfb;--card2:#f0efec;--ink:#0b0b0b;--mute:#52514e;--line:#e1e0d9;--acc:#2a78d6;--acc2:rgba(42,120,214,0.10);--warn:#5c4300;--warnbg:#fff6df;--bad:#9b2c25;--badbg:#fbe9e7;--ok:#1d6b3f;--okbg:#e6f3ea}
-  @media (prefers-color-scheme: dark){:root{color-scheme:dark;--bg:#0d0d0d;--card:#1a1a19;--card2:#2c2c2a;--ink:#f0efec;--mute:#c3c2b7;--line:#2c2c2a;--acc:#3987e5;--acc2:rgba(57,135,229,0.14);--warn:#f6dc9a;--warnbg:#2e2610;--bad:#f2b8b2;--badbg:#3a1d1a;--ok:#9fd8b2;--okbg:#16301f}}
+  :root{color-scheme:light;--bg:#F2F5F3;--card:#FFFFFF;--card2:#E8EFEB;--ink:#15201B;--mute:#56655E;--line:#D2DCD7;--acc:#1D6B55;--acc2:rgba(29,107,85,0.10);--warn:#6B4708;--warnbg:#FBF1DE;--bad:#B4412F;--badbg:#FBE8E4;--ok:#2E7D4F;--okbg:#E3F1E7}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0E1412;--card:#151D1A;--card2:#1C2622;--ink:#E2EAE6;--mute:#93A39B;--line:#2A3631;--acc:#5CC3A2;--acc2:rgba(92,195,162,0.16);--warn:#F6DC9A;--warnbg:#2E2610;--bad:#E57A66;--badbg:#3A1D1A;--ok:#5FC08A;--okbg:#16301F}}
+  :root[data-theme="dark"]{color-scheme:dark;--bg:#0E1412;--card:#151D1A;--card2:#1C2622;--ink:#E2EAE6;--mute:#93A39B;--line:#2A3631;--acc:#5CC3A2;--acc2:rgba(92,195,162,0.16);--warn:#F6DC9A;--warnbg:#2E2610;--bad:#E57A66;--badbg:#3A1D1A;--ok:#5FC08A;--okbg:#16301F}
   *{box-sizing:border-box}
-  body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
-  header{padding:22px 28px 10px}
-  header h1{margin:0;font-size:22px}
-  header p{margin:4px 0 0;color:var(--mute)}
-  main{padding:8px 28px 60px;max-width:1200px}
+  body{margin:0;font:14px/1.5 var(--f-body);background:var(--bg);color:var(--ink)}
+  main{padding:8px max(16px,env(safe-area-inset-right)) 60px;max-width:1440px;margin:0 auto}
   section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
   h2{margin:0 0 10px;font-size:17px}
-  h2 .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;text-align:center;font-size:13px;line-height:24px;margin-right:8px}
+  h2 .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--card);text-align:center;font-size:13px;line-height:24px;margin-right:8px}
   .muted{color:var(--mute)} .small{font-size:13px}
-  button{font:inherit;padding:7px 14px;border-radius:7px;border:1px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+  button{font:inherit;padding:7px 14px;border-radius:7px;border:1px solid var(--acc);background:var(--acc);color:var(--card);cursor:pointer}
   button.sec{background:var(--card);color:var(--acc)}
   button:disabled{opacity:.45;cursor:default}
   input[type=text],input[type=password],textarea,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
@@ -39,20 +41,58 @@
   .err{padding:8px 12px;border-radius:7px;background:var(--badbg);color:var(--bad);font-size:13px;margin:8px 0}
   a{color:var(--acc)}
   .hidden{display:none !important}
-  #siteHome{display:inline-block;margin:0 0 10px;font-size:13px;color:var(--mute);text-decoration:none}
   .fieldopt{padding:6px 8px;border:1px solid var(--line);border-radius:6px;margin:4px 0;cursor:pointer}
   .fieldopt:hover{background:var(--acc2)}
   .fieldopt.sel{border-color:var(--acc);background:var(--acc2)}
   .stats span{margin-right:14px}
   progress{width:260px;height:14px}
+
+/* ---- MycoView Research Workbench frame (same as the other Workbench tools) ---- */
+:root{--f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --wb-bg:#F2F5F3;--wb-surface:#FFFFFF;--wb-surface-2:#E8EFEB;--wb-ink:#15201B;--wb-muted:#56655E;--wb-line:#D2DCD7;--wb-accent:#1D6B55;--wb-accent-ink:#FFFFFF;--wb-good:#2E7D4F;--wb-warn:#A86E14;--wb-bad:#B4412F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}}
+:root[data-theme="dark"]{--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}
+body{font-family:var(--f-body)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
+.wb-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--wb-line);background:var(--wb-surface);color:var(--wb-ink);margin:0}
+.wb-brand{display:flex;flex-direction:column;gap:2px}
+.wb-brand h1{font-size:22px;margin:0;color:var(--wb-ink)}
+.wb-brand p{margin:0;color:var(--wb-muted);font-size:12.5px;line-height:1.5}
+.wb-top .site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--wb-accent);text-decoration:none;margin-bottom:2px}
+.wb-top .site-home:hover{text-decoration:underline}
+.wb-sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wb-top .srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--wb-line);border-radius:999px;font-size:12px;background:var(--wb-surface);color:var(--wb-ink);white-space:nowrap;cursor:help}
+.wb-top .srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--wb-muted)}
+.wb-top .srcchip.live .dot{background:var(--wb-good)} .wb-top .srcchip.fail .dot{background:var(--wb-bad)}
+.wb-top .srcchip .st{color:var(--wb-muted)}
+.wb-top button{font:500 12px var(--f-body);border:1px solid var(--wb-line);background:transparent;color:var(--wb-ink);border-radius:5px;padding:6px 12px;cursor:pointer;margin:0;height:auto}
+.wb-top button:hover{border-color:var(--wb-accent)}
+.wb-steps{background:var(--wb-surface-2);border-bottom:1px solid var(--wb-line);padding:10px max(16px,env(safe-area-inset-right));color:var(--wb-ink);margin:0;border-radius:0}
+.wb-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.wb-steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 </style>
 </head>
 <body>
-<header>
-  <a id="siteHome" class="hidden" href="/investigate/#workbench">← MycoView Research Workbench</a>
-  <h1>Sequencing Plate Tagger</h1>
-  <p>Load the 96-well plate CSVs you send for sequencing, and write each observation's plate into an iNaturalist observation field. Later, any observation tells you which plate, and so which stored bag, holds its specimen.</p>
+<header class="wb-top">
+  <div class="wb-brand">
+    <a id="siteHome" class="site-home" href="/investigate/#workbench">← MycoView Research Workbench</a>
+    <h1>Sequencing Plate Tagger</h1>
+    <p>Load the 96-well plate CSVs you send for sequencing, and write each observation's plate into an iNaturalist observation field. Later, any observation tells you which plate, and so which stored bag, holds its specimen.</p>
+  </div>
+  <div class="wb-sources">
+    <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <button id="wbThemeBtn" type="button">Theme</button>
+  </div>
 </header>
+<nav class="wb-steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Load plate CSVs</strong>: the 96-well plate files you send for sequencing</span></li>
+    <li><span class="stepn">2</span><span><strong>Review and look up</strong>: check each sample and its iNaturalist observation</span></li>
+    <li><span class="stepn">3</span><span><strong>Connect to iNaturalist</strong>: paste your iNaturalist API token and choose the observation field</span></li>
+    <li><span class="stepn">4</span><span><strong>Check, then write</strong>: see what would change, then write the plate to each observation</span></li>
+  </ol>
+</nav>
 <main>
 
 <!-- STEP 1 -->
@@ -583,8 +623,19 @@ $("#plateMode").onchange = e => {
 };
 try { const f = JSON.parse(store.get("plateTagger.field") || "null"); if (f?.id){ state.field = f; showField(); } } catch(e){}
 // Link back to the MycoView site, shown only when the page is served from a website (keep in future versions of this tool)
-if (/^https?:$/.test(location.protocol)) $("#siteHome").classList.remove("hidden");
+
 updateButtons();
+</script>
+<script>
+/* Workbench frame: Theme button and iNaturalist status chip (same behaviour as the other tools). */
+(function(){
+  var KEY='platetagger.theme', r=document.documentElement;
+  var b=document.getElementById('wbThemeBtn');
+  if(b)b.addEventListener('click',function(){var cur=r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark';try{localStorage.setItem(KEY,JSON.stringify(r.dataset.theme))}catch(e){}});
+  var chip=document.getElementById('wb-src-inat');
+  function set(cls,txt){if(!chip)return;chip.classList.remove('live','fail');chip.classList.add(cls);chip.querySelector('.st').textContent=txt}
+  fetch('https://api.inaturalist.org/v1/observations?per_page=0&taxon_id=47170').then(function(x){set(x.ok?'live':'fail',x.ok?'live':'not reachable')},function(){set('fail','not reachable')});
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,48 @@
+---
+/**
+ * Shared frame for Field Research Toolkit guide pages: dark header with a "Take the tour" button,
+ * links between the toolkit's pages, the page content (slot), and a numbered sources list.
+ * Tour steps are passed as data and run by /investigate/guide-tour.js (never opens by itself).
+ */
+import Base from '../layouts/Base.astro';
+export type TourStep = { sel?: string; title: string; body: string };
+export type Source = { cite: string; url: string };
+interface Props {
+  title: string; description: string; eyebrow: string; heading: string; lead: string;
+  tourKey: string; tour: TourStep[]; sources?: Source[]; current: string;
+}
+const { title, description, eyebrow, heading, lead, tourKey, tour, sources = [], current } = Astro.props;
+const pages = [
+  ['hub', 'Toolkit', '/investigate/field/'],
+  ['start', 'Start to finish', '/investigate/field/start-to-finish/'],
+  ['photo', 'Phone photos', '/investigate/field/photography/'],
+  ['tracking', 'Specimen tracking', '/investigate/field/tracking/'],
+  ['drying', 'Drying & storage', '/investigate/field/drying/'],
+  ['genus', 'Genus notes', '/investigate/field/genus-notes/'],
+  ['planner', 'Collection Planner', '/investigate/collection-planner/'],
+  ['check', 'Collection Check', '/investigate/collection-check/'],
+];
+const tourJson = JSON.stringify({ key: tourKey, steps: tour });
+---
+<Base title={title} description={description}>
+<div class="station-page mv-guide">
+  <section class="station-hero station-hero-solo"><div class="station-hero-copy">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 set:html={heading} />
+    <p class="lead">{lead}</p>
+    <div class="station-actions"><button type="button" class="station-button" data-tour-start>▶ Take the tour</button><span class="mv-guide-hint" data-tour-hint hidden>New here? The tour takes about a minute.</span></div>
+  </div></section>
+  <nav class="mv-guide-nav" aria-label="Field Research Toolkit">
+    {pages.map(([id, label, href]) => <a href={href} aria-current={id === current ? 'page' : undefined}>{label}</a>)}
+  </nav>
+  <div class="mv-guide-body"><slot /></div>
+  {sources.length > 0 && (
+    <section class="mv-guide-sources" id="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">Sources</h2>
+      <ol>{sources.map((s) => <li><span set:html={s.cite} /> <a href={s.url}>{s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></li>)}</ol>
+    </section>
+  )}
+</div>
+<script type="application/json" id="mv-tour" set:html={tourJson}></script>
+<script src="/investigate/guide-tour.js" defer is:inline></script>
+</Base>

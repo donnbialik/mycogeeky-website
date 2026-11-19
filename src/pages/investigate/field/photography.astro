@@ -1,0 +1,74 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// Phone photography for identification: the shot list, getting it in focus, and checking before you leave.
+const sources = [
+  { cite: 'FunDiS. <em>Photograph &amp; collect</em> (show cap, gill or pore surface, stem, bulb or volva, staining; scale; host or substrate).', url: 'https://fundis.org/sequence/document/collect-photograph/' },
+  { cite: 'FunDiS. <em>Photography of macrofungi: an in-depth look</em> (all sides, scale, close-ups, the base, colour changes over time).', url: 'https://www.fundis.org/blog/photography-of-macrofungi' },
+  { cite: 'University of Kentucky Forestry Extension. <em>Tips for taking mushroom photos for identification</em> (FORFS 24-10).', url: 'https://forestry.ca.uky.edu/sites/forestry.ca.uky.edu/files/forfs%2024-10.pdf' },
+  { cite: 'Apple iPhone tips: tap to focus, and touch and hold for AE/AF Lock (iMore).', url: 'https://www.imore.com/how-get-most-sharp-and-focused-photos-iphone-photography-tips-and-tricks' },
+  { cite: 'Engadget. <em>How to improve your smartphone photography</em> (use each camera at its native zoom; avoid in-between digital zoom).', url: 'https://www.engadget.com/cameras/how-to-improve-your-smartphone-photography-010037588.html' },
+  { cite: 'Popsa. <em>Android macro photography guide</em> (many Android phones switch to macro mode automatically up close).', url: 'https://popsa.com/perspectives/android-macro-photography-guide/' },
+];
+const tour = [
+  { title: 'Phone photos that can be identified', body: '<p>Most unidentifiable observations aren’t bad mushrooms, they’re missing views or out of focus. This walk-through covers the shots to take, how to get them sharp on a phone, and a ten-second check before you walk away.</p>' },
+  { sel: '#shots', title: 'The shot list', body: '<p>Top, underside, side profile, the whole base, a cut section, and the habitat. The base and underside are the ones people skip.</p>' },
+  { sel: '#focus', title: 'Getting it sharp', body: '<p>Tap the part that matters, lock focus, and don’t move closer afterwards. Use your phone’s real lenses rather than pinch-zooming.</p>' },
+  { sel: '#light', title: 'Light and colour', body: '<p>Even light, no harsh sun or flash glare, and a slip or card in frame. Colour is evidence, and some of it fades within minutes.</p>' },
+  { sel: '#check', title: 'Check before you leave', body: '<p>Zoom into one photo on the screen. If the gills aren’t crisp at full size, retake it now: you can’t go back for it later.</p>' },
+];
+const shots = [
+  ['In place', 'Before you touch it: the mushroom where it grew, with the host tree, wood or soil visible.', '1'],
+  ['Top of the cap', 'Colour, texture, scales or warts, sliminess. A slight angle often shows texture better than straight down.', '1'],
+  ['Underside', 'Gills, pores or teeth, and how they meet the stem. This is the most commonly missing photo.', '1'],
+  ['Side profile', 'Cap shape, stem shape, any ring. Lay it on the ground or hold it up.', '2'],
+  ['The whole base', 'Dig it out, don’t snap it off. Bulbs, cups (volvas) and rooting bases are often underground.', '1'],
+  ['Cut in half', 'Top to bottom through cap and stem: flesh colour, hollow or solid stem, and any colour change. Photograph it again after a few minutes if it changes.', '2'],
+  ['Scale and number', 'A ruler, coin or your field slip in at least one shot. The slip also ties the photos to the specimen.', '1'],
+];
+---
+<FieldGuide title="Phone photos for identification" description="How to photograph mushrooms with a phone so they can be identified: the shot list, getting close-ups in focus, light and colour, and a quick check before you leave." eyebrow="FIELD RESEARCH TOOLKIT / PHONE PHOTOGRAPHY" heading="Sharp, complete, <em>and on a phone.</em>" lead="You don’t need a macro lens. You need the right views, a locked focus point, and ten seconds to check before you leave." tourKey="field-photography" tour={tour} sources={sources} current="photo">
+
+<section id="shots">
+  <p class="mv-guide-kicker">The shot list</p>
+  <h2>Seven views. Most observations miss two of them.</h2>
+  <p>FunDiS asks for the cap, the gill or pore surface and the stem, plus the bulb or volva and any staining where they apply, with something for scale and the host or substrate visible.<sup class="mv-ref"><a href="#sources">1</a></sup> Their in-depth guide adds all sides, close-ups of details, and the hidden base.<sup class="mv-ref"><a href="#sources">2</a></sup></p>
+  <ol class="mv-guide-steps">{shots.map(([t, b, s]) => <li><h3>{t}</h3><p>{b}<sup class="mv-ref"><a href="#sources">{s}</a></sup></p></li>)}</ol>
+  <div class="mv-guide-photo">Photo set to come: one collection shown in all seven views</div>
+</section>
+
+<section id="focus">
+  <p class="mv-guide-kicker">Getting it sharp</p>
+  <h2>Tell the phone what to focus on, then hold still.</h2>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>Tap the detail that matters</h3><p>The phone guesses where to focus, and with a mushroom on a busy forest floor it often guesses the leaves. Tap the gills, the pores or the stem base.<sup class="mv-ref"><a href="#sources">4</a></sup></p></div>
+    <div class="mv-guide-card"><h3>Lock it</h3><p>On an iPhone, touch and hold until “AE/AF Lock” appears; focus and exposure then stay put between shots.<sup class="mv-ref"><a href="#sources">4</a></sup> Most Android camera apps have a similar press-and-hold lock.</p></div>
+    <div class="mv-guide-card"><h3>Don’t creep closer</h3><p>Every phone lens has a closest distance it can focus. Too close and nothing is sharp, even after tapping. Back off a little until it locks.<sup class="mv-ref"><a href="#sources">4</a></sup> Many newer phones switch to a macro lens by themselves when you get close.<sup class="mv-ref"><a href="#sources">6</a></sup></p></div>
+    <div class="mv-guide-card"><h3>Use real lenses, not pinch-zoom</h3><p>Use the 1×, 2× or 3× buttons your phone offers. In-between digital zoom (like 2.7×) throws away detail.<sup class="mv-ref"><a href="#sources">5</a></sup> It’s better to crop a sharp photo later.</p></div>
+    <div class="mv-guide-card"><h3>Brace the phone</h3><p>Up close, tiny movements blur the shot. Rest your elbows on your knees or the phone on the ground, and take two or three of each view.</p></div>
+  </div>
+</section>
+
+<section id="light">
+  <p class="mv-guide-kicker">Light and colour</p>
+  <h2>Colour is evidence. Some of it doesn’t last.</h2>
+  <p>FunDiS notes that photographs may not show colours accurately, which is why written notes on colour still matter.<sup class="mv-ref"><a href="#sources">2</a></sup> Some colour changes take minutes to appear after cutting (their guide shows a <em>Russula</em> turning pink-brown five minutes after it was cut),<sup class="mv-ref"><a href="#sources">2</a></sup> and others, like a bolete’s blue bruise, can fade.</p>
+  <div class="mv-guide-do">
+    <div><h3>Do</h3><ul><li>Shade the mushroom with your body or hat in harsh sun</li><li>Get your field slip or a white card in one frame, for a colour reference</li><li>Photograph cut surfaces straight away, and again a few minutes later</li></ul></div>
+    <div><h3>Avoid</h3><ul><li>Dappled sun across the cap, which hides real colours</li><li>Flash straight on at close range, which blows out pale gills</li><li>“Beauty” filters and portrait-mode blur on the subject</li></ul></div>
+  </div>
+</section>
+
+<section id="check">
+  <p class="mv-guide-kicker">Before you walk away</p>
+  <h2>The ten-second check.</h2>
+  <ol class="mv-guide-steps">
+    <li><p>Open the underside photo and spread two fingers to zoom in. Are individual gills or pores crisp?</p></li>
+    <li><p>Is the base in at least one photo, whole, not snapped?</p></li>
+    <li><p>Is your slip or a scale in at least one photo?</p></li>
+  </ol>
+  <p>If any answer is no, retake it now. A photo can be fixed in the field; it can’t be fixed at home. The University of Kentucky’s extension guide makes the same point: photos are limited, which is why the specimen, and sometimes microscopy or DNA, matter too.<sup class="mv-ref"><a href="#sources">3</a></sup></p>
+  <p>Some genera need extra shots (latex colour, a cortina, a dug-out bulb). See <a href="/investigate/field/genus-notes/">Genus notes</a>.</p>
+  <div class="mv-guide-note"><p><strong>Donn:</strong> your own phone and any accessories (clip-on lens, light, a scale card) would make a useful example here. Placeholder until you send it.</p></div>
+</section>
+
+</FieldGuide>

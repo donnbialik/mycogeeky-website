@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script src="/investigate/toolbar.js" defer></script><!-- MycoView tool bar (built from src/data/tools.ts) -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Check an iNaturalist user's fungi records for collections that stalled partway: provisional names without vouchers, sequences without specimens, vouchers never sequenced, sequences not in GenBank.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap">
+<title>Collection Check · MycoView</title>
+<script>try{const t=JSON.parse(localStorage.getItem('collectionCheck.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 var(--f-body);background:var(--wb-bg);color:var(--wb-ink)}
+main{padding:8px max(16px,env(safe-area-inset-right)) 60px;max-width:1300px;margin:0 auto}
+section{background:var(--wb-surface);border:1px solid var(--wb-line);border-radius:10px;padding:18px 20px;margin:14px 0}
+h2{margin:0 0 6px;font-size:17px}
+h2 .n{display:inline-block;width:24px;height:24px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);text-align:center;font-size:13px;line-height:24px;margin-right:8px}
+.muted{color:var(--wb-muted)} .small{font-size:13px}
+a{color:var(--wb-accent)}
+.row{display:flex;gap:10px 14px;align-items:flex-end;flex-wrap:wrap}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--wb-muted)}
+input[type=text],input[type=date],select{font:inherit;font-size:14px;padding:7px 9px;border:1px solid var(--wb-line);border-radius:6px;background:var(--wb-surface);color:var(--wb-ink)}
+.btn{font:500 13.5px var(--f-body);padding:8px 16px;border-radius:7px;border:1px solid var(--wb-accent);background:var(--wb-accent);color:var(--wb-accent-ink);cursor:pointer}
+.btn.sec{background:transparent;color:var(--wb-accent)}
+.btn:disabled{opacity:.45;cursor:default}
+progress{width:260px;height:12px}
+.err{padding:8px 12px;border-radius:7px;background:var(--wb-surface-2);border-left:4px solid var(--wb-bad);font-size:13px;margin:10px 0}
+.note{padding:8px 12px;border-radius:7px;background:var(--wb-surface-2);font-size:13px;margin:10px 0}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;margin:6px 0 12px}
+.stats b{font-size:18px;font-family:var(--f-display);margin-right:4px}
+.checks{display:grid;gap:10px}
+details.chk{border:1px solid var(--wb-line);border-radius:8px;border-left:5px solid var(--wb-muted)}
+details.chk.s-high{border-left-color:var(--wb-bad)} details.chk.s-mid{border-left-color:var(--wb-warn)} details.chk.s-low{border-left-color:var(--wb-accent)}
+details.chk.zero{opacity:.6}
+details.chk summary{cursor:pointer;padding:10px 14px;display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;list-style:none}
+details.chk summary::-webkit-details-marker{display:none}
+details.chk summary .c{font:600 24px/1 var(--f-display);text-align:right}
+details.chk summary h3{margin:0;font-size:14.5px}
+details.chk summary p{margin:2px 0 0;font-size:12.5px;color:var(--wb-muted)}
+details.chk summary .tag{font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--wb-muted)}
+.chkbody{padding:0 14px 12px}
+.scroll{max-height:420px;overflow:auto;border:1px solid var(--wb-line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border-bottom:1px solid var(--wb-line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--wb-surface-2);position:sticky;top:0}
+td.fv{font-family:var(--f-mono);font-size:11.5px;color:var(--wb-muted);max-width:380px}
+.fieldlist{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.fieldlist label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--wb-line);border-radius:6px;padding:3px 8px;font-size:12.5px}
+.fieldlist .role{font:500 10.5px var(--f-mono);color:var(--wb-muted);text-transform:uppercase}
+.wb-hint{font-size:12.5px;color:var(--wb-muted)}
+.hidden{display:none!important}
+/* ---- MycoView Research Workbench frame (same as the other Workbench tools) ---- */
+:root{--f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;--f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --wb-bg:#F2F5F3;--wb-surface:#FFFFFF;--wb-surface-2:#E8EFEB;--wb-ink:#15201B;--wb-muted:#56655E;--wb-line:#D2DCD7;--wb-accent:#1D6B55;--wb-accent-ink:#FFFFFF;--wb-good:#2E7D4F;--wb-warn:#A86E14;--wb-bad:#B4412F}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}}
+:root[data-theme="dark"]{--wb-bg:#0E1412;--wb-surface:#151D1A;--wb-surface-2:#1C2622;--wb-ink:#E2EAE6;--wb-muted:#93A39B;--wb-line:#2A3631;--wb-accent:#5CC3A2;--wb-accent-ink:#0B1310;--wb-good:#5FC08A;--wb-warn:#E0A84A;--wb-bad:#E57A66}
+body{font-family:var(--f-body)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
+.wb-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px max(16px,env(safe-area-inset-left)) 14px max(16px,env(safe-area-inset-right));border-bottom:1px solid var(--wb-line);background:var(--wb-surface);color:var(--wb-ink);margin:0}
+.wb-brand{display:flex;flex-direction:column;gap:2px}
+.wb-brand h1{font-size:22px;margin:0;color:var(--wb-ink)}
+.wb-brand p{margin:0;color:var(--wb-muted);font-size:12.5px;line-height:1.5}
+.wb-top .site-home{align-self:flex-start;font-size:12px;font-weight:600;color:var(--wb-accent);text-decoration:none;margin-bottom:2px}
+.wb-top .site-home:hover{text-decoration:underline}
+.wb-sources{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wb-top .srcchip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:1px solid var(--wb-line);border-radius:999px;font-size:12px;background:var(--wb-surface);color:var(--wb-ink);white-space:nowrap;cursor:help}
+.wb-top .srcchip .dot{width:8px;height:8px;border-radius:50%;background:var(--wb-muted)}
+.wb-top .srcchip.live .dot{background:var(--wb-good)} .wb-top .srcchip.fail .dot{background:var(--wb-bad)}
+.wb-top .srcchip .st{color:var(--wb-muted)}
+.wb-top button{font:500 12px var(--f-body);border:1px solid var(--wb-line);background:transparent;color:var(--wb-ink);border-radius:5px;padding:6px 12px;cursor:pointer;margin:0;height:auto}
+.wb-top button:hover{border-color:var(--wb-accent)}
+.wb-steps{background:var(--wb-surface-2);border-bottom:1px solid var(--wb-line);padding:10px max(16px,env(safe-area-inset-right));color:var(--wb-ink);margin:0;border-radius:0}
+.wb-steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 20px}
+.wb-steps li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
+
+</style>
+</head>
+<body>
+<header class="wb-top">
+  <div class="wb-brand">
+    <a id="siteHome" class="site-home" href="/investigate/field/">← Field Research Toolkit</a>
+    <h1>Collection Check</h1>
+    <p>Find fungi records that stalled partway between the woods and GenBank, from the observation fields on someone’s public iNaturalist observations.</p>
+  </div>
+  <div class="wb-sources">
+    <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
+    <span class="wb-hint" data-tour-hint hidden>New here?</span>
+    <button id="tourBtn" type="button" data-tour-start>▶ Take the tour</button>
+    <button id="wbThemeBtn" type="button">Theme</button>
+  </div>
+</header>
+<nav class="wb-steps" aria-label="How to use this tool">
+  <ol>
+    <li><span class="stepn">1</span><span><strong>Whose records</strong>: an iNaturalist username, and optionally a date</span></li>
+    <li><span class="stepn">2</span><span><strong>Check the fields</strong>: confirm which observation fields mean voucher, plate, sequence or GenBank</span></li>
+    <li><span class="stepn">3</span><span><strong>See the gaps</strong>: each check lists the records it caught, with links</span></li>
+    <li><span class="stepn">4</span><span><strong>Export</strong>: download the list as a spreadsheet to work through</span></li>
+  </ol>
+</nav>
+<main>
+<section id="s-who">
+  <h2><span class="n">1</span>Whose records?</h2>
+  <form class="row" id="whoForm">
+    <label class="f">iNaturalist username<input type="text" id="user" placeholder="e.g. mycogeekyohio" autocomplete="off" spellcheck="false" required></label>
+    <label class="f">Observed on or after (optional)<input type="date" id="since"></label>
+    <label class="f">Most recent records to read<select id="max"><option value="1000">1,000</option><option value="2000" selected>2,000</option><option value="5000">5,000</option></select></label>
+    <button class="btn" type="submit" id="goBtn">Check records</button>
+    <button class="btn sec hidden" type="button" id="stopBtn">Stop</button>
+  </form>
+  <p class="muted small" style="margin:8px 0 0">Reads fungi observations (including lichens) one page of 200 at a time, about one request a second as iNaturalist asks. Nothing is written to iNaturalist.</p>
+  <div id="prog" class="row hidden" style="margin-top:10px"><progress id="pbar" max="1" value="0"></progress><span class="small muted" id="ptext"></span></div>
+  <div id="msg"></div>
+</section>
+
+<section id="s-fields" class="hidden">
+  <h2><span class="n">2</span>Fields found</h2>
+  <p class="muted small" style="margin:0">Observation fields are named freely, so they’re recognised by name. Untick any that don’t mean what the label says, or add one the tool missed.</p>
+  <div class="fieldlist" id="fieldList"></div>
+  <div class="row"><label class="f">Another field, and what it means<input type="text" id="extraName" placeholder="Exact field name"></label>
+    <label class="f">&nbsp;<select id="extraRole"><option value="num">Voucher number</option><option value="its">ITS sequence</option><option value="genbank">GenBank accession</option><option value="plate">Sequencing plate</option><option value="prov">Provisional name</option></select></label>
+    <button class="btn sec" type="button" id="addField">Add</button></div>
+</section>
+
+<section id="s-res" class="hidden">
+  <h2><span class="n">3</span>What’s missing a step</h2>
+  <div class="stats" id="stats"></div>
+  <div class="checks" id="checks"></div>
+  <div class="row" style="margin-top:14px"><button class="btn sec" type="button" id="csvBtn">Download the flagged records (CSV)</button><a href="/investigate/field/tracking/">Why each link in the chain matters →</a></div>
+</section>
+<p class="muted small">Part of the <a href="/investigate/field/">Field Research Toolkit</a>. Data from the public <a href="https://api.inaturalist.org/v1/docs/">iNaturalist API</a>, read in your browser.</p>
+</main>
+<script type="application/json" id="mv-tour">{"key":"collection-check","steps":[
+ {"title":"Collection Check","body":"<p>A collection is only finished when the specimen, its record, its sequence and GenBank all point to each other. This tool reads someone’s iNaturalist fungi records and lists the ones that stopped partway.</p>"},
+ {"sel":"#s-who","title":"Whose records","body":"<p>Enter an iNaturalist username. A date limits it to recent seasons. It reads up to the most recent 5,000 fungi records.</p>"},
+ {"sel":"#s-who","title":"What it looks at","body":"<p>The observation fields on each record: voucher numbers, sequencing plates, the “DNA Barcode ITS” field, GenBank accessions and provisional names.</p>"},
+ {"sel":"#s-who","title":"What it checks","body":"<p>For example: a provisional name with no specimen behind it, a sequence with no voucher, a voucher never sequenced, a plate with no sequence added, or a sequence not yet in GenBank.</p>"},
+ {"sel":"#s-who","title":"What it can’t know","body":"<p>It only knows what the records say. If a specimen sits in your herbarium but the observation doesn’t mention it, the tool will count it as missing, which is itself worth fixing.</p>"}
+]}</script>
+<script src="/investigate/guide-tour.js" defer></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var API = 'https://api.inaturalist.org/v1/observations';
+  var store = { get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } } };
+  // Field roles, recognised by name (same voucher rules as the Survey Report, plus ITS and provisional names).
+  var ROLES = [
+    ['flag', 'Voucher taken? (yes/no)', function (n) { return /voucher/i.test(n) && (/\?\s*$/.test(n) || /(taken|collected)\b/i.test(n) || /^vouchered$/i.test(n.trim())); }],
+    ['its', 'ITS sequence', function (n) { return /dna barcode its|\bits\b.*(sequence|barcode)|^its$/i.test(n.trim()); }],
+    ['genbank', 'GenBank accession', function (n) { return /gen\s*bank/i.test(n); }],
+    ['repo', 'Repository (not counted)', function (n) { return /herbarium name|accession location|repository|deposited (at|in)|institution/i.test(n); }],
+    ['prov', 'Provisional name', function (n) { return /provisional/i.test(n); }],
+    ['plate', 'Sequencing plate', function (n) { return /plate (number|no|#)|plate$/i.test(n); }],
+    ['num', 'Voucher number', function (n) { return /voucher|accession|fungarium (id|number|#)|herbarium (catalog|number|#|id)|catalog(ue)? (number|no|#)|omdl number|collection (number|no|#)|specimen (number|id|no|#)|tag\/accession/i.test(n); }]
+  ];
+  var ROLE_NAME = {}; ROLES.forEach(function (r) { ROLE_NAME[r[0]] = r[1]; });
+  var NEG = /^(no\b|n$|false$|0$|none$|-$|n\/?a$|not selected$|not collected$)/i;
+  function roleOf(n) { for (var i = 0; i < ROLES.length; i++) if (ROLES[i][2](n)) return ROLES[i][0]; return null; }
+
+  var S = { obs: [], user: '', stop: false, off: new Set(store.get('collectionCheck.off') || []), extra: store.get('collectionCheck.extra') || {} };
+  var CHECKS = [
+    { id: 'prov-nov', sev: 'high', title: 'Provisional name, no voucher', why: 'A provisional species with no kept specimen can’t be examined, re-sequenced or described.', test: function (r) { return r.prov && !r.vouchered; } },
+    { id: 'seq-nov', sev: 'high', title: 'Sequence, but no voucher recorded', why: 'If the name on the sequence is ever questioned, there’s no specimen on record to check it against.', test: function (r) { return r.its && !r.vouchered; } },
+    { id: 'conflict', sev: 'mid', title: 'Voucher fields disagree', why: 'A yes/no voucher field says no, but a voucher or plate number is filled in.', test: function (r) { return r.conflict; } },
+    { id: 'plate-noseq', sev: 'mid', title: 'On a sequencing plate, no sequence added', why: 'Tissue went for sequencing, but no ITS result is on the record. Recent plates may still be at the lab; older ones may have a failed read that isn’t noted.', test: function (r) { return r.plate && !r.its; } },
+    { id: 'seq-nogb', sev: 'mid', title: 'Sequence not in GenBank yet', why: 'The sequence is on iNaturalist but has no GenBank accession, so it isn’t in the database most researchers search. Leave this one if you don’t deposit to GenBank yourself.', test: function (r) { return r.its && !r.genbank; } },
+    { id: 'prov-noseq', sev: 'mid', title: 'Provisional name, no sequence on the record', why: 'Provisional names usually rest on a sequence; without it on the record, others can’t compare theirs.', test: function (r) { return r.prov && !r.its; } },
+    { id: 'v-coarse', sev: 'low', title: 'Vouchered, but identified only above genus', why: 'A kept specimen whose record is still at family level or higher is hard for anyone to find.', test: function (r) { return r.vouchered && (r.rank == null || r.rank > 20); } },
+    { id: 'v-unseq', sev: 'low', title: 'Vouchered, not sequenced yet', why: 'A queue, not a fault: specimens you could send for sequencing.', test: function (r) { return r.vouchered && !r.its && !r.plate; } }
+  ];
+
+  function sleep(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function msg(html, cls) { $('#msg').innerHTML = html ? '<div class="' + (cls || 'note') + '">' + html + '</div>' : ''; }
+
+  async function fetchAll(user, since, max) {
+    var out = [], idBelow = null, total = null;
+    while (out.length < max && !S.stop) {
+      var q = 'user_login=' + encodeURIComponent(user) + '&taxon_id=47170&per_page=200&order_by=id&order=desc' + (since ? '&d1=' + since : '') + (idBelow ? '&id_below=' + idBelow : '');
+      var resp = await fetch(API + '?' + q);
+      if (resp.status === 429) { $('#ptext').textContent = 'iNaturalist asked us to slow down; waiting…'; await sleep(5000); continue; }
+      if (!resp.ok) throw new Error('iNaturalist returned ' + resp.status);
+      var j = await resp.json(); if (total == null) total = Math.min(j.total_results || 0, max);
+      var rs = j.results || []; if (!rs.length) break;
+      rs.forEach(function (o) { out.push(slim(o)); });
+      idBelow = rs[rs.length - 1].id;
+      $('#pbar').max = total || 1; $('#pbar').value = Math.min(out.length, total || out.length);
+      $('#ptext').textContent = out.length.toLocaleString() + ' of ' + (total || 0).toLocaleString() + ' records read';
+      if (rs.length < 200) break;
+      await sleep(1000);
+    }
+    return out.slice(0, max);
+  }
+  function slim(o) {
+    var f = {}; (o.ofvs || []).forEach(function (v) { if (v && v.name) f[v.name] = v.value; });
+    return { id: o.id, name: o.taxon ? (o.taxon.name || '') : '', common: o.taxon && o.taxon.preferred_common_name || '', rank: o.taxon ? o.taxon.rank_level : null, date: o.observed_on || '', place: o.place_guess || '', qg: o.quality_grade || '', f: f };
+  }
+  function fieldsPresent() {
+    var m = new Map();
+    S.obs.forEach(function (r) { Object.keys(r.f).forEach(function (n) { var v = r.f[n]; if (v == null || String(v).trim() === '') return; var role = S.extra[n] || roleOf(n); if (!role) return; if (!m.has(n)) m.set(n, { name: n, role: role, n: 0 }); m.get(n).n++; }); });
+    Object.keys(S.extra).forEach(function (n) { if (!m.has(n)) m.set(n, { name: n, role: S.extra[n], n: 0 }); });
+    return Array.from(m.values()).sort(function (a, b) { return b.n - a.n; });
+  }
+  function classify(F) {
+    S.obs.forEach(function (r) {
+      var c = { flag: null, num: [], its: false, genbank: [], prov: [], plate: [] };
+      F.forEach(function (fd) {
+        if (S.off.has(fd.name)) return; var raw = r.f[fd.name]; if (raw == null) return; var val = String(raw).trim(); if (!val) return;
+        if (fd.role === 'repo') return;
+        if (fd.role === 'flag') { c.flag = c.flag === true ? true : !NEG.test(val); return; }
+        if (NEG.test(val)) return;
+        if (fd.role === 'its') { if (/[ACGT]{40,}/i.test(val.replace(/\s+/g, '')) || val.replace(/\s+/g, '').length >= 80) c.its = true; }
+        else if (fd.role === 'num') c.num.push(fd.name + ': ' + val);
+        else c[fd.role].push(val);
+      });
+      r.vouchered = c.flag === true || c.num.length > 0 || c.plate.length > 0;
+      r.conflict = c.flag === false && (c.num.length > 0 || c.plate.length > 0);
+      r.its = c.its; r.genbank = c.genbank.length > 0; r.prov = c.prov.length ? c.prov[0] : ''; r.plate = c.plate.length ? c.plate[0] : '';
+      r.summary = [r.prov && 'Provisional: ' + r.prov, c.num.join('; '), r.plate && 'Plate: ' + r.plate, r.its && 'ITS sequence', c.genbank.length && 'GenBank: ' + c.genbank.join(', ')].filter(Boolean).join(' · ');
+    });
+  }
+  function render() {
+    var F = fieldsPresent(); classify(F);
+    $('#fieldList').innerHTML = F.length ? F.map(function (fd) { return '<label><input type="checkbox" data-fn="' + esc(fd.name) + '"' + (S.off.has(fd.name) ? '' : ' checked') + '> ' + esc(fd.name) + ' <span class="role">' + esc(ROLE_NAME[fd.role]) + ' · ' + fd.n + '</span></label>'; }).join('') : '<p class="muted small">No voucher, plate, sequence, GenBank or provisional fields found on these records. If yours have other names, add them below.</p>';
+    [].forEach.call(document.querySelectorAll('#fieldList input'), function (cb) { cb.addEventListener('change', function () { var n = cb.dataset.fn; if (cb.checked) S.off.delete(n); else S.off.add(n); store.set('collectionCheck.off', Array.from(S.off)); render(); }); });
+    var v = S.obs.filter(function (r) { return r.vouchered; }).length, s = S.obs.filter(function (r) { return r.its; }).length, g = S.obs.filter(function (r) { return r.genbank; }).length, p = S.obs.filter(function (r) { return r.prov; }).length;
+    $('#stats').innerHTML = '<span><b>' + S.obs.length.toLocaleString() + '</b>fungi records</span><span><b>' + v + '</b>vouchered</span><span><b>' + s + '</b>with an ITS sequence</span><span><b>' + g + '</b>with a GenBank accession</span><span><b>' + p + '</b>with a provisional name</span>';
+    $('#checks').innerHTML = CHECKS.map(function (ck) {
+      var hits = S.obs.filter(ck.test);
+      var rows = hits.slice(0, 500).map(function (r) { return '<tr><td><a href="https://www.inaturalist.org/observations/' + r.id + '">' + r.id + '</a></td><td><i>' + esc(r.name) + '</i>' + (r.common ? ' <span class="muted">' + esc(r.common) + '</span>' : '') + '</td><td>' + esc(r.date) + '</td><td>' + esc(r.place) + '</td><td class="fv">' + esc(r.summary) + '</td></tr>'; }).join('');
+      return '<details class="chk s-' + ck.sev + (hits.length ? '' : ' zero') + '"><summary><span class="c">' + hits.length + '</span><span><h3>' + esc(ck.title) + '</h3><p>' + esc(ck.why) + '</p></span><span class="tag">' + (ck.sev === 'high' ? 'Fix first' : ck.sev === 'mid' ? 'Worth fixing' : 'To do') + '</span></summary>'
+        + (hits.length ? '<div class="chkbody"><div class="scroll"><table><thead><tr><th>Observation</th><th>Taxon</th><th>Observed</th><th>Place</th><th>What the record says</th></tr></thead><tbody>' + rows + '</tbody></table></div>' + (hits.length > 500 ? '<p class="small muted">Showing the first 500; the CSV has all ' + hits.length + '.</p>' : '') + '</div>' : '<div class="chkbody small muted">None found.</div>') + '</details>';
+    }).join('');
+    $('#s-fields').classList.remove('hidden'); $('#s-res').classList.remove('hidden');
+  }
+  function csv() {
+    var lines = [['check', 'observation_id', 'url', 'taxon', 'observed_on', 'place', 'record_says']];
+    CHECKS.forEach(function (ck) { S.obs.filter(ck.test).forEach(function (r) { lines.push([ck.title, r.id, 'https://www.inaturalist.org/observations/' + r.id, r.name, r.date, r.place, r.summary]); }); });
+    var text = lines.map(function (l) { return l.map(function (x) { x = String(x == null ? '' : x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'collection-check-' + (S.user || 'records') + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  $('#whoForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var user = $('#user').value.trim().replace(/^@/, ''); if (!user) return;
+    S.user = user; S.stop = false; store.set('collectionCheck.user', user);
+    $('#goBtn').disabled = true; $('#stopBtn').classList.remove('hidden'); $('#prog').classList.remove('hidden'); msg('');
+    try {
+      S.obs = await fetchAll(user, $('#since').value, +$('#max').value);
+      if (!S.obs.length) msg('No fungi observations found for <b>' + esc(user) + '</b>' + ($('#since').value ? ' since that date' : '') + '. Check the username (it’s the one in their profile address).', 'err');
+      else { if (S.stop) msg('Stopped early: these results cover the ' + S.obs.length.toLocaleString() + ' most recent records read.'); render(); }
+    } catch (err) { msg('Couldn’t read from iNaturalist (' + esc(err.message) + '). Try again in a minute.', 'err'); }
+    $('#goBtn').disabled = false; $('#stopBtn').classList.add('hidden');
+  });
+  $('#stopBtn').addEventListener('click', function () { S.stop = true; });
+  $('#addField').addEventListener('click', function () { var n = $('#extraName').value.trim(); if (!n) return; S.extra[n] = $('#extraRole').value; store.set('collectionCheck.extra', S.extra); $('#extraName').value = ''; if (S.obs.length) render(); });
+  $('#csvBtn').addEventListener('click', csv);
+  var u0 = new URLSearchParams(location.search).get('user') || store.get('collectionCheck.user'); if (u0) $('#user').value = u0;
+})();
+</script>
+<script>
+/* Workbench frame: Theme button and iNaturalist status chip (same behaviour as the other tools). */
+(function(){
+  var KEY='collectionCheck.theme', r=document.documentElement;
+  var b=document.getElementById('wbThemeBtn');
+  if(b)b.addEventListener('click',function(){var cur=r.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.dataset.theme=cur==='dark'?'light':'dark';try{localStorage.setItem(KEY,JSON.stringify(r.dataset.theme))}catch(e){}});
+  var chip=document.getElementById('wb-src-inat');
+  function set(cls,txt){if(!chip)return;chip.classList.remove('live','fail');chip.classList.add(cls);chip.querySelector('.st').textContent=txt}
+  fetch('https://api.inaturalist.org/v1/observations?per_page=0&taxon_id=47170').then(function(x){set(x.ok?'live':'fail',x.ok?'live':'not reachable')},function(){set('fail','not reachable')});
+})();
+</script>
+</body>
+</html>

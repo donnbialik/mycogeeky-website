@@ -1,0 +1,80 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+// Specimen tracking: why the link between a specimen, its photos, its record and its sequence matters, and how to keep it.
+const sources = [
+  { cite: 'Nilsson RH et al. (2006). Taxonomic reliability of DNA sequences in public sequence databases: a fungal perspective. <em>PLoS ONE</em> 1: e59.', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC1762357/' },
+  { cite: 'Osmundson TW et al. (2013). Filling gaps in biodiversity knowledge for macrofungi: contributions and assessment of an herbarium collection DNA barcode sequencing project. <em>PLoS ONE</em> 8(4): e62419.', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3640088/' },
+  { cite: 'FunDiS. <em>Field data slips.</em>', url: 'https://www.fundis.org/field-data-slips' },
+  { cite: 'FunDiS. <em>Sequencing protocol</em> (photograph, collect, dry, voucher).', url: 'https://fundis.org/sequence' },
+  { cite: 'FunDiS. <em>Dry your specimens</em> (label specimens on the rack).', url: 'https://fundis.org/sequence/collect-dry/dry-your-specimens' },
+  { cite: 'Rockefeller A. <em>How to print high quality herbarium labels with iNaturalist observation information.</em> iNaturalist Forum.', url: 'https://forum.inaturalist.org/t/how-to-print-high-quality-herbarium-labels-with-inaturalist-observation-information/72302' },
+];
+const tour = [
+  { title: 'Specimen tracking', body: '<p>A sequence is only useful if everyone can be sure which mushroom it came from. This page shows why, and how to keep that link unbroken from the woods to GenBank.</p>' },
+  { sel: '#why', title: 'Why it matters', body: '<p>A 2006 study estimated that about 1 in 5 fungal sequences in the public databases may carry the wrong species name. A kept specimen is what lets someone check.</p>' },
+  { sel: '#chain', title: 'The chain', body: '<p>One number follows the collection everywhere: basket, photos, iNaturalist, dehydrator, bag, plate and sequence.</p>' },
+  { sel: '#breaks', title: 'Where it breaks', body: '<p>Most mix-ups happen at a handful of predictable moments. Knowing them is most of the fix.</p>' },
+  { sel: '#tools', title: 'Tools that help', body: '<p>Free tools for labels and slips, including Alan Rockefeller’s, and MycoView tools that check your records for gaps.</p>' },
+];
+---
+<FieldGuide title="Specimen tracking" description="Why every fungal specimen, photo, record and DNA sequence must stay linked, what the research shows when they don't, and a simple system to keep them matched." eyebrow="FIELD RESEARCH TOOLKIT / SPECIMEN TRACKING" heading="One mushroom, <em>one number, all the way.</em>" lead="A DNA sequence is only as trustworthy as the label on the bag it came from. Here’s why that link matters, and how to keep it." tourKey="field-tracking" tour={tour} sources={sources} current="tracking">
+
+<section id="why">
+  <p class="mv-guide-kicker">Why it matters</p>
+  <h2>Names in databases are often wrong. Specimens let us fix them.</h2>
+  <p>When scientists compare a new sequence with the public databases, they’re trusting that each stored sequence carries the right name. A 2006 study of fungal sequences found that trust is often misplaced: it estimated that <strong>about 20% of fungal sequences in the public databases may be misidentified to species</strong>.<sup class="mv-ref"><a href="#sources">1</a></sup></p>
+  <p>Mistakes like that can only be corrected if someone can go back to the mushroom the sequence came from. When every sequence is linked to a kept specimen, a later expert can re-examine it, and names can be revised. A 2013 barcoding project built on herbarium specimens did exactly that: because every sequence was tied to a voucher, the team could correct species names attached to sequences.<sup class="mv-ref"><a href="#sources">2</a></sup></p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>A photo</h3><p>Shows what it looked like. It can’t be sequenced or examined under a microscope.</p></div>
+    <div class="mv-guide-card"><h3>A sequence on its own</h3><p>Tells you what the DNA says. If the name on it is wrong, nobody can check.</p></div>
+    <div class="mv-guide-card"><h3>Specimen + photos + record + sequence</h3><p>Can be checked, corrected and built on by anyone, years later. That only works if all four stay linked.</p></div>
+  </div>
+</section>
+
+<section id="chain">
+  <p class="mv-guide-kicker">The chain</p>
+  <h2>One number travels with the collection.</h2>
+  <p>FunDiS uses printed field data slips with a temporary number on each.<sup class="mv-ref"><a href="#sources">3</a></sup> The slip goes in every photo, and once the observation is posted, its iNaturalist or Mushroom Observer number becomes the specimen’s permanent ID. A corner of the slip stays with the specimen while it dries.<sup class="mv-ref"><a href="#sources">3</a></sup><sup class="mv-ref"><a href="#sources">4</a></sup></p>
+  <ol class="mv-guide-steps">
+    <li><span class="mv-guide-when">In the field</span><h3>Number it before it goes in the basket</h3><p>A field slip (or any pre-numbered tag) goes with the collection, in its own container or wrap. Note the number on your phone or slip with anything you notice: smell, host tree, colour changes.</p></li>
+    <li><span class="mv-guide-when">In the field</span><h3>Put the number in the photos</h3><p>Photograph the slip beside the mushroom. Now the photos and the specimen share a number, even before anything is uploaded.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
+    <li><span class="mv-guide-when">That evening</span><h3>Post it, and adopt the observation number</h3><p>Upload to iNaturalist. The observation number becomes the specimen number. Record it in a voucher field on the observation so anyone can see a specimen exists.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
+    <li><span class="mv-guide-when">That evening</span><h3>Label it on the rack</h3><p>The slip corner or a printed label sits beside the specimen in the dehydrator.<sup class="mv-ref"><a href="#sources">5</a></sup></p></li>
+    <li><span class="mv-guide-when">Next morning</span><h3>Bag it with its label inside</h3><p>A herbarium label, printed from the observation, goes inside the bag. One collection at a time.</p></li>
+    <li><span class="mv-guide-when">Later</span><h3>Sequencing, then back to the record</h3><p>Note the sequencing plate and well on the observation, add the ITS sequence when it arrives, and the GenBank accession once it’s deposited. Now every piece points to every other.</p></li>
+  </ol>
+  <div class="mv-guide-photo">Photo to come: a field slip in the photo, beside the mushroom</div>
+</section>
+
+<section id="breaks">
+  <p class="mv-guide-kicker">Where it breaks</p>
+  <h2>Most mix-ups happen at the same few moments.</h2>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>The basket</h3><p>Two similar brown mushrooms, loose in the same bag, and nothing to tell them apart by evening. Separate containers, numbered at the moment of collection.</p></div>
+    <div class="mv-guide-card"><h3>Upload order</h3><p>Photos from twenty collections, uploaded in a rush, and one set lands on the wrong observation. The slip in the photo is what lets you catch it.</p></div>
+    <div class="mv-guide-card"><h3>The dehydrator</h3><p>Labels slide off, pieces fall through the trays, collections touch. Labels on the rack, and space between.</p></div>
+    <div class="mv-guide-card"><h3>Bagging in bulk</h3><p>Taking everything off and sorting later. Bag one, label it, then the next.</p></div>
+    <div class="mv-guide-card"><h3>The record that never got updated</h3><p>A specimen exists, but the observation doesn’t say so, or a sequence came back and was never added. The <a href="/investigate/collection-check/">Collection Check</a> finds these.</p></div>
+  </div>
+</section>
+
+<section id="tools">
+  <p class="mv-guide-kicker">Tools that help</p>
+  <h2>You don’t need to build any of this yourself.</h2>
+  <p><strong>Alan Rockefeller’s tools at dikarya.us</strong> do the label work well, and they’re free. His Herbarium Label Generator takes iNaturalist or Mushroom Observer numbers and prints labels for everything you found on a given day, including the DNA barcode and voucher number fields.<sup class="mv-ref"><a href="#sources">6</a></sup></p>
+  <div class="mv-guide-ext">
+    <a href="https://dikarya.us/labels">Herbarium Label Generator ↗<small>Alan Rockefeller · dikarya.us</small></a>
+    <a href="https://dikarya.us/voucher-labels">Voucher labels ↗<small>Alan Rockefeller · dikarya.us</small></a>
+    <a href="https://dikarya.us/voucher-sync">Voucher sync ↗<small>Reads a voucher number from an iNat photo into a field</small></a>
+    <a href="https://www.fundis.org/field-data-slips">Field data slips ↗<small>FunDiS · printable</small></a>
+  </div>
+  <p>On MycoView:</p>
+  <div class="mv-guide-ext">
+    <a href="/investigate/collection-check/">Collection Check<small>Finds records missing a step</small></a>
+    <a href="/investigate/plate-tagger/">Plate Tagger<small>Writes the sequencing plate onto observations</small></a>
+    <a href="/investigate/field/drying/">Drying &amp; storage<small>Keeping collections apart on the rack</small></a>
+  </div>
+  <div class="mv-guide-note"><p><strong>Donn:</strong> your own numbering system (field slips? pre-printed numbers? how you mark a collection in the basket) would make a good example here. Placeholder until you send it.</p></div>
+</section>
+
+</FieldGuide>

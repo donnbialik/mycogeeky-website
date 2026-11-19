@@ -195,6 +195,8 @@ table.ck tr.oth td{color:var(--muted)}
 table.ph td.mc,table.ph th.mc{text-align:center;padding:2px 1px;width:6.5%} table.ph .cell{display:block;min-height:18px;border-radius:2px;font:10.5px/18px var(--f-mono);color:var(--ink)}
 table.ph tr.eff td{font-weight:600;border-bottom:2px solid var(--line)}
 details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:pointer;font-weight:600;color:var(--accent)} details.recon ul{margin:6px 0 0;padding-left:18px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 18px;font-size:12.5px}.vgrid b{display:block;font-size:12px;margin-bottom:2px}.vgrid label{margin:2px 0}
+#vTable td.vn{font-family:var(--f-mono);font-size:11.5px;white-space:nowrap} #vTable td.dates{font-family:var(--f-mono);font-size:11.5px;white-space:nowrap}
 .dl{display:flex;flex-wrap:wrap;gap:8px 4px;align-items:center} .dl button{margin-right:2px} .dl .mv-i{margin-right:12px}
 #map{height:420px}
 @media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
@@ -304,6 +306,17 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
     </section>
 
     <section class="card" style="margin-top:14px">
+      <h2>Vouchers and specimens<button type="button" class="mv-i" data-help="vouchers" aria-label="What does Vouchers and specimens mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="vSub"></span></h2>
+      <div class="tiles" id="vTiles"></div>
+      <div class="vfields" id="vFields"></div>
+      <div class="row" style="margin:8px 0"><label class="inline" style="flex:1;min-width:260px">Other voucher fields<button type="button" class="mv-i" data-help="vextra" aria-label="What does Other voucher fields mean?" aria-expanded="false" aria-controls="mv-pop">i</button> <input type="text" id="vExtra" placeholder="exact field names, separated by commas" style="flex:1"></label></div>
+      <p class="lede" id="vIar"></p>
+      <div class="tablewrap" style="max-height:520px"><table id="vTable"></table></div>
+      <div class="row" style="margin-top:8px"><button type="button" id="dlSpec">Specimens (CSV)</button><button type="button" class="mv-i" data-help="dl_spec" aria-label="What does Specimens CSV mean?" aria-expanded="false" aria-controls="mv-pop">i</button></div>
+      <p class="note" id="vNote"></p>
+    </section>
+
+    <section class="card" style="margin-top:14px">
       <h2>Checklist<button type="button" class="mv-i" data-help="checklist" aria-label="What does Checklist mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="ckSub"></span></h2>
       <div class="row" style="margin-bottom:8px">
         <input type="search" id="ckFilter" placeholder="Filter by name or group" style="width:240px">
@@ -355,8 +368,9 @@ const OBS_FIELDS = '(id:!t,observed_on:!t,location:!t,obscured:!t,positional_acc
 const MAX_READ = 40000;
 const RANKS = ['phylum', 'class', 'order', 'family', 'genus'];
 // Lichen-forming groups (approximate): almost wholly lichenised classes and orders, plus basidiolichen genera.
-const LICHEN_CLASSES = new Set(['Lecanoromycetes', 'Arthoniomycetes', 'Lichinomycetes', 'Candelariomycetes', 'Coniocybomycetes']);
-const LICHEN_ORDERS = new Set(['Verrucariales', 'Pyrenulales', 'Trypetheliales', 'Strigulales', 'Monoblastiales']);
+// iNaturalist's Lichinomycetes also holds non-lichens (earth tongues, Geoglossales; resin fungi, Sareales), so that class is handled by order.
+const LICHEN_CLASSES = new Set(['Lecanoromycetes', 'Arthoniomycetes']);
+const LICHEN_ORDERS = new Set(['Candelariales', 'Coniocybales', 'Lichinales', 'Vezdaeales', 'Verrucariales', 'Pyrenulales', 'Trypetheliales', 'Strigulales', 'Monoblastiales']);
 const LICHEN_GENERA = new Set(['Lichenomphalia', 'Multiclavula', 'Cora', 'Dictyonema', 'Acantholichen', 'Lepidostroma']);
 
 /* ---------- helpers ---------- */
@@ -393,11 +407,20 @@ MVHelp.init({
   users: 'iNaturalist usernames separated by commas, e.g. <i>mycogeekyohio, friend1</i>.',
   dates: '<b>Dates</b>: the observation dates to include. Use the whole survey (e.g. 2018 to today) for a final report, or one year for an annual report such as the NPS Investigator’s Annual Report.',
   whatcounts: 'These change the report straight away, without reading the records again. The downloads follow them too.',
-  lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes and Coniocybomycetes, the orders Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
+  lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes and Arthoniomycetes, the orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>. Earth tongues (Geoglossales) are not lichens and are kept, although iNaturalist now places them in the same class as some lichens.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
   slime: '<b>Include slime molds</b> (Mycetozoa, e.g. <i>Lycogala</i>, <i>Stemonitis</i>). They aren’t fungi, but many fungal surveys record them.',
   prov: '<b>Count provisional names as species.</b> A record with a “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, counts as that species even if iNaturalist only has it to genus. Usually these are DNA-sequenced and not yet formally named. Turn off to count only formally named species.',
   provsp: '<b>A record with both a species ID and a provisional name.</b> Some records are identified to a named species on iNaturalist and also carry a “Provisional Species Name”, often because sequencing showed the name is wrong or covers more than one species. <b>The provisional name</b> (default) counts them as the provisional species. <b>The species</b> counts them under the iNaturalist name, so provisional names count only on records identified to genus or above.',
   recon: '<b>Matching iNaturalist’s numbers.</b> Step by step, why the totals here differ from the project page or Explore: records that aren’t fungi, the lichen and slime mold options, iNaturalist counting names above species as “species”, and provisional names.',
+  vouchers: '<b>Vouchers and specimens.</b> Records with a voucher specimen, found from their iNaturalist observation fields: a yes/no field such as “Voucher Specimen Taken?”, or a number field such as “Voucher Number(s)”, a fungarium ID, “OMDL Number” or “Herbarium Catalog Number”, or a sequencing plate number such as “Mycota Lab Plate Number”, since sequenced tissue comes from a kept specimen. This is the list for the specimen part of a permit report, e.g. the NPS Investigator’s Annual Report.',
+  vextra: 'If your voucher field has a name the tool doesn’t recognise, type its exact name here (several separated by commas). Any value in it, other than no, none or similar, counts the record as vouchered.',
+  v_rec: 'Records counted as vouchered: a yes in a voucher yes/no field, a value in a voucher or catalogue number field, or a sequencing plate number (tissue taken from a kept specimen). Untick a field above to stop it counting.',
+  v_spp: 'Different taxa among the vouchered records, provisional names included, and names above species where that is all a voucher is identified to.',
+  v_its: 'Vouchered records with a DNA Barcode ITS sequence of 100 or more bases.',
+  v_gb: 'Vouchered records with a GenBank accession in a GenBank field.',
+  v_nums: 'Every voucher or catalogue number on the record, with the field it came from, e.g. “OMDL Number: OMDL02426”.',
+  c_vouch: 'Records of this species with a voucher specimen.',
+  dl_spec: '<b>Specimens CSV</b>: one row per vouchered record with its classification, voucher numbers, repository, GenBank accession, sequencing plate, collector, coordinates and iNaturalist link. The columns cover what NPS asks for in the annual report: classification, number of specimens, where collected, and where kept.',
   rg: '<b>Research grade only.</b> Only records whose identification the community has agreed. Fewer, safer names; hard groups drop out.',
   summary: 'Totals for the survey with the options above. A <b>survey day</b> is a date with at least one record.',
   t_species: '<b>Species</b>: distinct species (subspecies and varieties count with their species), plus provisional names if that option is on.',
@@ -469,7 +492,7 @@ function parseObs(o) {
   const its = String(f[ITSF] || '').replace(/[^ACGTRYSWKMBDHVN]/gi, '');
   return { id: o.id, date: o.observed_on || null, lat: hasLoc ? lat : null, lon: hasLoc ? lon : null, hasLoc, obscured: !!o.obscured, acc: o.positional_accuracy,
     place: o.place_guess || '', qg: o.quality_grade, lic: o.license_code || '', login: o.user ? o.user.login : '?', uname: o.user && o.user.name ? o.user.name : '',
-    taxon: o.taxon || null, prov: String(f[PNF] || '').trim(), seq: its.length >= 100 };
+    taxon: o.taxon || null, prov: String(f[PNF] || '').trim(), seq: its.length >= 100, f };
 }
 async function loadObs(run) {
   const st = S.settings;
@@ -534,6 +557,36 @@ async function build() {
 }
 $('#form').addEventListener('submit', e => { e.preventDefault(); build(); });
 
+/* ---------- vouchers ---------- */
+// Observation fields are named freely on iNaturalist, so voucher fields are recognised by name and sorted into roles.
+const V_ROLES = [
+  ['flag', 'Voucher taken? (yes/no)', n => /voucher/i.test(n) && (/\?\s*$/.test(n) || /(taken|collected)\b/i.test(n) || /^vouchered$/i.test(n.trim()))],
+  ['genbank', 'GenBank accession', n => /gen\s*bank/i.test(n)],
+  ['repo', 'Repository', n => /herbarium name|accession location|repository|fungarium accession location|deposited (at|in)|institution/i.test(n)],
+  ['plate', 'Sequencing plate (counts as a voucher)', n => /plate (number|no|#)|plate$/i.test(n)],
+  ['num', 'Voucher or catalogue number', n => /voucher|accession|fungarium (id|number|#)|herbarium (catalog|number|#|id)|catalog(ue)? (number|no|#)|omdl number|collection (number|no|#)|specimen (number|id|no|#)|tag\/accession/i.test(n)],
+];
+const NEG = /^(no\b|n$|false$|0$|none$|-$|n\/?a$|not selected$|not collected$)/i;
+function fieldRole(n) { for (const [k, , test] of V_ROLES) if (test(n)) return k; return null; }
+function vfields() { // every field on these records that has a role, with how many records carry it
+  const m = new Map(); for (const r of S.obs) for (const n of Object.keys(r.f)) { if (r.f[n] == null || String(r.f[n]).trim() === '') continue; const role = fieldRole(n); if (!role) continue; if (!m.has(n)) m.set(n, { name: n, role, n: 0 }); m.get(n).n++; }
+  for (const n of $('#vExtra').value.split(',').map(x => x.trim()).filter(Boolean)) if (!m.has(n)) { let k = 0; for (const r of S.obs) if (r.f[n] != null && String(r.f[n]).trim() !== '') k++; m.set(n, { name: n, role: 'num', n: k, extra: true }); }
+  return [...m.values()].sort((a, b) => V_ROLES.findIndex(x => x[0] === a.role) - V_ROLES.findIndex(x => x[0] === b.role) || b.n - a.n);
+}
+const vOff = new Set(store.get('survey.voff') || []);
+function voucherOf(r, F) {
+  const v = { flag: null, nums: [], repo: [], genbank: [], plate: [] };
+  for (const fd of F) { if (vOff.has(fd.name)) continue; const raw = r.f[fd.name]; if (raw == null) continue; const val = String(raw).trim(); if (!val) continue;
+    if (fd.role === 'flag') v.flag = v.flag === true ? true : !NEG.test(val);
+    else if (fd.role === 'num') { if (!NEG.test(val)) v.nums.push(`${fd.name}: ${val}`); }
+    else if (fd.role === 'genbank') { if (!NEG.test(val)) v.genbank.push(val.replace(/^https?:\/\/www\.ncbi\.nlm\.nih\.gov\/nuccore\//i, '')); }
+    else if (!NEG.test(val)) { v[fd.role].push(val); if (fd.role === 'plate') v.platev = true; } }
+  v.genbank = [...new Set(v.genbank)];
+  // A sequencing plate number means tissue was taken from a kept specimen, so it counts as a voucher (untick the field if not).
+  v.vouchered = v.flag === true || v.nums.length > 0 || !!v.platev; v.conflict = v.flag === false && (v.nums.length > 0 || !!v.platev);
+  return v;
+}
+
 /* ---------- 3. analysis ---------- */
 function opts() { return { lichen: $('#optLichen').checked, slime: $('#optSlime').checked, prov: $('#optProv').checked, provSp: $('#optProvSp').value, rg: $('#optRG').checked }; }
 function usable() { const o = opts(); return S.obs.filter(r => (o.lichen || !r.lichen) && (o.slime || !r.slime) && (!o.rg || r.qg === 'research')); }
@@ -545,7 +598,8 @@ function unitOf(r, o) {
   return { key: 's:' + k, name: k, prov: false, taxonId: spId || r.taxon.id };
 }
 function analyse() {
-  const o = opts(), recs = usable(), units = new Map(), other = new Map(), days = new Map(), people = new Set();
+  const o = opts(), recs = usable(), units = new Map(), other = new Map(), days = new Map(), people = new Set(), F = vfields();
+  for (const r of recs) r.v = voucherOf(r, F);
   for (const r of recs) {
     people.add(r.login);
     if (!days.has(r.date)) days.set(r.date, { date: r.date, records: 0, units: new Set(), people: new Set() });
@@ -553,11 +607,11 @@ function analyse() {
     const u = unitOf(r, o);
     if (!u) { const k = r.taxon.name; if (!other.has(k)) other.set(k, { name: k, rank: r.taxon.rank, taxonId: r.taxon.id, L: r.L, records: 0, days: new Set(), common: r.taxon.preferred_common_name || '' }); const g = other.get(k); g.records++; g.days.add(r.date); continue; }
     d.units.add(u.key);
-    if (!units.has(u.key)) units.set(u.key, { ...u, L: r.L, common: u.prov ? '' : (r.taxon.rank_level === 10 ? r.taxon.preferred_common_name || '' : ''), records: 0, days: new Set(), years: new Set(), months: new Array(12).fill(0), first: r.date, last: r.date, seq: 0, rg: 0, lichen: r.lichen, slime: r.slime });
-    const g = units.get(u.key); g.records++; g.days.add(r.date); g.years.add(r.year); g.months[r.month - 1]++; if (r.date < g.first) g.first = r.date; if (r.date > g.last) g.last = r.date; if (r.seq) g.seq++; if (r.qg === 'research') g.rg++;
+    if (!units.has(u.key)) units.set(u.key, { ...u, L: r.L, common: u.prov ? '' : (r.taxon.rank_level === 10 ? r.taxon.preferred_common_name || '' : ''), records: 0, days: new Set(), years: new Set(), months: new Array(12).fill(0), first: r.date, last: r.date, seq: 0, rg: 0, vouch: 0, lichen: r.lichen, slime: r.slime });
+    const g = units.get(u.key); g.records++; g.days.add(r.date); g.years.add(r.year); g.months[r.month - 1]++; if (r.date < g.first) g.first = r.date; if (r.date > g.last) g.last = r.date; if (r.seq) g.seq++; if (r.qg === 'research') g.rg++; if (r.v.vouchered) g.vouch++;
     if (!g.common && !u.prov && r.taxon.rank_level === 10 && r.taxon.preferred_common_name) g.common = r.taxon.preferred_common_name;
   }
-  return { o, recs, units, other, days, people };
+  return { o, recs, units, other, days, people, F };
 }
 // Incidence-based Chao2 with log-normal 95% interval (Chao 1987; Chao & Chiu 2016) and sample coverage (Chao & Jost 2012).
 function chao2(units, m) {
@@ -580,7 +634,7 @@ function accumulation(days, perms = 100) {
 
 /* ---------- 4. render ---------- */
 let A = null;
-function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderRecon(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
+function renderAll() { if (!S.obs.length) return; A = analyse(); renderSummary(); renderRecon(); renderVouchers(); renderCompleteness(); renderGroups(); renderYears(); renderChecklist(); renderPheno(); renderMap(); renderMethods(); }
 const srcLabel = st => (st.src === 'project' ? st.proj.title : st.src === 'users' ? st.users.join(', ') : 'Everyone') + (st.boundary ? ` · inside ${st.boundary.name}` : '');
 const tile = (v, k, h) => `<div class="tile"><div class="v">${v}</div><div class="k">${esc(k)}${MVHelp.tip(h, k)}</div></div>`;
 function inatSearch(extra) { const st = S.settings; let q = `d1=${st.d1}&d2=${st.d2}`;
@@ -625,6 +679,26 @@ function renderRecon() {
   li.push(`<b>Observers.</b> ${fmt(new Set(all.map(r => r.login)).size)} people recorded the fungi and slime molds read; ${fmt(A.people.size)} after the options above. iNaturalist’s “People” also counts anyone with only non-fungal records.`);
   $('#recon').innerHTML = li.map(x => `<li>${x}</li>`).join('');
 }
+function renderVouchers() {
+  const F = A.F, V = A.recs.filter(r => r.v.vouchered), st = S.settings;
+  $('#vFields').innerHTML = F.length ? `<p class="muted" style="margin:10px 0 4px">Fields found on these records. Untick any that shouldn’t count.</p><div class="vgrid">${V_ROLES.map(([k, label]) => { const fs = F.filter(f => f.role === k); return fs.length ? `<div><b>${esc(label)}</b>${fs.map(f => `<label class="inline"><input type="checkbox" data-vf="${esc(f.name)}"${vOff.has(f.name) ? '' : ' checked'}> ${esc(f.name)} <span class="muted">(${fmt(f.n)})</span></label>`).join('')}</div>` : ''; }).join('')}</div>`
+    : '<p class="empty">No voucher fields found on these records. If yours has another name, type it under “Other voucher fields”.</p>';
+  const spp = new Set(); for (const r of V) { const u = unitOf(r, A.o); spp.add(u ? u.key : 'o:' + r.taxon.name); }
+  const gb = V.filter(r => r.v.genbank.length).length, its = V.filter(r => r.seq).length, conflict = A.recs.filter(r => r.v.conflict).length;
+  const repos = new Map(); for (const r of V) for (const x of (r.v.repo.length ? r.v.repo : ['(no repository given)'])) repos.set(x, (repos.get(x) || 0) + 1);
+  $('#vSub').textContent = `${fmt(V.length)} vouchered records`;
+  $('#vTiles').innerHTML = [tile(fmt(V.length), 'vouchered records', 'v_rec'), tile(fmt(spp.size), 'taxa vouchered', 'v_spp'), tile(fmt(its), 'vouchers with an ITS sequence', 'v_its'), tile(fmt(gb), 'vouchers with a GenBank accession', 'v_gb')].join('');
+  const yrs = [...new Set(V.map(r => r.year))].sort();
+  $('#vIar').innerHTML = V.length ? `<b>For the specimen report:</b> ${fmt(V.length)} specimen${V.length === 1 ? '' : 's'} of ${fmt(spp.size)} taxa${yrs.length ? `, collected ${yrs[0]}${yrs.length > 1 ? '–' + yrs[yrs.length - 1] : ''}` : ''}. Where they are: ${[...repos].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${esc(k)} (${fmt(n)})`).join('; ')}. ${fmt(its)} have an ITS sequence and ${fmt(gb)} a GenBank accession.` : '';
+  const rows = [...V].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
+  $('#vTable').innerHTML = V.length ? `<thead><tr><th>Date</th><th>Taxon</th><th>Voucher numbers${MVHelp.tip('v_nums', 'Voucher numbers')}</th><th>Repository</th><th>GenBank</th><th>ITS</th><th>Plate</th><th>Collector</th><th>Location</th></tr></thead><tbody>${rows.slice(0, 600).map(r => `<tr><td class="dates">${r.date}</td>
+      <td><a href="https://www.inaturalist.org/observations/${r.id}" target="_blank" rel="noopener"><i>${esc(r.prov || r.taxon.name)}</i></a>${r.prov ? ' <span class="tag">provisional</span>' : ''}</td>
+      <td class="vn">${r.v.nums.map(esc).join('<br>') || (r.v.platev ? '<span class="muted">on a sequencing plate</span>' : r.v.flag ? '<span class="muted">vouchered, no number</span>' : '')}</td><td>${esc(r.v.repo.join('; '))}</td><td>${r.v.genbank.map(a => /^[A-Z]{1,2}\d{5,8}(\.\d+)?$/.test(a) ? `<a href="https://www.ncbi.nlm.nih.gov/nuccore/${esc(a)}" target="_blank" rel="noopener">${esc(a)}</a>` : esc(a)).join('<br>')}</td>
+      <td>${r.seq ? 'yes' : ''}</td><td>${esc(r.v.plate.join('; '))}</td><td>${esc(collector(r))}</td><td class="dates">${r.hasLoc ? `${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}${r.obscured ? ' <span class="tag warn">obscured</span>' : ''}` : ''}</td></tr>`).join('')}</tbody>` : '';
+  $('#vNote').innerHTML = [rows.length > 600 ? `Showing the first 600 of ${fmt(rows.length)}; the CSV has them all.` : '', conflict ? `${fmt(conflict)} record${conflict === 1 ? ' says' : 's say'} no voucher was taken but carr${conflict === 1 ? 'ies' : 'y'} a voucher or plate number; ${conflict === 1 ? 'it is' : 'they are'} counted as vouchered. Worth checking.` : '',
+    V.some(r => r.obscured) ? 'Obscured locations are iNaturalist’s public coordinates, not where the specimen was collected; use your own records or iNaturalist’s export with hidden coordinates (for project curators) for the specimen report.' : ''].filter(Boolean).join(' ');
+}
+const collector = r => { for (const n of ["Collector's name", 'Collector', 'Collected by', 'Collector name']) if (r.f[n] && String(r.f[n]).trim()) return String(r.f[n]).trim(); return r.uname || r.login; };
 function renderCompleteness() {
   const c = chao2(A.units, A.days.size), acc = accumulation(A.days);
   $('#compSub').textContent = `${fmt(A.days.size)} survey days`;
@@ -682,7 +756,7 @@ const TAXSORT = (a, b) => { for (const r of ['phylum', 'class', 'order', 'family
 function renderChecklist() {
   const q = $('#ckFilter').value.trim().toLowerCase(), sort = $('#ckSort').value, withOther = $('#ckOther').checked;
   let rows = [...A.units.values()].map(u => ({ ...u, kind: 'sp' }));
-  if (withOther) rows = rows.concat([...A.other.values()].map(g => ({ ...g, kind: 'other', years: new Set(), months: new Array(12).fill(0), first: '', last: '', seq: 0, rg: 0 })));
+  if (withOther) rows = rows.concat([...A.other.values()].map(g => ({ ...g, kind: 'other', years: new Set(), months: new Array(12).fill(0), first: '', last: '', seq: 0, rg: 0, vouch: 0 })));
   if (q) rows = rows.filter(u => [u.name, u.common, ...Object.values(u.L)].join(' ').toLowerCase().includes(q));
   const sorter = { tax: (a, b) => TAXSORT(a, b) || (a.kind === 'other') - (b.kind === 'other'), days: (a, b) => b.days.size - a.days.size || a.name.localeCompare(b.name), records: (a, b) => b.records - a.records || a.name.localeCompare(b.name), name: (a, b) => a.name.localeCompare(b.name), first: (a, b) => (a.first || '9') < (b.first || '9') ? -1 : (a.first || '9') > (b.first || '9') ? 1 : a.name.localeCompare(b.name) }[sort];
   rows.sort(sorter);
@@ -690,14 +764,14 @@ function renderChecklist() {
   let lastKey = null; const body = [];
   for (const u of rows) {
     if (sort === 'tax') { const k = [u.L.phylum, u.L.class, u.L.order, u.L.family].join('|'); if (k !== lastKey) { lastKey = k;
-      body.push(`<tr class="grp"><td colspan="8">${['phylum', 'class', 'order', 'family'].map(r => u.L[r] ? `<span class="gk">${r}</span> ${esc(u.L[r])}` : '').filter(Boolean).join(' <span class="muted">›</span> ') || '<span class="muted">group not known</span>'} <span class="muted">· ${famCount.get(k) || 0} species</span></td></tr>`); } }
+      body.push(`<tr class="grp"><td colspan="9">${['phylum', 'class', 'order', 'family'].map(r => u.L[r] ? `<span class="gk">${r}</span> ${esc(u.L[r])}` : '').filter(Boolean).join(' <span class="muted">›</span> ') || '<span class="muted">group not known</span>'} <span class="muted">· ${famCount.get(k) || 0} species</span></td></tr>`); } }
     const link = u.prov ? inatSearch(`field:${encodeURIComponent(PNF)}=${encodeURIComponent(u.name)}`) : inatSearch(`taxon_id=${u.taxonId}`);
     const nm = u.prov ? `<i>${esc(u.name)}</i> <span class="tag">provisional</span>` : u.kind === 'other' ? `<i>${esc(u.name)}</i> <span class="muted">(${esc(u.rank)} only)</span>` : `<i>${esc(u.name)}</i>`;
     body.push(`<tr${u.kind === 'other' ? ' class="oth"' : ''}><td><a href="${esc(link)}" target="_blank" rel="noopener">${nm}</a>${u.common ? `<div class="muted cm">${esc(u.common)}</div>` : ''}${u.lichen ? ' <span class="tag">lichen</span>' : ''}${u.slime ? ' <span class="tag">slime mold</span>' : ''}</td>
       <td class="num">${fmt(u.records)}</td><td class="num">${fmt(u.days.size)}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.years.size)}</td><td class="num dates">${u.first ? (u.first === u.last ? u.first : `${u.first}<br>${u.last}`) : ''}</td>
-      <td>${u.kind === 'other' ? '' : monthsStrip(u.months)}</td><td class="num">${u.seq ? fmt(u.seq) : ''}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.rg)}</td></tr>`);
+      <td>${u.kind === 'other' ? '' : monthsStrip(u.months)}</td><td class="num">${u.seq ? fmt(u.seq) : ''}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.rg)}</td><td class="num">${u.vouch ? fmt(u.vouch) : ''}</td></tr>`);
   }
-  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Survey days${MVHelp.tip('c_days', 'Survey days')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th></tr></thead><tbody>${body.join('')}</tbody>`;
+  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Survey days${MVHelp.tip('c_days', 'Survey days')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th><th class="num">Vouchers${MVHelp.tip('c_vouch', 'Vouchers')}</th></tr></thead><tbody>${body.join('')}</tbody>`;
   $('#ckSub').textContent = `${fmt(rows.filter(r => r.kind === 'sp').length)} species${q ? ' match the filter' : ''}`;
 }
 function renderPheno() {
@@ -727,7 +801,7 @@ function renderMethods() {
   const st = S.settings, o = A.o, c = S.chao || {};
   $('#methods').innerHTML = [
     `<b>Source</b>: iNaturalist records of Fungi${o.slime ? ' and Mycetozoa (slime molds)' : ''} ${st.src === 'project' ? `in the project “${esc(st.proj.title)}” (id ${st.proj.id})` : st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : 'by anyone'}, observed ${st.d1} to ${st.d2}, read on ${todayIso()} through the iNaturalist API${o.rg ? ', research grade only' : ', all quality grades'}.${st.boundary ? ` Records were kept only if their point fell inside the boundary file “${esc(st.boundary.fileName)}” (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}, holes excluded)${st.edge === 'drop' ? ' and their stated accuracy did not reach past its edge' : ''}; records with obscured locations were excluded.` : ''}`,
-    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (Lecanoromycetes, Arthoniomycetes, Lichinomycetes, Candelariomycetes, Coniocybomycetes; Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
+    `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (classes Lecanoromycetes and Arthoniomycetes; orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
     `<b>Effort</b>: a survey day is a date with at least one record. Species accumulation is the mean of 100 random orderings of the ${fmt(A.days.size)} survey days, with the central 95% of orderings shaded.`,
     `<b>Richness estimate</b>: incidence-based Chao2 with the bias correction (m−1)/m and a log-normal 95% interval (Chao 1987; Chao & Chiu 2016), from Q1 = ${fmt(c.Q1)} species on one day and Q2 = ${fmt(c.Q2)} on two, over m = ${fmt(c.m)} days. Sample coverage follows Chao & Jost (2012). Fruiting-body surveys detect only species that fruited and were recorded, so the estimate is a lower bound.`,
     `<b>Identification</b>: iNaturalist identifications are not all verified; ${fmt(A.recs.length ? 100 * A.recs.filter(r => r.qg === 'research').length / A.recs.length : 0)}% of the records used are research grade, and ${fmt(A.recs.filter(r => r.seq).length)} have an ITS sequence.`,
@@ -740,22 +814,28 @@ function download(name, text, type = 'text/csv') { const a = document.createElem
 const slug = () => { const st = S.settings; return `${(st.src === 'project' ? st.proj.slug || 'project' : st.src === 'users' ? st.users.join('-') : (st.boundary ? st.boundary.name : 'site')).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}_${st.d1}_${st.d2}`; };
 const xml = s => String(s ?? '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
 $('#dlCk').onclick = () => { const rows = [...A.units.values()].sort(TAXSORT);
-  download(`checklist_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'genus', 'species', 'provisional', 'common_name', 'records', 'survey_days', 'years', 'first_found', 'last_found', ...MONTHS.map(m => m.toLowerCase()), 'its_sequenced_records', 'research_grade_records', 'lichen', 'inaturalist_taxon_id'],
-    ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.L.genus || (u.prov ? '' : u.name.split(' ')[0]), u.name, u.prov ? 'yes' : '', u.common, u.records, u.days.size, [...u.years].sort().join(' '), u.first, u.last, ...u.months, u.seq, u.rg, u.lichen ? 'yes' : '', u.taxonId])])); };
+  download(`checklist_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'genus', 'species', 'provisional', 'common_name', 'records', 'survey_days', 'years', 'first_found', 'last_found', ...MONTHS.map(m => m.toLowerCase()), 'its_sequenced_records', 'research_grade_records', 'vouchered_records', 'lichen', 'inaturalist_taxon_id'],
+    ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.L.genus || (u.prov ? '' : u.name.split(' ')[0]), u.name, u.prov ? 'yes' : '', u.common, u.records, u.days.size, [...u.years].sort().join(' '), u.first, u.last, ...u.months, u.seq, u.rg, u.vouch, u.lichen ? 'yes' : '', u.taxonId])])); };
 $('#dlDwc').onclick = () => { const o = A.o;
-  download(`darwin-core_${slug()}.csv`, csv([['occurrenceID', 'catalogNumber', 'institutionCode', 'basisOfRecord', 'eventDate', 'year', 'month', 'day', 'recordedBy', 'scientificName', 'taxonRank', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'vernacularName', 'decimalLatitude', 'decimalLongitude', 'coordinateUncertaintyInMeters', 'geodeticDatum', 'informationWithheld', 'locality', 'identificationVerificationStatus', 'associatedSequences', 'occurrenceRemarks', 'license'],
+  download(`darwin-core_${slug()}.csv`, csv([['occurrenceID', 'catalogNumber', 'institutionCode', 'basisOfRecord', 'eventDate', 'year', 'month', 'day', 'recordedBy', 'scientificName', 'taxonRank', 'kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'vernacularName', 'decimalLatitude', 'decimalLongitude', 'coordinateUncertaintyInMeters', 'geodeticDatum', 'informationWithheld', 'locality', 'identificationVerificationStatus', 'otherCatalogNumbers', 'disposition', 'associatedSequences', 'occurrenceRemarks', 'license'],
     ...A.recs.map(r => { const u = unitOf(r, o); return [`https://www.inaturalist.org/observations/${r.id}`, r.id, 'iNaturalist', 'HumanObservation', r.date, r.year, r.month, +r.date.slice(8, 10), r.uname || r.login, r.taxon.name, r.taxon.rank, r.slime ? 'Protozoa' : 'Fungi', r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', r.taxon.preferred_common_name || '',
-      r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.hasLoc ? 'WGS84' : '', r.obscured ? 'Coordinates obscured by iNaturalist (up to about 22 km)' : '', r.place, r.qg === 'research' ? 'research grade' : r.qg === 'needs_id' ? 'needs ID' : r.qg || '', r.seq ? 'ITS sequence in iNaturalist observation field “DNA Barcode ITS”' : '', r.prov ? `Provisional species name: ${r.prov}` : (u ? '' : 'Identified only above species'), r.lic]; })])); };
+      r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.hasLoc ? 'WGS84' : '', r.obscured ? 'Coordinates obscured by iNaturalist (up to about 22 km)' : '', r.place, r.qg === 'research' ? 'research grade' : r.qg === 'needs_id' ? 'needs ID' : r.qg || '', r.v.nums.map(x => x.replace(/^[^:]+:\s*/, '')).join(' | '), r.v.vouchered ? `voucher specimen${r.v.repo.length ? ' at ' + r.v.repo.join('; ') : ''}` : '', [...r.v.genbank.map(a => /^[A-Z]{1,2}\d{5,8}/.test(a) ? 'GenBank: ' + a : a), r.seq ? 'ITS sequence in iNaturalist observation field “DNA Barcode ITS”' : ''].filter(Boolean).join(' | '), r.prov ? `Provisional species name: ${r.prov}` : (u ? '' : 'Identified only above species'), r.lic]; })])); };
 const pointRecs = () => A.recs.filter(r => r.hasLoc);
 $('#dlGeo').onclick = () => download(`records_${slug()}.geojson`, JSON.stringify({ type: 'FeatureCollection', features: pointRecs().map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [+r.lon.toFixed(6), +r.lat.toFixed(6)] },
   properties: { id: r.id, url: `https://www.inaturalist.org/observations/${r.id}`, date: r.date, observer: r.login, taxon: r.taxon.name, rank: r.taxon.rank, family: r.L.family || '', order: r.L.order || '', provisional: r.prov || null, its: r.seq, quality: r.qg, accuracy_m: r.acc ?? null, obscured: r.obscured } })) }), 'application/geo+json');
 $('#dlKml').onclick = () => download(`records_${slug()}.kml`, `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${xml(srcLabel(S.settings))} ${S.settings.d1} to ${S.settings.d2}</name>\n${pointRecs().map(r => `<Placemark><name>${xml(r.prov || r.taxon.name)}</name><description>${xml(`${r.date} · ${r.login} · ${r.qg}${r.obscured ? ' · obscured location' : ''} · https://www.inaturalist.org/observations/${r.id}`)}</description><TimeStamp><when>${r.date}</when></TimeStamp><Point><coordinates>${r.lon.toFixed(6)},${r.lat.toFixed(6)},0</coordinates></Point></Placemark>`).join('\n')}\n</Document></kml>`, 'application/vnd.google-earth.kml+xml');
+$('#dlSpec').onclick = () => { const V = A.recs.filter(r => r.v.vouchered).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
+  download(`specimens_${slug()}.csv`, csv([['date', 'scientific_name', 'provisional_name', 'phylum', 'class', 'order', 'family', 'genus', 'number_of_specimens', 'voucher_numbers', 'repository', 'voucher_flag', 'genbank_accessions', 'its_sequenced', 'sequencing_plate', 'collector', 'observer', 'latitude', 'longitude', 'coordinate_uncertainty_m', 'coordinates_obscured', 'locality', 'inaturalist_url'],
+    ...V.map(r => [r.date, r.taxon.name, r.prov, r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', 1, r.v.nums.join(' | '), r.v.repo.join('; '), r.v.flag == null ? '' : r.v.flag ? 'yes' : 'no', r.v.genbank.join(' | '), r.seq ? 'yes' : '', r.v.plate.join('; '), collector(r), r.login, r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.obscured ? 'yes' : '', r.place, `https://www.inaturalist.org/observations/${r.id}`])])); };
 $('#dlDays').onclick = () => download(`survey-days_${slug()}.csv`, csv([['date', 'records', 'species', 'observers', 'observer_usernames'], ...[...A.days.values()].sort((a, b) => a.date < b.date ? -1 : 1).map(d => [d.date, d.records, d.units.size, d.people.size, [...d.people].join(' ')])]));
 $('#dlYears').onclick = () => download(`year-by-year_${slug()}.csv`, csv([['year', 'survey_days', 'records', 'observers', 'species', 'new_to_survey', 'running_total'], ...S.yrs.map(g => [g.y, g.days, g.records, g.people.size, g.units.size, g.newN, g.cum])]));
 
 /* ---------- wiring ---------- */
 $('#optProv').addEventListener('change', () => $('#provSpWrap').classList.toggle('muted', !$('#optProv').checked));
 for (const id of ['#optLichen', '#optSlime', '#optProv', '#optProvSp', '#optRG']) $(id).addEventListener('change', renderAll);
+$('#vFields').addEventListener('change', e => { const n = e.target.dataset && e.target.dataset.vf; if (n == null) return; if (e.target.checked) vOff.delete(n); else vOff.add(n); store.set('survey.voff', [...vOff]); renderAll(); });
+let vT = 0; $('#vExtra').addEventListener('input', () => { clearTimeout(vT); vT = setTimeout(() => { store.set('survey.vextra', $('#vExtra').value); if (A) renderAll(); }, 500); });
+$('#vExtra').value = store.get('survey.vextra') || '';
 document.querySelectorAll('input[name=grank]').forEach(r => r.addEventListener('change', renderGroups));
 $('#ckFilter').addEventListener('input', () => renderChecklist()); $('#ckSort').addEventListener('change', renderChecklist); $('#ckOther').addEventListener('change', renderChecklist);
 $('#example').onclick = e => { e.preventDefault(); document.querySelector('input[name=src][value=project]').checked = true; $('#usersWrap').classList.add('hidden'); $('#projWrap').classList.remove('hidden');

@@ -1,0 +1,1001 @@
+{
+ "name": "Russula sp. 'QUE01'",
+ "slug": "russula-que01",
+ "pulledAt": "2026-11-20",
+ "searchUrl": "https://www.inaturalist.org/observations?field%3AProvisional+Species+Name=Russula+sp.+%27QUE01%27",
+ "observations": 97,
+ "sequenced": 95,
+ "observers": 40,
+ "observerList": [
+  [
+   "johnplischke",
+   17
+  ],
+  [
+   "gigglegirlfunga",
+   8
+  ],
+  [
+   "fredojusto",
+   7
+  ],
+  [
+   "mushroomphotography",
+   6
+  ],
+  [
+   "mycogeekyohio",
+   5
+  ],
+  [
+   "huafang",
+   5
+  ],
+  [
+   "liliana308",
+   5
+  ],
+  [
+   "davew1061",
+   3
+  ],
+  [
+   "stevilkinevil",
+   3
+  ],
+  [
+   "ksanderson",
+   3
+  ],
+  [
+   "doubleblade",
+   2
+  ],
+  [
+   "dnama",
+   2
+  ],
+  [
+   "longtooth",
+   2
+  ],
+  [
+   "rlebeuf",
+   2
+  ],
+  [
+   "sarah-culliton",
+   2
+  ],
+  [
+   "cinna_latifolia",
+   1
+  ],
+  [
+   "ryanpeace",
+   1
+  ],
+  [
+   "oksana_arnaud",
+   1
+  ],
+  [
+   "melissasilvia",
+   1
+  ],
+  [
+   "annabelleinvermont",
+   1
+  ],
+  [
+   "ireyx",
+   1
+  ],
+  [
+   "llcooll",
+   1
+  ],
+  [
+   "just_add_water",
+   1
+  ],
+  [
+   "mycolo",
+   1
+  ],
+  [
+   "rngallagher",
+   1
+  ],
+  [
+   "rebeccahrader",
+   1
+  ],
+  [
+   "paganka",
+   1
+  ],
+  [
+   "wildfractal",
+   1
+  ],
+  [
+   "joeaholmes",
+   1
+  ],
+  [
+   "anderson_mark",
+   1
+  ],
+  [
+   "hf24",
+   1
+  ],
+  [
+   "mike_gartin",
+   1
+  ],
+  [
+   "jaidenmci",
+   1
+  ],
+  [
+   "chrisbikin",
+   1
+  ],
+  [
+   "tayder-tot",
+   1
+  ],
+  [
+   "livbennett",
+   1
+  ],
+  [
+   "lalvis",
+   1
+  ],
+  [
+   "dmalloch",
+   1
+  ],
+  [
+   "chantalgauthier",
+   1
+  ],
+  [
+   "thefungiforage",
+   1
+  ]
+ ],
+ "collectorDateSite": 78,
+ "sharedCollectorDateSite": 12,
+ "ric": {
+  "n": 87,
+  "min": 9,
+  "median": 100,
+  "max": 494,
+  "under30": 11
+ },
+ "voucherRecorded": 65,
+ "herbarium": [
+  [
+   "MYCO",
+   12
+  ]
+ ],
+ "genbank": [
+  "OP749772",
+  "PX308360"
+ ],
+ "months": {
+  "6": 3,
+  "7": 10,
+  "8": 35,
+  "9": 28,
+  "10": 21
+ },
+ "years": {
+  "2019": 1,
+  "2022": 5,
+  "2023": 19,
+  "2024": 26,
+  "2025": 30,
+  "2026": 16
+ },
+ "regions": [
+  [
+   "West Virginia",
+   22
+  ],
+  [
+   "Michigan",
+   19
+  ],
+  [
+   "New Brunswick",
+   19
+  ],
+  [
+   "Pennsylvania",
+   17
+  ],
+  [
+   "Ontario",
+   5
+  ],
+  [
+   "Québec",
+   4
+  ],
+  [
+   "New York",
+   3
+  ],
+  [
+   "Nova Scotia",
+   3
+  ],
+  [
+   "Vermont",
+   2
+  ],
+  [
+   "Prince Edward Island",
+   2
+  ],
+  [
+   "Alberta",
+   1
+  ]
+ ],
+ "notesWritten": 55,
+ "characters": {
+  "sporePrint": 0,
+  "odor": 3,
+  "taste": 9,
+  "chemicalTests": 1,
+  "trees": 9,
+  "substrate": 6
+ },
+ "photos": [
+  {
+   "id": 407054618,
+   "date": "2026-10-09",
+   "region": "Pennsylvania",
+   "user": "doubleblade",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/747963811/medium.jpg",
+   "attribution": "(c) Matthew Wehman, some rights reserved (CC BY)",
+   "license": "cc-by"
+  },
+  {
+   "id": 407051570,
+   "date": "2026-10-09",
+   "region": "Pennsylvania",
+   "user": "doubleblade",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/747957938/medium.jpg",
+   "attribution": "(c) Matthew Wehman, some rights reserved (CC BY)",
+   "license": "cc-by"
+  },
+  {
+   "id": 406074371,
+   "date": "2026-10-05",
+   "region": "West Virginia",
+   "user": "mycogeekyohio",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/745997433/medium.jpg",
+   "attribution": "(c) mycoGeeky, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405673171,
+   "date": "2026-10-03",
+   "region": "Ontario",
+   "user": "cinna_latifolia",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/745184665/medium.jpg",
+   "attribution": "(c) cinna_latifolia, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405972676,
+   "date": "2026-10-03",
+   "region": "Ontario",
+   "user": "ryanpeace",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/745778248/medium.jpg",
+   "attribution": "(c) Ryan Peace, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405603739,
+   "date": "2026-10-03",
+   "region": "West Virginia",
+   "user": "mycogeekyohio",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/745094244/medium.jpg",
+   "attribution": "(c) mycoGeeky, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405673860,
+   "date": "2026-10-03",
+   "region": "West Virginia",
+   "user": "mycogeekyohio",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/745186072/medium.jpg",
+   "attribution": "(c) mycoGeeky, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405507802,
+   "date": "2026-10-03",
+   "region": "Ontario",
+   "user": "oksana_arnaud",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/744849581/medium.jpg",
+   "attribution": "(c) Oksana and Arnaud, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405314773,
+   "date": "2026-10-02",
+   "region": "West Virginia",
+   "user": "mycogeekyohio",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/744457748/medium.jpg",
+   "attribution": "(c) mycoGeeky, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 405257866,
+   "date": "2026-10-02",
+   "region": "West Virginia",
+   "user": "mycogeekyohio",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/744344714/medium.jpg",
+   "attribution": "(c) mycoGeeky, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 395320935,
+   "date": "2026-08-28",
+   "region": "Michigan",
+   "user": "dnama",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/724842462/medium.jpg",
+   "attribution": "(c) Harte Singer, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 391956864,
+   "date": "2026-08-16",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/718249303/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 390700742,
+   "date": "2026-08-12",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/715811660/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 390459535,
+   "date": "2026-08-11",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/715349878/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 376878045,
+   "date": "2026-06-28",
+   "region": "Pennsylvania",
+   "user": "davew1061",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/689122897/medium.jpg",
+   "attribution": "(c) Dave Wasilewski, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 317892681,
+   "date": "2025-09-30",
+   "region": "Québec",
+   "user": "annabelleinvermont",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/574475021/medium.jpg",
+   "attribution": "(c) Annabelle Langlois, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 318405756,
+   "date": "2025-09-30",
+   "region": "Michigan",
+   "user": "huafang",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/575454099/medium.jpg",
+   "attribution": "(c) huafang, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 318378666,
+   "date": "2025-09-29",
+   "region": "Michigan",
+   "user": "huafang",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/575404237/medium.jpg",
+   "attribution": "(c) huafang, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 318223896,
+   "date": "2025-09-28",
+   "region": "Michigan",
+   "user": "huafang",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/575105273/medium.jpg",
+   "attribution": "(c) huafang, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 317802770,
+   "date": "2025-09-28",
+   "region": "Pennsylvania",
+   "user": "davew1061",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/574301932/medium.jpg",
+   "attribution": "(c) Dave Wasilewski, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 317802086,
+   "date": "2025-09-28",
+   "region": "Pennsylvania",
+   "user": "davew1061",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/574300795/medium.jpg",
+   "attribution": "(c) Dave Wasilewski, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 320365561,
+   "date": "2025-09-19",
+   "region": "New York",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/579218525/medium.jpg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 338167489,
+   "date": "2025-09-12",
+   "region": "Vermont",
+   "user": "dnama",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/614906316/medium.jpg",
+   "attribution": "(c) Harte Singer, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 313442522,
+   "date": "2025-09-09",
+   "region": "Michigan",
+   "user": "huafang",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/566007238/medium.jpg",
+   "attribution": "(c) huafang, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 312071226,
+   "date": "2025-09-06",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/563398629/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 311378020,
+   "date": "2025-09-03",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/562093457/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 311159906,
+   "date": "2025-09-02",
+   "region": "Michigan",
+   "user": "mushroomphotography",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/561675486/medium.jpg",
+   "attribution": "(c) Liz Weinstein // A.K.A. mushroomphotography, some rights reserved (CC BY-NC-ND)",
+   "license": "cc-by-nc-nd"
+  },
+  {
+   "id": 307051736,
+   "date": "2025-08-17",
+   "region": "New York",
+   "user": "longtooth",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/553784642/medium.jpg",
+   "attribution": "(c) Paula DeSanto, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 307377220,
+   "date": "2025-08-16",
+   "region": "Pennsylvania",
+   "user": "just_add_water",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/554349914/medium.jpg",
+   "attribution": "(c) Cara Coulter, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 303156634,
+   "date": "2025-08-02",
+   "region": "West Virginia",
+   "user": "rngallagher",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/546388193/medium.jpg",
+   "attribution": "(c) Rachel Gallagher, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 303148559,
+   "date": "2025-08-02",
+   "region": "West Virginia",
+   "user": "rebeccahrader",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/546373914/medium.jpg",
+   "attribution": "(c) Becky Rader, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 303138475,
+   "date": "2025-08-02",
+   "region": "West Virginia",
+   "user": "paganka",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/546355639/medium.jpg",
+   "attribution": "(c) Matthew Rozanoff, some rights reserved (CC BY)",
+   "license": "cc-by"
+  },
+  {
+   "id": 326577555,
+   "date": "2025-08-01",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/591490501/medium.jpg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 303544814,
+   "date": "2025-08-01",
+   "region": "Québec",
+   "user": "wildfractal",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/547120514/medium.jpg",
+   "attribution": "(c) Gabriel Sigouin, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 302847104,
+   "date": "2025-07-30",
+   "region": "Michigan",
+   "user": "huafang",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/545809091/medium.jpg",
+   "attribution": "(c) huafang, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 295175445,
+   "date": "2025-07-04",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/531360358/medium.jpg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 288744499,
+   "date": "2025-06-11",
+   "region": "New York",
+   "user": "longtooth",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/519291286/medium.jpg",
+   "attribution": "(c) Paula DeSanto, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 245007985,
+   "date": "2024-09-30",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/437132164/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 327879893,
+   "date": "2024-09-26",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/594059129/medium.jpg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 327879883,
+   "date": "2024-09-26",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/594058285/medium.jpg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 240824652,
+   "date": "2024-09-09",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/429122937/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 244827155,
+   "date": "2024-09-06",
+   "region": "Michigan",
+   "user": "stevilkinevil",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/436767666/medium.jpg",
+   "attribution": "(c) Stephen Russell, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 244827030,
+   "date": "2024-09-06",
+   "region": "Michigan",
+   "user": "stevilkinevil",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/436767321/medium.jpg",
+   "attribution": "(c) Stephen Russell, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 236947699,
+   "date": "2024-08-20",
+   "region": "New Brunswick",
+   "user": "rlebeuf",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/421620075/medium.jpeg",
+   "attribution": "(c) Renée Lebeuf, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 236607315,
+   "date": "2024-08-18",
+   "region": "New Brunswick",
+   "user": "rlebeuf",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/420956944/medium.jpeg",
+   "attribution": "(c) Renée Lebeuf, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 252103125,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/451225092/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 252083919,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/451185581/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 252083921,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/451185575/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 252101726,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/451222190/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 251956298,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/450929757/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 251962530,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/450943387/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 252119693,
+   "date": "2024-08-17",
+   "region": "West Virginia",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/451259151/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 236140899,
+   "date": "2024-08-16",
+   "region": "New Brunswick",
+   "user": "ksanderson",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/420068519/medium.jpeg",
+   "attribution": "(c) Ken Sanderson, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 233257626,
+   "date": "2024-08-02",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/414523696/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 232203959,
+   "date": "2024-07-27",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/412507170/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 231305652,
+   "date": "2024-07-23",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/411534806/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 230326498,
+   "date": "2024-07-19",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/408954239/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 228636990,
+   "date": "2024-07-11",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/405748248/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 223810683,
+   "date": "2024-06-19",
+   "region": "New Brunswick",
+   "user": "gigglegirlfunga",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/396606106/medium.jpeg",
+   "attribution": "(c) Toni Doucette, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 189525648,
+   "date": "2023-10-30",
+   "region": "Prince Edward Island",
+   "user": "ksanderson",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/332036822/medium.jpeg",
+   "attribution": "(c) Ken Sanderson, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 189080463,
+   "date": "2023-10-22",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/331121482/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 189080462,
+   "date": "2023-10-22",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/331121469/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 188586662,
+   "date": "2023-10-22",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/330113092/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 188182041,
+   "date": "2023-10-19",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/329280796/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 188298790,
+   "date": "2023-10-19",
+   "region": "Nova Scotia",
+   "user": "jaidenmci",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/329525183/medium.jpg",
+   "attribution": "(c) jaidenmci, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 188118159,
+   "date": "2023-10-17",
+   "region": "Pennsylvania",
+   "user": "sarah-culliton",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/329152757/medium.jpeg",
+   "attribution": "(c) Sarah Culliton, some rights reserved (CC BY)",
+   "license": "cc-by"
+  },
+  {
+   "id": 188130690,
+   "date": "2023-10-17",
+   "region": "Pennsylvania",
+   "user": "sarah-culliton",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/329177550/medium.jpeg",
+   "attribution": "(c) Sarah Culliton, some rights reserved (CC BY)",
+   "license": "cc-by"
+  },
+  {
+   "id": 187902180,
+   "date": "2023-10-17",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/328711432/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 187589461,
+   "date": "2023-10-14",
+   "region": "Prince Edward Island",
+   "user": "ksanderson",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/328090986/medium.jpeg",
+   "attribution": "(c) Ken Sanderson, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 186122821,
+   "date": "2023-09-29",
+   "region": "Pennsylvania",
+   "user": "johnplischke",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/325195590/medium.jpeg",
+   "attribution": "(c) John Plischke, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 197928897,
+   "date": "2023-09-07",
+   "region": "Alberta",
+   "user": "tayder-tot",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/348733052/medium.jpeg",
+   "attribution": "(c) Taylor Routledge, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 178918888,
+   "date": "2023-08-15",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/311418352/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 178918794,
+   "date": "2023-08-15",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/311418053/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 178915462,
+   "date": "2023-08-15",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/311411150/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 178403070,
+   "date": "2023-08-14",
+   "region": "Nova Scotia",
+   "user": "livbennett",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/310433363/medium.jpeg",
+   "attribution": "(c) livbennett, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 178020181,
+   "date": "2023-08-12",
+   "region": "West Virginia",
+   "user": "lalvis",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/309697896/medium.jpg",
+   "attribution": "(c) lalvis, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 373015587,
+   "date": "2023-07-09",
+   "region": "New Brunswick",
+   "user": "dmalloch",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/681661392/medium.jpg",
+   "attribution": "(c) David Malloch, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 137600256,
+   "date": "2022-09-23",
+   "region": "Pennsylvania",
+   "user": "stevilkinevil",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/235035284/medium.jpg",
+   "attribution": "(c) Stephen Russell, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 130956709,
+   "date": "2022-08-15",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/222778653/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 126524038,
+   "date": "2022-07-14",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/214683760/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 126518151,
+   "date": "2022-07-14",
+   "region": "New Brunswick",
+   "user": "fredojusto",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/214673875/medium.jpeg",
+   "attribution": "(c) Alfredo Justo, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  },
+  {
+   "id": 30893775,
+   "date": "2019-08-14",
+   "region": "Ontario",
+   "user": "thefungiforage",
+   "url": "https://inaturalist-open-data.s3.amazonaws.com/photos/48294834/medium.jpeg",
+   "attribution": "(c) Stephanie Allen, some rights reserved (CC BY-NC)",
+   "license": "cc-by-nc"
+  }
+ ]
+}

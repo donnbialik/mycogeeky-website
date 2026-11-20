@@ -1,0 +1,81 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+import { ptNav, pdfHref, curriculum } from '../../../data/provisionalTaxonomist';
+// Provisional taxonomist hub: what a code is, the beginner guide, the difficulty rubric, concept pages, tools and cases.
+const sources = [
+  { cite: 'Mycota Lab. <em>Using temporary code names for documenting macrofungi</em>, June 2025.', url: 'https://mycotalab.substack.com/p/using-temporary-code-names-for-documenting' },
+  { cite: 'iNaturalist. <em>Provisional Taxa Pilot</em>, December 2025.', url: 'https://www.inaturalist.org/blog/120944-provisional-taxa-pilot' },
+];
+const tour = [
+  { title: 'The provisional taxonomist', body: '<p>Thousands of sequenced fungi carry a code instead of a name. This section teaches you how to decide whether a code is worth working on, and how to help if it is.</p>' },
+  { sel: '#what', title: 'What a code is', body: '<p>A code is a hypothesis: a group of sequenced collections that look like one species. It is <strong>not</strong> a claim that the species is new.</p>' },
+  { sel: '#start', title: 'Start with the beginner guide', body: '<p>Five steps, each ending in <strong>stop</strong>, <strong>watch</strong> or <strong>keep going</strong>. There’s a printable PDF too.</p>' },
+  { sel: '#learn', title: 'Learn what you need, when you need it', body: '<p>Concept pages, from reading a sequence result to names and types. The guide links each one at the step that needs it.</p>' },
+  { sel: '#tools', title: 'The tools, in order', body: '<p>Provisional Finder to size a code up, Dikarya to place it on a tree, and the ITS Bin Comparator to measure it against its neighbors.</p>' },
+  { sel: '#cases', title: 'Cases', body: '<p>One page per code, showing what’s known, what’s missing and how to help.</p>' },
+];
+const byLevel = ['Beginner', 'Intermediate', 'Advanced', 'All levels'].map((l) => [l, curriculum.filter((c) => c.level === l)] as const);
+---
+<FieldGuide title="The provisional taxonomist" description="How to decide whether a provisional fungal code is worth researching, and how to help resolve it: a beginner guide, a difficulty rubric, concept pages, tools and case pages." eyebrow="INVESTIGATE / PROVISIONAL TAXONOMIST" heading="Your mushroom came back with a code. <em>Now what?</em>" lead="Thousands of sequenced fungi carry a temporary code instead of a species name. Anyone can help work out what one of them is: by collecting, documenting, comparing, or checking old names." tourKey="pt-hub" tour={tour} sources={sources} current="hub" nav={ptNav} navLabel="Provisional taxonomist">
+
+<section id="what">
+  <p class="mv-guide-kicker">The idea</p>
+  <h2>A provisional taxonomist works on a code, not a credential.</h2>
+  <p>A <strong>provisional taxonomist</strong> is anyone who takes on an unnamed species-level code and helps find out what it is: by collecting, documenting, comparing, or checking old names. You don’t need to write a species description to count. A careful, vouchered record of the right collection is a real contribution.</p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>What a code is</h3><p>A temporary, specimen-linked label, such as <em>Russula</em> sp. ‘QUE01’, for sequenced collections thought to be one species. Mycota Lab assigns codes from DNA barcodes together with morphology, ecology, geography and season.<sup class="mv-ref"><a href="#sources">1</a></sup></p></div>
+    <div class="mv-guide-card"><h3>What a code is not</h3><p>It isn’t a claim that the species is new. It flags missing or conflicting reference data.<sup class="mv-ref"><a href="#sources">1</a></sup> A code can turn out to match an existing name, split into several species, or be described as new.</p></div>
+    <div class="mv-guide-card"><h3>A note on words</h3><p>In Mycota Lab’s three stages, a <em>provisional name</em> is the later Latin name proposed for publication.<sup class="mv-ref"><a href="#sources">1</a></sup> Here we say <strong>code</strong> for the first stage, so the two don’t get confused.</p></div>
+  </div>
+</section>
+
+<section id="start">
+  <p class="mv-guide-kicker">Start here</p>
+  <h2>Five steps, and a clear place to stop.</h2>
+  <p>The beginner guide walks you from your own sequence result to a decision. Every step ends in one of three outcomes: <strong>stop</strong> (your part is done), <strong>watch</strong> (keep your record ready), or <strong>keep going</strong>. Stopping isn’t failing.</p>
+  <div class="mv-guide-ext">
+    <a href="/investigate/provisional-taxonomist/guide/">Beginner guide →<small>“My sequence came back as a code. Now what?”</small></a>
+    <a href={pdfHref} download>Download the guide (PDF)<small>Printable, same content as the web page</small></a>
+    <a href="/investigate/provisional-taxonomist/difficulty/">Difficulty rubric →<small>Is this code for a beginner, intermediate or advanced worker?</small></a>
+  </div>
+</section>
+
+<section id="learn">
+  <p class="mv-guide-kicker">Learn</p>
+  <h2>What you need to understand, in the order you’ll need it.</h2>
+  <p>Four ideas carry most of the work: a species is a hypothesis; ITS similarity is evidence, not proof; a tree shows relationships, not names; and names belong to type specimens. The pages below build on those. Pages without a link are still being written.</p>
+  {byLevel.map(([level, items]) => (
+    <>
+      <h3 style="margin-top:18px">{level}</h3>
+      <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+        <thead><tr><th>Concept</th><th>After it you can…</th></tr></thead>
+        <tbody>{items.map((c) => <tr><td>{c.href ? <a href={c.href}>{c.title}</a> : <>{c.title}{"\u00a0"}<span>(coming)</span></>}</td><td>{c.outcome}</td></tr>)}</tbody>
+      </table></div>
+    </>
+  ))}
+</section>
+
+<section id="tools">
+  <p class="mv-guide-kicker">Tools</p>
+  <h2>Three tools, used in this order.</h2>
+  <ol class="mv-guide-steps">
+    <li><h3><a href="/investigate/provisional-finder/">Provisional Finder</a>: size it up</h3><p>How many sequenced collections share the code, how many collectors, whether specimens were kept, and when it fruits.</p></li>
+    <li><h3><a href="https://dikarya.us/tree">Dikarya Tree Builder ↗</a>: place it on a tree</h3><p>Alan Rockefeller’s free tool. Paste an iNaturalist observation and get a tree of its closest relatives in one click.</p></li>
+    <li><h3><a href="/investigate/its-bin-comparator/">ITS Bin Comparator</a>: measure it</h3><p>Compare the code with the nearest neighbor from your tree, against the genus standard where there is one.</p></li>
+  </ol>
+</section>
+
+<section id="cases">
+  <p class="mv-guide-kicker">Cases</p>
+  <h2>One page per code.</h2>
+  <p>Each case page shows what’s known about a code, what’s missing, and what to collect next. The first is <a href="/investigate/provisional-taxonomist/cases/russula-que01/"><em>Russula</em> sp. ‘QUE01’</a>.</p>
+  <div class="mv-guide-ext">
+    <a href="/investigate/provisional-taxonomist/cases/">All cases →<small>Status definitions and how cases cite data</small></a>
+    <a href="/neo-myco/#adopt">NEO Myco: Adopt a code →<small>Work on a case with the club</small></a>
+  </div>
+</section>
+
+</FieldGuide>
+<style>
+.mv-pt-table td:nth-child(2){white-space:normal}
+</style>

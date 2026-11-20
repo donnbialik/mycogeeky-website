@@ -1,0 +1,145 @@
+---
+import FieldGuide from '../../../../components/FieldGuide.astro';
+import { ptNav } from '../../../../data/provisionalTaxonomist';
+import d from '../../../../data/cases/russula-que01.json';
+// Case page: Russula sp. 'QUE01'. Numbers come from a dated iNaturalist snapshot; refresh with
+//   node scripts/case-snapshot.mjs "Russula sp. 'QUE01'" russula-que01
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const months = monthNames.map((m, i) => [m, (d.months as Record<string, number>)[String(i + 1)] || 0] as const);
+const maxMonth = Math.max(...months.map(([, n]) => n));
+const firstMonth = months.findIndex(([, n]) => n > 0), lastMonth = 11 - [...months].reverse().findIndex(([, n]) => n > 0);
+const years = Object.keys(d.years).sort();
+const shown = d.photos.slice(0, 24);
+const pct = (n: number) => Math.round((100 * n) / d.observations);
+const missing = [
+  ['Spore print color', d.characters.sporePrint, 'Spore print color, from white to deep ochre, separates many Russula species.'],
+  ['Taste (mild or acrid)', d.characters.taste, 'A core Russula character. Taste a tiny piece and spit it out.'],
+  ['Odor', d.characters.odor, 'Some Russula have distinctive odors.'],
+  ['Chemical spot tests (iron salts, KOH, guaiac)', d.characters.chemicalTests, 'Color reactions on the stem help separate similar species.'],
+  ['Nearby trees', d.characters.trees, 'Russula form partnerships with tree roots; the host can narrow the possibilities.'],
+  ['Substrate', d.characters.substrate, 'Soil, moss or litter, and how wet the site was.'],
+] as const;
+const tour = [
+  { title: 'Case: Russula sp. ‘QUE01’', body: '<p>Everything currently known about this code, what’s missing, and what to collect next.</p>' },
+  { sel: '#question', title: 'The question', body: '<p>What is unresolved, in plain language.</p>' },
+  { sel: '#evidence', title: 'The evidence so far', body: '<p>Counts, sequencing quality, season and region from a dated snapshot of iNaturalist.</p>' },
+  { sel: '#relatives', title: 'Nearest relatives', body: '<p>Not yet analysed. This is the first open job on this case.</p>' },
+  { sel: '#missing', title: 'What’s missing', body: '<p>The characters collectors have rarely written down. These are the foray targets.</p>' },
+  { sel: '#help', title: 'How to help', body: '<p>What to collect, record and send.</p>' },
+];
+---
+<FieldGuide title="Case: Russula sp. 'QUE01'" description={`Provisional code case page for Russula sp. 'QUE01': ${d.sequenced} sequenced iNaturalist observations from ${d.observers} observers, its season and region, what's missing, and how to help.`} eyebrow="PROVISIONAL TAXONOMIST / CASE 001" heading="<em>Russula</em> sp. ‘QUE01’" lead={`Status: Open · Data pulled ${d.pulledAt} · ${d.sequenced} sequenced observations from ${d.observers} observers`} tourKey="pt-case-que01" tour={tour} current="cases" nav={ptNav} navLabel="Provisional taxonomist">
+
+<section id="question">
+  <p class="mv-guide-kicker">The question</p>
+  <h2>Is ‘QUE01’ one species, and does an existing name already apply?</h2>
+  <p>‘QUE01’ has {d.sequenced} sequenced observations from {d.observers} collectors, collected from {years[0]} to {years[years.length - 1]}. What this case hasn’t done yet is place it among its relatives: which named species and other codes sit closest, and whether any older North American <em>Russula</em> name could fit it. Until that’s done, it isn’t known whether ‘QUE01’ is undescribed or an existing species that was never sequenced.</p>
+  <div class="mv-guide-note"><p><strong>Status: Open.</strong> No accepted name. This is not a claim that the species is new.</p></div>
+</section>
+
+<section id="evidence">
+  <p class="mv-guide-kicker">The evidence so far · snapshot of {d.pulledAt}</p>
+  <h2>Plenty of sequenced collections, with gaps in what was written down.</h2>
+  <div class="mv-pt-stats">
+    <div><strong>{d.observations}</strong><span>observations carrying the code</span></div>
+    <div><strong>{d.sequenced}</strong><span>with an ITS sequence</span></div>
+    <div><strong>{d.observers}</strong><span>different observers</span></div>
+    <div><strong>{d.collectorDateSite}</strong><span>collector–date–site combinations</span></div>
+    <div><strong>{d.voucherRecorded}</strong><span>record a voucher kept ({pct(d.voucherRecorded)}%)</span></div>
+    <div><strong>{d.herbarium.reduce((n, [, c]) => n + (c as number), 0)}</strong><span>deposited in a fungarium ({d.herbarium.map(([h]) => h).join(', ')})</span></div>
+  </div>
+  <p><strong>Observations and collections.</strong> {d.sharedCollectorDateSite} collector–date–site combinations hold more than one observation. Some are probably separate collections from one site; some may be one collection posted twice. Count them carefully before treating {d.sequenced} as {d.sequenced} collections.</p>
+  {d.ric && <p><strong>Sequencing.</strong> {d.ric.n} observations report RIC (reads in consensus): median {d.ric.median}, range {d.ric.min}–{d.ric.max}; {d.ric.under30} are under 30. A low RIC isn’t disqualifying on its own, but those reads deserve a check against the rest of the code. {d.genbank.length} sequences have GenBank accessions ({d.genbank.map((g, i) => <>{i > 0 && ', '}<a href={`https://www.ncbi.nlm.nih.gov/nuccore/${g}`}>{g}</a></>)}).</p>}
+  <h3 style="margin-top:18px">Season</h3>
+  <p>Observations fall between {monthNames[firstMonth]} and {monthNames[lastMonth]}, most in August and September. This shows when people collected it, not exactly when it fruits.</p>
+  <div class="mv-pt-bars" role="img" aria-label={`Observations by month: ${months.filter(([, n]) => n).map(([m, n]) => `${m} ${n}`).join(', ')}`}>
+    {months.map(([m, n]) => <div><span class="mv-pt-bar" style={`height:${n ? Math.max(4, (100 * n) / maxMonth) : 0}%`}></span><b>{n || ''}</b><small>{m}</small></div>)}
+  </div>
+  <h3 style="margin-top:18px">Where it has been collected</h3>
+  <p>States and provinces with observations. This is where people looked, not the species’ true range.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table mv-pt-narrow">
+    <thead><tr><th>State or province</th><th>Observations</th></tr></thead>
+    <tbody>{d.regions.map(([r, n]) => <tr><td>{r}</td><td>{n}</td></tr>)}</tbody>
+  </table></div>
+  <p><a href={d.searchUrl}>See all {d.observations} observations on iNaturalist ↗</a></p>
+</section>
+
+<section id="photos">
+  <p class="mv-guide-kicker">Sequenced collections</p>
+  <h2>What the sequenced collections look like.</h2>
+  <p>{shown.length} of the {d.photos.length} sequenced observations with an openly licensed photo, newest first. Lighting and cameras differ, so compare colors with care. Each photo links to its observation.</p>
+  <div class="mv-pt-photos">
+    {shown.map((p) => <a href={`https://www.inaturalist.org/observations/${p.id}`}><img src={p.url} alt={`Russula sp. 'QUE01', ${p.region}, ${p.date}`} loading="lazy" width="240" height="240" /><span>{p.region} · {p.date}</span><small>{p.attribution}</small></a>)}
+  </div>
+</section>
+
+<section id="relatives">
+  <p class="mv-guide-kicker">Nearest relatives and candidate names</p>
+  <h2>Not yet analysed. This is the first open job.</h2>
+  <p>This case doesn’t yet show which named <em>Russula</em> species and other codes sit closest to ‘QUE01’, or which older names could fit it. If you know of published work on it, tell us. The next steps, from the <a href="/investigate/provisional-taxonomist/guide/#step-3">beginner guide</a>:</p>
+  <ol class="mv-guide-steps">
+    <li><p>Build a tree from several ‘QUE01’ observations with the <a href="https://dikarya.us/tree">Dikarya Tree Builder</a>, and note the nearest named species and its section of <em>Russula</em>.</p></li>
+    <li><p>Compare ‘QUE01’ with that neighbor in the <a href="/investigate/its-bin-comparator/">ITS Bin Comparator</a>, using type sequences where they exist.</p></li>
+    <li><p>List older names in that section whose descriptions could fit, and whether each has a type sequence.</p></li>
+  </ol>
+  <p>Results will be added here as a table of names, distances and the basis for each conclusion.</p>
+</section>
+
+<section id="missing">
+  <p class="mv-guide-kicker">What’s missing</p>
+  <h2>The characters that would help most are the ones rarely written down.</h2>
+  <p>Counts of observation notes that mention each character, out of {d.observations} observations ({d.notesWritten} have any notes). This is a keyword screen, so it can miss notes in other languages or in other fields; treat it as a guide to the gaps, not an exact count.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Character</th><th>Notes mentioning it</th><th>Why it matters</th></tr></thead>
+    <tbody>{missing.map(([c, n, w]) => <tr><td><strong>{c}</strong></td><td>{n} of {d.observations}</td><td>{w}</td></tr>)}</tbody>
+  </table></div>
+</section>
+
+<section id="help">
+  <p class="mv-guide-kicker">How to help</p>
+  <h2>If you find it this season, record these.</h2>
+  <ul>
+    <li><strong>A spore print,</strong> photographed on white paper next to a white reference. This is the biggest gap.</li>
+    <li><strong>Taste</strong> (mild or acrid) and <strong>odor</strong>, written in the observation notes.</li>
+    <li><strong>The trees within about 10 meters,</strong> and the substrate.</li>
+    <li><strong>Cap color in the field,</strong> in words, with one photo next to a gray card, and young and old caps if you have both.</li>
+    <li><strong>A dried voucher,</strong> numbered and noted on the observation, and tissue for sequencing.</li>
+  </ul>
+  <p>Past observations count too: if you collected ‘QUE01’ and remember any of these, add them to your observation’s notes. The <a href="/investigate/field/genus-notes/">genus notes</a> cover what to catch for <em>Russula</em> in the field.</p>
+</section>
+
+<section id="changelog">
+  <p class="mv-guide-kicker">Changelog</p>
+  <h2>Changes to this case</h2>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Date</th><th>Change</th><th>Evidence</th></tr></thead>
+    <tbody><tr><td>{d.pulledAt}</td><td>Case opened, status Open</td><td>Snapshot of {d.observations} iNaturalist observations carrying the code</td></tr></tbody>
+  </table></div>
+</section>
+
+<section id="credits">
+  <p class="mv-guide-kicker">Credits and data sources</p>
+  <h2>Whose records this page is built on</h2>
+  <p><strong>Sequencing:</strong> Mycota Lab (MycoMap). <strong>Data:</strong> iNaturalist public API, pulled {d.pulledAt}. Photos © their photographers, under the licences shown. <strong>Collectors ({d.observers}):</strong> {d.observerList.map(([u, n], i) => <>{i > 0 && ', '}<a href={`https://www.inaturalist.org/people/${u}`}>{u}</a> ({n})</>)}.</p>
+</section>
+
+</FieldGuide>
+<style>
+.mv-pt-table td:nth-child(2){white-space:normal}
+.mv-pt-narrow{min-width:0;max-width:460px}
+.mv-pt-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:14px 0 18px}
+.mv-pt-stats div{background:#fffefa;border:1px solid #d6ded1;border-radius:8px;padding:14px 16px}
+.mv-pt-stats strong{display:block;font:600 1.9rem/1 var(--mv-serif);color:#17372e}
+.mv-pt-stats span{display:block;font-size:.88rem;color:#54695b;margin-top:6px;line-height:1.35}
+.mv-pt-bars{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:170px;max-width:640px;margin:10px 0 6px;padding-bottom:34px;position:relative}
+.mv-pt-bars>div{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.mv-pt-bar{width:100%;background:#3f7a55;border-radius:3px 3px 0 0;display:block}
+.mv-pt-bars b{position:absolute;bottom:calc(100% + 0px);font:500 .72rem var(--v5-mono);color:#17372e}
+.mv-pt-bars>div b{position:static;order:-1;margin-bottom:3px}
+.mv-pt-bars small{position:absolute;bottom:-22px;font:500 .7rem var(--v5-mono);color:#46624d}
+.mv-pt-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0}
+.mv-pt-photos a{display:block;text-decoration:none;background:#fffefa;border:1px solid #d6ded1;border-radius:8px;overflow:hidden}
+.mv-pt-photos img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.mv-pt-photos span{display:block;font:500 .74rem var(--v5-mono);color:#17372e;padding:6px 8px 0}
+.mv-pt-photos small{display:block;font-size:.7rem;color:#54695b;padding:2px 8px 8px;line-height:1.3}
+</style>

@@ -1,0 +1,173 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+import { ptNav, pdfHref } from '../../../data/provisionalTaxonomist';
+// Beginner guide: from your own sequence result to a decision, with stop / watch / keep going at every checkpoint.
+// The downloadable PDF is printed from this page (see scripts/guide-pdf.mjs), so edit here and re-run it.
+const sources = [
+  { cite: 'Mycota Lab. <em>Using temporary code names for documenting macrofungi</em>, June 2025.', url: 'https://mycotalab.substack.com/p/using-temporary-code-names-for-documenting' },
+  { cite: 'Rockefeller A. <em>Dikarya Tree Builder: help</em>.', url: 'https://dikarya.us/help' },
+  { cite: 'MycoView. <em>ITS Bin Comparator</em>.', url: 'https://mycoview.com/investigate/its-bin-comparator/' },
+];
+const tour = [
+  { title: 'My sequence came back as a code. Now what?', body: '<p>Five steps. Each one ends in <strong>stop</strong>, <strong>watch</strong> or <strong>keep going</strong>, so you always know whether to carry on.</p>' },
+  { sel: '#step-1', title: '1. Check your own record', body: '<p>Five minutes on your own observation: the read, the photos, the voucher.</p>' },
+  { sel: '#step-2', title: '2. Look around the code', body: '<p>Find every other observation with the same code, and count the sequenced collections, collectors and vouchers.</p>' },
+  { sel: '#step-3', title: '3. Find its neighbors, then compare', body: '<p>Build a tree in Dikarya to find the closest relative, then measure the code against it in the ITS Bin Comparator.</p>' },
+  { sel: '#step-4', title: '4. Check the difficulty', body: '<p>Rate the code beginner, intermediate or advanced with the rubric.</p>' },
+  { sel: '#step-5', title: '5. Adopt the code', body: '<p>If you’ve got this far, the code is a good candidate for a case page.</p>' },
+];
+---
+<FieldGuide title="Beginner guide: my sequence came back as a code" description="A step-by-step guide for deciding whether a provisional fungal code is worth researching: check your record, look around the code, place it on a tree, compare it, rate its difficulty, and adopt it." eyebrow="PROVISIONAL TAXONOMIST / BEGINNER GUIDE" heading="My sequence came back as a code. <em>Now what?</em>" lead="Five steps from your own sequence result to a decision. Every checkpoint ends in stop, watch or keep going." tourKey="pt-guide" tour={tour} sources={sources} current="guide" nav={ptNav} navLabel="Provisional taxonomist">
+
+<section id="intro">
+  <p class="mv-guide-kicker">Before you start</p>
+  <h2>A code means “not finished yet,” not “new species.”</h2>
+  <p>Your mushroom was sequenced, and instead of a species name it came back as something like <em>Russula</em> sp. ‘QUE01’. That’s a <strong>code</strong>: a temporary label for a group of sequenced collections that look like one species but have no accepted name yet. It doesn’t mean you found a new species. It means nobody has finished working out what this one is.<sup class="mv-ref"><a href="#sources">1</a></sup></p>
+  <div class="mv-guide-grid mv-pt-outcomes">
+    <div class="mv-guide-card mv-pt-stop"><h3>Stop</h3><p>Your part is done. Your record is now evidence someone else can use.</p></div>
+    <div class="mv-guide-card mv-pt-watch"><h3>Watch</h3><p>Keep your record and voucher ready, and check back on the code later.</p></div>
+    <div class="mv-guide-card mv-pt-go"><h3>Keep going</h3><p>Move on to the next step.</p></div>
+  </div>
+  <p class="mv-pt-print-hide"><a href={pdfHref} download>Download this guide as a PDF</a> to print or keep.</p>
+</section>
+
+<section id="step-1">
+  <p class="mv-guide-kicker">Step 1 · about 5 minutes</p>
+  <h2>Check your own record.</h2>
+  <p>Mycota Lab only posts a result to iNaturalist when they’re confident in it, so you’re starting from a good sequence. Check these on your observation:</p>
+  <ul class="mv-pt-checks">
+    <li><strong>RIC (reads in consensus).</strong> How many sequencing reads agreed to make your sequence; more is better. You’ll find it in its own field, and in the sequence name (in a MycoMap link ending “…-ric19-…”, the RIC is 19). The old rule of thumb called anything under 30 low. Mycota Lab now accepts lower values depending on other evidence, such as how many other observations are in the bin and whether the morphology fits. <strong>There is no single cutoff.</strong> A low RIC isn’t a reason to stop on its own; it’s a reason to check, in step 3, that your sequence agrees with the rest of the code.</li>
+    <li><strong>The sequence matches the photos.</strong> The genus should fit what you see. A gilled mushroom that comes back as a mold suggests contamination.</li>
+    <li><strong>One collection.</strong> All the fruitbodies in the observation were the same thing.</li>
+    <li><strong>The code is still active.</strong> The name on your observation hasn’t been swapped, merged or made inactive.</li>
+    <li><strong>A usable record.</strong> Photos of the cap, gills, stem and base; the substrate; an accurate date and place.</li>
+    <li><strong>The voucher.</strong> Did you keep the dried specimen? If not, that’s fine: step 2 checks whether others did.</li>
+  </ul>
+  <p>Your observation also links to the MycoMap BLAST results and the raw trace files if you want to look closer.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>What you found</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>The sequence doesn’t fit the photos, or the observation mixes more than one thing</td><td><strong>Stop.</strong> Tell the identifiers in a comment, and move on.</td></tr>
+      <tr><td>Everything checks out</td><td><strong>Keep going.</strong></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="step-2">
+  <p class="mv-guide-kicker">Step 2 · about 10 minutes</p>
+  <h2>Look around the code.</h2>
+  <p>Find every other observation that carries the same code. There are two ways.</p>
+  <h3>The quick way: the Provisional Finder</h3>
+  <p>Open the <a href="/investigate/provisional-finder/">Provisional Finder</a>, leave the usernames empty, and type the code exactly as it appears in the field, quote marks included. It counts only observations with both a provisional name and a DNA sequence, and shows the collectors, vouchers and season for you.</p>
+  <h3>By hand on iNaturalist</h3>
+  <ol class="mv-guide-steps">
+    <li><p>Open your observation and scroll down to the observation fields, where you’ll see <strong>Provisional Species Name:</strong> and your code.</p></li>
+    <li><p>Click once on the label <strong>Provisional Species Name:</strong> itself, not on the code under it. A small menu opens.</p></li>
+    <li><p>Under <strong>View:</strong>, click the top option, <strong>Observations with this field and value</strong>.</p></li>
+    <li><p>iNaturalist opens a search of every observation carrying that exact code, with counts of observations, identifiers and observers, a map, and a list.</p></li>
+  </ol>
+  <div class="mv-pt-shots">
+    <figure><img src="/images/provisional-taxonomist/inat-field-menu.jpg" alt="The iNaturalist menu that opens when you click the Provisional Species Name label, with “Observations with this field and value” at the top of the View list." loading="lazy" width="592" height="818" /><figcaption>Click the field label, then the top “View” option.</figcaption></figure>
+    <figure><img src="/images/provisional-taxonomist/inat-code-results.jpg" alt="iNaturalist search results for Russula sp. 'QUE01': 97 observations, 1 species, 52 identifiers and 40 observers, with a map of the Great Lakes and northeast." loading="lazy" width="1200" height="613" /><figcaption>Every observation carrying the code, with a map and counts.</figcaption></figure>
+  </div>
+  <p class="mv-pt-caption">Screenshots captured November 2026. iNaturalist’s layout may change.</p>
+  <h3>Read the results with care</h3>
+  <ul>
+    <li><strong>Observations aren’t collections.</strong> One collection is sometimes posted twice, and one site visit can produce several separate collections. Entries with the same collector, place and date deserve a second look.</li>
+    <li><strong>Check for a sequence.</strong> Open a few and confirm they have a <strong>DNA Barcode ITS</strong> field. What you need to count is sequenced collections.</li>
+    <li><strong>Switch to Grid view</strong> to scan the photos, and <strong>List view</strong> to see dates and places.</li>
+    <li><strong>The map shows where people collected,</strong> not the species’ true range.</li>
+  </ul>
+  <p>Write down how many collections are sequenced, how many different collectors and sites they come from, how many have a voucher, and whether anyone says they’re working on it.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>What you found</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Someone is already working on it</td><td><strong>Stop researching.</strong> Offer them your record and voucher.</td></tr>
+      <tr><td>Only 1–2 sequenced collections</td><td><strong>Watch.</strong> Keep your voucher, complete your record, follow the code.</td></tr>
+      <tr><td>No vouchers anywhere in the code</td><td><strong>Watch.</strong> Your next collection of it, dried and kept, is the most useful thing you can add.</td></tr>
+      <tr><td>3 or more sequenced collections, from more than one collector</td><td><strong>Keep going.</strong></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="step-3">
+  <p class="mv-guide-kicker">Step 3 · 30–45 minutes</p>
+  <h2>Find its neighbors, then compare.</h2>
+  <p>A tree tells you what your code’s closest relatives are. The ITS Bin Comparator then measures how different the code really is from the closest one. If you’ve never read a tree, take it slowly: the three things beginners misread are listed below.</p>
+  <h3>Build a tree with the Dikarya Tree Builder</h3>
+  <ol class="mv-guide-steps">
+    <li><p>Open the <a href="https://dikarya.us/tree">Dikarya Tree Builder</a> at dikarya.us/tree.</p></li>
+    <li><p>Paste your iNaturalist observation URL or number and click <strong>Submit</strong>. Check that the preview shows your observation.</p></li>
+    <li><p>Click <strong>One-Click Tree</strong>. Dikarya finds related sequences, aligns them, builds the tree, and opens the result.<sup class="mv-ref"><a href="#sources">2</a></sup> The default settings are fine here.</p></li>
+    <li><p><strong>Find your sequence</strong> among the tips. Then look at what sits closest to it: other members of your code, named species, or other codes.</p></li>
+    <li><p><strong>Check the support values</strong> at the branch points. With the One-Click default they run 0–100, and 80 is the usual cutoff.<sup class="mv-ref"><a href="#sources">2</a></sup> Below 80, don’t trust that grouping.</p></li>
+    <li><p><strong>Write down the nearest named species</strong> (or nearest other code) and, if you know it, which section of the genus it belongs to.</p></li>
+  </ol>
+  <p><strong>To include every member of the code,</strong> add the other sequenced observations from step 2 to Dikarya’s <strong>Sequence Queue</strong> before building, or add your observation’s MycoMap BLAST results link. Remove duplicates, then build the tree from the queue.</p>
+  <div class="mv-guide-note"><p><strong>Three things beginners misread.</strong> Rotating branches changes nothing: two tips side by side aren’t necessarily close relatives, so follow the branches back to where they join. The root shown is a display choice, not evidence of which group is oldest. And a quick tree is for exploring; a tree for publication needs more careful methods.<sup class="mv-ref"><a href="#sources">2</a></sup></p></div>
+  <h3>Compare with the ITS Bin Comparator</h3>
+  <ol class="mv-guide-steps">
+    <li><p>Open the <a href="/investigate/its-bin-comparator/">ITS Bin Comparator</a>.</p></li>
+    <li><p><strong>Add your code.</strong> Choose the iNaturalist search by exact provisional name, and type the code exactly as it appears on your observation. Its sequences come in as one group.</p></li>
+    <li><p><strong>Add the neighbor from your tree.</strong> A named species: search GenBank by its name, with <strong>type material only</strong> turned on first (turn it off if nothing comes back). Another code: search iNaturalist by that code’s exact name. Something only on MycoMap or UNITE: export it there as FASTA and paste it in.</p></li>
+    <li><p><strong>Check the list.</strong> Untick any sequence that doesn’t belong, such as the wrong genus, a very short read, or a duplicate of the same collection, and add a note saying why.</p></li>
+    <li><p><strong>Choose your code and the neighbor</strong> as the two groups, and run the analysis.</p></li>
+    <li><p><strong>Read the quick takeaway.</strong> It judges the difference between the groups against the genus standard, when the genus has one.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
+  </ol>
+  <ul>
+    <li>Compare against the <em>closest</em> neighbor on your tree. The Comparator’s alignment works best on closely related sequences.</li>
+    <li>If the result is close to the cutoff, repeat with the second-nearest neighbor.</li>
+    <li>If the genus has no genus standard, the tool uses a fixed cutoff. Treat that result as a rougher guide.</li>
+  </ul>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>What you found</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Your code sits inside a named species, within that species’ normal variation</td><td><strong>Stop.</strong> It’s probably an existing name. Tell the iNaturalist curators: that’s a real fix.</td></tr>
+      <tr><td>The code’s sequences are messy or split into groups</td><td><strong>Keep going with help.</strong> Bring it to a club or an experienced collaborator.</td></tr>
+      <tr><td>The code is tight and clearly separate from its neighbors</td><td><strong>Keep going.</strong> Note which section of the genus it sits in.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="step-4">
+  <p class="mv-guide-kicker">Step 4 · about 10 minutes</p>
+  <h2>Check the difficulty.</h2>
+  <p>Use the <a href="/investigate/provisional-taxonomist/difficulty/">difficulty rubric</a> to rate the code beginner, intermediate or advanced. Rate it by the <strong>section</strong> of the genus it sits in, not the genus as a whole: a code in a small, well-studied section of a huge genus can be a good first project.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Rating</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Beginner</td><td><strong>Keep going</strong> on your own, with a club or mentor as backup.</td></tr>
+      <tr><td>Intermediate</td><td><strong>Keep going</strong> with a partner or a club.</td></tr>
+      <tr><td>Advanced</td><td><strong>Hand off,</strong> or join someone already working on it. Your records still count.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="step-5">
+  <p class="mv-guide-kicker">Step 5</p>
+  <h2>Adopt the code.</h2>
+  <p>If you’ve reached this step, the code is a good candidate for a <a href="/investigate/provisional-taxonomist/cases/">case page</a>: what’s known, what’s missing, and what to collect next. In Northeast Ohio, <a href="/neo-myco/#adopt">NEO Myco’s Adopt-a-Code</a> works on cases together.</p>
+  <div class="mv-guide-note"><p><strong>Stopping is not failing.</strong> At every step, a complete, vouchered record left for the next person is a contribution.</p></div>
+</section>
+
+</FieldGuide>
+<script is:inline>
+// When printed to the downloadable PDF (scripts/guide-pdf.mjs opens this page with ?pdf), point site links at
+// the live site so they work from the PDF. In-page links (#…) are left alone.
+if (/[?&]pdf\b/.test(location.search)) {
+  document.querySelectorAll('a[href^="/"]').forEach(function (a) { a.href = 'https://mycoview.com' + a.getAttribute('href'); });
+}
+</script>
+<style>
+.mv-pt-table td:nth-child(2){white-space:normal}
+.mv-pt-outcomes .mv-guide-card{border-top:4px solid #3f7a55}
+.mv-pt-outcomes .mv-pt-stop{border-top-color:#ba4c44}
+.mv-pt-outcomes .mv-pt-watch{border-top-color:#b47d20}
+.mv-pt-checks li{margin-bottom:8px;max-width:820px}
+.mv-pt-shots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:16px;align-items:start;margin:16px 0 4px}
+.mv-pt-shots figure{margin:0}
+.mv-pt-shots img{width:100%;height:auto;border:1px solid #d6ded1;border-radius:8px;display:block}
+.mv-pt-shots figcaption{font-size:.85rem;color:#54695b;margin-top:6px}
+.mv-pt-caption{font-size:.85rem;color:#54695b}
+@media (max-width:720px){.mv-pt-shots{grid-template-columns:1fr}}
+</style>

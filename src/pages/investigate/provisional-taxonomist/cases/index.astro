@@ -1,0 +1,63 @@
+---
+import FieldGuide from '../../../../components/FieldGuide.astro';
+import { ptNav, statuses } from '../../../../data/provisionalTaxonomist';
+import que01 from '../../../../data/cases/russula-que01.json';
+// Case pages: one per provisional code. Each is built from a dated iNaturalist snapshot (scripts/case-snapshot.mjs).
+const cases = [
+  { href: '/investigate/provisional-taxonomist/cases/russula-que01/', name: '<em>Russula</em> sp. ‘QUE01’', status: 'Open', summary: `${que01.sequenced} sequenced observations from ${que01.observers} observers across the Great Lakes, Appalachians and Maritimes. Nearest relatives not yet analysed, and no observation notes mention spore print color.`, pulled: que01.pulledAt },
+];
+const tour = [
+  { title: 'Case pages', body: '<p>One page per code: the question, the evidence so far, what’s missing and how to help.</p>' },
+  { sel: '#list', title: 'Open cases', body: '<p>Start with one. Each page says what to collect next.</p>' },
+  { sel: '#reading', title: 'How to read a case', body: '<p>Every case has the same sections in the same order.</p>' },
+  { sel: '#citing', title: 'How cases cite data', body: '<p>Public data only, every record linked, sequencing credited, and the date of each data pull shown.</p>' },
+];
+---
+<FieldGuide title="Provisional code cases" description="Case pages for provisional fungal codes: what is known, what is missing and how to help, starting with Russula sp. 'QUE01'." eyebrow="PROVISIONAL TAXONOMIST / CASES" heading="One code, one page, <em>everything we know.</em>" lead="Each case shows the evidence so far for one provisional code, the gaps in it, and what to collect next." tourKey="pt-cases" tour={tour} current="cases" nav={ptNav} navLabel="Provisional taxonomist">
+
+<section id="list">
+  <p class="mv-guide-kicker">Open cases</p>
+  <h2>Cases</h2>
+  <div class="mv-guide-grid">
+    {cases.map((c) => <a class="mv-guide-card mv-pt-case" href={c.href}><p class="mv-guide-when">{c.status} · data {c.pulled}</p><h3 set:html={`${c.name} →`} /><p>{c.summary}</p></a>)}
+  </div>
+</section>
+
+<section id="reading">
+  <p class="mv-guide-kicker">How to read a case</p>
+  <h2>The same sections, in the same order.</h2>
+  <ol class="mv-guide-steps">
+    <li><h3>The question</h3><p>What is unresolved about the code, in plain language.</p></li>
+    <li><h3>The evidence so far</h3><p>Counts, sequencing quality, season and region, and photos of sequenced collections. Season and region show collecting effort, not true range.</p></li>
+    <li><h3>Nearest relatives and candidate names</h3><p>The closest codes and named species, and older names whose descriptions could fit. Anything “ruled out” cites its basis.</p></li>
+    <li><h3>What’s missing</h3><p>Characters rarely or never recorded, with counts.</p></li>
+    <li><h3>How to help</h3><p>What to collect, what to record, and where to send it.</p></li>
+    <li><h3>Changelog and credits</h3><p>Every change with its evidence, and everyone whose records the page uses.</p></li>
+  </ol>
+  <h3 style="margin-top:16px">Statuses</h3>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Status</th><th>Means</th></tr></thead>
+    <tbody>{statuses.map(([s, m]) => <tr><td><strong>{s}</strong></td><td>{m}</td></tr>)}</tbody>
+  </table></div>
+  <p>The evidence each status needs is on the <a href="/investigate/provisional-taxonomist/difficulty/#statuses">difficulty rubric page</a>.</p>
+</section>
+
+<section id="citing">
+  <p class="mv-guide-kicker">Data and credit</p>
+  <h2>How cases cite data.</h2>
+  <ul>
+    <li>Every record links to its iNaturalist observation, and to its MycoMap record and GenBank accession where they exist.</li>
+    <li>Pages that use Mycota Lab sequences credit “Sequencing: Mycota Lab.”</li>
+    <li>Each page shows the date of its data pull, because counts change.</li>
+    <li>Only sequences already public on iNaturalist, MycoMap or GenBank are used. Anything else waits for its owner to release it.</li>
+    <li>Photos are shown only with an open licence, credited to their photographers. Obscured locations stay obscured.</li>
+    <li>Superseded conclusions stay in the changelog, so each case’s history can be traced.</li>
+  </ul>
+</section>
+
+</FieldGuide>
+<style>
+.mv-pt-table td:nth-child(2){white-space:normal}
+.mv-pt-case{text-decoration:none;display:block;border-top:4px solid #3f7a55}
+.mv-pt-case:hover{border-color:#3f7a55}
+</style>

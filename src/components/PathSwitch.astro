@@ -21,7 +21,7 @@ import ResearchPath from './ResearchPath.astro';
  tabs.hidden=false;
  buttons.forEach(function(b,i){ b.addEventListener('click',function(){show(b.dataset.path);});
   b.addEventListener('keydown',function(e){ var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0; if(!k)return; e.preventDefault(); var n=buttons[(i+k+buttons.length)%buttons.length]; show(n.dataset.path,true); }); });
- box.addEventListener('click',function(e){ var a=e.target.closest('a[data-path-link]'); if(!a)return; e.preventDefault(); show(a.dataset.pathLink); box.scrollIntoView({behavior:'smooth',block:'start'}); });
+ box.addEventListener('click',function(e){ var a=e.target.closest('a[data-path-link]'); if(!a)return; e.preventDefault(); show(a.dataset.pathLink); box.scrollIntoView({behavior:'smooth',block:'start'}); if(window.mvArrive)window.mvArrive(box); });
  var want=(location.hash.match(/^#path-([a-z-]+)/)||[])[1], saved=null; try{saved=localStorage.getItem('mv.path');}catch(e){}
  show(want||saved||buttons[0].dataset.path);
  window.addEventListener('hashchange',function(){ var m=location.hash.match(/^#path-([a-z-]+)/); if(m)show(m[1]); });

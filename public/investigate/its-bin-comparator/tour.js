@@ -45,7 +45,7 @@
     { title: '3 · Choose two groups and run', target: () => cardOf('#groupA'),
       body: 'Pick <b>Group A</b> (e.g. the provisional bin) and <b>Group B</b> (e.g. the sister taxon), then press <b>Run analysis</b>. The <b>Advanced settings</b> (ambiguity codes, how indels count, the distance shown, the species cutoff) can stay at their defaults the first time.' },
     { title: '4 · Read the quick takeaway first', target: () => $('#takeawayCard'),
-      body: 'After a run, a plain-language summary of how the two groups differ appears here. Read it before anything else. <b>Copy summary</b> puts it on your clipboard for notes or an iNaturalist comment.' },
+      body: 'After a run, a plain-language summary of how the two groups differ appears here. Read it before anything else. <b>Copy summary</b> puts it on your clipboard for notes or an iNaturalist comment. To learn how to read its graphs, press <b>▶ Explain the graphs</b> on this card.' },
     { title: 'Provisional profile', target: () => $('#profCard'),
       body: 'A short, pasteable summary of a provisional name’s range, distribution and season from its iNaturalist records. Optionally compare it with another provisional in the same genus, or place your own observation in that context. Useful when writing up or commenting on a provisional.' },
     { title: 'Genus ITS standard', target: () => $('#calCard'),
@@ -61,7 +61,7 @@
     resultsTab('sites', 'Detailed results · Variable sites', 'Every position that varies, classified: <b>fixed A–B differences</b> (consistent between the groups), <b>polymorphic within A or B</b>, or variation in other groups only. Fixed differences are the strongest evidence that two groups differ.'),
     resultsTab('export', 'Detailed results · Export and session', 'Download the observation list, pairs, matrix and variable sites as CSV, FASTA (aligned or not) and the report. <b>Save session</b> stores every sequence, group, exclusion, note and setting in one file you can load again later.'),
     { title: 'You are ready',
-      body: 'Try it with the example data: choose two groups and press <b>Run analysis</b>. Or take the <b>real example</b> walkthrough, which compares an iNaturalist provisional with type sequences from GenBank, step by step. Replay either from the <b>Guided tour</b> button.',
+      body: 'Try it with the example data: choose two groups and press <b>Run analysis</b>. Or take the <b>real example</b> walkthrough, which compares an iNaturalist provisional with type sequences from GenBank, step by step. To learn how to read the barcode gap graphs, choose <b>How to read the barcode gap graphs</b>. Replay any of them from the <b>Take the tour</b> button.',
       end: true },
   ];
 
@@ -112,7 +112,55 @@
   const firstOption = (sel, pred) => { const o = [...(($(sel) || {}).options || [])].find((x) => pred(x.value || x.textContent)); return o ? (o.value || o.textContent) : ''; };
   const hasText = (sel, re) => { const e = $(sel); return !!e && re.test(e.innerText || ''); };
   const LT = 'Laetiporus';
+
+  /* ---------------- barcode-gap graphs: how to read them ---------------- */
+  // A small schematic for the first step: the same two kinds of bar the tool draws, once with a gap and once overlapping.
+  const GAP_SKETCH = (() => {
+    const W = 384, x = (v) => 92 + v * 27;                  // 0–10 differences across the plot
+    const bar = (y, lo, hi, md, col) => `<rect x="${x(lo) - 3}" y="${y - 6}" width="${x(hi) - x(lo) + 6}" height="12" rx="6" fill="${col}" opacity=".85"/><line x1="${x(md)}" x2="${x(md)}" y1="${y - 9}" y2="${y + 9}" stroke="var(--ink,#15201B)" stroke-width="2"/>`;
+    const panel = (y0, title, a, b, note) => `<text x="0" y="${y0}" font-weight="600">${title}</text>`
+      + `<text x="84" y="${y0 + 20}" text-anchor="end">Within</text>${bar(y0 + 16, ...a, 'var(--accent,#1D6B55)')}`
+      + `<text x="84" y="${y0 + 42}" text-anchor="end">Between</text>${bar(y0 + 38, ...b, 'var(--spore,#8A5A2B)')}`
+      + note;
+    const gapNote = `<line x1="${x(2)}" x2="${x(2)}" y1="14" y2="66" stroke="var(--ink,#15201B)" stroke-dasharray="3 3"/><line x1="${x(6)}" x2="${x(6)}" y1="14" y2="66" stroke="var(--ink,#15201B)" stroke-dasharray="3 3"/><text x="${(x(2) + x(6)) / 2}" y="${71}" text-anchor="middle" font-weight="600">gap</text>`;
+    const ovNote = `<rect x="${x(3) - 3}" y="94" width="${x(5) - x(3) + 6}" height="54" fill="var(--warn,#A86E14)" opacity=".18"/><text x="${(x(3) + x(5)) / 2}" y="${158}" text-anchor="middle" font-weight="600">overlap</text>`;
+    let ticks = ''; for (let t = 0; t <= 10; t += 2) ticks += `<text x="${x(t)}" y="178" text-anchor="middle">${t}</text>`;
+    return `<svg viewBox="0 0 ${W} 192" width="100%" role="img" aria-label="Sketch: two groups with a barcode gap, and two groups that overlap" style="display:block;margin:4px 0 10px;font:11.5px var(--f-body,system-ui,sans-serif);fill:var(--ink,#15201B)">`
+      + panel(10, 'Clear gap', [0, 2, 1], [6, 9, 7], gapNote)
+      + panel(92, 'Overlap', [0, 5, 2], [3, 8, 5], ovNote)
+      + ticks + `<text x="${x(5)}" y="191" text-anchor="middle" style="fill:var(--muted,#56655E)">differences per pair</text></svg>`;
+  })();
+  const takeawayGraph = () => $('#takeaway svg[aria-label^="Number of differences"]');
+  const takeawayGauge = () => $('#takeaway .tk-std svg');
+  const reportHist = () => $('#resultsTabsCard svg[aria-label="Barcode gap histogram"]');
+  const calGauge = () => $('#calResult svg');
+  const GAP = { label: 'Reading the barcode gap graphs', btn: '▶ Explain the graphs', where: () => $('#takeawayCard'), steps: [
+    { title: 'What a barcode gap is',
+      body: `Every comparison sorts pairs of sequences into two kinds. <b>Within</b> pairs have both sequences in the same group: they show how much one species normally varies. <b>Between</b> pairs have one sequence from A and one from B. If even the closest between-pair differs more than the most different within-pair, there is empty space between the two: a <b>barcode gap</b>.${GAP_SKETCH}A gap supports two separate species. An overlap means ITS does not separate them by itself. It does <i>not</i> prove they are one species: close relatives often overlap on ITS. The tool draws this idea three ways, and this tour reads each one.` },
+    { title: 'First, get some results', target: () => cardOf('#groupA'), skip: () => !!takeawayGraph(),
+      body: 'The graphs appear after a run. Choose two groups (the example data has “Example provisional bin” and “Example described species”) and press <b>Run analysis</b>.',
+      fill: () => { const n = groupNames(); const a = n.find((g) => g === 'Example provisional bin'), b = n.find((g) => g === 'Example described species');
+        if (a && b) { setVal('#groupA', a); setVal('#groupB', b); } }, fillLabel: 'Choose the example groups for me',
+      wait: () => !!takeawayGraph(), waitText: 'Waiting for you to press Run analysis…' },
+    { title: 'Graph 1 · Differences within and between', top: true, target: () => takeawayGraph() || $('#takeawayCard'),
+      body: 'This is the graph in the quick takeaway. The <b>green bar</b> runs from the fewest to the most differences found between two sequences in the <i>same</i> group (A and B together). The <b>brown bar</b> does the same for A-against-B pairs. The <b>dark line</b> on each bar is the typical (median) pair. The scale counts <b>bases that differ</b>, not percent. Hover a bar for its exact numbers.' },
+    { title: 'Graph 1 · How to read it', top: true, target: () => takeawayGraph() || $('#takeawayCard'),
+      body: `<b>Bars apart</b>, with the word “gap” between them: no A–B pair is as close as two sequences inside a group. Check how wide the space is, too. A gap of one or two bases can come from a single misread base, so look at the fixed differences and the homopolymer setting before you trust it.<br><br><b>Bars overlapping</b>: some A–B pairs are as similar as sequences inside a group. ITS alone cannot separate the groups.<br><br><b>A long green bar</b>, especially one with its dark line near the left end, usually means one or two outlying sequences. Find them in the Pairs tab. The haplotype split can show whether the group is mixed.` },
+    { title: 'Graph 2 · Against the genus standard', top: true, target: () => takeawayGauge() || ($('#takeaway .tk-std') || $('#takeawayCard')),
+      body: () => `${takeawayGauge() ? 'Below Graph 1 is the comparison with the genus standard.' : 'This graph appears here once a genus standard exists for your groups’ genus (the takeaway offers a <b>Build the … standard</b> button). Until then you see fixed reference points instead.'} It uses <b>percent difference</b>, not bases. It has three rows. <b>Within a species</b> (green) is how much named species in the genus usually vary: from 0 to the 95th percentile, with the median marked. <b>Closest species</b> (brown) is the usual distance from each species to its nearest relative: the middle 90%, with the median marked. The <b>dashed line</b> is the cutoff that best separates the two rows. <b>This pair</b> is your A–B range, with a triangle at the typical pair.` },
+    { title: 'Graph 2 · How to read it', top: true, target: () => takeawayGauge() || ($('#takeaway .tk-std') || $('#takeawayCard')),
+      body: `Look at where the <b>This pair</b> bar falls. <b>Entirely right of the dashed cutoff</b> and past the green row: a species-level difference for this genus. <b>Inside the green row</b>: normal variation within one species. <b>Anywhere else</b> (across the cutoff, or reaching back into the green row): the grey zone, where ITS cannot decide. Also check how far the green and brown rows overlap each other. Where they overlap a lot, ITS separates species poorly in this genus, and no single cutoff will be very reliable. The standard is only as good as the sequences it was built from.` },
+    { title: 'Graph 3 · Distance distribution', top: true, prep: () => clickTab('#resTabs', 'report'), target: () => reportHist() || $('#resultsTabsCard'),
+      body: 'In the <b>Report</b> tab, the histogram shows every pair instead of a range. Each column counts pairs at that distance (in steps of 0.25%, or 0.5% when distances are large). <b>Green columns</b> are pairs within A and within B. <b>Brown columns</b> are A vs B pairs. The horizontal axis is <b>% distance</b>, using the distance chosen in Advanced settings. Hover a column for its range and count.' },
+    { title: 'Graph 3 · How to read it', top: true, prep: () => clickTab('#resTabs', 'report'), target: () => reportHist() || $('#resultsTabsCard'),
+      body: `<b>Two humps with empty space between them</b> is a barcode gap. <b>Brown on top of green</b> is overlap.<br><br>Look at the stragglers. A few <b>brown columns far to the left</b> mean a few A–B pairs are nearly identical: one sequence may be in the wrong group or misidentified. A few <b>green columns far to the right</b> point to an outlier inside a group.<br><br>Compare the <b>positions</b> of the columns, not their heights. Pairs grow fast with group size (10 sequences make 45 within-pairs), so a bigger group makes taller columns without being any more variable. The <b>Barcode gap</b> figure above the histogram gives the same answer as a number: the closest A–B pair minus the most different within-group pair. A plus sign means a gap; a minus sign means overlap.` },
+    { title: 'The genus standard’s own graph', top: true, prep: () => openCard('#calCard'), target: () => calGauge(), skip: () => !calGauge(),
+      body: 'The genus standard you built shows the same graph without a <b>This pair</b> row. Here it describes the genus itself. Species listed below it as <b>without a gap</b> vary inside about as much as they differ from their nearest relative. Be cautious with ITS results in those species.' },
+    { title: 'Before you trust a gap', end: true,
+      body: 'Check four things. <b>How many sequences?</b> With only one or two per group, the within-group spread is unknown or too small, so a gap appears easily. <b>Are the sequences sound?</b> One poor read can open or close a gap. <b>Are there fixed differences?</b> A gap together with consistent A–B differences is much stronger than either alone. <b>What does the genus usually show?</b> Build the genus standard where you can. A gap is evidence about a name, never an identification. Morphology, ecology and a second gene still decide.' } ] };
+
   const SECTIONS = {
+    gap: GAP,
     hap: { label: 'Identical sequences within a group', where: () => $('.hap'), steps: [
       { title: 'Identical sequences within a group', target: () => $('.hap'),
         body: 'This splits one group by <b>haplotype</b>: sequences that are identical to each other. Use it when a group may hold more than one sequence type, for example a provisional bin assembled from many collectors, or when you want to know whether a few odd sequences are pulling the comparison. It needs at least 3 sequences in the group.' },
@@ -255,7 +303,7 @@
   function render() {
     const st = steps[i]; const last = i === steps.length - 1 || !!st.end;
     const waiting = !!(st.wait && !st.wait());
-    pop.innerHTML = `<h2 id="mvt-title">${st.title}</h2><p id="mvt-body">${st.body}</p>`
+    pop.innerHTML = `<h2 id="mvt-title">${st.title}</h2><p id="mvt-body">${typeof st.body === 'function' ? st.body() : st.body}</p>`
       + (st.fill && waiting !== false || st.fill && !st.wait ? `<button type="button" class="mvt-fill" data-act="fill">${st.fillLabel || 'Fill this in for me'}</button>` : '')
       + (st.wait ? (waiting ? `<span class="mvt-wait" role="status">${st.waitText || 'Waiting…'}</span>` : '<span class="mvt-done" role="status">✓ Done. Press Next.</span>') : '')
       + (last && VIDEO_URL ? `<a class="mvt-video" href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : '')
@@ -274,7 +322,8 @@
     if (el && visible(el)) {
       const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
       const tall = el.getBoundingClientRect().height > innerHeight * 0.7;   // long results: show their top, where the headline is
-      el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: tall ? 'start' : 'center' });
+      if (st.top) scrollTo({ top: Math.max(0, scrollY + el.getBoundingClientRect().top - 24), behavior: reduce ? 'auto' : 'smooth' });   // graphs: chart at the top, explanation below it
+      else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: tall ? 'start' : 'center' });
       setTimeout(place, reduce ? 0 : 380);
     }
     const focusBtn = pop.querySelector('.mvt-primary:not([disabled])') || pop.querySelector('[data-act="fill"]') || pop.querySelector('button');
@@ -320,8 +369,9 @@
       <div class="mvt-choices">
         <button type="button" class="mvt-primary" data-act="overview">Quick tour<small style="color:inherit;opacity:.85">About 3 minutes: what each part of the page does and when to use it.</small></button>
         <button type="button" data-act="example">Walk through a real example<small>About 5 minutes, live data: compare ${esc(EX.prov)} with the type sequences of ${esc(EX.species)}.</small></button>
+        <button type="button" data-act="sec" data-sec="gap">How to read the barcode gap graphs<small>About 4 minutes: what each graph shows, what a gap or an overlap means, and when not to trust one.</small></button>
         ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : ''}
-      </div><p class="mvt-sub">Or learn one section:</p><div class="mvt-secs">${Object.entries(SECTIONS).map(([k, v]) => `<button type="button" data-act="sec" data-sec="${k}">${esc(v.label)}</button>`).join('')}</div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
+      </div><p class="mvt-sub">Or learn one section:</p><div class="mvt-secs">${Object.entries(SECTIONS).filter(([k]) => k !== 'gap').map(([k, v]) => `<button type="button" data-act="sec" data-sec="${k}">${esc(v.label)}</button>`).join('')}</div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
     place();
     pop.querySelector('[data-act="overview"]').focus({ preventScroll: true });
   }
@@ -350,7 +400,7 @@
       const host = v.where(); if (!host) continue;
       const head = host.matches('details') ? host.querySelector('summary h2') : host.querySelector('h3, h2');
       if (!head) continue;
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = '▶ Tour this section';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = v.btn || '▶ Tour this section';
       b.setAttribute('aria-label', `Guided tour of ${v.label}`);
       b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pop) end(); markSeen(); if (!pop) open(); begin(v.steps); });
       head.appendChild(b);

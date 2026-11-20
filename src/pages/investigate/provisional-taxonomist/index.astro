@@ -1,6 +1,6 @@
 ---
 import FieldGuide from '../../../components/FieldGuide.astro';
-import { ptNav, pdfHref, curriculum } from '../../../data/provisionalTaxonomist';
+import { ptNav, pdfHref, curriculum, suggestHref } from '../../../data/provisionalTaxonomist';
 // Provisional taxonomist hub: what a code is, the beginner guide, the difficulty rubric, concept pages, tools and cases.
 const sources = [
   { cite: 'Mycota Lab. <em>Using temporary code names for documenting macrofungi</em>, June 2025.', url: 'https://mycotalab.substack.com/p/using-temporary-code-names-for-documenting' },
@@ -72,6 +72,7 @@ const byLevel = ['Beginner', 'Intermediate', 'Advanced', 'All levels'].map((l) =
   <div class="mv-guide-ext">
     <a href="/investigate/provisional-taxonomist/cases/">All cases →<small>Status definitions and how cases cite data</small></a>
     <a href="/neo-myco/#adopt">NEO Myco: Adopt a code →<small>Work on a case with the club</small></a>
+    <a href={suggestHref}>Suggest a case →<small>Your code has no page yet? Email us</small></a>
   </div>
 </section>
 

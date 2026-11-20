@@ -1,6 +1,6 @@
 ---
 import FieldGuide from '../../../../components/FieldGuide.astro';
-import { ptNav, statuses } from '../../../../data/provisionalTaxonomist';
+import { ptNav, statuses, suggestHref, suggestEmail } from '../../../../data/provisionalTaxonomist';
 import que01 from '../../../../data/cases/russula-que01.json';
 // Case pages: one per provisional code. Each is built from a dated iNaturalist snapshot (scripts/case-snapshot.mjs).
 const cases = [
@@ -10,6 +10,7 @@ const tour = [
   { title: 'Case pages', body: '<p>One page per code: the question, the evidence so far, what’s missing and how to help.</p>' },
   { sel: '#list', title: 'Open cases', body: '<p>Start with one. Each page says what to collect next.</p>' },
   { sel: '#reading', title: 'How to read a case', body: '<p>Every case has the same sections in the same order.</p>' },
+  { sel: '#suggest', title: 'Suggest a case', body: '<p>Worked through the beginner guide and your code has no page yet? Email a suggestion.</p>' },
   { sel: '#citing', title: 'How cases cite data', body: '<p>Public data only, every record linked, sequencing credited, and the date of each data pull shown.</p>' },
 ];
 ---
@@ -21,6 +22,20 @@ const tour = [
   <div class="mv-guide-grid">
     {cases.map((c) => <a class="mv-guide-card mv-pt-case" href={c.href}><p class="mv-guide-when">{c.status} · data {c.pulled}</p><h3 set:html={`${c.name} →`} /><p>{c.summary}</p></a>)}
   </div>
+</section>
+
+<section id="suggest">
+  <p class="mv-guide-kicker">Suggest a case</p>
+  <h2>Your code isn’t listed? Suggest it.</h2>
+  <p>Case pages are added by hand. If you’ve worked through the <a href="/investigate/provisional-taxonomist/guide/">beginner guide</a> and your code has at least three sequenced collections from more than one collector, email a suggestion to {suggestEmail}. The link below opens an email with a template for:</p>
+  <ul>
+    <li>the code, exactly as it appears on iNaturalist, and a link to one sequenced observation;</li>
+    <li>the number of sequenced collections, collectors and vouchers (guide step 2);</li>
+    <li>the nearest relative on your tree and what the ITS Bin Comparator said (step 3);</li>
+    <li>your difficulty rating (step 4), and whether anyone is already working on it.</li>
+  </ul>
+  <div class="mv-guide-ext"><a href={suggestHref}>Email a case suggestion →<small>{suggestEmail}</small></a></div>
+  <p>Not every suggestion becomes a page right away. Codes that someone is already working on, or that have no vouchers anywhere, may wait.</p>
 </section>
 
 <section id="reading">

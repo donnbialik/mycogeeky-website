@@ -90,5 +90,27 @@ import { contactEmail, donateUrl, inaturalistProfile, mycogeekyYouTube, mycoview
       <a href="/privacy/">Privacy</a>
     </div>
   </footer>
+<script is:inline>
+/* Arrival glow: when a link takes you to another part of a page (#anchor) or to a tool card, the place you land
+   glows orange for a few seconds so you can see where you are. Also replays when the same link is clicked again.
+   Other scripts can call window.mvArrive(element) after scrolling somewhere themselves. */
+(function () {
+  function arrive(el) {
+    if (typeof el === 'string') { try { el = document.getElementById(decodeURIComponent(el)); } catch (e) { el = null; } }
+    if (!el || el === document.body || el.tagName === 'MAIN') return;
+    el.classList.remove('mv-arrived'); void el.offsetWidth; el.classList.add('mv-arrived');
+    clearTimeout(el._mvArrived); el._mvArrived = setTimeout(function () { el.classList.remove('mv-arrived'); }, 4000);
+  }
+  window.mvArrive = arrive;
+  function fromHash() { if (location.hash.length > 1) arrive(location.hash.slice(1)); }
+  addEventListener('hashchange', fromHash);
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href*="#"]'); if (!a || a.hasAttribute('data-path-link')) return;
+    var u = new URL(a.href, location.href);
+    if (u.pathname === location.pathname && u.hash && u.hash === location.hash) setTimeout(function () { arrive(u.hash.slice(1)); }, 60);
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fromHash); else fromHash();
+})();
+</script>
 </body>
 </html>

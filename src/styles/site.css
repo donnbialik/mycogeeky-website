@@ -246,9 +246,11 @@
 .fungal-field-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:28px}
 .mine-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 4px;border-radius:30px;background:#f3e3c8;color:#5a4318;font:700 .68rem 'DM Sans',sans-serif;letter-spacing:.04em;white-space:nowrap}
 .mine-badge img{width:18px;height:18px;object-fit:contain}.mine-badge{text-decoration:none}.mine-badge:hover{background:#ead29e}.mine-badge:focus-visible{outline:3px solid #9b7229;outline-offset:3px}#surveys,#my-inat,#ampg{scroll-margin-top:24px}
-@keyframes example-arrival{0%,55%{outline-color:#00c8e8;outline-offset:5px;box-shadow:0 0 0 9px #00c8e84d}100%{outline-color:transparent;outline-offset:0;box-shadow:none}}
-#surveys:target,#my-inat:target,#ampg:target{outline:5px solid transparent;border-radius:16px;animation:example-arrival 3.6s ease-out 1}
-@media(prefers-reduced-motion:reduce){#surveys:target,#my-inat:target,#ampg:target{animation:none;outline:5px solid #00a8c8;outline-offset:5px}}
+/* Arrival glow (script in Base.astro): where an in-page link or a tool link lands glows orange for a few seconds. */
+@keyframes mv-arrival{0%,55%{outline-color:#f2862a;outline-offset:6px;box-shadow:0 0 0 8px #f2862a4d,0 0 30px 8px #f2862a59}100%{outline-color:transparent;outline-offset:0;box-shadow:none}}
+.mv-arrived{outline:4px solid transparent;border-radius:12px;animation:mv-arrival 3.6s ease-out 1}
+@media(prefers-reduced-motion:reduce){.mv-arrived{animation:none;outline:4px solid #f2862a;outline-offset:5px}}
+@media print{.mv-arrived{animation:none;outline:none;box-shadow:none}}
 .fungal-field.is-mine{border-color:#d8c08f}
 .mine-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.88rem;color:var(--muted);margin:-4px 0 22px}
 .mine-legend img{width:20px;height:20px;object-fit:contain}

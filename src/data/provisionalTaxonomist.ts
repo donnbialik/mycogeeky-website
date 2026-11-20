@@ -13,6 +13,17 @@ export const ptNav: string[][] = [
 
 export const pdfHref = '/downloads/provisional-taxonomist-beginner-guide.pdf';
 
+/** "Suggest a case" opens an email with a short template; case pages are added by hand from suggestions. */
+export const suggestEmail = 'mycoview@mycoview.com';
+export const suggestHref = `mailto:${suggestEmail}?subject=${encodeURIComponent('Case suggestion: [code]')}&body=${encodeURIComponent(
+  'Code (exactly as on iNaturalist): \n' +
+  'Link to one sequenced observation: \n' +
+  'Sequenced collections / collectors / vouchers (step 2): \n' +
+  'Nearest relative on the tree, and Comparator result (step 3): \n' +
+  'Difficulty rating (step 4): \n' +
+  'Is anyone already working on it? \n' +
+  'Anything else: \n')}`;
+
 /** Each factor scores 0 (easier), 1 or 2 (harder). Rate by the code's section or clade, not its genus. */
 export const rubric: [string, string, string, string][] = [
   ['Described species in the section (regional)', 'Few (under about 10)', 'Some', 'Many (over about 30)'],

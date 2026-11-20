@@ -1,6 +1,6 @@
 ---
 import FieldGuide from '../../../components/FieldGuide.astro';
-import { ptNav, pdfHref } from '../../../data/provisionalTaxonomist';
+import { ptNav, pdfHref, suggestHref, suggestEmail } from '../../../data/provisionalTaxonomist';
 // Beginner guide: from your own sequence result to a decision, with stop / watch / keep going at every checkpoint.
 // The downloadable PDF is printed from this page (see scripts/guide-pdf.mjs), so edit here and re-run it.
 const sources = [
@@ -14,7 +14,7 @@ const tour = [
   { sel: '#step-2', title: '2. Look around the code', body: '<p>Find every other observation with the same code, and count the sequenced collections, collectors and vouchers.</p>' },
   { sel: '#step-3', title: '3. Find its neighbors, then compare', body: '<p>Build a tree in Dikarya to find the closest relative, then measure the code against it in the ITS Bin Comparator.</p>' },
   { sel: '#step-4', title: '4. Check the difficulty', body: '<p>Rate the code beginner, intermediate or advanced with the rubric.</p>' },
-  { sel: '#step-5', title: '5. Adopt the code', body: '<p>If you’ve got this far, the code is a good candidate for a case page.</p>' },
+  { sel: '#step-5', title: '5. Adopt the code', body: '<p>If you’ve got this far, the code is a good candidate for a case page. If it doesn’t have one yet, suggest it.</p>' },
 ];
 ---
 <FieldGuide title="Beginner guide: my sequence came back as a code" description="A step-by-step guide for deciding whether a provisional fungal code is worth researching: check your record, look around the code, place it on a tree, compare it, rate its difficulty, and adopt it." eyebrow="PROVISIONAL TAXONOMIST / BEGINNER GUIDE" heading="My sequence came back as a code. <em>Now what?</em>" lead="Five steps from your own sequence result to a decision. Every checkpoint ends in stop, watch or keep going." tourKey="pt-guide" tour={tour} sources={sources} current="guide" nav={ptNav} navLabel="Provisional taxonomist">
@@ -146,7 +146,9 @@ const tour = [
 <section id="step-5">
   <p class="mv-guide-kicker">Step 5</p>
   <h2>Adopt the code.</h2>
-  <p>If you’ve reached this step, the code is a good candidate for a <a href="/investigate/provisional-taxonomist/cases/">case page</a>: what’s known, what’s missing, and what to collect next. In Northeast Ohio, <a href="/neo-myco/#adopt">NEO Myco’s Adopt-a-Code</a> works on cases together.</p>
+  <p>If you’ve reached this step, the code is a good candidate for a <a href="/investigate/provisional-taxonomist/cases/">case page</a>: what’s known, what’s missing, and what to collect next. Check the <a href="/investigate/provisional-taxonomist/cases/">list of cases</a> first.</p>
+  <p><strong>If your code doesn’t have a case page yet, suggest one.</strong> <a href={suggestHref}>Email a case suggestion</a> to {suggestEmail}. The email opens with a short template: the code, one observation link, and what you found in steps 2 to 4. Case pages are added by hand, so it may take a little while.</p>
+  <p>In Northeast Ohio, <a href="/neo-myco/#adopt">NEO Myco’s Adopt-a-Code</a> works on cases together.</p>
   <div class="mv-guide-note"><p><strong>Stopping is not failing.</strong> At every step, a complete, vouchered record left for the next person is a contribution.</p></div>
 </section>
 

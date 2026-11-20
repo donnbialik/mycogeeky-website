@@ -1,6 +1,6 @@
 ---
 import FieldGuide from '../../../components/FieldGuide.astro';
-import { ptNav, rubric, levels, statuses } from '../../../data/provisionalTaxonomist';
+import { ptNav, rubric, levels, statuses, suggestHref } from '../../../data/provisionalTaxonomist';
 // Difficulty rubric for provisional codes, collection tiers, case statuses and evidence standards.
 // Cutoffs are working proposals (Nov 2026) until reviewed with Mycota Lab.
 const tour = [
@@ -43,7 +43,7 @@ const tour = [
   <p>There’s no single number. Some species are described from one or two collections, and some codes stay unresolved with hundreds. Count <strong>sequenced collections</strong>, not observations, and these tiers say what each count is good for:</p>
   <div class="mv-guide-grid">
     <div class="mv-guide-card"><h3>1–2 sequenced</h3><p>Too few to see how the species varies. <strong>Watch</strong> and document.</p></div>
-    <div class="mv-guide-card"><h3>3–5, from more than one site or collector</h3><p>Enough to open a case page.</p></div>
+    <div class="mv-guide-card"><h3>3–5, from more than one site or collector</h3><p>Enough to <a href={suggestHref}>suggest a case page</a>.</p></div>
     <div class="mv-guide-card"><h3>5–10 or more, with several vouchers</h3><p>Enough to describe how the species varies.</p></div>
   </div>
 </section>

@@ -40,7 +40,7 @@ export const provisionalTaxonomistPath:ResearchPath = {
   {toolId:'pt-guide',label:'Start here',question:'My sequence came back as a code: is it worth working on? Five steps, each ending in stop, watch or keep going.',name:'Beginner guide',href:'/investigate/provisional-taxonomist/guide/'},
   {toolId:'study-designer',label:'Understand it',question:'What does a provisional name mean, and what would it take to describe it?'},
   {toolId:'provisional-finder',label:'Size it up',question:'How rare is it, who else has it, are there vouchers, and is it likely already described?'},
-  {toolId:'dikarya',label:'Place it on a tree',question:'What are its closest relatives, and which section of the genus does it sit in?',name:'Dikarya Tree Builder (Alan Rockefeller)',href:'https://dikarya.us'},
+  {toolId:'dikarya',label:'Place it on a tree',question:'What are its closest relatives, and which section of the genus does it sit in?',name:'Dikarya Tree Builder (Alan Rockefeller)',href:'https://dikarya.us/tree'},
   {toolId:'its-comparison',label:'Test the DNA',question:'Does your sequence sit inside the group, and is the group distinct from its nearest relatives?'},
   {toolId:'barcode-reliability-explorer',label:'Check the references',question:'Can you trust the reference sequences you are comparing against?'},
   {toolId:'seasonality-explorer',label:'Find more material',question:'When and where does it fruit, so you can collect fresh specimens?'},

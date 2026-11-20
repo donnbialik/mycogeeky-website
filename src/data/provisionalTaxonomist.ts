@@ -8,7 +8,7 @@ export const ptNav: string[][] = [
   ['cases', 'Cases', '/investigate/provisional-taxonomist/cases/'],
   ['finder', 'Provisional Finder', '/investigate/provisional-finder/'],
   ['comparator', 'ITS Bin Comparator', '/investigate/its-bin-comparator/'],
-  ['dikarya', 'Dikarya Tree Builder ↗', 'https://dikarya.us'],
+  ['dikarya', 'Dikarya Tree Builder ↗', 'https://dikarya.us/tree'],
 ];
 
 export const pdfHref = '/downloads/provisional-taxonomist-beginner-guide.pdf';

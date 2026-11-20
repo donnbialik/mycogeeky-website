@@ -28,6 +28,10 @@ export const GET: APIRoute = () => {
       a.target = '_blank'; a.rel = 'noopener';
     }, true);
   }
+  // Copy buttons beside identifiers (observation numbers, names, accessions…) in every tool's results.
+  if (!window.__mvCopyIds && !document.querySelector('script[src$="/shared/copy-ids.js"]')) {
+    var cp = document.createElement('script'); cp.src = '/investigate/shared/copy-ids.js'; cp.defer = true; document.head.appendChild(cp);
+  }
   if (document.querySelector('.mvtb')) return;
   var here = location.pathname.replace(/index\\.html$/, '');
   var tool = TOOLS.filter(function (t) { return t.href && here === t.href; })[0];

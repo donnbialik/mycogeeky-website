@@ -1430,3 +1430,25 @@ sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;pad
 .mv-inat-band p{margin:0;color:#2f4a3c;font-size:.98rem;line-height:1.55;max-width:none}
 .mv-inat-band a{color:#1c4837}
 .mv-inat-plain{width:auto;margin:14px 0}
+
+/* Printing guide pages (also how the provisional taxonomist guide PDF is made: scripts/guide-pdf.mjs).
+   Keep the content, drop site chrome and interactive controls, and avoid splitting cards and table rows. */
+@media print{
+  @page{size:letter;margin:16mm 15mm}
+  .skip,.site-header,.mv-footer,.mv-guide-nav,.mv-guide .station-actions,.mv-pt-print-hide{display:none!important}
+  body,.station-page,.mv-guide-body{background:#fff!important}
+  .mv-guide .station-hero{background:#fff!important;color:#17372e!important;padding:0 0 8px!important;min-height:0!important;border-bottom:2px solid #17372e}
+  .mv-guide .station-hero *{color:#17372e!important}
+  .mv-guide .station-hero h1{font-size:26pt!important;margin:4px 0 6px!important}
+  .mv-guide-body,.mv-guide-sources{width:100%!important}
+  .mv-guide-body>section{padding:12px 0 2px!important}
+  .mv-guide-body h2{font-size:17pt!important;break-after:avoid}
+  .mv-guide-body h3,.mv-guide-kicker{break-after:avoid}
+  .mv-guide-body p,.mv-guide-body li{font-size:10.5pt!important;line-height:1.45!important}
+  .mv-guide-card,.mv-guide-steps>li,.mv-guide-note,.mv-guide-table tr,figure{break-inside:avoid}
+  .mv-guide-table{min-width:0!important}
+  .mv-guide-table th,.mv-guide-table td{font-size:9.5pt!important;padding:6px 8px!important}
+  .mv-guide-body a{color:#17372e;text-decoration:underline}
+  .mv-guide-body a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#54695b;word-break:break-all}
+  .mv-guide-sources li{font-size:9pt!important}
+}

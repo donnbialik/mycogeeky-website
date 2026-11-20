@@ -1,0 +1,71 @@
+---
+import FieldGuide from '../../../components/FieldGuide.astro';
+import { ptNav, rubric, levels, statuses } from '../../../data/provisionalTaxonomist';
+// Difficulty rubric for provisional codes, collection tiers, case statuses and evidence standards.
+// Cutoffs are working proposals (Nov 2026) until reviewed with Mycota Lab.
+const tour = [
+  { title: 'How hard is this code?', body: '<p>Eight factors, each scored 0, 1 or 2. The total suggests whether the code suits a beginner, an intermediate or an advanced worker.</p>' },
+  { sel: '#rubric', title: 'Score the section, not the genus', body: '<p>Look at the code’s neighborhood: the section or clade it sits in on your tree.</p>' },
+  { sel: '#overrides', title: 'Two things override the score', body: '<p>Someone already working on it, or no vouchers at all.</p>' },
+  { sel: '#tiers', title: 'How many collections?', body: '<p>There’s no magic number. These tiers say what each count is good for.</p>' },
+  { sel: '#statuses', title: 'Case statuses', body: '<p>A case changes status only when sequence evidence supports it.</p>' },
+];
+---
+<FieldGuide title="Difficulty rubric for provisional codes" description="Rate a provisional fungal code as beginner, intermediate or advanced by the section it sits in: described species, type sequences, old names, bin cohesion, collections, vouchers and characters. Plus case statuses and evidence standards." eyebrow="PROVISIONAL TAXONOMIST / DIFFICULTY RUBRIC" heading="Some codes are a first project. <em>Some are a career.</em>" lead="Score a code on eight factors to see who it suits. Rate it by the section of the genus it sits in, not the genus as a whole." tourKey="pt-difficulty" tour={tour} current="difficulty" nav={ptNav} navLabel="Provisional taxonomist">
+
+<section id="rubric">
+  <p class="mv-guide-kicker">The rubric</p>
+  <h2>Score each factor 0, 1 or 2, then add them up.</h2>
+  <p>Use the section or clade your tree places the code in. A code in a small, well-studied section of a huge genus can be a good first project; a code in a section with dozens of old, unsequenced names is hard however many collections it has.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Factor</th><th>0 · easier</th><th>1</th><th>2 · harder</th></tr></thead>
+    <tbody>{rubric.map(([f, a, b, c]) => <tr><td><strong>{f}</strong></td><td>{a}</td><td>{b}</td><td>{c}</td></tr>)}</tbody>
+  </table></div>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Total</th><th>Level</th><th>Who it suits</th></tr></thead>
+    <tbody>{levels.map(([t, l, w]) => <tr><td>{t}</td><td><strong>{l}</strong></td><td>{w}</td></tr>)}</tbody>
+  </table></div>
+  <div class="mv-guide-note"><p><strong>Working proposals.</strong> These cutoffs are a starting point, published so they can be tested and argued with. They will be revised after review with Mycota Lab and after testing on codes whose outcome is already known.</p></div>
+</section>
+
+<section id="overrides">
+  <p class="mv-guide-kicker">Overrides</p>
+  <h2>Two things matter more than the total.</h2>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>Someone is already working on it</h3><p>Then the answer is <strong>coordinate</strong>, whatever the score. Offer your records and vouchers.</p></div>
+    <div class="mv-guide-card"><h3>No collection has a voucher</h3><p>Then the first job is <strong>getting one</strong>, whatever the score. Without a specimen, nothing can be checked again.</p></div>
+  </div>
+</section>
+
+<section id="tiers">
+  <p class="mv-guide-kicker">Collections</p>
+  <h2>How many collections is enough?</h2>
+  <p>There’s no single number. Some species are described from one or two collections, and some codes stay unresolved with hundreds. Count <strong>sequenced collections</strong>, not observations, and these tiers say what each count is good for:</p>
+  <div class="mv-guide-grid">
+    <div class="mv-guide-card"><h3>1–2 sequenced</h3><p>Too few to see how the species varies. <strong>Watch</strong> and document.</p></div>
+    <div class="mv-guide-card"><h3>3–5, from more than one site or collector</h3><p>Enough to open a case page.</p></div>
+    <div class="mv-guide-card"><h3>5–10 or more, with several vouchers</h3><p>Enough to describe how the species varies.</p></div>
+  </div>
+</section>
+
+<section id="statuses">
+  <p class="mv-guide-kicker">Case statuses</p>
+  <h2>A case changes status only on sequence evidence.</h2>
+  <p>Agreement on iNaturalist isn’t enough. Every case page uses one of these four statuses.</p>
+  <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
+    <thead><tr><th>Status</th><th>Means</th><th>Minimum evidence</th></tr></thead>
+    <tbody>{statuses.map(([s, m, e]) => <tr><td><strong>{s}</strong></td><td>{m}</td><td>{e}</td></tr>)}</tbody>
+  </table></div>
+  <h3 style="margin-top:16px">Rules for every case</h3>
+  <ul>
+    <li>A candidate name marked “ruled out” always cites its basis: the type sequence and its distance, or the character that conflicts.</li>
+    <li>When a type sequence is partial, report the overlap length and compare only over that region.</li>
+    <li>A match to one name doesn’t settle a case if an older name that could also fit remains unchecked.</li>
+    <li>“Unknown” is a legitimate answer. Say why: no type sequence exists, the description is too vague, or the character was never recorded.</li>
+  </ul>
+</section>
+
+</FieldGuide>
+<style>
+.mv-pt-table td:nth-child(2){white-space:normal}
+</style>

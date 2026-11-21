@@ -1,0 +1,37 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Genus decision" active="decisions">
+  <p class="eyebrow"><a href="/explorer/decisions/" id="back">All questions</a> · <span id="qid"></span></p>
+  <h1 id="title">Loading the question.</h1>
+  <p id="kind" class="muted"></p>
+  <div id="prior"></div>
+  <div class="xp-msg info"><strong>Outcome: <span id="outcome"></span>.</strong> <span id="rule"></span> Names in the question are as deposited in GenBank or in the herbarium record. An answer is a curation decision with your name and reasoning attached; it does not rename anything in GenBank.</div>
+  <div class="xp-grid">
+    <div>
+      <section class="xp-panel"><h2>Question</h2><p id="question"></p></section>
+      <section class="xp-panel"><h2>Evidence from the report</h2><dl class="xp-kv" id="evidence"></dl>
+        <p class="muted small">Distances are percentages of compared positions; "Compared on" says which part of ITS. A short region carries less information than full ITS.</p></section>
+    </div>
+    <div>
+      <section class="xp-panel"><h2>Your answer</h2>
+        <form id="f" novalidate>
+          <fieldset style="border:0;padding:0;margin:0"><legend class="sr-only">Answer</legend><div id="options"></div></fieldset>
+          <div id="detailBox" hidden><label for="detail">The detail this answer asks for <span class="xp-hint" id="detailHint"></span></label><input type="text" id="detail" /></div>
+          <label for="rationale">Reasoning <span class="xp-hint">required: what you compared and why it settles the question</span></label><textarea id="rationale" required></textarea>
+          <label for="citation">Citations <span class="xp-hint">DOIs, accessions, herbarium numbers, Index Fungorum or MycoBank numbers</span></label><input type="text" id="citation" />
+          <fieldset class="xp-mode" style="border:0;padding:0"><legend class="sr-only">Answer mode</legend>
+            <label><input type="radio" name="mode" value="test" checked /> Test answer</label>
+            <label><input type="radio" name="mode" value="formal" id="formalRadio" /> Formal answer</label></fieldset>
+          <p class="muted small" id="modeNote"></p><p class="muted small" id="supNote"></p>
+          <button type="submit" id="save">Save answer</button>
+          <div id="msg" aria-live="polite"></div>
+        </form>
+      </section>
+      <section class="xp-panel"><h2>Answers</h2><ul class="xp-history" id="hist"></ul><div id="others"></div></section>
+    </div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/decision.js';
+</script>

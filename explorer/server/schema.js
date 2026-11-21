@@ -130,4 +130,58 @@ export const MIGRATIONS = [
       ...noChange('supplement_cases', 'supplements are immutable'),
     ],
   },
+  {
+    // Genus review questions (contract bre-questions/1) and reviewers' decisions on them: the decision ledger.
+    // Question sets and questions are immutable; decisions are append-only (a correction supersedes). Which genera
+    // a reviewer may decide for is the one thing the owner can change (reviewer_genera; no rows = all genera).
+    id: '0003_genus_decisions',
+    statements: [
+      `CREATE TABLE question_sets (
+         id TEXT PRIMARY KEY,
+         genus TEXT NOT NULL,
+         snapshot TEXT NOT NULL,
+         contract TEXT NOT NULL,
+         header_json TEXT NOT NULL,
+         sha256 TEXT NOT NULL UNIQUE,
+         questions INTEGER NOT NULL,
+         imported_at TEXT NOT NULL,
+         imported_by TEXT NOT NULL)`,
+      `CREATE TABLE questions (
+         set_id TEXT NOT NULL REFERENCES question_sets(id),
+         id TEXT NOT NULL,
+         type TEXT NOT NULL,
+         subject TEXT NOT NULL,
+         reviewers_needed INTEGER NOT NULL CHECK (reviewers_needed IN (1, 2)),
+         records_affected INTEGER NOT NULL,
+         body_json TEXT NOT NULL,
+         evidence_sha256 TEXT NOT NULL,
+         PRIMARY KEY (set_id, id))`,
+      `CREATE TABLE decisions (
+         id INTEGER PRIMARY KEY,
+         set_id TEXT NOT NULL,
+         question_id TEXT NOT NULL,
+         reviewer_id INTEGER NOT NULL REFERENCES reviewers(id),
+         mode TEXT NOT NULL CHECK (mode IN ('test', 'formal')),
+         choice TEXT NOT NULL,
+         detail TEXT,
+         rationale TEXT NOT NULL,
+         citation TEXT,
+         evidence_sha256 TEXT NOT NULL,
+         supersedes INTEGER REFERENCES decisions(id),
+         created_at TEXT NOT NULL,
+         FOREIGN KEY (set_id, question_id) REFERENCES questions(set_id, id))`,
+      `CREATE INDEX decisions_question ON decisions(set_id, question_id)`,
+      `CREATE UNIQUE INDEX decisions_supersede_once ON decisions(supersedes) WHERE supersedes IS NOT NULL`,
+      `CREATE TABLE reviewer_genera (
+         reviewer_id INTEGER NOT NULL REFERENCES reviewers(id),
+         genus TEXT NOT NULL,
+         PRIMARY KEY (reviewer_id, genus))`,
+      ...noChange('question_sets', 'question sets are immutable; a new report is a new set'),
+      ...noChange('questions', 'questions are immutable; a new report is a new set'),
+      ...noChange('decisions', 'decisions are append-only; a correction supersedes'),
+      `CREATE TRIGGER decisions_no_formal_to_test BEFORE INSERT ON decisions
+         WHEN NEW.supersedes IS NOT NULL AND NEW.mode = 'test' AND (SELECT mode FROM decisions WHERE id = NEW.supersedes) = 'formal'
+         BEGIN SELECT RAISE(ABORT, 'a formal decision cannot be superseded by a test decision'); END`,
+    ],
+  },
 ];

@@ -15,6 +15,7 @@
 import { MIGRATIONS } from './schema.js';
 import { CONTRACT, FILES, validateManifest, canonical, sha256 } from '../contract/release.js';
 import { SUPPLEMENT_CONTRACT, validateSupplement, citationsOf, CITATION } from '../contract/supplement.js';
+import * as Q from './decisions.js';
 
 const DECISIONS = ['accept name', 'other name', 'reject as reference', 'unresolved'];
 const VOUCHER = ['yes', 'no', 'unknown'];
@@ -315,8 +316,21 @@ export async function onRequest(context) {
       return json({ saved: true, review_id: r.id, mode }, 201);
     }
 
+    // ---- genus review questions and decisions (bre-questions/1)
+    const H = { json, err, audit, auditStmt };
+    const genusReady = applied.some(m => m.id === '0003_genus_decisions');
+    if (!genusReady && (parts[0] === 'question-sets' || parts[0] === 'decisions' || (parts[0] === 'admin' && parts[1] === 'question-sets') || (parts[0] === 'reviewers' && (parts.length === 1 && M === 'GET' || parts[2] === 'genera'))))
+      return err(503, 'the database needs the genus-decisions update; the owner applies it on the set-up page');
+    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 1) return Q.listSets(env, me, H);
+    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 2) return Q.getSet(env, me, parts[1], H);
+    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 4 && parts[2] === 'questions') return Q.getQuestion(env, me, parts[1], parts[3], url.searchParams.get('reveal') === '1', H);
+    if (M === 'POST' && parts[0] === 'decisions' && parts.length === 1) return Q.postDecision(env, me, await request.json(), H);
+
     // ---- owner only
     if (me.role !== 'owner') return err(403, 'only the owner can do this');
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets') return Q.importQuestionSet(env, me, await request.json(), H);
+    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 3 && parts[2] === 'ledger') return Q.ledger(env, me, parts[1], H);
+    if (M === 'POST' && parts[0] === 'reviewers' && parts.length === 3 && parts[2] === 'genera') return Q.setGenera(env, me, Number(parts[1]), await request.json(), H);
     if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'releases') return importRelease(env, me, await request.json());
     if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'supplements') return importSupplement(env, me, await request.json());
     if (M === 'POST' && parts[0] === 'acceptances') {
@@ -336,7 +350,11 @@ export async function onRequest(context) {
       await audit(env, me.email, 'accept outcome into a future release', c.id, { acceptance_id: res.id, target_release: b.target_release, basis: formal.map(r => r.id) });
       return json({ accepted: true, acceptance_id: res.id, target_release: b.target_release, note: 'recorded for a future release; the current release is unchanged' }, 201);
     }
-    if (M === 'GET' && parts[0] === 'reviewers') return json({ reviewers: (await env.DB.prepare('SELECT id, email, display_name, role, formal_reviews_enabled, active, created_at FROM reviewers ORDER BY id').all()).results });
+    if (M === 'GET' && parts[0] === 'reviewers') {
+      const rs = (await env.DB.prepare('SELECT id, email, display_name, role, formal_reviews_enabled, active, created_at FROM reviewers ORDER BY id').all()).results;
+      const gs = (await env.DB.prepare('SELECT reviewer_id, genus FROM reviewer_genera ORDER BY genus').all()).results;
+      return json({ reviewers: rs.map(r => ({ ...r, genera: gs.filter(g => g.reviewer_id === r.id).map(g => g.genus) })) });
+    }
     if (M === 'POST' && parts[0] === 'reviewers' && parts.length === 1) {
       const b = await request.json();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email || '') || !['reviewer', 'observer'].includes(b.role) || !String(b.display_name || '').trim())

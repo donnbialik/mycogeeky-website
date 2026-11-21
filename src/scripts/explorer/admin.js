@@ -2,6 +2,7 @@
 import { api, apiText, post, esc, $, whoami, releaseStrip, showError } from './common.js';
 import { validateManifest, validateEvidence, sha256 } from '../../../explorer/contract/release.js';
 import { validateSupplement } from '../../../explorer/contract/supplement.js';
+import { validateQuestionSet } from '../../../explorer/contract/questions.js';
 const say = (id, cls, html) => { $(id).className = 'xp-msg ' + cls; $(id).innerHTML = html; };
 const list = xs => '<ul>' + xs.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';
 let files = null;
@@ -21,7 +22,10 @@ async function loadAll() {
   const { reviewers } = await api('reviewers');
   $('revs').innerHTML = reviewers.map(r => `<tr><td>${esc(r.display_name)}<div class="muted small">${esc(r.email)}</div></td><td>${esc(r.role)}</td>
     <td><input type="checkbox" data-id="${r.id}" data-k="formal" ${r.formal_reviews_enabled ? 'checked' : ''} aria-label="Formal reviews for ${esc(r.display_name)}" /></td>
-    <td>${r.role === 'owner' ? 'yes' : `<input type="checkbox" data-id="${r.id}" data-k="active" ${r.active ? 'checked' : ''} aria-label="Account active for ${esc(r.display_name)}" />`}</td></tr>`).join('');
+    <td>${r.role === 'owner' ? 'yes' : `<input type="checkbox" data-id="${r.id}" data-k="active" ${r.active ? 'checked' : ''} aria-label="Account active for ${esc(r.display_name)}" />`}</td>
+    <td>${r.role === 'owner' ? 'all' : `<input type="text" data-genera="${r.id}" value="${esc((r.genera || []).join(', '))}" placeholder="all genera" aria-label="Genera ${esc(r.display_name)} may answer for" />`}</td></tr>`).join('');
+  const { sets } = await api('question-sets');
+  $('ledgers').innerHTML = sets.length ? '<ul>' + sets.map(x => `<li>${esc(x.genus)} · ${esc(x.id)} · ${Object.entries(x.status_counts).map(([k, n]) => `${n} ${esc(k)}`).join(', ')} <button class="secondary" type="button" data-ledger="${esc(x.id)}">Download the ledger</button></li>`).join('') + '</ul>' : 'No question sets yet.';
   const { events } = await api('audit');
   $('audit').innerHTML = events.slice(0, 100).map(e => `<tr><td class="small">${esc(e.at)}</td><td class="small">${esc(e.actor)}</td><td>${esc(e.action)}</td><td class="small">${esc(e.object)}</td></tr>`).join('');
 }
@@ -68,12 +72,45 @@ $('simport').addEventListener('click', async () => {
   catch (e) { say('smsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
 });
 $('r-add').addEventListener('click', async () => {
-  try { await post('reviewers', { email: $('r-email').value, display_name: $('r-name').value, role: $('r-role').value }); say('rmsg', 'ok', 'Added.'); await loadAll(); }
+  try { const email = $('r-email').value.trim(), name = $('r-name').value.trim(), role = $('r-role').value;
+    await post('reviewers', { email, display_name: name, role }); say('rmsg', 'ok', 'Added.'); await loadAll();
+    $('inviteText').value = `Hello ${name},\n\nI have added you as a ${role} on the Barcode Reliability Explorer, where genus review reports raise questions about GenBank ITS records: which sequence fixes what a name means, which names ITS cannot tell apart, and which names are misapplied.\n\nOpen ${location.origin}/explorer/decisions/ and sign in with this e-mail address (${email}); you will receive a one-time code. Your answers are saved as test answers until I enable formal answers for you, and you see other reviewers' answers only after giving your own.\n\nThank you!`;
+    $('invite').hidden = false; }
   catch (e) { say('rmsg', 'bad', esc(e.message)); }
 });
+$('inviteCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('inviteText').value); say('rmsg', 'ok', 'Invitation copied.'); } catch { $('inviteText').select(); } });
 $('revs').addEventListener('change', async ev => {
-  const t = ev.target; if (!t.dataset.id) return;
+  const t = ev.target;
+  if (t.dataset.genera) {
+    const genera = t.value.split(',').map(x => x.trim()).filter(Boolean);
+    try { await post(`reviewers/${t.dataset.genera}/genera`, { genera }); say('rmsg', 'ok', genera.length ? `May answer for ${esc(genera.join(', '))}.` : 'May answer for every genus.'); await loadAll(); }
+    catch (e) { say('rmsg', 'bad', esc(e.message)); }
+    return;
+  }
+  if (!t.dataset.id) return;
   try { await post(`reviewers/${t.dataset.id}/${t.dataset.k}`, { enabled: t.checked }); await loadAll(); } catch (e) { say('rmsg', 'bad', esc(e.message)); t.checked = !t.checked; }
+});
+let qtext = null;
+$('qcheck').addEventListener('click', async () => {
+  $('qimport').disabled = true; qtext = null;
+  try {
+    const f = $('f-qs').files[0]; if (!f) throw new Error('choose the questions.json file');
+    const text = await f.text(); const s = JSON.parse(text); const errs = validateQuestionSet(s);
+    if (errs.length) return say('qmsg', 'bad', '<strong>This question set cannot be imported.</strong>' + list(errs.slice(0, 30)));
+    qtext = text; const by = {}; for (const q of s.questions) by[q.type] = (by[q.type] || 0) + 1;
+    say('qmsg', 'ok', `<strong>${esc(s.set)}</strong>: ${esc(s.genus)}, GenBank snapshot ${esc(s.snapshot)}, ${s.questions.length} questions (${Object.entries(by).map(([k, n]) => `${n} ${esc(k)}`).join(', ')}); SHA-256 ${(await sha256(text)).slice(0, 12)}…`);
+    $('qimport').disabled = false;
+  } catch (e) { say('qmsg', 'bad', esc(e.message)); }
+});
+$('qimport').addEventListener('click', async () => {
+  try { $('qimport').disabled = true; const r = await post('admin/question-sets', { questions_text: qtext }); say('qmsg', 'ok', `Imported <strong>${esc(r.set)}</strong> (${r.questions} questions). <a href="/explorer/decisions/?set=${encodeURIComponent(r.set)}">Open it</a>.`); await loadAll(); }
+  catch (e) { say('qmsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
+});
+$('ledgers').addEventListener('click', async ev => {
+  const id = ev.target.dataset && ev.target.dataset.ledger; if (!id) return;
+  try { const l = await api(`question-sets/${encodeURIComponent(id)}/ledger`);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(l, null, 1)], { type: 'application/json' })); a.download = `${id}-ledger.json`; a.click(); URL.revokeObjectURL(a.href); }
+  catch (e) { say('qmsg', 'bad', esc(e.message)); }
 });
 $('selftest').addEventListener('click', async () => {
   const out = []; const ok = (name, pass, note = '') => out.push(`<li>${pass ? '✓' : '✗'} ${esc(name)}${note ? ` <span class="muted small">${esc(note)}</span>` : ''}</li>`);

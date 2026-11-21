@@ -15,7 +15,7 @@ async function status() {
 }
 async function loadAll() {
   const s = await status();
-  if (!s.migrations.every(m => m.applied)) { $('xp-release').innerHTML = '<strong>Set-up needed.</strong> Apply the database schema, then import a release.'; return; }
+  if (!s.migrations.every(m => m.applied)) { $('xp-release').innerHTML = s.releases.length ? '<strong>Database update needed.</strong> Apply the database schema (section 1) to finish setting up the new features.' : '<strong>Set-up needed.</strong> Apply the database schema, then import a release.'; return; }
   const me = await api('me'); whoami(me);
   const { releases } = await api('releases'); if (releases.length) releaseStrip(releases[releases.length - 1]);
   else $('xp-release').innerHTML = '<strong>No release imported yet.</strong> Import the evidence release below.';

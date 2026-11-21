@@ -56,21 +56,31 @@ export async function importQuestionSet(env, me, b, h) {
     st.push(env.DB.prepare(`INSERT INTO questions (set_id, id, type, subject, reviewers_needed, records_affected, body_json, evidence_sha256) VALUES ${chunk.map(() => '(?,?,?,?,?,?,?,?)').join(',')}`).bind(...vals));
   }
   st.push(await h.auditStmt(env, me.email, 'import question set', s.set, { sha256: digest, genus: s.genus, questions: questions.length }));
+  // A corrected set replaces earlier sets of the same genus that nobody has answered yet; answered sets stay, as older versions.
+  const earlier = (await env.DB.prepare(`SELECT s.id, (SELECT COUNT(*) FROM decisions d WHERE d.set_id = s.id) AS n FROM question_sets s
+      WHERE s.genus = ? AND s.id NOT IN (SELECT set_id FROM question_set_withdrawals)`).bind(s.genus).all()).results;
+  const replaced = earlier.filter(x => x.n === 0).map(x => x.id), kept = earlier.filter(x => x.n > 0).map(x => x.id);
+  for (const id of replaced) {
+    st.push(env.DB.prepare('INSERT INTO question_set_withdrawals (set_id, replaced_by, reason, withdrawn_by, at) VALUES (?,?,?,?,?)').bind(id, s.set, 'replaced by a corrected set before any answer', me.email, now()));
+    st.push(await h.auditStmt(env, me.email, 'withdraw question set', id, { replaced_by: s.set }));
+  }
   await env.DB.batch(st);
-  return h.json({ imported: true, set: s.set, genus: s.genus, questions: questions.length, sha256: digest }, 201);
+  return h.json({ imported: true, set: s.set, genus: s.genus, questions: questions.length, sha256: digest, replaced, kept_as_older_versions: kept }, 201);
 }
 
 async function setRow(env, id) {
-  const r = await env.DB.prepare('SELECT id, genus, snapshot, header_json, sha256, questions, imported_at FROM question_sets WHERE id = ?').bind(id).first();
-  return r && { id: r.id, genus: r.genus, snapshot: r.snapshot, header: JSON.parse(r.header_json), sha256: r.sha256, questions: r.questions, imported_at: r.imported_at };
+  const r = await env.DB.prepare(`SELECT s.id, s.genus, s.snapshot, s.header_json, s.sha256, s.questions, s.imported_at, w.replaced_by, w.reason AS withdrawn_reason, w.at AS withdrawn_at
+      FROM question_sets s LEFT JOIN question_set_withdrawals w ON w.set_id = s.id WHERE s.id = ?`).bind(id).first();
+  return r && { id: r.id, genus: r.genus, snapshot: r.snapshot, header: JSON.parse(r.header_json), sha256: r.sha256, questions: r.questions, imported_at: r.imported_at,
+    withdrawn: r.withdrawn_at ? { at: r.withdrawn_at, reason: r.withdrawn_reason, replaced_by: r.replaced_by } : null };
 }
 async function decisionsOf(env, setId, qid) {
   const sql = 'SELECT d.*, v.display_name FROM decisions d JOIN reviewers v ON v.id = d.reviewer_id WHERE d.set_id = ?' + (qid ? ' AND d.question_id = ?' : '') + ' ORDER BY d.id';
   return (await (qid ? env.DB.prepare(sql).bind(setId, qid) : env.DB.prepare(sql).bind(setId)).all()).results;
 }
 
-export async function listSets(env, me, h) {
-  const sets = (await env.DB.prepare('SELECT id FROM question_sets ORDER BY genus, imported_at').all()).results;
+export async function listSets(env, me, h, withdrawnToo = false) {
+  const sets = (await env.DB.prepare(`SELECT id FROM question_sets WHERE ${withdrawnToo ? '1' : "id NOT IN (SELECT set_id FROM question_set_withdrawals)"} ORDER BY genus, imported_at`).all()).results;
   const out = [];
   for (const { id } of sets) {
     const s = await setRow(env, id);
@@ -118,7 +128,7 @@ export async function getQuestion(env, me, setId, qid, reveal, h) {
   const scope = await scopeOf(env, me);
   return h.json({ set: s, question: { ...JSON.parse(q.body_json), kind: QUESTION_TYPES[q.type] }, evidence_sha256: q.evidence_sha256,
     outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed), prior,
-    may_decide: me.role !== 'observer' && (!scope || scope.includes(s.genus)),
+    may_decide: !s.withdrawn && me.role !== 'observer' && (!scope || scope.includes(s.genus)),
     my_decisions: mine.map(pub), others: show ? all.filter(d => d.reviewer_id !== me.id).map(pub) : null, others_hidden: !show,
     others_count: new Set(all.filter(d => d.reviewer_id !== me.id).map(d => d.reviewer_id)).size });
 }
@@ -127,6 +137,7 @@ export async function postDecision(env, me, b, h) {
   if (me.role === 'observer') return h.err(403, 'observers cannot record decisions');
   const q = await env.DB.prepare('SELECT q.*, s.genus FROM questions q JOIN question_sets s ON s.id = q.set_id WHERE q.set_id = ? AND q.id = ?').bind(b.set_id, b.question_id).first();
   if (!q) return h.err(404, 'no such question');
+  if (await env.DB.prepare('SELECT set_id FROM question_set_withdrawals WHERE set_id = ?').bind(q.set_id).first()) return h.err(409, 'this question set has been withdrawn; answer the current set of this genus');
   const scope = await scopeOf(env, me);
   if (scope && !scope.includes(q.genus)) return h.err(403, `you are a reviewer for ${scope.join(', ')}, not ${q.genus}`);
   const body = JSON.parse(q.body_json); const errors = [];
@@ -183,4 +194,17 @@ export async function setGenera(env, me, id, b, h) {
     ...genera.map(g => env.DB.prepare('INSERT INTO reviewer_genera (reviewer_id, genus) VALUES (?, ?)').bind(id, g)),
     await h.auditStmt(env, me.email, 'set reviewer genera', r.email, { genera })]);
   return h.json({ updated: true, genera });
+}
+
+// The owner withdraws a set by hand (for example one imported before this rule existed), if no formal answer exists on it.
+export async function withdrawSet(env, me, setId, b, h) {
+  const s = await setRow(env, setId);
+  if (!s) return h.err(404, 'no such question set');
+  if (s.withdrawn) return h.err(409, 'this question set is already withdrawn');
+  const n = (await env.DB.prepare("SELECT COUNT(*) AS n FROM decisions WHERE set_id = ? AND mode = 'formal'").bind(setId).first()).n;
+  if (n > 0) return h.err(409, `this set has ${n} formal answer${n === 1 ? '' : 's'}; it stays as an older version so that those answers keep their context`);
+  const reason = String((b && b.reason) || '').trim() || 'withdrawn by the owner';
+  await env.DB.batch([env.DB.prepare('INSERT INTO question_set_withdrawals (set_id, replaced_by, reason, withdrawn_by, at) VALUES (?,?,?,?,?)').bind(setId, (b && b.replaced_by) || null, reason, me.email, now()),
+    await h.auditStmt(env, me.email, 'withdraw question set', setId, { reason })]);
+  return h.json({ withdrawn: true, set: setId });
 }

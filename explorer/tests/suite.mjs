@@ -42,7 +42,7 @@ export function suite(test, ctx) {
   });
   test('owner applies the schema once; it is recorded and audited', async () => {
     const m = await as(OWNER, 'POST', 'admin/migrate', {});
-    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions']);
+    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions', '0004_question_set_withdrawals']);
     assert.deepEqual((await as(OWNER, 'POST', 'admin/migrate', {})).body.applied, []);
     assert.ok((await as(OWNER, 'GET', 'admin/status')).body.migrations.every(x => x.applied && !x.changed_since_applied));
   });
@@ -233,11 +233,28 @@ export function suite(test, ctx) {
     assert.equal(v.body.prior.set, SET); assert.equal(v.body.prior.choice, 'misapplied name: label the pattern'); assert.equal(v.body.prior.evidence_changed, true);
     assert.equal(v.body.outcome.status, 'open', 'an earlier decision does not answer the new question by itself');
   });
+
+  test('a corrected set replaces an unanswered set of the same genus; answered sets stay as older versions', async () => {
+    const v1 = syntheticQuestions('otherus-2026-03-01', { genus: 'Otherus', snapshot: '2026-03-01', questions: [{ ...QS.body.questions[0], id: 'OTH-D2-001' }] });
+    assert.equal((await as(OWNER, 'POST', 'admin/question-sets', { questions_text: v1.text })).status, 201);
+    const v2 = syntheticQuestions('otherus-2026-03-01-r2', { genus: 'Otherus', snapshot: '2026-03-01', questions: [{ ...QS.body.questions[0], id: 'OTH-D2-001', question: 'Reworded?' }] });
+    const r = await as(OWNER, 'POST', 'admin/question-sets', { questions_text: v2.text });
+    assert.equal(r.status, 201); assert.deepEqual(r.body.replaced, ['otherus-2026-03-01']); assert.deepEqual(r.body.kept_as_older_versions, []);
+    const l = await as(R1, 'GET', 'question-sets'); assert.ok(!l.body.sets.some(x => x.id === 'otherus-2026-03-01'), 'the replaced set is hidden');
+    assert.ok((await as(OWNER, 'GET', 'question-sets?withdrawn=1')).body.sets.some(x => x.id === 'otherus-2026-03-01'), 'the owner can still list it');
+    const old = await as(R1, 'GET', 'question-sets/otherus-2026-03-01/questions/OTH-D2-001'); assert.equal(old.body.may_decide, false); assert.ok(old.body.set.withdrawn);
+    assert.equal((await as(R1, 'POST', 'decisions', { set_id: 'otherus-2026-03-01', question_id: 'OTH-D2-001', evidence_sha256: old.body.evidence_sha256, choice: 'none available yet', rationale: 'x' })).status, 409);
+    const t = await as(OWNER, 'POST', 'admin/question-sets', { questions_text: syntheticQuestions('testus-2026-03-01', { snapshot: '2026-03-01' }).text });
+    assert.ok(t.body.kept_as_older_versions.includes(SET), 'a set with answers is kept');
+    assert.equal((await as(OWNER, 'POST', `admin/question-sets/${SET}/withdraw`, { reason: 'test' })).status, 409, 'formal answers protect a set');
+    assert.equal((await as(R1, 'POST', 'admin/question-sets/otherus-2026-03-01-r2/withdraw', {})).status, 403);
+    assert.equal((await as(OWNER, 'POST', 'admin/question-sets/otherus-2026-03-01-r2/withdraw', { reason: 'test' })).status, 200);
+  });
   if (ctx.db) test('the database itself refuses edits and deletes of evidence, reviews and the audit log', async () => {
     for (const sql of ["UPDATE reviews SET decision = 'accept name'", 'DELETE FROM reviews', 'DELETE FROM audit_events', "UPDATE release_files SET content = 'x'",
       'DELETE FROM releases', "UPDATE review_cases SET priority = 'C'", 'DELETE FROM acceptances', 'DELETE FROM schema_migrations',
       "UPDATE supplement_cases SET content_json = '{}'", 'DELETE FROM supplements', "UPDATE decisions SET choice = 'x'", 'DELETE FROM decisions',
-      "UPDATE questions SET subject = 'x'", 'DELETE FROM question_sets'])
+      "UPDATE questions SET subject = 'x'", 'DELETE FROM question_sets', 'DELETE FROM question_set_withdrawals'])
       await assert.rejects(ctx.db(sql), undefined, sql);
   });
 }

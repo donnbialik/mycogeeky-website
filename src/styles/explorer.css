@@ -74,3 +74,5 @@
 .xp-viewer{margin:0 0 14px;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fcfbf8}
 .xp-viewer img{max-width:100%;max-height:520px;display:block;margin:0 auto}
 .pill.rg{background:#d8e8cf;color:#1f4a2c}.pill.na{background:#eceae4;color:#5b5b52}
+
+.xp-nav-after{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:.92rem}

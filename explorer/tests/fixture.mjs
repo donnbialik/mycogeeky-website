@@ -43,3 +43,16 @@ export function syntheticSupplement(rel, x = {}) {
         inat_other_species: 1, inat_genus_only: 0, contradictions: ['iNaturalist 9000002: Testus beta at 0 points'] } } }, ...x };
   return { supplement: s, text: JSON.stringify(s, null, 1) };
 }
+
+// A synthetic genus question set (contract bre-questions/1), invented names only.
+export function syntheticQuestions(set = 'testus-2026-01-01', x = {}) {
+  const q = (id, type, subject, options, need, extra = {}) => ({ id, type, subject, question: `Synthetic question about ${subject}?`, options,
+    evidence: { note: 'synthetic' }, records_affected: 3, reviewers_needed: need, status: 'open', ...extra });
+  const s = { contract: 'bre-questions/1', set, genus: 'Testus', snapshot: '2026-01-01', engine: 'synthetic', status: 'computationally generated',
+    questions: [
+      q('TES-D2-001', 'D2', 'Testus alpha', ['literature epitype or neotype (give accession and citation)', 'curator material (give accession and basis)', 'none available yet', 'other'], 1),
+      q('TES-D4-002', 'D4', 'Testus alpha -> Testus beta', ['misapplied name: label the pattern', 'synonym of the anchor name', 'unresolved', 'other'], 2),
+      q('TES-D5-003', 'D5', 'cluster near Testus beta', ['an existing provisional name (give it)', 'candidate undescribed taxon', 'needs more data', 'other'], 2),
+    ], ...x };
+  return { body: s, text: JSON.stringify(s) };
+}

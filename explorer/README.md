@@ -45,6 +45,27 @@ generated into `dist/`**; `npm run explorer:scan` fails the build check if one i
    until you have reviewed (an owner reveal is audited); nothing becomes an accepted reference without an explicit
    owner acceptance into a **future** release.
 
+## Genus decisions (question sets and the decision ledger)
+
+A genus review report (engine: `harness/genus/genus_report.py`) raises questions: which sequence fixes what a name means
+(D1, D2), which types ITS cannot tell apart (D3), misapplied-name patterns (D4), unnamed groups (D5), record problems (D6),
+short type sequences (D7), herbarium types under another name (D8) and type sequences NCBI files under another genus (D9).
+
+* The engine exports them as `questions.json` (contract `bre-questions/1`, `explorer/contract/questions.js`); the owner
+  imports it on the set-up page. Question sets and questions are immutable.
+* Reviewers answer at `/explorer/decisions/`. Answers are append-only (a correction supersedes), test until the owner
+  enables formal reviews for that person, pinned to the question's SHA-256, and hidden from other reviewers until they
+  answer. D3, D4, D5, D8 and D9 need two reviewers giving the same answer; different answers leave the question disputed.
+* The owner can limit a reviewer to some genera (no genera = every genus). Observers read only.
+* A later report of the same genus shows each question's earlier decided answer and whether its evidence changed.
+* The owner downloads a report's decision ledger (contract `bre-ledger/1`); the engine reads it on its next run
+  (`harness/genus/ledger.py`).
+
+Inviting someone: add them on the set-up page (the page then shows an invitation to copy into an e-mail). Their
+e-mail must also be admitted by the Cloudflare Access policy of the Explorer, unless that policy admits any e-mail with
+a one-time PIN and leaves the decision to the database (every API call is refused unless the e-mail is an active
+reviewer in D1).
+
 ## Tests
 
 ```bash

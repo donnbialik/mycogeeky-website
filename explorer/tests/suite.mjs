@@ -3,7 +3,7 @@
 //   e2e.mjs        over HTTP against the real Cloudflare runtime (wrangler pages dev: workerd + local D1)
 // `req(method, path, {token, body, origin, contentType})` -> {status, body, text, headers}.
 import assert from 'node:assert/strict';
-import { syntheticRelease, syntheticSupplement } from './fixture.mjs';
+import { syntheticRelease, syntheticSupplement, syntheticQuestions } from './fixture.mjs';
 
 export const OWNER = 'owner@example.org', R1 = 'r1@example.org', R2 = 'r2@example.org', OBS = 'observer@example.org';
 
@@ -42,7 +42,7 @@ export function suite(test, ctx) {
   });
   test('owner applies the schema once; it is recorded and audited', async () => {
     const m = await as(OWNER, 'POST', 'admin/migrate', {});
-    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements']);
+    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions']);
     assert.deepEqual((await as(OWNER, 'POST', 'admin/migrate', {})).body.applied, []);
     assert.ok((await as(OWNER, 'GET', 'admin/status')).body.migrations.every(x => x.applied && !x.changed_since_applied));
   });
@@ -162,10 +162,82 @@ export function suite(test, ctx) {
     assert.equal((await as(OWNER, 'POST', `reviewers/${ids[OBS]}/active`, { enabled: false })).status, 200);
     assert.equal((await as(OBS, 'GET', 'cases')).status, 403);
   });
+
+  // ---------------------------------------------------------------- genus review questions and the decision ledger
+  const QS = syntheticQuestions(); const SET = QS.body.set;
+  const dec = (question_id, evidence_sha256, x = {}) => ({ set_id: SET, question_id, evidence_sha256, choice: 'misapplied name: label the pattern', rationale: 'compared with the type', ...x });
+  const qh = async (email, qid) => (await as(email, 'GET', `question-sets/${SET}/questions/${qid}`)).body.evidence_sha256;
+  test('question sets: owner-only import, checked against the contract, then immutable', async () => {
+    const bad = syntheticQuestions('testus-bad', { questions: [{ ...QS.body.questions[1], reviewers_needed: 1 }] });
+    const r = await as(OWNER, 'POST', 'admin/question-sets', { questions_text: bad.text }); assert.equal(r.status, 400); assert.match(r.body.detail.join(' '), /reviewers_needed must be 2/);
+    assert.equal((await as(R1, 'POST', 'admin/question-sets', { questions_text: QS.text })).status, 403);
+    const ok = await as(OWNER, 'POST', 'admin/question-sets', { questions_text: QS.text }); assert.equal(ok.status, 201, JSON.stringify(ok.body)); assert.equal(ok.body.questions, 3);
+    assert.equal((await as(OWNER, 'POST', 'admin/question-sets', { questions_text: QS.text })).status, 409);
+    const l = await as(R1, 'GET', 'question-sets'); assert.equal(l.body.sets[0].status_counts.open, 3);
+    const g = await as(R1, 'GET', 'question-sets/' + SET); assert.equal(g.body.questions.length, 3); assert.ok(g.body.questions.every(q => q.outcome === 'open'));
+  });
+  test('decisions: options only, detail when asked, reasoning required, pinned to the question hash', async () => {
+    const h = await qh(R1, 'TES-D2-001');
+    const r = await as(R1, 'POST', 'decisions', dec('TES-D2-001', 'stale', { choice: 'not an option', rationale: '' }));
+    assert.equal(r.status, 400); assert.equal(r.body.detail.length, 3);
+    const r2 = await as(R1, 'POST', 'decisions', dec('TES-D2-001', h, { choice: 'curator material (give accession and basis)' }));
+    assert.equal(r2.status, 400); assert.match(r2.body.detail.join(' '), /needs the detail/);
+    const ok = await as(R1, 'POST', 'decisions', dec('TES-D2-001', h, { choice: 'curator material (give accession and basis)', detail: 'XX000001.1, curator sequence', mode: 'formal' }));
+    assert.equal(ok.status, 201); assert.equal(ok.body.mode, 'formal');
+    assert.equal((await as(R1, 'POST', 'decisions', dec('TES-D2-001', h, { choice: 'none available yet' }))).status, 400, 'a second answer must be a correction');
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D2-001`)).body.outcome.status, 'decided', 'one reviewer decides D2');
+  });
+  test('two-reviewer questions: one formal answer waits, a different answer is disputed, matching answers decide', async () => {
+    const h = await qh(R1, 'TES-D4-002');
+    assert.equal((await as(R1, 'POST', 'decisions', dec('TES-D4-002', h, { mode: 'formal' }))).status, 201);
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.outcome.status, 'awaiting second reviewer');
+    const v = await as(R2, 'GET', `question-sets/${SET}/questions/TES-D4-002`); assert.equal(v.body.others_hidden, true); assert.equal(v.body.others_count, 1);
+    const d = await as(R2, 'POST', 'decisions', dec('TES-D4-002', h, { choice: 'synonym of the anchor name', mode: 'formal' })); assert.equal(d.status, 201);
+    assert.equal((await as(R2, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.outcome.status, 'disputed');
+    assert.equal((await as(R2, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.others.length, 1, 'answers shown once you have answered');
+    assert.equal((await as(R2, 'POST', 'decisions', dec('TES-D4-002', h, { mode: 'formal', supersedes: d.body.decision_id }))).status, 201);
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.outcome.status, 'decided');
+  });
+  test('two-reviewer answers that need a name must name the same thing; test decisions never count', async () => {
+    const h = await qh(R1, 'TES-D5-003');
+    await as(R1, 'POST', 'decisions', dec('TES-D5-003', h, { choice: 'an existing provisional name (give it)', detail: "Testus sp. 'XX01'", mode: 'formal' }));
+    await as(R2, 'POST', 'decisions', dec('TES-D5-003', h, { choice: 'an existing provisional name (give it)', detail: "Testus sp. 'XX02'", mode: 'formal' }));
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body.outcome.status, 'disputed');
+    const t = await as(OWNER, 'POST', 'decisions', dec('TES-D5-003', h, { choice: 'needs more data' })); assert.equal(t.body.mode, 'test');
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body.outcome.formal_reviewers, 2, 'the test decision is not counted');
+  });
+  test('genus scopes: a reviewer limited to another genus can read but not answer; observers cannot answer', async () => {
+    const ids = Object.fromEntries((await as(OWNER, 'GET', 'reviewers')).body.reviewers.map(r => [r.email, r.id]));
+    assert.equal((await as(OWNER, 'POST', `reviewers/${ids[R2]}/genera`, { genera: ['Otherus'] })).status, 200);
+    assert.equal((await as(R1, 'POST', `reviewers/${ids[R2]}/genera`, { genera: [] })).status, 403);
+    const v = await as(R2, 'GET', `question-sets/${SET}/questions/TES-D2-001`); assert.equal(v.status, 200); assert.equal(v.body.may_decide, false);
+    assert.equal((await as(R2, 'POST', 'decisions', dec('TES-D2-001', v.body.evidence_sha256, { choice: 'none available yet' }))).status, 403);
+    assert.deepEqual((await as(OWNER, 'GET', 'reviewers')).body.reviewers.find(r => r.email === R2).genera, ['Otherus']);
+    assert.equal((await as(OWNER, 'POST', `reviewers/${ids[R2]}/genera`, { genera: [] })).status, 200);
+    await as(OWNER, 'POST', 'reviewers', { email: 'obs2@example.org', display_name: 'Observer Two', role: 'observer' });
+    assert.equal((await as('obs2@example.org', 'POST', 'decisions', dec('TES-D2-001', v.body.evidence_sha256, { choice: 'none available yet' }))).status, 403);
+  });
+  test('ledger: owner only; decided outcomes with the decisions behind them; export is audited', async () => {
+    assert.equal((await as(R1, 'GET', `question-sets/${SET}/ledger`)).status, 403);
+    const l = await as(OWNER, 'GET', `question-sets/${SET}/ledger`); assert.equal(l.status, 200); assert.equal(l.body.contract, 'bre-ledger/1');
+    const by = Object.fromEntries(l.body.entries.map(e => [e.question, e]));
+    assert.equal(by['TES-D2-001'].outcome, 'decided'); assert.equal(by['TES-D2-001'].detail, 'XX000001.1, curator sequence');
+    assert.equal(by['TES-D4-002'].outcome, 'decided'); assert.equal(by['TES-D4-002'].decisions.length, 2);
+    assert.equal(by['TES-D5-003'].outcome, 'disputed'); assert.equal(by['TES-D5-003'].choice, null);
+    assert.ok((await as(OWNER, 'GET', 'audit')).body.events.some(e => e.action === 'export decision ledger'));
+  });
+  test('a later report of the same genus shows the earlier decided outcome and whether the evidence changed', async () => {
+    const next = syntheticQuestions('testus-2026-02-01', { snapshot: '2026-02-01', questions: [{ ...QS.body.questions[1], evidence: { note: 'new records' } }] });
+    assert.equal((await as(OWNER, 'POST', 'admin/question-sets', { questions_text: next.text })).status, 201);
+    const v = await as(R1, 'GET', 'question-sets/testus-2026-02-01/questions/TES-D4-002');
+    assert.equal(v.body.prior.set, SET); assert.equal(v.body.prior.choice, 'misapplied name: label the pattern'); assert.equal(v.body.prior.evidence_changed, true);
+    assert.equal(v.body.outcome.status, 'open', 'an earlier decision does not answer the new question by itself');
+  });
   if (ctx.db) test('the database itself refuses edits and deletes of evidence, reviews and the audit log', async () => {
     for (const sql of ["UPDATE reviews SET decision = 'accept name'", 'DELETE FROM reviews', 'DELETE FROM audit_events', "UPDATE release_files SET content = 'x'",
       'DELETE FROM releases', "UPDATE review_cases SET priority = 'C'", 'DELETE FROM acceptances', 'DELETE FROM schema_migrations',
-      "UPDATE supplement_cases SET content_json = '{}'", 'DELETE FROM supplements'])
+      "UPDATE supplement_cases SET content_json = '{}'", 'DELETE FROM supplements', "UPDATE decisions SET choice = 'x'", 'DELETE FROM decisions',
+      "UPDATE questions SET subject = 'x'", 'DELETE FROM question_sets'])
       await assert.rejects(ctx.db(sql), undefined, sql);
   });
 }

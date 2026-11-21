@@ -1454,3 +1454,11 @@ sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;pad
   .mv-guide-body a[href^="http"]::after{content:" (" attr(href) ")";font-size:8pt;color:#54695b;word-break:break-all}
   .mv-guide-sources li{font-size:9pt!important}
 }
+
+/* Landing page: the hero's "Start exploring" button glows (a slow pulse; a steady glow for reduced motion). */
+.mv-hero-actions .mv-primary{box-shadow:0 0 18px 2px rgba(216,236,98,.45),0 0 2px rgba(216,236,98,.9)}
+@media(prefers-reduced-motion:no-preference){
+  .mv-hero-actions .mv-primary{animation:mv-glow 2.8s ease-in-out infinite}
+  .mv-hero-actions .mv-primary:hover,.mv-hero-actions .mv-primary:focus-visible{animation:none;box-shadow:0 0 30px 6px rgba(216,236,98,.65),0 0 3px rgba(216,236,98,1)}
+}
+@keyframes mv-glow{0%,100%{box-shadow:0 0 12px 1px rgba(216,236,98,.35),0 0 2px rgba(216,236,98,.8)}50%{box-shadow:0 0 30px 7px rgba(216,236,98,.65),0 0 3px rgba(216,236,98,1)}}

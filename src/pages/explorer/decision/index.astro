@@ -12,6 +12,9 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
       <section class="xp-panel"><h2>Question</h2><p id="question"></p></section>
       <section class="xp-panel"><h2>Evidence from the report</h2><dl class="xp-kv" id="evidence"></dl>
         <p class="muted small">Distances are percentages of compared positions; "Compared on" says which part of ITS. A short region carries less information than full ITS.</p></section>
+      <section class="xp-panel" id="recordsBox" hidden><h2 id="recordsHead">The records</h2>
+        <p class="muted small">Each accession opens its GenBank record in a new tab. Names are as deposited; country, voucher and first author as GenBank gives them.</p>
+        <div class="xp-scroll" style="max-height:520px"><table><thead><tr><th>GenBank</th><th>Role</th><th>Name as deposited</th><th>Country</th><th>Voucher</th><th>Length</th><th>First author</th></tr></thead><tbody id="records"></tbody></table></div></section>
     </div>
     <div>
       <section class="xp-panel"><h2>Your answer</h2>

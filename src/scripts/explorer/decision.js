@@ -5,6 +5,15 @@ const P = new URLSearchParams(location.search); const setId = P.get('set'), qid 
 let v, order = [];
 // Distances: one decimal at 1% and above, two below (small differences matter there).
 const num = x => { const n = Number(x); return Number.isFinite(n) && String(x).trim() !== '' && /^-?[0-9.]+$/.test(String(x).trim()) && !Number.isInteger(n) ? (Math.abs(n) >= 1 ? n.toFixed(1) : n.toFixed(2)) : x; };
+// GenBank accessions anywhere in the question or the evidence link to the GenBank record.
+const ACC = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d{1,2})?)\b/g;
+const gb = a => `<a href="https://www.ncbi.nlm.nih.gov/nuccore/${encodeURIComponent(a)}" target="_blank" rel="noopener noreferrer">${esc(a)}</a>`;
+const linked = t => esc(t).replace(ACC, m => gb(m));
+const ACC_KEYS = { accessions: 'GenBank records', type_sequences: 'Type sequences', reference_sequences: 'Reference sequences' };
+function accList(xs) {
+  const N = 12; const head = xs.slice(0, N).map(gb).join(', ');
+  return xs.length <= N ? head : `${head} <details style="display:inline"><summary>all ${xs.length}</summary>${xs.slice(N).map(gb).join(', ')}</details>`;
+}
 const tidy = t => String(t).replace(/(\d+\.\d{2,})%/g, (m, d) => num(d) + '%');
 const label = k => ({ basis: 'Basis', study: 'Study', records: 'Records', collections: 'Collections', us_records: 'US records', countries: 'Countries', regions_compared: 'Compared on',
   names_as_deposited: 'Names as deposited', us_states: 'US states', nearest_anchor: 'Nearest reference', nearest_anchor_distance_min: 'Distance to nearest reference (%)',
@@ -17,17 +26,24 @@ function render() {
   document.title = q.id + ' · Explorer';
   $('back').href = '/explorer/decisions/?set=' + encodeURIComponent(s.id);
   $('qid').textContent = `${s.genus} · report ${s.id} · question ${q.id} · ${v.evidence_sha256.slice(0, 12)}`;
-  $('title').innerHTML = `${esc(q.kind)}: <em>${esc(String(q.subject).replace(/^unnamed group:\s*/i, ''))}</em>`;
+  $('title').innerHTML = `${esc(q.kind)}: <em>${linked(String(q.subject).replace(/^unnamed group:\s*/i, ''))}</em>`;
   $('backList').href = '/explorer/decisions/?set=' + encodeURIComponent(s.id);
   $('kind').textContent = `${q.records_affected} records affected · needs ${q.reviewers_needed} reviewer${q.reviewers_needed > 1 ? 's' : ''} giving the same answer`;
   $('xp-release').innerHTML = `<strong>${esc(s.genus)} report ${esc(s.id)}</strong> · GenBank snapshot ${esc(s.snapshot)} · engine ${esc(s.header.engine)} · <strong>computationally generated question</strong>`;
-  $('question').textContent = tidy(q.question);
-  $('evidence').innerHTML = Object.entries(q.evidence || {}).map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${val(x)}</dd>`).join('') || '<dt>Evidence</dt><dd class="muted">none beyond the question</dd>';
+  $('question').innerHTML = linked(tidy(q.question));
+  const ev = Object.entries(q.evidence || {});
+  $('evidence').innerHTML = (ev.filter(([k]) => !ACC_KEYS[k]).map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${typeof x === 'string' ? linked(num(x)) : val(x)}</dd>`).join('')
+    + ev.filter(([k, x]) => ACC_KEYS[k] && Array.isArray(x) && x.length).map(([k, x]) => `<dt>${ACC_KEYS[k]} (${x.length})</dt><dd>${accList(x)}</dd>`).join(''))
+    || '<dt>Evidence</dt><dd class="muted">none beyond the question</dd>';
   const o = v.outcome;
   $('outcome').textContent = o.status === 'decided' ? `decided: ${o.choice}${o.detail ? ' (' + o.detail + ')' : ''}` : o.status;
   $('rule').textContent = q.reviewers_needed === 2 ? `This question needs two reviewers giving the same answer (${o.formal_reviewers} formal so far).` : 'One formal answer decides this question.';
   $('prior').innerHTML = v.prior ? `<div class="xp-msg ${v.prior.evidence_changed ? 'bad' : 'ok'} small"><strong>Earlier report ${esc(v.prior.set)} (${esc(v.prior.snapshot)}) decided:</strong> ${esc(v.prior.choice)}${v.prior.detail ? ' (' + esc(v.prior.detail) + ')' : ''}. ${v.prior.evidence_changed ? 'The evidence has changed since, so the question is asked again.' : 'The evidence is the same.'}</div>` : '';
   $('options').innerHTML = q.options.map((x, i) => `<label style="display:block;margin:6px 0"><input type="radio" name="choice" value="${esc(x)}" id="opt${i}" /> ${esc(x)}</label>`).join('');
+  const mp = v.my_previous;
+  $('myPrev').innerHTML = mp && !v.my_decisions.length ? `<div class="xp-msg info small"><strong>Your answer on ${esc(mp.set)}:</strong> ${esc(mp.choice)}${mp.detail ? ': ' + esc(mp.detail) : ''} <span class="pill ${esc(mp.mode)}">${esc(mp.mode)}</span>
+    <div>${esc(mp.rationale)}</div>${mp.evidence_changed ? '<div>The evidence has changed since; check it before reusing the answer.</div>' : ''}
+    <button type="button" class="secondary" id="reuse">Use this answer again</button></div>` : '';
   const may = v.may_decide; for (const el of $('f').querySelectorAll('input,textarea,button')) el.disabled = !may;
   if (!may) $('msg').innerHTML = '<div class="xp-msg info">You can read this question but not answer it (observer, or a reviewer for other genera).</div>';
 }
@@ -45,6 +61,13 @@ function renderAnswers() {
   $('nextQ').hidden = !next; if (next) $('nextQ').href = `/explorer/decision/?set=${encodeURIComponent(setId)}&id=${encodeURIComponent(next.id)}`;
   $('supNote').textContent = cur ? `Saving now records a correction of your answer #${cur.id}. The earlier answer stays in the history.` : '';
 }
+$('myPrev').addEventListener('click', ev => {
+  if (ev.target.id !== 'reuse' || !v.my_previous) return; const mp = v.my_previous;
+  const r = [...document.querySelectorAll('input[name=choice]')].find(x => x.value === mp.choice); if (r) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+  $('detail').value = mp.detail || ''; $('rationale').value = mp.rationale || ''; $('citation').value = mp.citation || '';
+  const f = document.querySelector(`input[name=mode][value=${mp.mode}]`); if (f && !f.disabled) f.checked = true;
+  $('msg').className = 'xp-msg info'; $('msg').textContent = 'Your earlier answer is filled in. Check it against the evidence, then save.';
+});
 $('options').addEventListener('change', () => { const c = (document.querySelector('input[name=choice]:checked') || {}).value; const need = c && needsDetail(c);
   $('detailBox').hidden = !need; $('detailHint').textContent = need ? `(${c})` : ''; });
 async function load() {

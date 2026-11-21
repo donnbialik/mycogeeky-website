@@ -50,11 +50,16 @@ export async function importQuestionSet(env, me, b, h) {
   const { questions, ...header } = s;
   const st = [env.DB.prepare('INSERT INTO question_sets (id, genus, snapshot, contract, header_json, sha256, questions, imported_at, imported_by) VALUES (?,?,?,?,?,?,?,?,?)')
     .bind(s.set, s.genus, s.snapshot, QUESTIONS_CONTRACT, canonical(header), digest, questions.length, now(), me.email)];
-  for (let i = 0; i < questions.length; i += 12) {          // 8 bound values per question; D1 allows 100 per statement
-    const chunk = questions.slice(i, i + 12); const vals = [];
-    for (const q of chunk) { const body = canonical(q); vals.push(s.set, q.id, q.type, q.subject, q.reviewers_needed, q.records_affected, body, await sha256(body)); }
-    st.push(env.DB.prepare(`INSERT INTO questions (set_id, id, type, subject, reviewers_needed, records_affected, body_json, evidence_sha256) VALUES ${chunk.map(() => '(?,?,?,?,?,?,?,?)').join(',')}`).bind(...vals));
+  // 8 bound values per question; D1 allows 100 bound values per statement and limits statement size, so a chunk holds
+  // at most 12 questions and about 60 kB of question text (questions with long record lists go on their own).
+  let chunk = [], bytes = 0;
+  const flush = () => { if (!chunk.length) return; st.push(env.DB.prepare(`INSERT INTO questions (set_id, id, type, subject, reviewers_needed, records_affected, body_json, evidence_sha256) VALUES ${chunk.map(() => '(?,?,?,?,?,?,?,?)').join(',')}`).bind(...chunk.flat())); chunk = []; bytes = 0; };
+  for (const q of questions) {
+    const body = canonical(q); const n = new TextEncoder().encode(body).length;
+    if (chunk.length && (chunk.length >= 12 || bytes + n > 60000)) flush();
+    chunk.push([s.set, q.id, q.type, q.subject, q.reviewers_needed, q.records_affected, body, await sha256(body)]); bytes += n;
   }
+  flush();
   st.push(await h.auditStmt(env, me.email, 'import question set', s.set, { sha256: digest, genus: s.genus, questions: questions.length }));
   // A corrected set replaces earlier sets of the same genus that nobody has answered yet; answered sets stay, as older versions.
   const earlier = (await env.DB.prepare(`SELECT s.id, (SELECT COUNT(*) FROM decisions d WHERE d.set_id = s.id) AS n FROM question_sets s

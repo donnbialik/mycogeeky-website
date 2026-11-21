@@ -9,7 +9,7 @@ const num = x => { const n = Number(x); return Number.isFinite(n) && String(x).t
 const ACC = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d{1,2})?)\b/g;
 const gb = a => `<a href="https://www.ncbi.nlm.nih.gov/nuccore/${encodeURIComponent(a)}" target="_blank" rel="noopener noreferrer">${esc(a)}</a>`;
 const linked = t => esc(t).replace(ACC, m => gb(m));
-const ACC_KEYS = { accessions: 'GenBank records', type_sequences: 'Type sequences', reference_sequences: 'Reference sequences' };
+const ACC_KEYS = { accessions: 'GenBank records', type_sequences: 'Type sequences', reference_sequences: 'Reference sequences', records: null };
 function accList(xs) {
   const N = 12; const head = xs.slice(0, N).map(gb).join(', ');
   return xs.length <= N ? head : `${head} <details style="display:inline"><summary>all ${xs.length}</summary>${xs.slice(N).map(gb).join(', ')}</details>`;
@@ -32,9 +32,14 @@ function render() {
   $('xp-release').innerHTML = `<strong>${esc(s.genus)} report ${esc(s.id)}</strong> · GenBank snapshot ${esc(s.snapshot)} · engine ${esc(s.header.engine)} · <strong>computationally generated question</strong>`;
   $('question').innerHTML = linked(tidy(q.question));
   const ev = Object.entries(q.evidence || {});
-  $('evidence').innerHTML = (ev.filter(([k]) => !ACC_KEYS[k]).map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${typeof x === 'string' ? linked(num(x)) : val(x)}</dd>`).join('')
+  $('evidence').innerHTML = (ev.filter(([k]) => !(k in ACC_KEYS)).map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${typeof x === 'string' ? linked(num(x)) : val(x)}</dd>`).join('')
     + ev.filter(([k, x]) => ACC_KEYS[k] && Array.isArray(x) && x.length).map(([k, x]) => `<dt>${ACC_KEYS[k]} (${x.length})</dt><dd>${accList(x)}</dd>`).join(''))
     || '<dt>Evidence</dt><dd class="muted">none beyond the question</dd>';
+  const rs = Array.isArray((q.evidence || {}).records) ? q.evidence.records : [];
+  $('recordsBox').hidden = !rs.length;
+  $('recordsHead').textContent = `The records (${rs.length})`;
+  $('records').innerHTML = rs.map(r => `<tr><td>${gb(r.accession)}</td><td>${esc(r.role === 'record' ? '' : r.role)}${r.type_material ? `<div class="small">${esc(r.type_material)}</div>` : ''}</td>
+    <td><em>${esc(r.name_as_deposited || '')}</em></td><td>${esc(r.country || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="gr-n">${r.length ?? ''}</td><td class="small">${esc(r.study || '')}</td></tr>`).join('');
   const o = v.outcome;
   $('outcome').textContent = o.status === 'decided' ? `decided: ${o.choice}${o.detail ? ' (' + o.detail + ')' : ''}` : o.status;
   $('rule').textContent = q.reviewers_needed === 2 ? `This question needs two reviewers giving the same answer (${o.formal_reviewers} formal so far).` : 'One formal answer decides this question.';

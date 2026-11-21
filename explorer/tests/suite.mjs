@@ -232,6 +232,8 @@ export function suite(test, ctx) {
     const v = await as(R1, 'GET', 'question-sets/testus-2026-02-01/questions/TES-D4-002');
     assert.equal(v.body.prior.set, SET); assert.equal(v.body.prior.choice, 'misapplied name: label the pattern'); assert.equal(v.body.prior.evidence_changed, true);
     assert.equal(v.body.outcome.status, 'open', 'an earlier decision does not answer the new question by itself');
+    assert.equal(v.body.my_previous.set, SET); assert.equal(v.body.my_previous.choice, 'misapplied name: label the pattern'); assert.equal(v.body.my_previous.evidence_changed, true);
+    assert.equal((await as(OBS, 'GET', 'question-sets/testus-2026-02-01/questions/TES-D4-002')).status, 403, 'deactivated accounts stay out');
   });
 
   test('a corrected set replaces an unanswered set of the same genus; answered sets stay as older versions', async () => {

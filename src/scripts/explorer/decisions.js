@@ -12,7 +12,7 @@ function draw() {
   const rows = view.questions.filter(q => (!k || q.type === k) && (!o || q.outcome === o) && (!m || (m === 'none' ? !q.my_choice : !!q.my_choice)));
   $('rows').innerHTML = rows.map(q => `<tr><td><a href="/explorer/decision/?set=${encodeURIComponent(view.set.id)}&id=${encodeURIComponent(q.id)}">${esc(q.id)}</a><div class="muted small">${esc(q.question.slice(0, 140))}${q.question.length > 140 ? '…' : ''}</div></td>
     <td>${outcomePill(q.outcome)}</td><td>${q.my_choice ? `${esc(q.my_choice)} <span class="pill ${esc(q.my_mode)}">${esc(q.my_mode)}</span>` : '<span class="muted">none</span>'}</td>
-    <td>${esc(q.kind)}</td><td><em>${esc(q.subject)}</em></td><td>${q.reviewers_needed}</td><td>${q.records_affected}</td></tr>`).join('') || '<tr><td colspan="7">No questions match.</td></tr>';
+    <td>${esc(q.kind)}</td><td>${/^unnamed group:/i.test(q.subject) ? `unnamed group: <em>${esc(q.subject.replace(/^unnamed group:\s*/i, ''))}</em>` : `<em>${esc(q.subject)}</em>`}</td><td>${q.reviewers_needed}</td><td>${q.records_affected}</td></tr>`).join('') || '<tr><td colspan="7">No questions match.</td></tr>';
 }
 async function load(id) {
   view = await api('question-sets/' + encodeURIComponent(id)); strip(view.set);

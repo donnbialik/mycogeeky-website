@@ -125,9 +125,16 @@ export async function getQuestion(env, me, setId, qid, reveal, h) {
     const a = adjudicateQuestion(currentDecisions(await decisionsOf(env, e.set_id, qq.id)).filter(d => d.mode === 'formal'), e.reviewers_needed);
     if (a.status === 'decided') { prior = { set: e.set_id, snapshot: e.snapshot, question: qq.id, choice: a.choice, detail: a.detail, evidence_changed: e.evidence_sha256 !== q.evidence_sha256 }; break; }
   }
+  // Your own latest answer to the same question (type and subject) in an earlier set of this genus, to reuse after checking.
+  let my_previous = null;
+  for (const e of earlier) {
+    const qq = await env.DB.prepare('SELECT id FROM questions WHERE set_id = ? AND type = ? AND subject = ?').bind(e.set_id, q.type, q.subject).first();
+    const mineThere = currentDecisions(await decisionsOf(env, e.set_id, qq.id)).find(d => d.reviewer_id === me.id);
+    if (mineThere) { my_previous = { set: e.set_id, snapshot: e.snapshot, ...pub(mineThere), evidence_changed: e.evidence_sha256 !== q.evidence_sha256 }; break; }
+  }
   const scope = await scopeOf(env, me);
   return h.json({ set: s, question: { ...JSON.parse(q.body_json), kind: QUESTION_TYPES[q.type] }, evidence_sha256: q.evidence_sha256,
-    outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed), prior,
+    outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed), prior, my_previous,
     may_decide: !s.withdrawn && me.role !== 'observer' && (!scope || scope.includes(s.genus)),
     my_decisions: mine.map(pub), others: show ? all.filter(d => d.reviewer_id !== me.id).map(pub) : null, others_hidden: !show,
     others_count: new Set(all.filter(d => d.reviewer_id !== me.id).map(d => d.reviewer_id)).size });

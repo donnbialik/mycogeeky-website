@@ -24,8 +24,9 @@ async function loadAll() {
     <td><input type="checkbox" data-id="${r.id}" data-k="formal" ${r.formal_reviews_enabled ? 'checked' : ''} aria-label="Formal reviews for ${esc(r.display_name)}" /></td>
     <td>${r.role === 'owner' ? 'yes' : `<input type="checkbox" data-id="${r.id}" data-k="active" ${r.active ? 'checked' : ''} aria-label="Account active for ${esc(r.display_name)}" />`}</td>
     <td>${r.role === 'owner' ? 'all' : `<input type="text" data-genera="${r.id}" value="${esc((r.genera || []).join(', '))}" placeholder="all genera" aria-label="Genera ${esc(r.display_name)} may answer for" />`}</td></tr>`).join('');
-  const { sets } = await api('question-sets');
-  $('ledgers').innerHTML = sets.length ? '<ul>' + sets.map(x => `<li>${esc(x.genus)} · ${esc(x.id)} · ${Object.entries(x.status_counts).map(([k, n]) => `${n} ${esc(k)}`).join(', ')} <button class="secondary" type="button" data-ledger="${esc(x.id)}">Download the ledger</button></li>`).join('') + '</ul>' : 'No question sets yet.';
+  const { sets } = await api('question-sets?withdrawn=1');
+  $('ledgers').innerHTML = sets.length ? '<ul>' + sets.map(x => `<li>${esc(x.genus)} · ${esc(x.id)} · ${x.withdrawn ? `<strong>withdrawn</strong>${x.withdrawn.replaced_by ? ' (replaced by ' + esc(x.withdrawn.replaced_by) + ')' : ''}` : Object.entries(x.status_counts).map(([k, n]) => `${n} ${esc(k)}`).join(', ')}
+    <button class="secondary" type="button" data-ledger="${esc(x.id)}">Download the ledger</button>${x.withdrawn ? '' : ` <button class="secondary" type="button" data-withdraw="${esc(x.id)}">Withdraw</button>`}</li>`).join('') + '</ul>' : 'No question sets yet.';
   const { events } = await api('audit');
   $('audit').innerHTML = events.slice(0, 100).map(e => `<tr><td class="small">${esc(e.at)}</td><td class="small">${esc(e.actor)}</td><td>${esc(e.action)}</td><td class="small">${esc(e.object)}</td></tr>`).join('');
 }
@@ -103,10 +104,14 @@ $('qcheck').addEventListener('click', async () => {
   } catch (e) { say('qmsg', 'bad', esc(e.message)); }
 });
 $('qimport').addEventListener('click', async () => {
-  try { $('qimport').disabled = true; const r = await post('admin/question-sets', { questions_text: qtext }); say('qmsg', 'ok', `Imported <strong>${esc(r.set)}</strong> (${r.questions} questions). <a href="/explorer/decisions/?set=${encodeURIComponent(r.set)}">Open it</a>.`); await loadAll(); }
+  try { $('qimport').disabled = true; const r = await post('admin/question-sets', { questions_text: qtext });
+    say('qmsg', 'ok', `Imported <strong>${esc(r.set)}</strong> (${r.questions} questions).${r.replaced.length ? ` It replaces ${esc(r.replaced.join(', '))}, which nobody had answered; that set is withdrawn.` : ''}${r.kept_as_older_versions.length ? ` ${esc(r.kept_as_older_versions.join(', '))} already had answers and stays as an older version.` : ''} <a href="/explorer/decisions/?set=${encodeURIComponent(r.set)}">Open it</a>.`); await loadAll(); }
   catch (e) { say('qmsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
 });
 $('ledgers').addEventListener('click', async ev => {
+  const w = ev.target.dataset && ev.target.dataset.withdraw;
+  if (w) { try { await post(`admin/question-sets/${encodeURIComponent(w)}/withdraw`, { reason: 'withdrawn by the owner from the set-up page' }); say('qmsg', 'ok', `${esc(w)} is withdrawn: reviewers no longer see it.`); await loadAll(); }
+    catch (e) { say('qmsg', 'bad', esc(e.message)); } return; }
   const id = ev.target.dataset && ev.target.dataset.ledger; if (!id) return;
   try { const l = await api(`question-sets/${encodeURIComponent(id)}/ledger`);
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(l, null, 1)], { type: 'application/json' })); a.download = `${id}-ledger.json`; a.click(); URL.revokeObjectURL(a.href); }

@@ -52,7 +52,8 @@ A genus review report (engine: `harness/genus/genus_report.py`) raises questions
 short type sequences (D7), herbarium types under another name (D8) and type sequences NCBI files under another genus (D9).
 
 * The engine exports them as `questions.json` (contract `bre-questions/1`, `explorer/contract/questions.js`); the owner
-  imports it on the set-up page. Question sets and questions are immutable.
+  imports it on the set-up page. Question sets cannot be edited; importing a corrected set withdraws earlier sets of the
+  same genus that have no answers (migration `0004_question_set_withdrawals`), while answered sets stay as older versions.
 * Reviewers answer at `/explorer/decisions/`. Answers are append-only (a correction supersedes), test until the owner
   enables formal reviews for that person, pinned to the question's SHA-256, and hidden from other reviewers until they
   answer. D3, D4, D5, D8 and D9 need two reviewers giving the same answer; different answers leave the question disputed.

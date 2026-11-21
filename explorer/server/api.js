@@ -318,17 +318,18 @@ export async function onRequest(context) {
 
     // ---- genus review questions and decisions (bre-questions/1)
     const H = { json, err, audit, auditStmt };
-    const genusReady = applied.some(m => m.id === '0003_genus_decisions');
+    const genusReady = applied.some(m => m.id === '0003_genus_decisions') && applied.some(m => m.id === '0004_question_set_withdrawals');
     if (!genusReady && (parts[0] === 'question-sets' || parts[0] === 'decisions' || (parts[0] === 'admin' && parts[1] === 'question-sets') || (parts[0] === 'reviewers' && (parts.length === 1 && M === 'GET' || parts[2] === 'genera'))))
       return err(503, 'the database needs the genus-decisions update; the owner applies it on the set-up page');
-    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 1) return Q.listSets(env, me, H);
+    if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 1) return Q.listSets(env, me, H, me.role === 'owner' && url.searchParams.get('withdrawn') === '1');
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 2) return Q.getSet(env, me, parts[1], H);
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 4 && parts[2] === 'questions') return Q.getQuestion(env, me, parts[1], parts[3], url.searchParams.get('reveal') === '1', H);
     if (M === 'POST' && parts[0] === 'decisions' && parts.length === 1) return Q.postDecision(env, me, await request.json(), H);
 
     // ---- owner only
     if (me.role !== 'owner') return err(403, 'only the owner can do this');
-    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets') return Q.importQuestionSet(env, me, await request.json(), H);
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets' && parts.length === 2) return Q.importQuestionSet(env, me, await request.json(), H);
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets' && parts.length === 4 && parts[3] === 'withdraw') return Q.withdrawSet(env, me, parts[2], await request.json(), H);
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 3 && parts[2] === 'ledger') return Q.ledger(env, me, parts[1], H);
     if (M === 'POST' && parts[0] === 'reviewers' && parts.length === 3 && parts[2] === 'genera') return Q.setGenera(env, me, Number(parts[1]), await request.json(), H);
     if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'releases') return importRelease(env, me, await request.json());

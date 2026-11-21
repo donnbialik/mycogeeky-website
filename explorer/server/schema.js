@@ -184,4 +184,22 @@ export const MIGRATIONS = [
          BEGIN SELECT RAISE(ABORT, 'a formal decision cannot be superseded by a test decision'); END`,
     ],
   },
+  {
+    // A question set can be WITHDRAWN (hidden from reviewers) when a corrected set replaces it, as long as nobody has
+    // recorded a formal answer on it. Withdrawal is itself a permanent, attributed record; the set stays in the
+    // database for the audit trail.
+    id: '0004_question_set_withdrawals',
+    statements: [
+      `CREATE TABLE question_set_withdrawals (
+         set_id TEXT PRIMARY KEY REFERENCES question_sets(id),
+         replaced_by TEXT,
+         reason TEXT NOT NULL,
+         withdrawn_by TEXT NOT NULL,
+         at TEXT NOT NULL)`,
+      ...noChange('question_set_withdrawals', 'withdrawals are permanent'),
+      `CREATE TRIGGER decisions_not_on_withdrawn BEFORE INSERT ON decisions
+         WHEN EXISTS (SELECT 1 FROM question_set_withdrawals WHERE set_id = NEW.set_id)
+         BEGIN SELECT RAISE(ABORT, 'this question set has been withdrawn'); END`,
+    ],
+  },
 ];

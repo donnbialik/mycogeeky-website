@@ -20,12 +20,12 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
         <button id="scheck">Check the file</button> <button id="simport" disabled>Import the supplement</button>
         <div id="smsg"></div></section>
       <section class="xp-panel"><h2>4. Import a genus question set</h2>
-        <p class="muted small">The decision queue of a genus review report, exported by the engine (contract bre-questions/1, file questions.json). It is checked here and again on the server. A question set is immutable once imported; a new report of the same genus is a new set, and its questions show any earlier decided answer.</p>
+        <p class="muted small">The decision queue of a genus review report, exported by the engine (contract bre-questions/1, file questions.json). It is checked here and again on the server. A question set cannot be edited once imported. Importing a corrected set replaces earlier sets of the same genus that nobody has answered yet (they are withdrawn and no longer shown). A set that already has answers stays as an older version, and the new set's questions show its decided answers.</p>
         <label for="f-qs">questions.json</label><input type="file" id="f-qs" accept=".json,application/json" />
         <button id="qcheck">Check the file</button> <button id="qimport" disabled>Import the question set</button>
         <div id="qmsg"></div></section>
-      <section class="xp-panel"><h2>5. Decision ledgers</h2>
-        <p class="muted small">Download a report's decision ledger (contract bre-ledger/1) for the engine's next run. Each download is recorded in the audit log.</p>
+      <section class="xp-panel"><h2>5. Question sets and decision ledgers</h2>
+        <p class="muted small">Download a report's decision ledger (contract bre-ledger/1) for the engine's next run; each download is recorded in the audit log. Withdraw hides a set from reviewers; it is refused once anyone has given a formal answer on it.</p>
         <div id="ledgers" class="muted small">No question sets yet.</div></section>
       <section class="xp-panel"><h2>Production readiness checks</h2>
         <p class="muted small">Runs from your signed-in browser against this deployment. It does not change any data.</p>

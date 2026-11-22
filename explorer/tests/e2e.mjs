@@ -32,7 +32,7 @@ async function req(method, p, { token, body, origin = BASE, contentType = 'appli
 }
 suite(test, { req, keys });
 test('static pages are served and carry no evidence; security headers are set on Explorer pages', async () => {
-  for (const p of ['/explorer/', '/explorer/record/', '/explorer/cases/', '/explorer/case/', '/explorer/admin/', '/investigate/explorer/']) {
+  for (const p of ['/explorer/', '/explorer/record/', '/explorer/cases/', '/explorer/case/', '/explorer/admin/', '/explorer/working-set/', '/investigate/explorer/']) {
     const r = await fetch(BASE + p); const t = await r.text();
     if (r.status !== 200) throw new Error(`${p}: ${r.status}`);
     if (/TEST0001|oriented_sequence|review_priority/.test(t)) throw new Error(`${p} contains evidence`);

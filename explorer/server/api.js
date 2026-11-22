@@ -16,6 +16,7 @@ import { MIGRATIONS } from './schema.js';
 import { CONTRACT, FILES, validateManifest, canonical, sha256 } from '../contract/release.js';
 import { SUPPLEMENT_CONTRACT, validateSupplement, citationsOf, CITATION } from '../contract/supplement.js';
 import * as Q from './decisions.js';
+import * as WS from './workingset.js';
 
 const DECISIONS = ['accept name', 'other name', 'reject as reference', 'unresolved'];
 const VOUCHER = ['yes', 'no', 'unknown'];
@@ -324,11 +325,36 @@ export async function onRequest(context) {
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 1) return Q.listSets(env, me, H, me.role === 'owner' && url.searchParams.get('withdrawn') === '1');
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 2) return Q.getSet(env, me, parts[1], H);
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 4 && parts[2] === 'questions') return Q.getQuestion(env, me, parts[1], parts[3], url.searchParams.get('reveal') === '1', H);
-    if (M === 'POST' && parts[0] === 'decisions' && parts.length === 1) return Q.postDecision(env, me, await request.json(), H);
+    if (M === 'POST' && parts[0] === 'decisions' && parts.length === 1) {
+      const b = await request.json();
+      const res = await Q.postDecision(env, me, b, H);
+      if (res.status === 201) {           // a decided outcome changes the genus working set at once
+        const g = await env.DB.prepare('SELECT genus FROM question_sets WHERE id = ?').bind(b.set_id).first();
+        if (g) await WS.syncGenus(env, g.genus, me.email, H, { set_id: b.set_id, question_id: b.question_id });
+      }
+      return res;
+    }
+
+    // ---- genus working sets (bre-workingset/1)
+    const wsReady = applied.some(m => m.id === '0005_working_sets');
+    if (!wsReady && (parts[0] === 'working-sets' || (parts[0] === 'admin' && parts[1] === 'working-sets')))
+      return err(503, 'the database needs the working-sets update; the owner applies it on the set-up page');
+    if (M === 'GET' && parts[0] === 'working-sets' && parts.length === 1) return WS.listWorkingSets(env, H);
+    if (M === 'GET' && parts[0] === 'working-sets' && parts.length === 2) return WS.getWorkingSet(env, parts[1], H);
+    if (M === 'GET' && parts[0] === 'working-sets' && parts.length === 3 && parts[2] === 'changes') return WS.getChanges(env, parts[1], H);
+    if (M === 'GET' && parts[0] === 'working-sets' && parts.length === 3 && (parts[2] === 'fasta' || parts[2] === 'csv'))
+      return WS.exportWorkingSet(env, me, parts[1], parts[2], (url.searchParams.get('roles') || '').split(',').filter(Boolean), H);
 
     // ---- owner only
     if (me.role !== 'owner') return err(403, 'only the owner can do this');
-    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets' && parts.length === 2) return Q.importQuestionSet(env, me, await request.json(), H);
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets' && parts.length === 2) {
+      const res = await Q.importQuestionSet(env, me, await request.json(), H);
+      return res;
+    }
+    if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'working-sets' && parts.length === 2) return WS.importWorkingSet(env, me, await request.json(), H);
+    if (M === 'POST' && parts[0] === 'working-sets' && parts.length === 3 && parts[2] === 'changes') return WS.postChange(env, me, parts[1], await request.json(), H);
+    if (M === 'POST' && parts[0] === 'working-sets' && parts.length === 5 && parts[2] === 'changes' && parts[4] === 'undo') return WS.undoChange(env, me, parts[1], Number(parts[3]), await request.json(), H);
+    if (M === 'POST' && parts[0] === 'working-sets' && parts.length === 3 && parts[2] === 'sync') return H.json(await WS.syncGenus(env, parts[1], me.email, H) || { error: 'not set up' });
     if (M === 'POST' && parts[0] === 'admin' && parts[1] === 'question-sets' && parts.length === 4 && parts[3] === 'withdraw') return Q.withdrawSet(env, me, parts[2], await request.json(), H);
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 3 && parts[2] === 'ledger') return Q.ledger(env, me, parts[1], H);
     if (M === 'POST' && parts[0] === 'reviewers' && parts.length === 3 && parts[2] === 'genera') return Q.setGenera(env, me, Number(parts[1]), await request.json(), H);

@@ -202,4 +202,48 @@ export const MIGRATIONS = [
          BEGIN SELECT RAISE(ABORT, 'this question set has been withdrawn'); END`,
     ],
   },
+  {
+    // Working sets (contract bre-workingset/1): the curated record set of each genus. A SNAPSHOT from the engine is
+    // immutable; reviewers' CHANGES are append-only and keyed by genus and accession, so they carry over to newer
+    // snapshots. An undo is a new change row that names the change it reverses. Changes come from decided genus
+    // questions (source 'decision', decision_ref 'set/question') or from the owner's hand edits (source 'manual').
+    id: '0005_working_sets',
+    statements: [
+      `CREATE TABLE ws_snapshots (
+         id TEXT PRIMARY KEY,
+         genus TEXT NOT NULL,
+         contract TEXT NOT NULL,
+         header_json TEXT NOT NULL,
+         sha256 TEXT NOT NULL,
+         records INTEGER NOT NULL,
+         imported_at TEXT NOT NULL,
+         imported_by TEXT NOT NULL)`,
+      `CREATE INDEX ws_snapshots_genus ON ws_snapshots(genus, imported_at)`,
+      `CREATE TABLE ws_records (
+         snapshot_id TEXT NOT NULL REFERENCES ws_snapshots(id),
+         accession TEXT NOT NULL,
+         role TEXT NOT NULL,
+         working_name TEXT NOT NULL,
+         record_json TEXT NOT NULL,
+         PRIMARY KEY (snapshot_id, accession))`,
+      `CREATE TABLE ws_changes (
+         id INTEGER PRIMARY KEY,
+         genus TEXT NOT NULL,
+         accession TEXT NOT NULL,
+         field TEXT NOT NULL CHECK (field IN ('role', 'working_name', 'name_kind')),
+         value TEXT,
+         reason TEXT NOT NULL,
+         source TEXT NOT NULL CHECK (source IN ('decision', 'manual')),
+         decision_ref TEXT,
+         undoes INTEGER REFERENCES ws_changes(id),
+         actor TEXT NOT NULL,
+         created_at TEXT NOT NULL)`,
+      `CREATE INDEX ws_changes_genus ON ws_changes(genus, accession, field)`,
+      `CREATE INDEX ws_changes_ref ON ws_changes(decision_ref)`,
+      `CREATE UNIQUE INDEX ws_changes_undo_once ON ws_changes(undoes) WHERE undoes IS NOT NULL`,
+      ...noChange('ws_snapshots', 'working-set snapshots are immutable; import a newer snapshot'),
+      ...noChange('ws_records', 'working-set snapshots are immutable; import a newer snapshot'),
+      ...noChange('ws_changes', 'working-set changes are append-only; an undo is a new change'),
+    ],
+  },
 ];

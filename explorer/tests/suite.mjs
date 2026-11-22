@@ -3,7 +3,8 @@
 //   e2e.mjs        over HTTP against the real Cloudflare runtime (wrangler pages dev: workerd + local D1)
 // `req(method, path, {token, body, origin, contentType})` -> {status, body, text, headers}.
 import assert from 'node:assert/strict';
-import { syntheticRelease, syntheticSupplement, syntheticQuestions } from './fixture.mjs';
+import { syntheticRelease, syntheticSupplement, syntheticQuestions, syntheticWorkingSet } from './fixture.mjs';
+import { effectsOf } from '../contract/workingset.js';
 import { validateQuestionSet } from '../contract/questions.js';
 
 export const OWNER = 'owner@example.org', R1 = 'r1@example.org', R2 = 'r2@example.org', OBS = 'observer@example.org';
@@ -43,7 +44,7 @@ export function suite(test, ctx) {
   });
   test('owner applies the schema once; it is recorded and audited', async () => {
     const m = await as(OWNER, 'POST', 'admin/migrate', {});
-    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions', '0004_question_set_withdrawals']);
+    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions', '0004_question_set_withdrawals', '0005_working_sets']);
     assert.deepEqual((await as(OWNER, 'POST', 'admin/migrate', {})).body.applied, []);
     assert.ok((await as(OWNER, 'GET', 'admin/status')).body.migrations.every(x => x.applied && !x.changed_since_applied));
   });
@@ -259,11 +260,68 @@ export function suite(test, ctx) {
     assert.equal((await as(R1, 'POST', 'admin/question-sets/otherus-2026-03-01-r2/withdraw', {})).status, 403);
     assert.equal((await as(OWNER, 'POST', 'admin/question-sets/otherus-2026-03-01-r2/withdraw', { reason: 'test' })).status, 200);
   });
+  // ---------------------------------------------------------------- genus working sets (bre-workingset/1)
+  const WSF = syntheticWorkingSet(); const wsGet = async (who = R1) => (await as(who, 'GET', 'working-sets/Testus')).body;
+  const recOf = (w, a) => w.records.find(r => r.accession === a);
+  test('effects of decided questions on the working set (contract)', async () => {
+    const q = { id: 'X-D6-001', type: 'D6', subject: 'XX000002.1', question: '?', options: ['keep', 'exclude: low quality'], evidence: {} };
+    assert.deepEqual(effectsOf(q, { status: 'disputed' }), [], 'nothing unless decided');
+    assert.deepEqual(effectsOf(q, { status: 'decided', choice: 'exclude: low quality' }).map(e => [e.accession, e.field, e.value]), [['XX000002.1', 'role', 'excluded']]);
+    const d5 = { id: 'X-D5-002', type: 'D5', subject: 'g', question: '?', options: [], evidence: { records: [{ accession: 'XX000004.1', role: 'record' }] } };
+    assert.deepEqual(effectsOf(d5, { status: 'decided', choice: 'an existing provisional name (give it)', detail: "Testus sp. 'OH01'" }).map(e => [e.field, e.value]),
+      [['working_name', "Testus sp. 'OH01'"], ['name_kind', 'provisional']]);
+  });
+  test('working sets: owner-only import, checked, decided questions applied at once, then immutable', async () => {
+    assert.deepEqual((await as(R1, 'GET', 'working-sets')).body.working_sets, []);
+    const bad = syntheticWorkingSet('testus-bad', { records: [{ ...WSF.body.records[0], role: 'kept' }] });
+    const r = await as(OWNER, 'POST', 'admin/working-sets', { workingset_text: bad.text }); assert.equal(r.status, 400); assert.match(r.body.detail.join(' '), /unknown role/);
+    assert.equal((await as(R1, 'POST', 'admin/working-sets', { workingset_text: WSF.text })).status, 403);
+    const ok = await as(OWNER, 'POST', 'admin/working-sets', { workingset_text: WSF.text }); assert.equal(ok.status, 201, JSON.stringify(ok.body));
+    assert.equal(ok.body.decisions_applied.questions, 7, 'every question of the genus is checked');
+    // the D2 decided earlier (curator material XX000001.1) made its changes when it was decided, before any snapshot existed; they apply now
+    assert.equal((await as(OWNER, 'POST', 'admin/working-sets', { workingset_text: WSF.text })).status, 409);
+    const w = await wsGet(); const x = recOf(w, 'XX000001.1');
+    assert.equal(x.role, 'working_reference'); assert.equal(x.working_name, 'Testus alpha'); assert.equal(x.changed.role.decision_ref, `${SET}/TES-D2-001`);
+    assert.equal(x.sequence, undefined, 'the record list carries no sequences');
+    assert.equal(recOf(w, 'XX000004.1').name_kind, 'provisional', 'a quoted epithet starts as a provisional name');
+  });
+  test('working sets: hand edits are owner-only, need a reason, and can be undone once', async () => {
+    assert.equal((await as(R1, 'POST', 'working-sets/Testus/changes', { accessions: ['XX000002.1'], field: 'role', value: 'excluded', reason: 'x' })).status, 403);
+    const n = await as(OWNER, 'POST', 'working-sets/Testus/changes', { accessions: ['XX000002.1'], field: 'role', value: 'excluded', reason: '' });
+    assert.equal(n.status, 400); assert.match(n.body.detail.join(' '), /reason/);
+    assert.equal((await as(OWNER, 'POST', 'working-sets/Testus/changes', { accessions: ['ZZ999999.1'], field: 'role', value: 'excluded', reason: 'x' })).status, 400);
+    assert.equal((await as(OWNER, 'POST', 'working-sets/Testus/changes', { accessions: ['XX000002.1', 'XX000004.1'], field: 'role', value: 'held', reason: 'awaiting the D5 answer' })).status, 201);
+    let w = await wsGet(); assert.equal(recOf(w, 'XX000002.1').role, 'held'); assert.equal(recOf(w, 'XX000004.1').role, 'held');
+    const id = (await as(R1, 'GET', 'working-sets/Testus/changes')).body.changes.find(c => c.accession === 'XX000002.1' && c.field === 'role').id;
+    assert.equal((await as(OWNER, 'POST', `working-sets/Testus/changes/${id}/undo`, { reason: '' })).status, 400);
+    assert.equal((await as(OWNER, 'POST', `working-sets/Testus/changes/${id}/undo`, { reason: 'held by mistake' })).status, 200);
+    assert.equal((await as(OWNER, 'POST', `working-sets/Testus/changes/${id}/undo`, { reason: 'again' })).status, 409);
+    w = await wsGet(); assert.equal(recOf(w, 'XX000002.1').role, 'included', 'back to the snapshot value');
+  });
+  test('working sets: a corrected decision undoes the changes it made', async () => {
+    const mine = (await as(R1, 'GET', `question-sets/${SET}/questions/TES-D2-001`)).body;
+    const prev = mine.my_decisions[mine.my_decisions.length - 1].id;
+    assert.equal((await as(R1, 'POST', 'decisions', dec('TES-D2-001', mine.evidence_sha256, { choice: 'none available yet', mode: 'formal', supersedes: prev }))).status, 201);
+    const x = recOf(await wsGet(), 'XX000001.1'); assert.equal(x.role, 'included'); assert.deepEqual(x.changed, {});
+    const ch = (await as(R1, 'GET', 'working-sets/Testus/changes')).body.changes;
+    assert.ok(ch.some(c => c.undoes != null && c.source === 'decision' && /outcome changed/.test(c.reason)));
+  });
+  test('working sets: FASTA and CSV downloads of the current set; a newer snapshot keeps the changes', async () => {
+    const f = await as(R1, 'GET', 'working-sets/Testus/fasta'); assert.equal(f.status, 200);
+    assert.match(f.text, /^>XX000001\.1 Testus alpha \| USA\n/); assert.ok(!f.text.includes('XX000004.1'), 'held records are not in the default FASTA');
+    assert.match(f.headers.get('content-disposition'), /attachment; filename="testus-testus-2026-01-01-\d+changes\.fasta"/);
+    const t = await as(R1, 'GET', 'working-sets/Testus/fasta?roles=type_reference'); assert.equal((t.text.match(/^>/gm) || []).length, 1);
+    const c = await as(R1, 'GET', 'working-sets/Testus/csv?roles=type_reference,working_reference,included,held,outgroup,excluded'); assert.equal(c.text.trim().split('\n').length, 5);
+    const v2 = syntheticWorkingSet('testus-2026-02-01');
+    assert.equal((await as(OWNER, 'POST', 'admin/working-sets', { workingset_text: v2.text })).status, 201);
+    const w = await wsGet(); assert.equal(w.snapshot.id, 'testus-2026-02-01'); assert.equal(recOf(w, 'XX000004.1').role, 'held', 'a hand change carries over');
+  });
   if (ctx.db) test('the database itself refuses edits and deletes of evidence, reviews and the audit log', async () => {
     for (const sql of ["UPDATE reviews SET decision = 'accept name'", 'DELETE FROM reviews', 'DELETE FROM audit_events', "UPDATE release_files SET content = 'x'",
       'DELETE FROM releases', "UPDATE review_cases SET priority = 'C'", 'DELETE FROM acceptances', 'DELETE FROM schema_migrations',
       "UPDATE supplement_cases SET content_json = '{}'", 'DELETE FROM supplements', "UPDATE decisions SET choice = 'x'", 'DELETE FROM decisions',
-      "UPDATE questions SET subject = 'x'", 'DELETE FROM question_sets', 'DELETE FROM question_set_withdrawals'])
+      "UPDATE questions SET subject = 'x'", 'DELETE FROM question_sets', 'DELETE FROM question_set_withdrawals',
+      "UPDATE ws_records SET role = 'excluded'", 'DELETE FROM ws_snapshots', "UPDATE ws_changes SET value = 'x'", 'DELETE FROM ws_changes'])
       await assert.rejects(ctx.db(sql), undefined, sql);
   });
 }

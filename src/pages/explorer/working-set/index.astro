@@ -1,0 +1,45 @@
+---
+import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
+---
+<ExplorerLayout title="Working set" active="worksets">
+  <p class="eyebrow">Genus working set · the records trees are built from</p>
+  <h1 id="ws-title">Working set</h1>
+  <p class="lead">The curated record set of a genus. Each record has a <strong>working name</strong> and a <strong>role</strong>. Decided genus questions change records here as soon as they are decided, and every change says why, who made it and when. Nothing here edits GenBank: names as deposited are kept beside the working names.</p>
+  <details class="xp-msg info small"><summary><strong>What the roles mean</strong></summary><ul>
+    <li><strong>Type reference</strong>: a sequence of a type specimen; it fixes what its name means.</li>
+    <li><strong>Working reference</strong>: a reference that is not a type (material identified by the describing authors, or a sequence reviewers chose). It is a working anchor; only a published epitype or neotype fixes a name.</li>
+    <li><strong>Included</strong>: used in trees under its working name. <strong>Held</strong>: kept aside until a question about it is settled.</li>
+    <li><strong>Outgroup</strong>: roots trees of this genus. <strong>Excluded</strong>: left out of trees, with the reason.</li>
+    <li><strong>Sampling</strong> (by-name view): independent collections of the name; 5 or more meets the tree-set criteria, 2 to 4 is short, 1 is flagged.</li></ul></details>
+  <div class="xp-panel">
+    <div class="xp-filters">
+      <div><label for="genus">Genus</label><select id="genus"></select></div>
+      <div class="xp-tabs" role="tablist" aria-label="View"><button type="button" role="tab" id="tab-names" aria-selected="true">By name</button><button type="button" role="tab" id="tab-recs" aria-selected="false">Records</button><button type="button" role="tab" id="tab-hist" aria-selected="false">Changes</button></div>
+    </div>
+    <p class="muted small" id="summary"></p>
+    <div class="xp-filters" id="filters">
+      <div class="wide"><label for="q">Search</label><input type="search" id="q" placeholder="name, accession, voucher, country" /></div>
+      <div><label for="role">Role</label><select id="role"><option value="">all</option></select></div>
+      <div><label for="kind">Name</label><select id="kind"><option value="">all</option></select></div>
+      <div><label for="changed">Changes</label><select id="changed"><option value="">all records</option><option value="1">changed only</option></select></div>
+    </div>
+    <p class="small"><strong>Download</strong>
+      <a id="dl-fasta" href="#" download>FASTA (references, included, outgroup)</a> ·
+      <a id="dl-types" href="#" download>FASTA (type references only)</a> ·
+      <a id="dl-csv" href="#" download>CSV (all records, all roles)</a>
+      <span class="muted">FASTA labels: accession, working name, type status, country.</span></p>
+    <div id="bulk" class="xp-panel" hidden>
+      <p class="small"><strong><span id="nsel">0</span> selected.</strong> Change them all (owner):</p>
+      <div class="xp-filters">
+        <div><label for="b-field">Field</label><select id="b-field"><option value="role">role</option><option value="working_name">working name</option><option value="name_kind">name kind</option></select></div>
+        <div id="b-value-wrap"><label for="b-value">New value</label><select id="b-value"></select></div>
+        <div class="wide"><label for="b-reason">Reason (required)</label><input type="text" id="b-reason" /></div>
+      </div>
+      <button id="b-save" type="button">Save the change</button> <button id="b-clear" type="button" class="secondary">Clear the selection</button><div id="bmsg"></div>
+    </div>
+    <div class="xp-scroll"><table id="table"><thead id="head"></thead><tbody id="rows"><tr><td class="muted">Loading the working set.</td></tr></tbody></table></div>
+  </div>
+</ExplorerLayout>
+<script>
+import '../../../scripts/explorer/workingset.js';
+</script>

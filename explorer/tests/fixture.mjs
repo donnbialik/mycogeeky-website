@@ -56,3 +56,14 @@ export function syntheticQuestions(set = 'testus-2026-01-01', x = {}) {
     ], ...x };
   return { body: s, text: JSON.stringify(s) };
 }
+
+// A small genus working set (bre-workingset/1) matching the synthetic question set's genus.
+export function syntheticWorkingSet(snapshot = 'testus-2026-01-01', x = {}) {
+  const r = (accession, working_name, role, extra = {}) => ({ accession, name_as_deposited: working_name, working_name, role, role_reason: 'synthetic',
+    collection: 'C-' + accession, voucher: 'TEST ' + accession, country: 'USA: Ohio', regions: 'ITS1+5.8S+ITS2', length: 600, engine_match: null, flags: [],
+    sequence: 'ACGT'.repeat(150), ...extra });
+  const s = { contract: 'bre-workingset/1', snapshot, genus: 'Testus', engine: 'synthetic', source: 'synthetic',
+    records: [r('XX000001.1', 'Testus alpha', 'included'), r('XX000002.1', 'Testus alpha', 'included'),
+      r('XX000003.1', 'Testus beta', 'type_reference', { type_material: 'holotype of Testus beta' }), r('XX000004.1', "Testus sp. 'XX01'", 'included')], ...x };
+  return { body: s, text: JSON.stringify(s) };
+}

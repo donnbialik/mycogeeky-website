@@ -4,7 +4,7 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
 <ExplorerLayout title="Genus decisions" active="decisions">
   <p class="eyebrow">Genus review reports · decision queue</p>
   <h1>Genus decisions</h1>
-  <p class="lead">Questions raised by a genus review report: which sequence fixes what a name means, which names ITS cannot tell apart, which GenBank names are misapplied, what unnamed groups are. Your answers form the decision ledger that the next run of the report applies.</p>
+  <p class="lead">Questions raised by a genus review report: which sequence fixes what a name means, which names ITS cannot tell apart, which GenBank names are misapplied, what unnamed groups are. A decided answer changes the genus <a href="/explorer/working-set/">working set</a> at once (for example, excluding a record or setting a reference), and the next run of the report reads the decisions too.</p>
   <div class="xp-msg info small"><strong>How answers count.</strong> Only formal answers count, and only once the owner has enabled formal answers for you. Questions about which name records belong to (types ITS cannot tell apart, misapplied names, unnamed groups, types filed under another name or genus) need two reviewers giving the same answer; different answers leave the question disputed. Other questions need one. You see other reviewers' answers only after giving your own.</div>
   <div class="xp-panel">
     <div class="xp-filters">

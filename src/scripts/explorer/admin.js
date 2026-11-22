@@ -3,6 +3,7 @@ import { api, apiText, post, esc, $, whoami, releaseStrip, showError } from './c
 import { validateManifest, validateEvidence, sha256 } from '../../../explorer/contract/release.js';
 import { validateSupplement } from '../../../explorer/contract/supplement.js';
 import { validateQuestionSet } from '../../../explorer/contract/questions.js';
+import { validateWorkingSet } from '../../../explorer/contract/workingset.js';
 const say = (id, cls, html) => { $(id).className = 'xp-msg ' + cls; $(id).innerHTML = html; };
 const list = xs => '<ul>' + xs.map(x => `<li>${esc(x)}</li>`).join('') + '</ul>';
 let files = null;
@@ -142,3 +143,26 @@ $('selftest').addEventListener('click', async () => {
   } catch (e) { say('stmsg', 'bad', '<ul>' + out.join('') + `</ul>Stopped: ${esc(e.message)}`); }
 });
 loadAll().catch(showError);
+
+let wsText = null;
+$('wcheck').addEventListener('click', async () => {
+  $('wimport').disabled = true; wsText = null;
+  try {
+    const f = $('f-ws').files[0]; if (!f) throw new Error('choose the workingset.json file');
+    const t = await f.text(); const w = JSON.parse(t); const errs = validateWorkingSet(w);
+    if (errs.length) return say('wmsg', 'bad', '<strong>This file cannot be imported.</strong>' + list(errs));
+    const roles = {}; for (const r of w.records) roles[r.role] = (roles[r.role] || 0) + 1;
+    wsText = t;
+    say('wmsg', 'ok', `<strong>${esc(w.genus)} · ${esc(w.snapshot)}</strong>: ${w.records.length} records (${Object.entries(roles).map(([k, n]) => `${n} ${esc(k.replace('_', ' '))}`).join(', ')}). The file checks out.`);
+    $('wimport').disabled = false;
+  } catch (e) { say('wmsg', 'bad', esc(e.message)); }
+});
+$('wimport').addEventListener('click', async () => {
+  try {
+    $('wimport').disabled = true; const r = await post('admin/working-sets', { workingset_text: wsText });
+    const d = r.decisions_applied;
+    say('wmsg', 'ok', `Imported <strong>${esc(r.genus)} · ${esc(r.snapshot)}</strong> (${r.records} records).` + (d ? ` Decided questions applied: ${d.made} change${d.made === 1 ? '' : 's'} made.` : '') +
+      ` <a href="/explorer/working-set/?genus=${encodeURIComponent(r.genus)}">Open the working set</a>`);
+    await loadAll();
+  } catch (e) { say('wmsg', 'bad', `<strong>${esc(e.message)}</strong>` + (Array.isArray(e.detail) ? list(e.detail) : '')); }
+});

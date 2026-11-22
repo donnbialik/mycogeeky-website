@@ -24,7 +24,12 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
         <label for="f-qs">questions.json</label><input type="file" id="f-qs" accept=".json,application/json" />
         <button id="qcheck">Check the file</button> <button id="qimport" disabled>Import the question set</button>
         <div id="qmsg"></div></section>
-      <section class="xp-panel"><h2>5. Question sets and decision ledgers</h2>
+      <section class="xp-panel"><h2>5. Import a genus working set</h2>
+        <p class="muted small">The curated record set of a genus, exported by the engine (contract bre-workingset/1, file workingset.json). It becomes the genus's current working set. Every change made to a record, by a decided question or by hand, is kept and carries over to a newer snapshot of the same genus. Decided questions are applied as soon as the snapshot is imported.</p>
+        <label for="f-ws">workingset.json</label><input type="file" id="f-ws" accept=".json,application/json" />
+        <button id="wcheck">Check the file</button> <button id="wimport" disabled>Import the working set</button>
+        <div id="wmsg"></div></section>
+      <section class="xp-panel"><h2>6. Question sets and decision ledgers</h2>
         <p class="muted small">Download a report's decision ledger (contract bre-ledger/1) for the engine's next run; each download is recorded in the audit log. Withdraw hides a set from reviewers; it is refused once anyone has given a formal answer on it.</p>
         <div id="ledgers" class="muted small">No question sets yet.</div></section>
       <section class="xp-panel"><h2>Production readiness checks</h2>

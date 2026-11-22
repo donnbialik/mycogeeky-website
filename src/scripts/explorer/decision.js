@@ -14,11 +14,16 @@ function accList(xs) {
   const N = 12; const head = xs.slice(0, N).map(gb).join(', ');
   return xs.length <= N ? head : `${head} <details style="display:inline"><summary>all ${xs.length}</summary>${xs.slice(N).map(gb).join(', ')}</details>`;
 }
+// Links to sources: only https addresses on these hosts are shown as links; anything else stays text.
+const HOSTS = { 'pubmed.ncbi.nlm.nih.gov': 'PubMed', 'www.ncbi.nlm.nih.gov': 'GenBank', 'www.indexfungorum.org': 'Index Fungorum record', 'doi.org': 'DOI',
+  'www.gbif.org': 'GBIF', 'mycomap.org': 'MycoMap', 'www.mycobank.org': 'MycoBank' };
+const srcLink = u => { try { const x = new URL(u); return x.protocol === 'https:' && HOSTS[x.hostname] ? `<a href="${esc(x.href)}" target="_blank" rel="noopener noreferrer">${esc(HOSTS[x.hostname])}</a>` : null; } catch { return null; } };
 const tidy = t => String(t).replace(/(\d+\.\d{2,})%/g, (m, d) => num(d) + '%');
 const label = k => ({ basis: 'Basis', study: 'Study', records: 'Records', collections: 'Collections', us_records: 'US records', countries: 'Countries', regions_compared: 'Compared on',
   names_as_deposited: 'Names as deposited', us_states: 'US states', nearest_anchor: 'Nearest reference', nearest_anchor_distance_min: 'Distance to nearest reference (%)',
   spread_full_ITS_max: 'Largest distance within the group (%)', wider_group: 'Related group', voucher: 'Voucher', if_name: 'Index Fungorum name', if_status: 'Index Fungorum status',
-  if_match: 'How the Index Fungorum entry was matched', source: 'Source', names: 'Names', regions: 'Compared on', flags: 'Flags' }[k] || k.replace(/_/g, ' '));
+  if_match: 'How the Index Fungorum entry was matched', index_fungorum: 'Index Fungorum', pubmed: 'Paper', authority: 'Authors of the name (Index Fungorum)',
+  first_author: 'First author of the GenBank record', study: 'GenBank study title', reading: 'Reading', source: 'Source', names: 'Names', regions: 'Compared on', flags: 'Flags' }[k] || k.replace(/_/g, ' '));
 const val = x => x == null || x === '' ? '<span class="muted">not recorded</span>'
   : Array.isArray(x) ? esc(x.join(', ')) : typeof x === 'object' ? esc(Object.entries(x).map(([a, b]) => `${a} (${typeof b === 'object' ? JSON.stringify(b) : num(b)})`).join(', ')) : esc(num(x));
 function render() {
@@ -32,14 +37,14 @@ function render() {
   $('xp-release').innerHTML = `<strong>${esc(s.genus)} report ${esc(s.id)}</strong> · GenBank snapshot ${esc(s.snapshot)} · engine ${esc(s.header.engine)} · <strong>computationally generated question</strong>`;
   $('question').innerHTML = linked(tidy(q.question));
   const ev = Object.entries(q.evidence || {});
-  $('evidence').innerHTML = (ev.filter(([k]) => !(k in ACC_KEYS)).map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${typeof x === 'string' ? linked(num(x)) : val(x)}</dd>`).join('')
+  $('evidence').innerHTML = (ev.filter(([k, x]) => !(k in ACC_KEYS) && x != null && x !== '').map(([k, x]) => `<dt>${esc(label(k))}</dt><dd>${typeof x === 'string' ? (srcLink(x) || linked(num(x))) : val(x)}</dd>`).join('')
     + ev.filter(([k, x]) => ACC_KEYS[k] && Array.isArray(x) && x.length).map(([k, x]) => `<dt>${ACC_KEYS[k]} (${x.length})</dt><dd>${accList(x)}</dd>`).join(''))
     || '<dt>Evidence</dt><dd class="muted">none beyond the question</dd>';
   const rs = Array.isArray((q.evidence || {}).records) ? q.evidence.records : [];
   $('recordsBox').hidden = !rs.length;
   $('recordsHead').textContent = `The records (${rs.length})`;
   $('records').innerHTML = rs.map(r => `<tr><td>${gb(r.accession)}</td><td>${esc(r.role === 'record' ? '' : r.role)}${r.type_material ? `<div class="small">${esc(r.type_material)}</div>` : ''}</td>
-    <td><em>${esc(r.name_as_deposited || '')}</em></td><td>${esc(r.country || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="gr-n">${r.length ?? ''}</td><td class="small">${esc(r.study || '')}</td></tr>`).join('');
+    <td><em>${esc(r.name_as_deposited || '')}</em></td><td>${esc(r.country || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="gr-n">${r.length ?? ''}</td><td class="small">${esc(r.first_author || '')}${r.study && r.study !== r.first_author ? `<div class="muted">${esc(r.study)}</div>` : ''}${r.pubmed && srcLink(r.pubmed) ? `<div>${srcLink(r.pubmed)}</div>` : ''}</td></tr>`).join('');
   const o = v.outcome;
   $('outcome').textContent = o.status === 'decided' ? `decided: ${o.choice}${o.detail ? ' (' + o.detail + ')' : ''}` : o.status;
   $('rule').textContent = q.reviewers_needed === 2 ? `This question needs two reviewers giving the same answer (${o.formal_reviewers} formal so far).` : 'One formal answer decides this question.';

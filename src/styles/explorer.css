@@ -26,7 +26,7 @@
 .xp input[type=text],.xp input[type=search],.xp input[type=email],.xp select,.xp textarea{width:100%;font:inherit;font-size:.92rem;padding:9px 10px;border:1px solid #c8d0c2;border-radius:6px;background:#fff;color:var(--ink)}
 .xp textarea{min-height:92px;resize:vertical}
 .xp input:focus-visible,.xp select:focus-visible,.xp textarea:focus-visible,.xp button:focus-visible,.xp a:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.xp button,.xp .button{font:700 .86rem 'DM Sans',sans-serif;border-radius:6px;padding:11px 16px;background:var(--forest);color:#fff;border:1px solid var(--forest);cursor:pointer;margin-top:14px}
+.xp button,.xp .button{font:700 .86rem var(--ds-font-body);border-radius:6px;padding:11px 16px;background:var(--forest);color:#fff;border:1px solid var(--forest);cursor:pointer;margin-top:14px}
 .xp button.secondary{background:transparent;color:var(--forest)}
 .xp button:disabled{opacity:.5;cursor:not-allowed}
 .xp-count{font-size:.85rem;color:var(--muted);margin:0 0 8px}

@@ -1,0 +1,59 @@
+/* Site shell (header, tier switch, footer) in the new design system. Loaded after site.css. */
+
+/* Type: the three design-system families replace IBM Plex, Source Serif, Fraunces and DM Sans site-wide. */
+body { font-family: var(--ds-font-body); }
+h1, h2, h3 { font-family: var(--ds-font-display); font-stretch: 75%; }
+/* Older page rules set tight tracking meant for Fraunces; condensed Archivo needs normal tracking. */
+h1, h2, h3, .brand { letter-spacing: -0.005em !important; }
+code, kbd, samp { font-family: var(--ds-font-mono); }
+:focus-visible { outline: 3px solid var(--ds-focus); outline-offset: 3px; }
+
+/* Header */
+.ds-header { background: var(--ds-ground); color: var(--ds-ink); border-bottom: 1px solid var(--ds-line-subtle); }
+.ds-header-inner { width: min(1360px, calc(100% - 48px)); margin: 0 auto; min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.ds-brand { display: flex; align-items: center; gap: 12px; padding: 8px 0; text-decoration: none; color: inherit; }
+.ds-wordmark { border: 2px solid currentColor; padding: 3px 9px; font-family: var(--ds-font-display); font-stretch: 70%; font-weight: 800; font-size: 22px; letter-spacing: 0.04em; line-height: 1.2; }
+.ds-brand-sub { font-family: var(--ds-font-mono); font-size: 15px; color: var(--ds-ink-muted); }
+.ds-nav { display: flex; flex-wrap: wrap; margin: 0 -12px; }
+.ds-nav a { padding: 12px; font-size: 16px; font-weight: 500; text-decoration: none; color: inherit; }
+.ds-nav a:hover { text-decoration: underline; text-underline-offset: 6px; }
+.ds-nav a[aria-current="page"] { font-weight: 600; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+
+.ds-menu { display: none; position: relative; }
+.ds-menu summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 4px; cursor: pointer; font-weight: 600; font-size: 16px; }
+.ds-menu summary::-webkit-details-marker { display: none; }
+.ds-menu .ds-icon-close { display: none; }
+.ds-menu[open] .ds-icon-open { display: none; }
+.ds-menu[open] .ds-icon-close { display: block; }
+.ds-menu nav { position: absolute; right: 0; top: calc(100% + 10px); z-index: 50; width: min(300px, calc(100vw - 32px)); display: flex; flex-direction: column; background: var(--ds-paper-card); color: var(--ds-paper-ink); box-shadow: var(--ds-shadow-paper); padding: 8px 18px; }
+.ds-menu nav a { display: flex; align-items: center; min-height: 48px; font-size: 17px; text-decoration: none; color: inherit; border-bottom: 1px solid var(--ds-rule-ledger); }
+.ds-menu nav a:last-child { border-bottom: 0; }
+.ds-menu nav a[aria-current="page"] { font-weight: 600; text-decoration: underline; text-underline-offset: 5px; }
+
+@media (max-width: 860px) {
+  .ds-nav { display: none; }
+  .ds-menu { display: block; }
+  .ds-brand-sub { display: none; }
+}
+
+/* Tier switch: Field / Lab, under the header on pages that belong to a tier. */
+.ds-tierbar { background: var(--ds-ground); color: var(--ds-ink); }
+.ds-tierbar-inner { width: min(1360px, calc(100% - 48px)); margin: 0 auto; padding: 20px 0 4px; display: flex; justify-content: space-between; align-items: center; gap: 12px 16px; flex-wrap: wrap; }
+.ds-tierswitch { display: inline-flex; flex-wrap: wrap; border: 2px solid var(--ds-ink); }
+.ds-tierswitch a { padding: 10px 18px; font-weight: 600; font-size: 15px; text-decoration: none; color: inherit; }
+.ds-tierswitch a[aria-current="page"] { background: var(--ds-action); color: var(--ds-action-ink); }
+
+/* Footer */
+.ds-footer { background: var(--ds-paper-ink); color: #F1EFE8; font-size: 15px; }
+.ds-footer a { color: inherit; text-underline-offset: 4px; }
+.ds-footer-grid { width: min(1360px, calc(100% - 48px)); margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 36px; padding: 56px 0 36px; }
+.ds-footer .ds-wordmark { font-size: 20px; }
+.ds-footer-brand p { margin: 14px 0 18px; line-height: 1.55; color: #D3D0C6; max-width: 34ch; }
+.ds-footer-col h2 { font-family: var(--ds-font-display); font-stretch: 75%; font-size: 18px; font-weight: 700; letter-spacing: 0; margin: 0 0 10px; }
+.ds-footer-col { display: flex; flex-direction: column; }
+.ds-footer-col a { padding: 8px 0; text-decoration: none; }
+.ds-footer-col a:hover { text-decoration: underline; }
+.ds-footer-col .ds-where { color: #B9B5A8; font-size: 13px; }
+.ds-footer-base { width: min(1360px, calc(100% - 48px)); margin: 0 auto; border-top: 1px solid #3A3A3A; padding: 18px 0 28px; display: flex; justify-content: space-between; gap: 16px; color: #B9B5A8; font-size: 14px; }
+@media (max-width: 860px) { .ds-footer-grid { grid-template-columns: 1fr 1fr; } .ds-footer-brand { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .ds-footer-grid { grid-template-columns: 1fr; gap: 24px; } }

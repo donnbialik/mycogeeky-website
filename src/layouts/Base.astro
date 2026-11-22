@@ -1,13 +1,18 @@
 ---
+import '../styles/tokens.css';
 import '../styles/site.css';
+import '../styles/shell.css';
 import { getImage } from 'astro:assets';
 import shareImageSource from '../assets/featured-orange-mushrooms.png';
 
-interface Props { title?: string; description?: string; }
+/** tier: which design tier the page belongs to. 'field' and 'lab' pages show the Field / Lab switch. */
+interface Props { title?: string; description?: string; tier?: 'field' | 'lab'; }
 const {
   title = 'MycoView',
   description = 'Explore the fungal world through field discoveries, practical science, open research tools, and people worth meeting.',
+  tier,
 } = Astro.props;
+const tierLinks = [['field', 'Field: better collections', '/investigate/field/'], ['lab', 'Lab: taxonomy and research', '/investigate/#workbench']];
 
 const nav = [['Discover','/discover/'],['Learn','/learn/'],['Investigate','/investigate/'],['Connect','/connect/'],['About','/about/']];
 const pageTitle = `${title} · MycoView`;
@@ -19,7 +24,7 @@ import NewsletterForm from '../components/NewsletterForm.astro';
 import { contactEmail, donateUrl, inaturalistProfile, mycogeekyYouTube, mycoviewYouTube, podcastUrl, shopUrl } from '../data/site';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tier={tier ?? 'field'} data-theme="day">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -40,52 +45,69 @@ import { contactEmail, donateUrl, inaturalistProfile, mycogeekyYouTube, mycoview
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap" />
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="/" aria-label="MycoView home">
-        <span class="mycoview-brand-symbol" aria-hidden="true">◉</span>
-        <span>MycoView<small>SEE FUNGI DIFFERENTLY.</small></span>
+  <header class="ds-header">
+    <div class="ds-header-inner">
+      <a class="ds-brand" href="/" aria-label="MycoView home">
+        <span class="ds-wordmark">MYCOVIEW</span>
+        <span class="ds-brand-sub">field station, NE Ohio</span>
       </a>
-      <details class="mv-mobile-menu"><summary aria-label="Open navigation menu"><span class="mv-menu-label">Menu</span><span class="mv-menu-bars" aria-hidden="true">☰</span></summary><nav aria-label="Mobile navigation">{nav.map(([label,url]) => <a href={url} aria-current={Astro.url.pathname === url ? "page" : undefined}>{label}<span aria-hidden="true">→</span></a>)}</nav></details>
-      <nav class="mv-desktop-nav" aria-label="Primary navigation">
-        {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname === url ? 'page' : undefined}>{label}</a>)}
+      <nav class="ds-nav" aria-label="Primary navigation">
+        {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname.startsWith(url) ? 'page' : undefined}>{label}</a>)}
       </nav>
+      <details class="ds-menu">
+        <summary aria-label="Menu">Menu
+          <svg class="ds-icon-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <svg class="ds-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </summary>
+        <nav aria-label="Mobile navigation">
+          {nav.map(([label, url]) => <a href={url} aria-current={Astro.url.pathname.startsWith(url) ? 'page' : undefined}>{label}</a>)}
+        </nav>
+      </details>
     </div>
   </header>
+  {tier && (
+    <div class="ds-tierbar">
+      <div class="ds-tierbar-inner">
+        <nav class="ds-tierswitch" aria-label="Tier">
+          {tierLinks.map(([id, label, url]) => <a href={url} aria-current={tier === id ? 'page' : undefined}>{label}</a>)}
+        </nav>
+      </div>
+    </div>
+  )}
   <main id="main"><slot /></main>
-  <footer class="mv-footer">
-    <div class="container mv-footer-grid">
-      <div class="mv-footer-brand">
-        <a class="brand" href="/" aria-label="MycoView home"><span class="mycoview-brand-symbol" aria-hidden="true">◉</span><span>MycoView<small>SEE FUNGI DIFFERENTLY.</small></span></a>
-        <p>Curiosity, evidence, and connection. Guided by MycoGeeky. Built for curious people.</p>
+  <footer class="ds-footer">
+    <div class="ds-footer-grid">
+      <div class="ds-footer-brand">
+        <a class="ds-brand" href="/" aria-label="MycoView home"><span class="ds-wordmark">MYCOVIEW</span></a>
+        <p>Curiosity, evidence and connection, guided by MycoGeeky. Everything starts with a collection.</p>
         <NewsletterForm tone="dark" id="footer-news" />
       </div>
-      <nav class="mv-footer-col" aria-label="Site">
+      <nav class="ds-footer-col" aria-label="Site">
         <h2>Explore</h2>
         {nav.map(([label, url]) => <a href={url}>{label}</a>)}
         <a href="/cultivate/">Cultivate</a>
         <a href="/investigate/#workbench">Research Toolbox</a>
         <a href="/neo-myco/">NEO Myco</a>
       </nav>
-      <nav class="mv-footer-col" aria-label="Watch and listen">
+      <nav class="ds-footer-col" aria-label="Watch and listen">
         <h2>Watch &amp; listen</h2>
-        <a href={mycoviewYouTube}>The MycoView on YouTube ↗</a>
-        <a href={mycogeekyYouTube}>MycoGeeky on YouTube ↗</a>
-        <a href={podcastUrl}>The MycoGeeky Podcast ↗</a>
-        <a href={inaturalistProfile}>iNaturalist ↗</a>
+        <a href={mycoviewYouTube}>The MycoView <span class="ds-where">YouTube</span></a>
+        <a href={mycogeekyYouTube}>MycoGeeky <span class="ds-where">YouTube</span></a>
+        <a href={podcastUrl}>The MycoGeeky Podcast</a>
+        <a href={inaturalistProfile}>MycoGeeky on iNaturalist</a>
       </nav>
-      <nav class="mv-footer-col" aria-label="Support">
+      <nav class="ds-footer-col" aria-label="Support">
         <h2>Support</h2>
-        {shopUrl && <a href={shopUrl}>Shop on Etsy ↗</a>}
-        {donateUrl && <a href={donateUrl}>Donate with PayPal ↗</a>}
-        {contactEmail ? <a href={`mailto:${contactEmail}`}>{contactEmail}</a> : <a href={inaturalistProfile}>Message us on iNaturalist ↗</a>}
+        {shopUrl && <a href={shopUrl}>Shop <span class="ds-where">Etsy</span></a>}
+        {donateUrl && <a href={donateUrl}>Donate <span class="ds-where">PayPal</span></a>}
+        {contactEmail ? <a href={`mailto:${contactEmail}`}>{contactEmail}</a> : <a href={inaturalistProfile}>Message us on iNaturalist</a>}
       </nav>
     </div>
-    <div class="container mv-footer-base">
+    <div class="ds-footer-base">
       <span>© {new Date().getFullYear()} MycoView</span>
       <a href="/privacy/">Privacy</a>
     </div>

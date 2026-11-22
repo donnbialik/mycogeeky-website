@@ -4,6 +4,7 @@
 // `req(method, path, {token, body, origin, contentType})` -> {status, body, text, headers}.
 import assert from 'node:assert/strict';
 import { syntheticRelease, syntheticSupplement, syntheticQuestions } from './fixture.mjs';
+import { validateQuestionSet } from '../contract/questions.js';
 
 export const OWNER = 'owner@example.org', R1 = 'r1@example.org', R2 = 'r2@example.org', OBS = 'observer@example.org';
 
@@ -167,6 +168,12 @@ export function suite(test, ctx) {
   const QS = syntheticQuestions(); const SET = QS.body.set;
   const dec = (question_id, evidence_sha256, x = {}) => ({ set_id: SET, question_id, evidence_sha256, choice: 'misapplied name: label the pattern', rationale: 'compared with the type', ...x });
   const qh = async (email, qid) => (await as(email, 'GET', `question-sets/${SET}/questions/${qid}`)).body.evidence_sha256;
+  test('question contract: D10 (synonym types disagree) needs two reviewers; two-digit type ids are accepted', async () => {
+    const d10 = (need, id = 'TES-D10-004') => syntheticQuestions('testus-d10', { questions: [{ ...QS.body.questions[0], id, type: 'D10', reviewers_needed: need }] }).body;
+    assert.deepEqual(validateQuestionSet(d10(2)), []);
+    assert.match(validateQuestionSet(d10(1)).join(' '), /reviewers_needed must be 2/);
+    assert.match(validateQuestionSet(d10(2, 'TES-D20-004')).join(' '), /id must look like/);
+  });
   test('question sets: owner-only import, checked against the contract, then immutable', async () => {
     const bad = syntheticQuestions('testus-bad', { questions: [{ ...QS.body.questions[1], reviewers_needed: 1 }] });
     const r = await as(OWNER, 'POST', 'admin/question-sets', { questions_text: bad.text }); assert.equal(r.status, 400); assert.match(r.body.detail.join(' '), /reviewers_needed must be 2/);

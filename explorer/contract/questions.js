@@ -8,10 +8,11 @@ export const QUESTIONS_CONTRACT = 'bre-questions/1';
 export const QUESTION_TYPES = {
   D1: 'Accept a reference sequence', D2: 'Add a reference sequence', D3: 'Types ITS cannot tell apart', D4: 'Possible misapplied name',
   D5: 'Unnamed group', D6: 'Record problem', D7: 'Type sequences too short', D8: 'Herbarium type under another name', D9: 'Type filed under another genus',
+  D10: 'Synonym types disagree',
 };
-export const TWO_REVIEWER_TYPES = ['D3', 'D4', 'D5', 'D8', 'D9'];
+export const TWO_REVIEWER_TYPES = ['D3', 'D4', 'D5', 'D8', 'D9', 'D10'];
 const SET_ID = /^[a-z0-9][a-z0-9-]{1,63}$/;
-const Q_ID = /^[A-Z]{2,4}-D[1-9]-\d{3,4}$/;
+const Q_ID = /^[A-Z]{2,4}-D(?:[1-9]|1\d)-\d{3,4}$/;
 const GENUS = /^[A-Z][a-z]+$/;
 // An option that asks for a name or an accession needs the reviewer to give it; its text is then part of the answer.
 export const needsDetail = option => /\(give|^other$/i.test(String(option));

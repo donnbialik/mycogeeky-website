@@ -16,15 +16,21 @@ function accList(xs) {
 }
 // Links to sources: only https addresses on these hosts are shown as links; anything else stays text.
 const HOSTS = { 'pubmed.ncbi.nlm.nih.gov': 'PubMed', 'www.ncbi.nlm.nih.gov': 'GenBank', 'www.indexfungorum.org': 'Index Fungorum record', 'doi.org': 'DOI',
-  'www.gbif.org': 'GBIF', 'mycomap.org': 'MycoMap', 'www.mycobank.org': 'MycoBank' };
+  'www.gbif.org': 'GBIF', 'mycomap.org': 'MycoMap', 'www.mycobank.org': 'MycoBank', 'mycoportal.org': 'MyCoPortal herbarium record',
+  'www.biodiversitylibrary.org': 'Biodiversity Heritage Library', 'resolve.cambridge.org': 'Paper (Cambridge)' };
 const srcLink = u => { try { const x = new URL(u); return x.protocol === 'https:' && HOSTS[x.hostname] ? `<a href="${esc(x.href)}" target="_blank" rel="noopener noreferrer">${esc(HOSTS[x.hostname])}</a>` : null; } catch { return null; } };
 const tidy = t => String(t).replace(/(\d+\.\d{2,})%/g, (m, d) => num(d) + '%');
 const label = k => ({ basis: 'Basis', study: 'Study', records: 'Records', collections: 'Collections', us_records: 'US records', countries: 'Countries', regions_compared: 'Compared on',
   names_as_deposited: 'Names as deposited', us_states: 'US states', nearest_anchor: 'Nearest reference', nearest_anchor_distance_min: 'Distance to nearest reference (%)',
   spread_full_ITS_max: 'Largest distance within the group (%)', wider_group: 'Related group', voucher: 'Voucher', if_name: 'Index Fungorum name', if_status: 'Index Fungorum status',
   if_match: 'How the Index Fungorum entry was matched', index_fungorum: 'Index Fungorum', pubmed: 'Paper', authority: 'Authors of the name (Index Fungorum)',
-  first_author: 'First author of the GenBank record', study: 'GenBank study title', reading: 'Reading', source: 'Source', names: 'Names', regions: 'Compared on', flags: 'Flags' }[k] || k.replace(/_/g, ' '));
+  first_author: 'First author of the GenBank record', study: 'GenBank study title', reading: 'Reading', source: 'Source', names: 'Names', regions: 'Compared on', flags: 'Flags',
+  type_locality: 'Type locality', type_locality_source: 'Type locality from', protologue: 'Original description', left_out: 'Left out of the candidates',
+  synonymy_sources: 'Treated as one species by', conflicts: 'Conflicts', type_distances: 'Distances between the types', source_links: 'Sources',
+  records_group_together: 'Records that group together' }[k] || k.replace(/_/g, ' '));
 const val = x => x == null || x === '' ? '<span class="muted">not recorded</span>'
+  : Array.isArray(x) && x.length && x.every(u => typeof u === 'string' && srcLink(u)) ? x.map(srcLink).join(', ')
+  : Array.isArray(x) && x.some(u => typeof u === 'string' && u.length > 60) ? '<ul class="small">' + x.map(u => `<li>${linked(tidy(u))}</li>`).join('') + '</ul>'
   : Array.isArray(x) ? esc(x.join(', ')) : typeof x === 'object' ? esc(Object.entries(x).map(([a, b]) => `${a} (${typeof b === 'object' ? JSON.stringify(b) : num(b)})`).join(', ')) : esc(num(x));
 function render() {
   const q = v.question, s = v.set;
@@ -43,7 +49,7 @@ function render() {
   const rs = Array.isArray((q.evidence || {}).records) ? q.evidence.records : [];
   $('recordsBox').hidden = !rs.length;
   $('recordsHead').textContent = `The records (${rs.length})`;
-  $('records').innerHTML = rs.map(r => `<tr><td>${gb(r.accession)}</td><td>${esc(r.role === 'record' ? '' : r.role)}${r.type_material ? `<div class="small">${esc(r.type_material)}</div>` : ''}</td>
+  $('records').innerHTML = rs.map(r => `<tr><td>${gb(r.accession)}</td><td>${esc(r.role === 'record' ? '' : r.role)}${r.note ? `<div class="small muted">${esc(r.note)}</div>` : ''}${r.type_material ? `<div class="small">${esc(r.type_material)}</div>` : ''}</td>
     <td><em>${esc(r.name_as_deposited || '')}</em></td><td>${esc(r.country || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="gr-n">${r.length ?? ''}</td><td class="small">${esc(r.first_author || '')}${r.study && r.study !== r.first_author ? `<div class="muted">${esc(r.study)}</div>` : ''}${r.pubmed && srcLink(r.pubmed) ? `<div>${srcLink(r.pubmed)}</div>` : ''}</td></tr>`).join('');
   const o = v.outcome;
   $('outcome').textContent = o.status === 'decided' ? `decided: ${o.choice}${o.detail ? ' (' + o.detail + ')' : ''}` : o.status;

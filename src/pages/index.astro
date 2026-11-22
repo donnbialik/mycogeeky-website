@@ -9,16 +9,9 @@ import curious from '../assets/pathways/curious.jpg';
 import investigate from '../assets/pathways/investigate.jpg';
 import { featuredObservation as feature } from '../data/featuredObservation';
 import { loadFeaturedSheet } from '../data/featuredSheet';
+import { renderLede, renderJourney, renderJourneyLinks } from '../lib/feature-sheet.js';
 
 const { data: sheet } = await loadFeaturedSheet();
-const town = sheet.locality.split(',').map(s => s.trim()).filter(Boolean).slice(-2, -1)[0] || sheet.locality;
-const inatUrl = `https://www.inaturalist.org/observations/${sheet.id}`;
-const journey = [
-  [sheet.observed, `Photographed and posted to iNaturalist, #${sheet.id}`],
-  ...(sheet.its?.plate || sheet.its?.tech ? [['Sequenced', [sheet.its?.plate && `Mycota Lab, plate ${sheet.its.plate}`, sheet.its?.tech && sheet.its?.reads && `${sheet.its.tech}, ${sheet.its.reads} reads in consensus`].filter(Boolean).join(' · ')]] : []),
-  ...(sheet.its ? [['Read', `${sheet.its.length} letters of the ITS barcode region`]] : []),
-  ...(sheet.provisional ? [['Named', `${sheet.name.replace(/^\S+\s+sp\.\s*/, '')}, a provisional name until the species is formally described`]] : []),
-];
 ---
 <Base title="See fungi differently" description="MycoView is a field station for fungal discovery, citizen science, original evidence, research tools and collaboration.">
 <div class="hp">
@@ -26,9 +19,7 @@ const journey = [
   <section class="hp-hero" aria-labelledby="hp-title">
     <div class="hp-hero-copy">
       <h1 id="hp-title">See fungi differently.</h1>
-      <p class="hp-lede">Every discovery starts with a collection. {sheet.provisional
-        ? <>These mushrooms from {town} carry only a provisional name: their DNA isn't yet matched to a described species.</>
-        : <>This one comes from {town}.</>}</p>
+      <p class="hp-lede" id="hp-lede" set:html={renderLede(sheet)} />
       <p class="hp-sub">MycoView shows how a photo becomes a specimen, and a specimen becomes evidence. You can do it too.</p>
       <div class="hp-actions">
         <a class="hp-btn" href="#start">Start exploring</a>
@@ -48,13 +39,8 @@ const journey = [
   <section class="hp-wrap" aria-labelledby="hp-journey-title">
     <div class="hp-logbook">
       <h2 id="hp-journey-title">How this collection became evidence</h2>
-      <ol>
-        {journey.map(([k, v]) => <li><span class="hp-key">{k}</span><span>{v}</span></li>)}
-      </ol>
-      <p class="hp-logbook-links">
-        <a href={inatUrl} target="_blank" rel="noopener noreferrer">See the iNaturalist record</a>
-        <a href="/one-place/">{feature.question}</a>
-      </p>
+      <ol id="hp-journey" set:html={renderJourney(sheet)} />
+      <p class="hp-logbook-links" id="hp-journey-links" set:html={renderJourneyLinks(sheet)} />
     </div>
   </section>
 

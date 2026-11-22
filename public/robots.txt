@@ -2,6 +2,7 @@
 User-agent: *
 # The Barcode Reliability Explorer is a restricted reviewer preview.
 Disallow: /explorer/
+Disallow: /admin/
 Disallow: /api/
 
 Sitemap: https://mycoview.com/sitemap-index.xml

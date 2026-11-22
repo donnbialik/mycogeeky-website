@@ -1,0 +1,288 @@
+---
+// Owner-only page for choosing the homepage's featured observation. The page shell holds no data; everything is
+// loaded from iNaturalist and from /api/admin/feature, which checks the Cloudflare Access sign-in (owner e-mail only).
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Featured observation · Admin" description="Choose the observation featured on the MycoView homepage." tier="lab">
+<div class="af">
+  <div class="af-head">
+    <h1>Featured observation</h1>
+    <p class="af-lede">Pick an iNaturalist observation for the homepage specimen sheet. Everything fills in from the observation; check it, frame the photo, and put it live.</p>
+    <p class="af-status" id="af-status" role="status">Checking your sign-in…</p>
+  </div>
+
+  <form class="af-load" id="af-load">
+    <label for="af-id">iNaturalist observation number or link</label>
+    <div class="af-row">
+      <input id="af-id" name="id" inputmode="numeric" autocomplete="off" placeholder="365930723" required>
+      <button type="submit" class="af-btn">Load observation</button>
+    </div>
+    <p class="af-msg" id="af-load-msg" role="alert"></p>
+  </form>
+
+  <div class="af-work" id="af-work" hidden>
+    <div class="af-edit">
+      <fieldset>
+        <legend>Photo</legend>
+        <div class="af-photos" id="af-photos"></div>
+        <p class="af-hint" id="af-photo-licence"></p>
+        <label class="af-range">Zoom <input type="range" id="af-zoom" min="1" max="3" step="0.05" value="1"></label>
+        <label class="af-range">Left–right <input type="range" id="af-x" min="0" max="100" step="1" value="50"></label>
+        <label class="af-range">Up–down <input type="range" id="af-y" min="0" max="100" step="1" value="50"></label>
+        <p class="af-hint">Or drag the photo in the preview.</p>
+        <label>Photo description (for screen readers)<input id="af-alt" maxlength="200"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Label</legend>
+        <label>Name<input id="af-name" maxlength="140"></label>
+        <label class="af-check"><input type="checkbox" id="af-provisional"> Provisional name</label>
+        <label>Observed<input id="af-observed" maxlength="40"></label>
+        <label>Locality <span class="af-hint">Trim it if the exact place shouldn't be public.</span><input id="af-locality" maxlength="140"></label>
+        <label>Habitat or field note<input id="af-habitat" maxlength="240"></label>
+        <label>Collected by<input id="af-collector" maxlength="60"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>DNA barcode</legend>
+        <p class="af-hint" id="af-its-none" hidden>This observation has no ITS sequence, so the DNA label is left off.</p>
+        <div class="af-grid" id="af-its">
+          <label>ITS length (bp)<input id="af-its-length" inputmode="numeric" maxlength="5"></label>
+          <label>Technology<input id="af-its-tech" maxlength="40"></label>
+          <label>Reads in consensus<input id="af-its-reads" maxlength="12"></label>
+          <label>Mycota Lab plate<input id="af-its-plate" maxlength="40"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Question under the logbook (optional)</legend>
+        <label>Question<input id="af-question" maxlength="140" placeholder="What can a few mushrooms in a lawn tell us?"></label>
+        <label>Link (a page on this site, starting with /)<input id="af-question-url" maxlength="300" placeholder="/one-place/"></label>
+      </fieldset>
+
+      <div class="af-actions">
+        <button type="button" class="af-btn af-primary" id="af-save">Put it on the homepage</button>
+        <p class="af-msg" id="af-save-msg" role="alert"></p>
+      </div>
+    </div>
+
+    <div class="af-preview">
+      <div class="af-preview-bar">
+        <h2>Preview</h2>
+        <div class="af-seg" role="group" aria-label="Preview width">
+          <button type="button" aria-pressed="true" data-w="desktop">Desktop</button>
+          <button type="button" aria-pressed="false" data-w="phone">Phone</button>
+        </div>
+      </div>
+      <div class="af-stage" id="af-stage" data-tier="field">
+        <p class="af-lede-preview" id="af-lede-preview"></p>
+        <div id="af-sheet"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="af-history" aria-labelledby="af-history-title">
+    <h2 id="af-history-title">Earlier features</h2>
+    <p class="af-hint">The last 20 saved features. Restoring one puts it straight back on the homepage.</p>
+    <ul id="af-history"></ul>
+    <button type="button" class="af-btn" id="af-reset">Go back to the built-in feature</button>
+  </section>
+</div>
+</Base>
+
+<script>
+import { normalizeFeature, renderSheet, renderLede, draftFromObservation, OWN_LOGINS } from '../../lib/feature-sheet.js';
+
+const $ = (id: string) => document.getElementById(id) as any;
+let draft: any = null;
+let photos: any[] = [];
+
+function setStatus(text: string) { $('af-status').textContent = text; }
+function describe(f: any) { return `${f.name} (#${f.id})${f.savedAt ? `, saved ${new Date(f.savedAt).toLocaleString()}` : ''}`; }
+
+async function api(method: string, body?: any) {
+  const r = await fetch('/api/admin/feature', { method, headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined, credentials: 'same-origin' });
+  const data = await r.json().catch(() => ({ error: `The server answered ${r.status}.` }));
+  if (!r.ok) throw new Error(data.error || `The server answered ${r.status}.`);
+  return data;
+}
+
+function renderHistory(list: any[]) {
+  const ul = $('af-history'); ul.innerHTML = '';
+  if (!list.length) { ul.innerHTML = '<li class="af-hint">None yet.</li>'; return; }
+  for (const f of list) {
+    const li = document.createElement('li');
+    const span = document.createElement('span'); span.textContent = describe(f);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'af-btn'; b.textContent = 'Restore';
+    b.addEventListener('click', async () => { b.disabled = true; try { const d = await api('PUT', f); setStatus(`Live now: ${describe(d.feature)}.`); await refresh(); } catch (e: any) { alert(e.message); } b.disabled = false; });
+    li.append(span, b); ul.append(li);
+  }
+}
+
+async function refresh() {
+  try {
+    const d = await api('GET');
+    setStatus(d.feature ? `Signed in as ${d.email}. Live now: ${describe(d.feature)}.` : `Signed in as ${d.email}. Live now: the built-in feature (observation 365930723).`);
+    renderHistory(d.history);
+  } catch (e: any) { setStatus(e.message); }
+}
+
+// ---------------------------------------------------------------- editing
+const fields = ['name', 'observed', 'locality', 'habitat', 'collector', 'question', 'question-url', 'alt'];
+function fromForm() {
+  const v = (id: string) => $(`af-${id}`).value;
+  const its = draft.its ? { length: Number(v('its-length')), tech: v('its-tech'), reads: v('its-reads'), plate: v('its-plate') } : null;
+  return {
+    ...draft,
+    name: v('name'), provisional: $('af-provisional').checked, observed: v('observed'), locality: v('locality'),
+    habitat: v('habitat'), collector: v('collector'), question: v('question'), questionUrl: v('question-url'), its,
+    photo: draft.photo && { ...draft.photo, zoom: Number(v('zoom')), x: Number(v('x')), y: Number(v('y')), alt: v('alt') },
+  };
+}
+function toForm(f: any) {
+  const set = (id: string, val: any) => { $(`af-${id}`).value = val ?? ''; };
+  set('name', f.name); $('af-provisional').checked = !!f.provisional; set('observed', f.observed); set('locality', f.locality);
+  set('habitat', f.habitat); set('collector', f.collector); set('question', f.question); set('question-url', f.questionUrl);
+  $('af-its').hidden = !f.its; $('af-its-none').hidden = !!f.its;
+  if (f.its) { set('its-length', f.its.length); set('its-tech', f.its.tech); set('its-reads', f.its.reads); set('its-plate', f.its.plate); }
+  if (f.photo) { set('zoom', f.photo.zoom ?? 1); set('x', f.photo.x ?? 50); set('y', f.photo.y ?? 50); set('alt', f.photo.alt); }
+}
+
+function preview() {
+  if (!draft) return;
+  const f = fromForm();
+  $('af-lede-preview').innerHTML = renderLede(f);
+  if (!f.photo) { $('af-sheet').innerHTML = '<p class="af-hint">Choose a photo.</p>'; return; }
+  $('af-sheet').innerHTML = renderSheet(f);
+  wireDrag();
+}
+
+function choosePhoto(i: number) {
+  const p = photos[i];
+  const own = !!(OWN_LOGINS as any)[String(draft.observerLogin).toLowerCase()];
+  draft.photo = { host: p.host, pid: p.pid, ext: p.ext, license: p.license, credit: own && !p.license ? '' : p.attribution, x: 50, y: 50, zoom: 1, alt: $('af-alt').value };
+  $('af-x').value = 50; $('af-y').value = 50; $('af-zoom').value = 1;
+  $('af-photo-licence').textContent = p.license ? `Licence: ${p.license.toUpperCase()}. Credit shown under the photo: ${p.attribution}` : (own ? 'Your own photo.' : 'All rights reserved: this photo cannot be used.');
+  document.querySelectorAll('.af-photos button').forEach((b: any, k) => b.setAttribute('aria-pressed', String(k === i)));
+  preview();
+}
+
+function renderPhotos() {
+  const box = $('af-photos'); box.innerHTML = '';
+  photos.forEach((p, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-label', `Photo ${i + 1}${p.license ? `, ${p.license}` : ', all rights reserved'}`);
+    const host = p.host === 'static' ? 'static.inaturalist.org' : 'inaturalist-open-data.s3.amazonaws.com';
+    b.innerHTML = `<img src="https://${host}/photos/${p.pid}/square.${p.ext}" alt="">`;
+    b.addEventListener('click', () => choosePhoto(i));
+    box.append(b);
+  });
+}
+
+function wireDrag() {
+  const crop = document.querySelector('#af-sheet .sheet-crop') as HTMLElement | null;
+  if (!crop) return;
+  crop.style.cursor = 'grab'; crop.style.touchAction = 'none';
+  let start: any = null;
+  const im = crop.querySelector('img') as HTMLImageElement; im.draggable = false; im.style.userSelect = 'none'; (im.style as any).webkitUserDrag = 'none';
+  crop.addEventListener('dragstart', (e) => e.preventDefault());
+  crop.addEventListener('pointerdown', (e) => { e.preventDefault(); start = { x: e.clientX, y: e.clientY, px: Number($('af-x').value), py: Number($('af-y').value) }; crop.setPointerCapture(e.pointerId); crop.style.cursor = 'grabbing'; });
+  crop.addEventListener('pointermove', (e) => {
+    if (!start) return;
+    const r = crop.getBoundingClientRect(); const z = Number($('af-zoom').value);
+    const nx = Math.min(100, Math.max(0, start.px - (e.clientX - start.x) / r.width * 100 / z));
+    const ny = Math.min(100, Math.max(0, start.py - (e.clientY - start.y) / r.height * 100 / z));
+    $('af-x').value = nx.toFixed(0); $('af-y').value = ny.toFixed(0);
+    const img = crop.querySelector('img') as HTMLImageElement; const pos = `${nx}% ${ny}%`;
+    img.style.objectPosition = pos; img.style.transformOrigin = pos;
+  });
+  const end = () => { if (start) { start = null; crop.style.cursor = 'grab'; preview(); } };
+  crop.addEventListener('pointerup', end); crop.addEventListener('pointercancel', end);
+}
+
+$('af-load').addEventListener('submit', async (e: Event) => {
+  e.preventDefault();
+  const m = String($('af-id').value).match(/(\d{3,12})/);
+  const msg = $('af-load-msg'); msg.textContent = '';
+  if (!m) { msg.textContent = 'Enter an observation number or an iNaturalist observation link.'; return; }
+  msg.textContent = 'Loading from iNaturalist…';
+  try {
+    const r = await fetch(`https://api.inaturalist.org/v1/observations/${m[1]}`, { headers: { Accept: 'application/json' } });
+    const o = (await r.json()).results?.[0];
+    if (!o) throw new Error('No observation with that number.');
+    const d = draftFromObservation(o);
+    draft = d.draft; photos = d.photos;
+    if (!photos.length) throw new Error('That observation has no photos.');
+    toForm(draft); renderPhotos(); $('af-work').hidden = false; msg.textContent = '';
+    const own = !!(OWN_LOGINS as any)[String(draft.observerLogin).toLowerCase()];
+    choosePhoto(Math.max(0, photos.findIndex((p) => own || p.license)));
+  } catch (err: any) { msg.textContent = err.message || 'Could not reach iNaturalist.'; }
+});
+
+['zoom', 'x', 'y', 'provisional', ...fields, 'its-length', 'its-tech', 'its-reads', 'its-plate'].forEach((id) => $(`af-${id}`).addEventListener('input', preview));
+
+$('af-save').addEventListener('click', async () => {
+  const msg = $('af-save-msg'); msg.textContent = '';
+  const { feature, error } = normalizeFeature(fromForm());
+  if (error) { msg.textContent = error; return; }
+  $('af-save').disabled = true; msg.textContent = 'Saving…';
+  try { const d = await api('PUT', feature); msg.textContent = 'Live on the homepage now.'; setStatus(`Live now: ${describe(d.feature)}.`); await refresh(); }
+  catch (e: any) { msg.textContent = e.message; }
+  $('af-save').disabled = false;
+});
+
+$('af-reset').addEventListener('click', async () => {
+  if (!confirm('Go back to the feature the site was built with? The current one is kept in the history.')) return;
+  try { await api('DELETE'); await refresh(); } catch (e: any) { alert(e.message); }
+});
+
+document.querySelectorAll('.af-seg button').forEach((b: any) => b.addEventListener('click', () => {
+  document.querySelectorAll('.af-seg button').forEach((x: any) => x.setAttribute('aria-pressed', String(x === b)));
+  $('af-stage').dataset.width = b.dataset.w;
+}));
+
+refresh();
+</script>
+
+<style is:global>
+.af { width: min(1360px, calc(100% - 48px)); margin: 0 auto; padding: 32px 0 72px; color: var(--ds-ink); }
+.af h1 { font-size: clamp(40px, 5vw, 60px); font-stretch: 80%; font-weight: 800; margin: 0 0 10px; }
+.af h2 { font-size: 24px; font-stretch: 85%; margin: 0; }
+.af-lede { font-size: 18px; color: var(--ds-ink-muted); max-width: 70ch; margin: 0 0 10px; }
+.af-status { font-size: 15px; padding: 10px 14px; background: var(--ds-panel); border: 1px solid var(--ds-line-subtle); border-radius: var(--ds-radius-md); }
+.af label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; margin: 0 0 14px; }
+.af input:not([type=checkbox]):not([type=range]) { font: 400 16px var(--ds-font-body); padding: 10px 12px; border: 1px solid var(--ds-line-strong); border-radius: var(--ds-radius-md); background: #fff; color: var(--ds-ink); min-height: 44px; }
+.af input#af-id, .af input[id^=af-its] { font-family: var(--ds-font-mono); }
+.af .af-check { flex-direction: row; align-items: center; gap: 10px; }
+.af .af-check input { width: 20px; height: 20px; }
+.af-range input { width: 100%; }
+.af-hint { font-size: 14px; font-weight: 400; color: var(--ds-ink-muted); margin: 0 0 12px; }
+.af-msg { min-height: 1.4em; font-size: 15px; margin: 8px 0 0; }
+.af-load { margin: 24px 0; max-width: 620px; }
+.af-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.af-row input { flex: 1 1 240px; }
+.af-btn { min-height: 44px; padding: 0 18px; border: 1.5px solid var(--ds-line-strong); background: transparent; color: var(--ds-ink); border-radius: var(--ds-radius-md); font: 600 15px var(--ds-font-body); cursor: pointer; }
+.af-primary, .af-load .af-btn { background: var(--ds-action); color: var(--ds-action-ink); border-color: var(--ds-action); }
+.af-btn:disabled { opacity: .6; cursor: progress; }
+.af-work { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.af-edit { flex: 1 1 360px; min-width: 0; }
+.af-preview { flex: 2 1 560px; min-width: 0; position: sticky; top: 16px; }
+.af fieldset { border: 1px solid var(--ds-line-subtle); border-radius: var(--ds-radius-lg); background: var(--ds-panel); padding: 16px 18px 6px; margin: 0 0 18px; }
+.af legend { font-family: var(--ds-font-display); font-stretch: 85%; font-weight: 700; font-size: 18px; padding: 0 6px; }
+.af-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+.af-photos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.af-photos button { width: 72px; height: 72px; padding: 0; border: 3px solid transparent; border-radius: var(--ds-radius-md); cursor: pointer; background: none; }
+.af-photos button[aria-pressed=true] { border-color: var(--ds-ink); }
+.af-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.af-actions { position: sticky; bottom: 0; background: var(--ds-ground); padding: 12px 0; }
+.af-preview-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; flex-wrap: wrap; }
+.af-seg { display: inline-flex; border: 1.5px solid var(--ds-line-strong); border-radius: var(--ds-radius-md); overflow: hidden; }
+.af-seg button { min-height: 40px; padding: 0 14px; border: 0; background: transparent; color: var(--ds-ink); font: 600 14px var(--ds-font-body); cursor: pointer; }
+.af-seg button[aria-pressed=true] { background: var(--ds-action); color: var(--ds-action-ink); }
+.af-stage { background: var(--ds-kraft); color: #1A120A; padding: 24px; margin: 0 auto; max-width: 100%; }
+.af-stage[data-width=phone] { width: 390px; padding: 16px; }
+.af-lede-preview { font-size: 18px; line-height: 1.5; margin: 0 0 18px; max-width: 60ch; }
+.af-history { margin-top: 48px; border-top: 1px solid var(--ds-line-subtle); padding-top: 24px; }
+.af-history ul { list-style: none; padding: 0; margin: 12px 0 18px; }
+.af-history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--ds-line-subtle); flex-wrap: wrap; }
+</style>

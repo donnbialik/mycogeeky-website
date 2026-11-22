@@ -1,12 +1,11 @@
 /** Builds the homepage specimen sheet from the featured iNaturalist observation (fetched at build time).
  *  If iNaturalist can't be reached during a build, the last known values below are used so the page still builds. */
 import { featuredObservation as feature } from './featuredObservation';
-import type { SheetData } from '../components/SpecimenSheet.astro';
 
 const OWN_LOGINS: Record<string, string> = { mycogeekyohio: 'MycoGeeky' };
 
 // Values copied from observation 365930723 on 22 Nov 2026. Update them if you feature another observation.
-const LAST_KNOWN: SheetData = {
+const LAST_KNOWN: any = {
   id: 365930723,
   name: "Gliophorus sp. 'psittacinus-IN04'",
   provisional: true,
@@ -15,12 +14,14 @@ const LAST_KNOWN: SheetData = {
   habitat: feature.fieldNote,
   collector: 'MycoGeeky',
   its: { length: 649, tech: 'Nanopore', reads: '88', plate: '2026 #4' },
+  question: feature.question,
+  questionUrl: '/one-place/',
 };
 
 const field = (o: any, re: RegExp) => o?.ofvs?.find((f: any) => re.test(f.name))?.value as string | undefined;
 const tidyPlace = (p: string) => p.replace(/,\s*US$/, '').replace(/,\s*OH$/, ', Ohio');
 
-export async function loadFeaturedSheet(): Promise<{ data: SheetData; live: boolean }> {
+export async function loadFeaturedSheet(): Promise<{ data: any; live: boolean }> {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
@@ -46,7 +47,9 @@ export async function loadFeaturedSheet(): Promise<{ data: SheetData; live: bool
         locality: feature.locality || tidyPlace(o.place_guess || ''),
         habitat: feature.fieldNote,
         collector: OWN_LOGINS[o.user?.login] || `@${o.user?.login}`,
-        its: seq.length ? { length: seq.length, tech, reads, plate } : undefined,
+        its: seq.length ? { length: seq.length, tech, reads, plate } : null,
+        question: feature.question,
+        questionUrl: '/one-place/',
       },
     };
   } catch {

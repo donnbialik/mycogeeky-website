@@ -1,0 +1,33 @@
+/* Specimen sheet (src/lib/feature-sheet.js). Global so the server-swapped and admin-preview sheets are styled too. */
+.sheet { margin: 0; background: var(--ds-paper-sheet); color: var(--ds-paper-ink); padding: 22px; box-shadow: var(--ds-shadow-sheet); display: flex; flex-direction: column; gap: 18px; }
+.sheet figure { margin: 0; }
+.sheet-scale { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.sheet-scale > img { display: block; width: 100%; height: auto; }
+.sheet-ruler { flex: 1 1 300px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; background: var(--ds-paper-card); }
+.sheet-ruler-bar { flex: 1 1 240px; min-width: 0; }
+.sheet-ruler-bar svg { display: block; width: 100%; height: auto; }
+.sheet-code { margin: 10px 14px; border: 1.5px solid var(--ds-scale-black); padding: 6px 12px; font-family: var(--ds-font-display); font-size: 22px; font-weight: 500; background: var(--ds-paper-card); }
+.sheet-cc { flex: none; }
+.sheet-cc svg { display: block; }
+.sheet-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+.sheet-print { flex: 1 1 340px; min-width: 0; background: var(--ds-paper-card); padding: 8px; box-shadow: var(--ds-shadow-card); }
+.sheet-crop { aspect-ratio: 4 / 3; overflow: hidden; }
+.sheet-crop img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sheet-credit { font-family: var(--ds-font-body); font-size: 12px; color: var(--ds-paper-ink-muted); padding: 6px 2px 0; }
+.sheet-card { flex: 1 1 260px; min-width: 0; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 16px 20px 14px; font-family: var(--ds-font-mono); font-size: 15px; line-height: 1.45; }
+.sheet-form { flex: 1 1 340px; background: var(--ds-paper-card-warm); }
+.sheet-card p { margin: 0; max-width: none; font-size: 15px; line-height: 1.45; }
+.sheet-card .ind { padding-left: 2ch; }
+.sheet-card .sheet-card-head { text-align: center; font-family: var(--ds-font-display); font-stretch: 68%; font-weight: 800; font-size: 16px; letter-spacing: .05em; }
+.sheet-card hr { width: 110px; margin: 8px auto 12px; border: 0; border-top: 2px solid var(--ds-paper-ink); }
+.sheet-line { display: flex; gap: 12px; align-items: baseline; }
+.sheet-line span { flex: none; width: 112px; font-family: var(--ds-font-display); font-weight: 700; font-size: 12px; letter-spacing: .06em; }
+.sheet-side { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.sheet-provisional { align-self: stretch; border: 10px solid var(--ds-label-red); background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 12px 16px; font-family: var(--ds-font-mono); }
+.sheet-provisional p { margin: 0; font-size: 15px; }
+.sheet-provisional p:first-child { font-weight: 700; font-size: 20px; letter-spacing: .04em; }
+.sheet-sticker { display: block; width: 220px; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 8px 12px 6px; text-align: center; text-decoration: none; color: inherit; }
+.sheet-sticker svg { display: block; width: 100%; height: 34px; fill: var(--ds-scale-black); }
+.sheet-sticker-head { display: block; font-size: 12px; margin-bottom: 4px; }
+.sheet-sticker-num { display: block; font-size: 13px; letter-spacing: .08em; margin-top: 3px; }
+@media (max-width: 480px) { .sheet { padding: 14px; gap: 14px; } .sheet-sticker { width: 180px; } }

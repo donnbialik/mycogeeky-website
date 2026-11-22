@@ -1,128 +1,21 @@
 ---
-/* Homepage specimen sheet, after classic herbarium specimen photos (MycoView Design System: SpecimenSheet).
-   Everything on it comes from the featured iNaturalist observation, fetched at build time.
-   Cards filled in from data are typed, never fake handwriting; a missing value is left out, never guessed.
-   The scale bar and colour card are drawn placeholders until a photo of the real ones is supplied
-   (featuredObservation.scaleImage); the drawn bar is not calibrated to the specimen photo. */
-import { Image } from 'astro:assets';
+/* Homepage specimen sheet, built at site-build time from the featured observation.
+   The markup comes from src/lib/feature-sheet.js, the same renderer the live homepage and the admin page use. */
+import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { renderSheet, esc } from '../lib/feature-sheet.js';
 
-export interface SheetData {
-  id: number;
-  name: string;
-  provisional: boolean;
-  observed: string;         // e.g. "27 May 2026"
-  locality: string;
-  habitat?: string;
-  collector: string;
-  its?: { length: number; tech?: string; reads?: string; plate?: string };
-}
-interface Props { data: SheetData; photo: ImageMetadata; photoAlt: string; scaleImage?: ImageMetadata; }
+interface Props { data: any; photo: ImageMetadata; photoAlt: string; scaleImage?: ImageMetadata; }
 const { data, photo, photoAlt, scaleImage } = Astro.props;
 
-// Code 39 barcode of the observation number (start/stop '*'), drawn at build time.
-const C39: Record<string, string> = { '0':'nnnwwnwnn','1':'wnnwnnnnw','2':'nnwwnnnnw','3':'wnwwnnnnn','4':'nnnwwnnnw','5':'wnnwwnnnn','6':'nnwwwnnnn','7':'nnnwnnwnw','8':'wnnwnnwnn','9':'nnwwnnwnn','*':'nwnnwnwnn' };
-const bars: { x: number; w: number }[] = [];
-let x = 0;
-for (const ch of `*${data.id}*`) {
-  const pattern = C39[ch];
-  if (!pattern) continue;
-  [...pattern].forEach((e, i) => { const w = e === 'w' ? 3.5 : 1.4; if (i % 2 === 0) bars.push({ x, w }); x += w; });
-  x += 1.4;
+const sizes = [480, 760, 1100];
+const variants = await Promise.all(sizes.map((w) => getImage({ src: photo, width: w, format: 'webp' })));
+const photoHtml = `<img src="${esc(variants[1].src)}" srcset="${variants.map((v, i) => `${esc(v.src)} ${sizes[i]}w`).join(', ')}" sizes="(max-width: 760px) 92vw, 34vw" alt="${esc(photoAlt)}" width="${photo.width}" height="${photo.height}" loading="eager" decoding="async">`;
+let scaleHtml = '';
+if (scaleImage) {
+  const s = await getImage({ src: scaleImage, width: 1100, format: 'webp' });
+  scaleHtml = `<img src="${esc(s.src)}" alt="">`;
 }
-const barcodeWidth = Math.round(x * 10) / 10;
-
-// Split "Genus sp. 'epithet'" so genus can be underlined/italic the way a typed label does it.
-const m = data.name.match(/^(\S+)\s+(.*)$/);
-const genus = m ? m[1] : data.name;
-const rest = m ? m[2] : '';
-const inatUrl = `https://www.inaturalist.org/observations/${data.id}`;
-const restParts = rest.split(/('[^']+')/).filter(Boolean).map(part => ({ text: part, quoted: part.startsWith("'") }));
-const determinedBy = data.its ? (data.provisional ? 'ITS barcode (provisional)' : 'ITS barcode') : 'iNaturalist community';
-const itsLine = data.its ? [data.its.tech, data.its.reads ? `${data.its.reads} reads in consensus` : ''].filter(Boolean).join(', ') : '';
+const html = renderSheet({ ...data, photo: null }, { photoHtml, scaleHtml });
 ---
-<figure class="sheet" aria-label={`Specimen sheet for ${data.name}`}>
-  <div class="sheet-scale">
-    {scaleImage
-      ? <Image src={scaleImage} alt="" widths={[600, 1100]} sizes="(max-width: 760px) 92vw, 50vw" class="sheet-scale-photo" />
-      : <>
-          <div class="sheet-ruler"><div class="sheet-ruler-bar"><svg viewBox="0 0 308 74" aria-hidden="true" style="display: block; width: 100%; height: auto"><rect x="0" y="0" width="308" height="74" fill="#111111"></rect><rect x="14" y="8" width="280" height="34" fill="none" stroke="#FFFFFF" stroke-width="1.5"></rect><line x1="19.6" y1="8" x2="19.6" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="25.2" y1="8" x2="25.2" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="30.8" y1="8" x2="30.8" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="36.4" y1="8" x2="36.4" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="42.0" y1="8" x2="42.0" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="47.6" y1="8" x2="47.6" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="53.2" y1="8" x2="53.2" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="58.8" y1="8" x2="58.8" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="64.4" y1="8" x2="64.4" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><line x1="14" y1="30" x2="294" y2="30" stroke="#FFFFFF" stroke-width="1.2"></line><rect x="70" y="8" width="56" height="22" fill="#FFFFFF"></rect><rect x="126" y="30" width="56" height="12" fill="#FFFFFF"></rect><rect x="182" y="8" width="56" height="22" fill="#FFFFFF"></rect><rect x="238" y="30" width="56" height="12" fill="#FFFFFF"></rect><rect x="14" y="30" width="28.0" height="12" fill="#FFFFFF"></rect><text x="14" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">0</text><text x="70" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">1</text><text x="126" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">2</text><text x="182" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">3</text><text x="238" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">4</text><text x="294" y="60" fill="#FFFFFF" text-anchor="middle" font-family="Work Sans, sans-serif" font-size="14" font-weight="600">5</text><text x="14" y="71" fill="#FFFFFF" font-family="Work Sans, sans-serif" font-size="9">cm</text></svg></div><span class="sheet-code">MYCOVIEW</span></div>
-          <div class="sheet-cc"><svg viewBox="0 0 144 100" aria-hidden="true" style="display: block; width: 180px; height: auto"><rect x="0" y="0" width="144" height="100" rx="3" fill="#141414"></rect><rect x="8" y="8" width="18" height="18" rx="1.5" fill="#735244"></rect><rect x="30" y="8" width="18" height="18" rx="1.5" fill="#C29682"></rect><rect x="52" y="8" width="18" height="18" rx="1.5" fill="#627A9D"></rect><rect x="74" y="8" width="18" height="18" rx="1.5" fill="#576C43"></rect><rect x="96" y="8" width="18" height="18" rx="1.5" fill="#8580B1"></rect><rect x="118" y="8" width="18" height="18" rx="1.5" fill="#67BDAA"></rect><rect x="8" y="30" width="18" height="18" rx="1.5" fill="#D67E2C"></rect><rect x="30" y="30" width="18" height="18" rx="1.5" fill="#505BA6"></rect><rect x="52" y="30" width="18" height="18" rx="1.5" fill="#C15A63"></rect><rect x="74" y="30" width="18" height="18" rx="1.5" fill="#5E3C6C"></rect><rect x="96" y="30" width="18" height="18" rx="1.5" fill="#9DBC40"></rect><rect x="118" y="30" width="18" height="18" rx="1.5" fill="#E0A32E"></rect><rect x="8" y="52" width="18" height="18" rx="1.5" fill="#383D96"></rect><rect x="30" y="52" width="18" height="18" rx="1.5" fill="#469449"></rect><rect x="52" y="52" width="18" height="18" rx="1.5" fill="#AF363C"></rect><rect x="74" y="52" width="18" height="18" rx="1.5" fill="#E7C71F"></rect><rect x="96" y="52" width="18" height="18" rx="1.5" fill="#BB5695"></rect><rect x="118" y="52" width="18" height="18" rx="1.5" fill="#0885A1"></rect><rect x="8" y="74" width="18" height="18" rx="1.5" fill="#F3F3F2"></rect><rect x="30" y="74" width="18" height="18" rx="1.5" fill="#C8C8C8"></rect><rect x="52" y="74" width="18" height="18" rx="1.5" fill="#A0A0A0"></rect><rect x="74" y="74" width="18" height="18" rx="1.5" fill="#7A7A79"></rect><rect x="96" y="74" width="18" height="18" rx="1.5" fill="#555555"></rect><rect x="118" y="74" width="18" height="18" rx="1.5" fill="#343434"></rect></svg></div>
-        </>}
-  </div>
-
-  <div class="sheet-row">
-    <div class="sheet-print">
-      <Image src={photo} alt={photoAlt} widths={[480, 760, 1100]} sizes="(max-width: 760px) 92vw, 34vw" loading="eager" />
-    </div>
-    {data.its && (
-      <div class="sheet-card sheet-typed">
-        <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p>
-        <hr />
-        <p><u>{genus.toUpperCase()}</u> {restParts.map(p => p.quoted ? <u>{p.text}</u> : <span>{p.text}</span>)}</p>
-        <p class="ind">ITS, {data.its.length} bp.</p>
-        {itsLine && <p class="ind">{itsLine}.</p>}
-        {data.its.plate && <p class="ind">Mycota Lab plate {data.its.plate}.</p>}
-      </div>
-    )}
-  </div>
-
-  <div class="sheet-row">
-    <div class="sheet-card sheet-form">
-      <p class="sheet-card-head">MYCOVIEW FIELD STATION · NORTHEAST OHIO</p>
-      <hr />
-      <p><u><i>{genus}</i></u> {rest}</p>
-      {data.habitat && <p class="ind">{data.habitat}</p>}
-      <p class="ind">{data.locality}</p>
-      <p class="ind">{data.observed}.</p>
-      <p class="sheet-line"><span>COLLECTED BY</span>{data.collector}</p>
-      <p class="sheet-line"><span>DETERMINED BY</span>{determinedBy}</p>
-    </div>
-    <div class="sheet-side">
-      {data.provisional && (
-        <div class="sheet-provisional">
-          <p>PROVISIONAL</p>
-          <p>not yet formally described</p>
-        </div>
-      )}
-    <a class="sheet-sticker" href={inatUrl} target="_blank" rel="noopener noreferrer" aria-label={`iNaturalist observation ${data.id}, opens in a new tab`}>
-      <span class="sheet-sticker-head">MycoView · iNaturalist</span>
-      <svg viewBox={`0 0 ${barcodeWidth} 34`} preserveAspectRatio="none" aria-hidden="true">{bars.map(b => <rect x={b.x} y="0" width={b.w} height="34" />)}</svg>
-      <span class="sheet-sticker-num">{data.id}</span>
-    </a>
-    </div>
-  </div>
-</figure>
-
-<style>
-.sheet { margin: 0; background: var(--ds-paper-sheet); color: var(--ds-paper-ink); padding: 22px; box-shadow: var(--ds-shadow-sheet); display: flex; flex-direction: column; gap: 18px; }
-.sheet-scale { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-.sheet-ruler { flex: 1 1 300px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; background: var(--ds-paper-card); }
-.sheet-ruler-bar { flex: 1 1 240px; min-width: 0; }
-.sheet-ruler-bar svg { display: block; width: 100%; height: auto; }
-.sheet-ruler .sheet-code { margin: 10px 14px; }
-.sheet-cc { flex: none; }
-.sheet-scale-photo { display: block; width: 100%; height: auto; }
-.sheet-top { display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap; }
-.sheet-code { border: 1.5px solid var(--ds-scale-black); padding: 6px 12px; font-family: var(--ds-font-display); font-size: 22px; font-weight: 500; background: var(--ds-paper-card); }
-.sheet-sticker { display: block; width: 220px; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 8px 12px 6px; text-align: center; text-decoration: none; color: inherit; }
-.sheet-sticker svg { display: block; width: 100%; height: 34px; fill: var(--ds-scale-black); }
-.sheet-sticker-head { display: block; font-size: 12px; margin-bottom: 4px; }
-.sheet-sticker-num { display: block; font-size: 13px; letter-spacing: .08em; margin-top: 3px; }
-.sheet-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
-.sheet-print { flex: 1 1 340px; min-width: 0; background: var(--ds-paper-card); padding: 8px; box-shadow: var(--ds-shadow-card); }
-.sheet-print img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
-.sheet-card { flex: 1 1 260px; min-width: 0; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 16px 20px 14px; font-family: var(--ds-font-mono); font-size: 15px; line-height: 1.45; }
-.sheet-form { flex: 1 1 340px; background: var(--ds-paper-card-warm); }
-.sheet-card p { margin: 0; }
-.sheet-card .ind { padding-left: 2ch; }
-.sheet-card-head { text-align: center; font-family: var(--ds-font-display) !important; font-stretch: 68%; font-weight: 800; font-size: 16px; letter-spacing: .05em; }
-.sheet-card hr { width: 110px; margin: 8px auto 12px; border: 0; border-top: 2px solid var(--ds-paper-ink); }
-.sheet-line { display: flex; gap: 12px; align-items: baseline; }
-.sheet-line span { flex: none; width: 112px; font-family: var(--ds-font-display); font-weight: 700; font-size: 12px; letter-spacing: .06em; }
-.sheet-side { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-.sheet-provisional { align-self: stretch; border: 10px solid var(--ds-label-red); background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 12px 16px; font-family: var(--ds-font-mono); }
-.sheet-provisional p { margin: 0; font-size: 15px; }
-.sheet-provisional p:first-child { font-weight: 700; font-size: 20px; letter-spacing: .04em; }
-@media (max-width: 480px) { .sheet { padding: 14px; gap: 14px; } .sheet-sticker { width: 180px; } }
-</style>
+<div id="hp-sheet" set:html={html} />

@@ -31,14 +31,14 @@ const tour = [
 <FieldGuide title="Case: Russula sp. 'QUE01'" description={`Provisional code case page for Russula sp. 'QUE01': ${d.sequenced} sequenced iNaturalist observations from ${d.observers} observers, its season and region, what's missing, and how to help.`} eyebrow="PROVISIONAL TAXONOMIST / CASE 001" heading="<em>Russula</em> sp. ‘QUE01’" lead={`Status: Open · Data pulled ${d.pulledAt} · ${d.sequenced} sequenced observations from ${d.observers} observers`} tourKey="pt-case-que01" tour={tour} current="cases" nav={ptNav} navLabel="Provisional taxonomist">
 
 <section id="question">
-  <p class="mv-guide-kicker">The question</p>
+
   <h2>Is ‘QUE01’ one species, and does an existing name already apply?</h2>
   <p>‘QUE01’ has {d.sequenced} sequenced observations from {d.observers} collectors, collected from {years[0]} to {years[years.length - 1]}. What this case hasn’t done yet is place it among its relatives: which named species and other codes sit closest, and whether any older North American <em>Russula</em> name could fit it. Until that’s done, it isn’t known whether ‘QUE01’ is undescribed or an existing species that was never sequenced.</p>
   <div class="mv-guide-note"><p><strong>Status: Open.</strong> No accepted name. This is not a claim that the species is new.</p></div>
 </section>
 
 <section id="evidence">
-  <p class="mv-guide-kicker">The evidence so far · snapshot of {d.pulledAt}</p>
+  <p class="ds-label">The evidence so far · snapshot of {d.pulledAt}</p>
   <h2>Plenty of sequenced collections, with gaps in what was written down.</h2>
   <div class="mv-pt-stats">
     <div><strong>{d.observations}</strong><span>observations carrying the code</span></div>
@@ -65,7 +65,7 @@ const tour = [
 </section>
 
 <section id="photos">
-  <p class="mv-guide-kicker">Sequenced collections</p>
+
   <h2>What the sequenced collections look like.</h2>
   <p>{shown.length} of the {d.photos.length} sequenced observations with an openly licensed photo, newest first. Lighting and cameras differ, so compare colors with care. Each photo links to its observation.</p>
   <div class="mv-pt-photos">
@@ -74,7 +74,7 @@ const tour = [
 </section>
 
 <section id="relatives">
-  <p class="mv-guide-kicker">Nearest relatives and candidate names</p>
+
   <h2>Not yet analysed. This is the first open job.</h2>
   <p>This case doesn’t yet show which named <em>Russula</em> species and other codes sit closest to ‘QUE01’, or which older names could fit it. If you know of published work on it, tell us. The next steps, from the <a href="/investigate/provisional-taxonomist/guide/#step-3">beginner guide</a>:</p>
   <ol class="mv-guide-steps">
@@ -86,7 +86,7 @@ const tour = [
 </section>
 
 <section id="missing">
-  <p class="mv-guide-kicker">What’s missing</p>
+
   <h2>The characters that would help most are the ones rarely written down.</h2>
   <p>Counts of observation notes that mention each character, out of {d.observations} observations ({d.notesWritten} have any notes). This is a keyword screen, so it can miss notes in other languages or in other fields; treat it as a guide to the gaps, not an exact count.</p>
   <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
@@ -96,7 +96,7 @@ const tour = [
 </section>
 
 <section id="help">
-  <p class="mv-guide-kicker">How to help</p>
+
   <h2>If you find it this season, record these.</h2>
   <ul>
     <li><strong>A spore print,</strong> photographed on white paper next to a white reference. This is the biggest gap.</li>
@@ -109,7 +109,7 @@ const tour = [
 </section>
 
 <section id="changelog">
-  <p class="mv-guide-kicker">Changelog</p>
+
   <h2>Changes to this case</h2>
   <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
     <thead><tr><th>Date</th><th>Change</th><th>Evidence</th></tr></thead>
@@ -118,7 +118,7 @@ const tour = [
 </section>
 
 <section id="credits">
-  <p class="mv-guide-kicker">Credits and data sources</p>
+
   <h2>Whose records this page is built on</h2>
   <p><strong>Sequencing:</strong> Mycota Lab (MycoMap). <strong>Data:</strong> iNaturalist public API, pulled {d.pulledAt}. Photos © their photographers, under the licences shown. <strong>Collectors ({d.observers}):</strong> {d.observerList.map(([u, n], i) => <>{i > 0 && ', '}<a href={`https://www.inaturalist.org/people/${u}`}>{u}</a> ({n})</>)}.</p>
 </section>

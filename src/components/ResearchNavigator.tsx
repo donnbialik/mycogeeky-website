@@ -121,7 +121,7 @@ export default function ResearchNavigator(){
   <header className="mv-nav-progress"><div><strong>RESEARCH NAVIGATOR</strong><span>Five areas · fifteen pathways · no AI or account needed</span></div><span>STEP {stage+1} OF 5</span><div className="mv-nav-meter" role="progressbar" aria-label="Research Navigator progress" aria-valuemin={1} aria-valuemax={5} aria-valuenow={stage+1}><span style={{width:`${(stage+1)*20}%`}} /></div></header>
   <div className="mv-nav-body">
    {stage===0&&<section className="mv-nav-step">
-    <p className="mv-kicker">01 / FOLLOW YOUR CURIOSITY</p>
+
     <h2>What kind of fungal mystery are you exploring?</h2>
     <p>Choose the question that feels closest. You can change your mind as you learn more.</p>
     <div className="mv-nav-area-grid">
@@ -131,7 +131,7 @@ export default function ResearchNavigator(){
     <label className="mv-nav-field">Optional: describe your curiosity in your own words<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="I keep finding this fungus near certain trees, and I want to know why..." /></label>
    </section>}
    {stage===1&&<section className="mv-nav-step">
-    <p className="mv-kicker">02 / CHOOSE A RESEARCH FRAMEWORK</p>
+
     <h2>Which question would you like to investigate?</h2>
     <p>These paths lead to different kinds of evidence and methods. Select one to explore first; related questions remain available in your final brief.</p>
     <div className="mv-nav-frameworks">
@@ -146,14 +146,14 @@ export default function ResearchNavigator(){
     </div>
    </section>}
    {stage===2&&<section className="mv-nav-step">
-    <p className="mv-kicker">03 / WHAT EVIDENCE EXISTS?</p>
+
     <h2>What do you have to work with?</h2>
     <p>Choose as many evidence types as apply. “Nothing yet” is a perfectly useful starting point—just leave everything unchecked.</p>
     <div className="mv-nav-evidence">{(Object.keys(evidenceLabels) as EvidenceId[]).filter(k=>k!=='none').map(id=><label key={id} className={evidence.includes(id)?'is-selected':''}><input type="checkbox" checked={evidence.includes(id)} onChange={()=>toggleEvidence(id)}/><span>{evidenceLabels[id]}</span></label>)}</div>
     <div className="mv-nav-info" role="status"><strong>{evidence.length?evidence.length+' evidence '+(evidence.length===1?'type':'types')+' selected':'No existing evidence? You can still begin.'}</strong><p>{evidence.length?'Your selections are recorded. The research pathway will explain what each kind of evidence can support.':'Start with a scientific question and the original literature. You do not need a specimen or sequence to begin learning.'}</p></div>
    </section>}
    {stage===3&&<section className="mv-nav-step">
-    <p className="mv-kicker">04 / UNDERSTAND THE LIMITS</p>
+
     <h2>How was the evidence collected?</h2>
     <p>We won't pretend casual observations are the same as a systematic survey. Your answers change which methods and conclusions the Navigator recommends.</p>
     <div className="mv-nav-two-col">
@@ -166,7 +166,7 @@ export default function ResearchNavigator(){
     <label className="mv-nav-field">Optional: sources, observations, or a second hypothesis<textarea rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Record IDs, alternative explanations, open questions..." /></label>
    </section>}
    {stage===4&&<section className="mv-nav-step mv-nav-results">
-    <p className="mv-kicker">05 / FOLLOW THE EVIDENCE</p>
+
     <div className="mv-nav-view-tabs" role="group" aria-label="Result view"><button type="button" className={resultView==='journey'?'is-selected':''} aria-pressed={resultView==='journey'} onClick={()=>setResultView('journey')}>My Research Journey</button><button type="button" className={resultView==='brief'?'is-selected':''} aria-pressed={resultView==='brief'} onClick={()=>setResultView('brief')}>Technical Research Brief</button></div>
     {resultView==='journey'?<ResearchJourney framework={chosen} area={area} choiceId={selectedChoice.id} original={question} refined={usableQuestion} location={location} goal={goal} evidence={evidence} caveats={caveats} onTechnical={()=>setResultView('brief')} onEdit={()=>setStage(1)}/>:<>
     <h2>Technical research brief</h2><p className="mv-nav-context">A shareable summary of methodology and evidence limitations, not a validated protocol.</p>

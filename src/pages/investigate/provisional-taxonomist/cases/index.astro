@@ -17,7 +17,7 @@ const tour = [
 <FieldGuide title="Provisional code cases" description="Case pages for provisional fungal codes: what is known, what is missing and how to help, starting with Russula sp. 'QUE01'." eyebrow="PROVISIONAL TAXONOMIST / CASES" heading="One code, one page, <em>everything we know.</em>" lead="Each case shows the evidence so far for one provisional code, the gaps in it, and what to collect next." tourKey="pt-cases" tour={tour} current="cases" nav={ptNav} navLabel="Provisional taxonomist">
 
 <section id="list">
-  <p class="mv-guide-kicker">Open cases</p>
+
   <h2>Cases</h2>
   <div class="mv-guide-grid">
     {cases.map((c) => <a class="mv-guide-card mv-pt-case" href={c.href}><p class="mv-guide-when">{c.status} · data {c.pulled}</p><h3 set:html={`${c.name}`} /><p>{c.summary}</p></a>)}
@@ -25,7 +25,7 @@ const tour = [
 </section>
 
 <section id="suggest">
-  <p class="mv-guide-kicker">Suggest a case</p>
+
   <h2>Your code isn’t listed? Suggest it.</h2>
   <p>Case pages are added by hand. If you’ve worked through the <a href="/investigate/provisional-taxonomist/guide/">beginner guide</a> and your code has at least three sequenced collections from more than one collector, email a suggestion to {suggestEmail}. The link below opens an email with a template for:</p>
   <ul>
@@ -39,7 +39,7 @@ const tour = [
 </section>
 
 <section id="reading">
-  <p class="mv-guide-kicker">How to read a case</p>
+
   <h2>The same sections, in the same order.</h2>
   <ol class="mv-guide-steps">
     <li><h3>The question</h3><p>What is unresolved about the code, in plain language.</p></li>
@@ -58,7 +58,7 @@ const tour = [
 </section>
 
 <section id="citing">
-  <p class="mv-guide-kicker">Data and credit</p>
+
   <h2>How cases cite data.</h2>
   <ul>
     <li>Every record links to its iNaturalist observation, and to its MycoMap record and GenBank accession where they exist.</li>

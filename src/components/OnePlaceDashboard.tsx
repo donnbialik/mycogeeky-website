@@ -132,7 +132,7 @@ export default function OnePlaceDashboard() {
   const maxGenusCount = stats?.topGenera?.[0]?.count ?? 0;
   return <section className="one-place-dashboard" aria-label="Home fungal biodiversity inventory dashboard">
     <div className="opd-header">
-      <div><p className="opd-eyebrow">A LIVING EXAMPLE · INATURALIST DATA</p>
+      <div><p className="ds-label">Live iNaturalist data</p>
         <h3>One property. An expanding record.</h3>
         <p>My Northeast Ohio home fungal inventory, curated observation by observation.</p></div>
       <span className="opd-live">LIVE DATA</span>
@@ -144,14 +144,14 @@ export default function OnePlaceDashboard() {
     </div>
     <div className="opd-detail-grid">
       <div className="opd-panel">
-        <p className="opd-panel-kicker">TAXONOMIC SNAPSHOT</p>
+
         <h4>A closer look at diversity</h4>
         <p className="opd-panel-lead">Documented species within two major fungal lineages.</p>
         <div className="opd-lineage"><div><em>Agaricomycetes</em><small>Most familiar mushrooms, brackets &amp; puffballs</small></div><strong>{display(stats?.mushroomSpecies)}</strong></div>
         <div className="opd-lineage"><div><em>Ascomycota</em><small>Includes morels, cup fungi &amp; many lichens</small></div><strong>{display(stats?.ascomyceteSpecies)}</strong></div>
       </div>
       <div className="opd-panel">
-        <p className="opd-panel-kicker">MOST SPECIES-RICH GENERA</p>
+
         <h4>Top five genera</h4>
         <p className="opd-panel-lead">Distinct species-ranked identifications per genus; repeated sightings count once.</p>
         {stats?.topGenera?.length ? <ol className="opd-genera">

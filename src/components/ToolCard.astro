@@ -17,7 +17,7 @@ const validation:Record<ResearchTool['validation'],string>={
 };
 ---
 <article class="tool-card mv-tool-card" id={`tool-${tool.id}`} data-availability={state}>
- <div class="eyebrow">{steps.map(s=><span class="mv-tool-step" data-path={s.path}>{s.label}</span>)}{tool.category}</div>
+ <div class="ds-label">{steps.map(s=><span class="mv-tool-step" data-path={s.path}>{s.label}</span>)}{tool.category.charAt(0).toUpperCase()+tool.category.slice(1)}</div>
  <h3>{tool.name}</h3>
  <p>{tool.description}</p>
  <div class="mv-tool-status-row" aria-label="Tool status">

@@ -13,22 +13,22 @@ const cycle = [
   ['05', 'Spores again', 'Mature mushrooms release spores, and the cycle can begin again.'],
 ];
 const reasons = [
-  ['FOOD', 'Grow your own.', 'Oysters, lion’s mane and many other mushrooms can be grown at home. Cultivation is a hands-on way to explore fungi as a food source.'],
-  ['MEDICINE', 'Follow the research.', 'Many people start growing because they’re curious about medicinal mushrooms. Growing a species yourself is a way to get to know it while you follow the evidence. Talk with your clinician before using any mushroom for your health.'],
-  ['SCIENCE', 'A bridge to taxonomy.', 'Sterile technique, keeping cultures alive and documenting growth are the same careful habits field and lab work depend on. Cultivation turns the life of a fungus into something you can observe and record.'],
+  ['Food', 'Grow your own.', 'Oysters, lion’s mane and many other mushrooms can be grown at home. Cultivation is a hands-on way to explore fungi as a food source.'],
+  ['Medicine', 'Follow the research.', 'Many people start growing because they’re curious about medicinal mushrooms. Growing a species yourself is a way to get to know it while you follow the evidence. Talk with your clinician before using any mushroom for your health.'],
+  ['Science', 'A bridge to taxonomy.', 'Sterile technique, keeping cultures alive and documenting growth are the same careful habits field and lab work depend on. Cultivation turns the life of a fungus into something you can observe and record.'],
 ];
 ---
 <Base title="Cultivate" description="Why growing mushrooms belongs in a broader interest in fungi: watch the whole life cycle, from culture to spores, up close.">
 <div class="station-page">
 <section class="station-hero station-hero-split"><div class="station-hero-copy">
-  <p class="eyebrow">CULTIVATE / STAY CURIOUS. STAY CULTIVATING.</p>
+
   <h1>See the whole life <em>of a mushroom.</em></h1>
   <p class="lead">In the woods, you meet a mushroom for a few days at most. Grow one, and you get to watch everything that happens before and after.</p>
   <a class="station-button" href="#why">Why I grow</a>
 </div><Photo src="young-mycologist-oyster-harvest.jpg" alt="Young grower holding up a large oyster mushroom harvest" loading="eager" decoding="async" /></section>
 
 <section class="station-content mv-cult" id="why">
-  <div class="station-section-head"><h2>Why I grow</h2><span>CURIOSITY / PATIENCE / WONDER</span></div>
+  <div class="station-section-head"><h2>Why I grow</h2></div>
   <div class="mv-cult-story">
     <h3>Mushrooms are ephemeral. <em>Cultivation lets you stay with them.</em></h3>
     <div>
@@ -40,17 +40,17 @@ const reasons = [
 </section>
 
 <section class="station-content mv-cult" id="life-cycle">
-  <div class="station-section-head"><h2>The life cycle, up close</h2><span>WHAT YOU GET TO WATCH</span></div>
+  <div class="station-section-head"><h2>The life cycle, up close</h2></div>
   <ol class="mv-cult-cycle">{cycle.map(([n, title, body]) => <li><span>{n}</span><h3>{title}</h3><p>{body}</p></li>)}</ol>
 </section>
 
 <section class="station-content mv-cult" id="where">
-  <div class="station-section-head"><h2>Where it can take you</h2><span>FOOD / MEDICINE / SCIENCE</span></div>
-  <div class="mv-cult-reasons">{reasons.map(([k, title, body]) => <article><p class="eyebrow">{k}</p><h3>{title}</h3><p>{body}</p></article>)}</div>
+  <div class="station-section-head"><h2>Where it can take you</h2></div>
+  <div class="mv-cult-reasons">{reasons.map(([k, title, body]) => <article><p class="ds-label">{k}</p><h3>{title}</h3><p>{body}</p></article>)}</div>
 </section>
 
 <section class="station-content mv-cult" id="updates">
-  <div class="station-section-head"><h2>Coming next</h2><span>GUIDES / RESOURCES</span></div>
+  <div class="station-section-head"><h2>Coming next</h2></div>
   <div class="mv-cult-next">
     <div>
       <h3>Cultivation guides are on the way.</h3>

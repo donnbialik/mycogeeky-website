@@ -5,7 +5,7 @@ const {path,hidden}=Astro.props as {path:ResearchPath;hidden?:boolean};
 const steps=path.steps.map(s=>({...s,tool:tools.find(t=>t.id===s.toolId)})).filter(s=>s.tool||s.href);
 ---
 <nav class="mv-research-path" id={`path-${path.id}`} data-path={path.id} aria-labelledby={`path-${path.id}-title`} hidden={hidden} style={`--steps:${steps.length}`}>
- <p class="eyebrow">For {path.audience.toLowerCase()}</p>
+ <p class="ds-label">For {path.audience.toLowerCase()}</p>
  <h3 id={`path-${path.id}-title`}>{path.title}</h3>
  <p class="mv-research-path-intro">{path.intro}</p>
  <ol data-many={steps.length>7?'':undefined}>

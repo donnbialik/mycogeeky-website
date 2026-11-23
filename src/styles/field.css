@@ -12,8 +12,6 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] :is(.station-page, .station-hero, .op-page, .about-page, .mv-guide, .mv-cult) :is(.lead, .muted, .station-footnote, .curiosity-disclaimer, .mv-news-note, .station-tool-intro) { color: var(--ds-ink-muted) !important; }
 [data-tier="field"] main a { text-underline-offset: 4px; }
 
-/* ---------- Eyebrows / kickers: retired ---------- */
-[data-tier="field"] main :is(.eyebrow, .mv-kicker, .op-kicker, .mv-guide-kicker, .station-section-head > span, .station-card-body > small, .opd-eyebrow, .opd-panel-kicker) { display: none !important; }
 
 /* ---------- Hero: kraft, ink type, the photo as a print on the page ---------- */
 [data-tier="field"] .station-hero { background: transparent; color: var(--ds-ink); border-bottom: 1px solid var(--ds-line-subtle); }

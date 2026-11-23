@@ -74,3 +74,9 @@ code, kbd, samp { font-family: var(--ds-font-mono); }
 /* Lab tier: header and tier switch follow the theme. */
 [data-tier="lab"] .ds-tierswitch { border-color: var(--ds-line-strong); }
 [data-tier="lab"] body { background: var(--ds-ground); color: var(--ds-ink); }
+
+/* Plain label above a card title or section (replaces the retired all-caps eyebrows where the label carries information:
+   a step, a date, an audience, a category). Sentence case, never letter-spaced capitals. */
+.ds-label { margin: 0 0 6px; font: 500 14px/1.4 var(--ds-font-body); letter-spacing: 0; text-transform: none; color: var(--ds-ink-muted); }
+.ds-label a { color: inherit; }
+.ds-label .mv-tool-step { margin-right: 8px; font-family: var(--ds-font-mono); letter-spacing: 0; }

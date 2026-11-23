@@ -3,12 +3,12 @@ import Base from '../../layouts/Base.astro';
 import { contactEmail, inaturalistProfile } from '../../data/site';
 // Keep this page true to what the site actually does. If a page adds a new outside service
 // (an embed, a script, an API the browser calls), add it here.
-const updated = '19 November 2026';
+const updated = '23 November 2026';
 ---
 <Base title="Privacy" description="What MycoView collects (very little), which outside services the site and its research tools contact, and how to reach us.">
 <div class="station-page">
 <section class="station-hero station-hero-solo"><div class="station-hero-copy">
-  <p class="eyebrow">MYCOVIEW / PRIVACY</p>
+
   <h1>Privacy, <em>in plain language.</em></h1>
   <p class="lead">MycoView has no analytics, no ads and no tracking cookies. We don’t sell or share information about you. Some pages and tools do contact outside services, and this page lists them.</p>
   <p class="station-hero-note">Last updated {updated}.</p>
@@ -22,7 +22,7 @@ const updated = '19 November 2026';
 
   <section>
     <h2>Fonts</h2>
-    <p>The site’s typefaces load from Google Fonts, so your browser contacts Google’s servers, which receive your IP address and browser details. See <a href="https://policies.google.com/privacy">Google’s privacy policy</a>.</p>
+    <p>The site’s typefaces are served from mycoview.com itself, so reading a page doesn’t contact a font service.</p>
   </section>
 
   <section>

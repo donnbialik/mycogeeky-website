@@ -20,7 +20,7 @@ const tour = [
 <FieldGuide title="Beginner guide: my sequence came back as a code" description="A step-by-step guide for deciding whether a provisional fungal code is worth researching: check your record, look around the code, place it on a tree, compare it, rate its difficulty, and adopt it." eyebrow="PROVISIONAL TAXONOMIST / BEGINNER GUIDE" heading="My sequence came back as a code. <em>Now what?</em>" lead="Five steps from your own sequence result to a decision. Every checkpoint ends in stop, watch or keep going." tourKey="pt-guide" tour={tour} sources={sources} current="guide" nav={ptNav} navLabel="Provisional taxonomist">
 
 <section id="intro">
-  <p class="mv-guide-kicker">Before you start</p>
+
   <h2>A code means “not finished yet,” not “new species.”</h2>
   <p>Your mushroom was sequenced, and instead of a species name it came back as something like <em>Russula</em> sp. ‘QUE01’. That’s a <strong>code</strong>: a temporary label for a group of sequenced collections that look like one species but have no accepted name yet. It doesn’t mean you found a new species. It means nobody has finished working out what this one is.<sup class="mv-ref"><a href="#sources">1</a></sup></p>
   <div class="mv-guide-grid mv-pt-outcomes">
@@ -32,7 +32,7 @@ const tour = [
 </section>
 
 <section id="step-1">
-  <p class="mv-guide-kicker">Step 1 · about 5 minutes</p>
+  <p class="ds-label">Step 1 · about 5 minutes</p>
   <h2>Check your own record.</h2>
   <p>Mycota Lab only posts a result to iNaturalist when they’re confident in it, so you’re starting from a good sequence. Check these on your observation:</p>
   <ul class="mv-pt-checks">
@@ -54,7 +54,7 @@ const tour = [
 </section>
 
 <section id="step-2">
-  <p class="mv-guide-kicker">Step 2 · about 10 minutes</p>
+  <p class="ds-label">Step 2 · about 10 minutes</p>
   <h2>Look around the code.</h2>
   <p>Find every other observation that carries the same code. There are two ways.</p>
   <h3>The quick way: the Provisional Finder</h3>
@@ -91,7 +91,7 @@ const tour = [
 </section>
 
 <section id="step-3">
-  <p class="mv-guide-kicker">Step 3 · 30–45 minutes</p>
+  <p class="ds-label">Step 3 · 30–45 minutes</p>
   <h2>Find its neighbors, then compare.</h2>
   <p>A tree tells you what your code’s closest relatives are. The ITS Bin Comparator then measures how different the code really is from the closest one. If you’ve never read a tree, take it slowly: the three things beginners misread are listed below.</p>
   <h3>Build a tree with the Dikarya Tree Builder</h3>
@@ -130,7 +130,7 @@ const tour = [
 </section>
 
 <section id="step-4">
-  <p class="mv-guide-kicker">Step 4 · about 10 minutes</p>
+  <p class="ds-label">Step 4 · about 10 minutes</p>
   <h2>Check the difficulty.</h2>
   <p>Use the <a href="/investigate/provisional-taxonomist/difficulty/">difficulty rubric</a> to rate the code beginner, intermediate or advanced. Rate it by the <strong>section</strong> of the genus it sits in, not the genus as a whole: a code in a small, well-studied section of a huge genus can be a good first project.</p>
   <div style="overflow:auto"><table class="mv-guide-table mv-pt-table">
@@ -144,7 +144,7 @@ const tour = [
 </section>
 
 <section id="step-5">
-  <p class="mv-guide-kicker">Step 5</p>
+  <p class="ds-label">Step 5</p>
   <h2>Adopt the code.</h2>
   <p>If you’ve reached this step, the code is a good candidate for a <a href="/investigate/provisional-taxonomist/cases/">case page</a>: what’s known, what’s missing, and what to collect next. Check the <a href="/investigate/provisional-taxonomist/cases/">list of cases</a> first.</p>
   <p><strong>If your code doesn’t have a case page yet, suggest one.</strong> <a href={suggestHref}>Email a case suggestion</a> to {suggestEmail}. The email opens with a short template: the code, one observation link, and what you found in steps 2 to 4. Case pages are added by hand, so it may take a little while.</p>

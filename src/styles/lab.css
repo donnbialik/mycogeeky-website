@@ -11,8 +11,6 @@ html[data-tier="lab"] main :is(h1, h2, h3) { font-family: var(--ds-font-display)
 html[data-tier="lab"] main :is(h1, h2) em { color: inherit !important; font-style: italic; font-weight: inherit; }
 html[data-tier="lab"] main a { text-underline-offset: 4px; }
 
-/* ---------- Eyebrows / kickers: retired ---------- */
-html[data-tier="lab"] main :is(.eyebrow, .mv-kicker, .mv-guide-kicker, .mv-case-eyebrow, .station-section-head > span, .station-card-body > small, .mv-case-series) { display: none !important; }
 
 /* ---------- Heroes: on the ground, with a rule under them ---------- */
 html[data-tier="lab"] :is(.station-hero, .mv-study-hero, .mv-case-hero) { background: transparent !important; color: var(--ds-ink) !important; border-bottom: 1px solid var(--ds-line-subtle); }

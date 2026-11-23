@@ -12,7 +12,7 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] main a { text-underline-offset: 4px; }
 
 /* ---------- Eyebrows / kickers: retired ---------- */
-[data-tier="field"] main :is(.eyebrow, .mv-kicker, .op-kicker, .mv-guide-kicker, .station-section-head > span, .station-card-body > small, .opd-eyebrow, .opd-panel-kicker, .about-section-label) { display: none !important; }
+[data-tier="field"] main :is(.eyebrow, .mv-kicker, .op-kicker, .mv-guide-kicker, .station-section-head > span, .station-card-body > small, .opd-eyebrow, .opd-panel-kicker) { display: none !important; }
 
 /* ---------- Hero: kraft, ink type, the photo as a print on the page ---------- */
 [data-tier="field"] .station-hero { background: transparent; color: var(--ds-ink); border-bottom: 1px solid var(--ds-line-subtle); }
@@ -73,3 +73,41 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] .one-place-dashboard :is(.opd-stat) { border-color: #DDD8CB !important; }
 [data-tier="field"] .one-place-dashboard .opd-live { background: transparent !important; border: 1.5px solid var(--ds-flag-red) !important; border-radius: 0 !important; box-shadow: none !important; color: var(--ds-flag-red) !important; }
 [data-tier="field"] .one-place-dashboard .opd-live::before { background: var(--ds-flag-red) !important; box-shadow: none !important; }
+
+/* Cultivate page cards (page-local styles in cultivate/index.astro). */
+[data-tier="field"] :is(.mv-cult-cycle li, .mv-cult-reasons article) { background: var(--ds-paper-card) !important; border: 0 !important; border-radius: 0 !important; box-shadow: var(--ds-shadow-paper); }
+[data-tier="field"] .mv-cult-cycle li { border-top: 0 !important; }
+[data-tier="field"] .mv-cult-cycle span { font-family: var(--ds-font-mono); }
+[data-tier="field"] :is(.mv-cult-story, .mv-cult-cycle, .mv-cult-reasons, .mv-cult-next) h3 { font-family: var(--ds-font-display); font-stretch: 75%; font-weight: 700; }
+
+/* About page (page-local styles in about/index.astro). */
+[data-tier="field"] .about-hero { background: transparent !important; color: var(--ds-ink) !important; border-bottom: 1px solid var(--ds-line-subtle); align-items: center; }
+[data-tier="field"] .about-hero h1 { font-weight: 800; font-stretch: 72%; }
+[data-tier="field"] .about-hero-copy > p { color: var(--ds-ink-muted) !important; }
+[data-tier="field"] .about-portrait { margin: clamp(20px, 3vw, 40px) !important; background: var(--ds-paper-card); padding: 10px; box-shadow: var(--ds-shadow-paper); transform: rotate(.6deg); }
+[data-tier="field"] .about-portrait img { min-height: 0 !important; max-height: 640px; aspect-ratio: 4 / 5; height: auto; }
+[data-tier="field"] .about-portrait figcaption { position: static !important; background: transparent !important; color: var(--ds-paper-ink) !important; padding: 8px 2px 0 !important; font: 400 .85rem var(--ds-font-body) !important; }
+[data-tier="field"] .about-nav { border-bottom: 1px solid var(--ds-line-subtle) !important; }
+[data-tier="field"] .about-margin-note { border-left: 2px solid var(--ds-line-strong) !important; color: var(--ds-ink-muted) !important; }
+[data-tier="field"] .about-page :is(h2, h3) { font-family: var(--ds-font-display); font-stretch: 75%; font-weight: 800; }
+[data-tier="field"] .about-standfirst { font-family: var(--ds-font-body) !important; font-weight: 500; }
+[data-tier="field"] .about-page section + section { border-top-color: var(--ds-line-subtle) !important; }
+[data-tier="field"] .about-research-band { border-block-color: var(--ds-line-subtle) !important; }
+[data-tier="field"] .about-vision { background: var(--ds-paper-sheet) !important; color: var(--ds-paper-ink) !important; box-shadow: var(--ds-shadow-paper); }
+[data-tier="field"] :is(.about-talks article, .about-projects article) { border-top: 1.5px solid var(--ds-line-strong) !important; }
+[data-tier="field"] :is(.about-press, .about-press details, .about-philosophy) { border-color: var(--ds-line-subtle) !important; }
+[data-tier="field"] .about-connection img { border: 10px solid var(--ds-paper-card); border-radius: 0 !important; box-shadow: var(--ds-shadow-paper); box-sizing: border-box; }
+
+/* One Place page (page-local styles in one-place/index.astro). */
+[data-tier="field"] :is(.op-hero, .op-dark) { background: transparent !important; color: var(--ds-ink) !important; }
+[data-tier="field"] .op-hero { border-bottom: 1px solid var(--ds-line-subtle); }
+[data-tier="field"] .op-dark { border-block: 1px solid var(--ds-line-subtle); }
+[data-tier="field"] :is(.op-dark-lead, .op-note) { color: var(--ds-ink-muted) !important; }
+[data-tier="field"] .op-hero h1 { color: var(--ds-ink) !important; font-weight: 800 !important; font-stretch: 72%; letter-spacing: 0 !important; }
+[data-tier="field"] .op-hero figure { background: var(--ds-paper-card); padding: 10px; box-shadow: var(--ds-shadow-paper); transform: rotate(.6deg); }
+[data-tier="field"] .op-hero figure img { border-radius: 0 !important; }
+[data-tier="field"] .op-hero figcaption { color: var(--ds-paper-ink) !important; }
+[data-tier="field"] .op-types article { border-top: 2px solid var(--ds-line-strong) !important; }
+[data-tier="field"] :is(.op-steps article, .op-resource-links) { border-top-color: var(--ds-line-subtle) !important; }
+[data-tier="field"] .op-outro aside { background: var(--ds-paper-card) !important; color: var(--ds-paper-ink) !important; box-shadow: var(--ds-shadow-paper); }
+[data-tier="field"] .op-section h2 { font-weight: 800; font-stretch: 75%; }

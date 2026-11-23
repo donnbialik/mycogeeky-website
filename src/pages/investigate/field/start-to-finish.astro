@@ -1,5 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import FieldGuide from '../../../components/FieldGuide.astro';
+import photographInPlace from '../../../assets/field-illustrations/photograph-in-place.webp';
+import numberFieldSlip from '../../../assets/field-illustrations/number-field-slip.webp';
+import separateCompartment from '../../../assets/field-illustrations/separate-compartment.webp';
 // What a research collection looks like from the woods to GenBank. Photo boxes are placeholders for Donn's photos (a video will follow).
 const sources = [
   { cite: 'FunDiS. <em>Sequencing protocol</em>: photograph, collect, dry, voucher, sequence.', url: 'https://fundis.org/sequence' },
@@ -31,10 +35,25 @@ const tour = [
   <p class="ds-label">In the field · minutes per collection</p>
   <h2>Photos, number, container. In that order.</h2>
   <ol class="mv-guide-steps">
-    <li><span class="mv-guide-when">Before touching it</span><h3>Photograph it where it grew</h3><p>The habitat, the host or substrate, and the mushroom in place. See <a href="/investigate/field/photography/">Phone photos</a>.</p><div class="mv-guide-photo">Photo to come: the mushroom in place</div></li>
+    <li class="illustrated-step"><div><span class="mv-guide-when">Before touching it</span><h3>Photograph it where it grew</h3><p>The habitat, the host or substrate, and the mushroom in place. See <a href="/investigate/field/photography/">Phone photos</a>.</p></div>
+      <figure>
+        <Image src={photographInPlace} widths={[360, 540, 960]} sizes="(max-width: 700px) 90vw, 380px" alt="A field photographer frames the mushroom and the log it is growing on." loading="lazy" />
+        <figcaption><strong>Illustration.</strong> Keep the mushroom and what it’s growing on in the frame.</figcaption>
+      </figure>
+    </li>
     <li><span class="mv-guide-when">Then</span><h3>Dig it out, whole</h3><p>Collect the whole base, and several mushrooms at different ages if there are enough. Many identifications depend on the base or on young specimens. See <a href="/investigate/field/genus-notes/">Genus notes</a>.</p></li>
-    <li><span class="mv-guide-when">Then</span><h3>Number it and photograph the rest</h3><p>A field slip with its number goes in the remaining photos: underside, side, base, cut section.<sup class="mv-ref"><a href="#sources">2</a></sup></p><div class="mv-guide-photo">Photo to come: the field slip in frame beside the specimen</div></li>
-    <li><span class="mv-guide-when">Before the next one</span><h3>Its own container, with its slip</h3><p>A separate compartment, waxed-paper wrap or bag for each collection, with the slip inside. I use tackle boxes: one collection per compartment, and I almost never have a mix-up at this stage. Note anything you won’t see later: smell, latex colour, a bruise that’s fading, the tree it was under.</p><div class="mv-guide-photo">Photo to come: a tackle box with one collection per compartment</div></li>
+    <li class="illustrated-step"><div><span class="mv-guide-when">Then</span><h3>Number it and photograph the rest</h3><p>A field slip with its number goes in the remaining photos: underside, side, base, cut section.<sup class="mv-ref"><a href="#sources">2</a></sup></p></div>
+      <figure>
+        <Image src={numberFieldSlip} widths={[360, 540, 960]} sizes="(max-width: 700px) 90vw, 380px" alt="A numbered field slip lies beside the whole mushroom with its stem base visible." loading="lazy" />
+        <figcaption><strong>Illustration.</strong> Put the numbered slip beside the specimen for the remaining photos.</figcaption>
+      </figure>
+    </li>
+    <li class="illustrated-step"><div><span class="mv-guide-when">Before the next one</span><h3>Its own container, with its slip</h3><p>A separate compartment, waxed-paper wrap or bag for each collection, with the slip inside. I use tackle boxes: one collection per compartment, and I almost never have a mix-up at this stage. Note anything you won’t see later: smell, latex colour, a bruise that’s fading, the tree it was under.</p></div>
+      <figure>
+        <Image src={separateCompartment} widths={[360, 540, 960]} sizes="(max-width: 700px) 90vw, 380px" alt="The specimen and its numbered slip share one compartment in a divided box." loading="lazy" />
+        <figcaption><strong>Illustration.</strong> Keep the slip in the same compartment as the specimen.</figcaption>
+      </figure>
+    </li>
   </ol>
 </section>
 
@@ -81,7 +100,17 @@ const tour = [
     <div class="mv-guide-card"><h3>Why a limit</h3><p>The cap on weekdays isn’t about the woods. It’s so everything I pick gets labelled, dried and bagged properly, without anything sitting in the fridge.</p></div>
   </div>
   <p>Everyone works at a different speed. The <a href="/investigate/collection-planner/">Collection Planner</a> works out your own limit from your own times.</p>
-  <div class="mv-guide-note"><p>A video of the full routine will replace the photo boxes on this page when it’s ready.</p></div>
+  <div class="mv-guide-note"><p>A video of the full routine is planned.</p></div>
 </section>
 
 </FieldGuide>
+
+<style>
+  .illustrated-step figure { margin: 12px 0 0; min-width: 0; }
+  .illustrated-step img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+  .illustrated-step figcaption { margin-top: 6px; font-size: .85rem; }
+  @media (min-width: 701px) {
+    .illustrated-step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 42%); align-items: start; gap: 20px; }
+    .illustrated-step figure { margin-top: 0; }
+  }
+</style>

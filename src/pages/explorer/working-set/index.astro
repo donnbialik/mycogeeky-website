@@ -14,7 +14,7 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
   <div class="xp-panel">
     <div class="xp-filters">
       <div><label for="genus">Genus</label><select id="genus"></select></div>
-      <div class="xp-tabs" role="tablist" aria-label="View"><button type="button" role="tab" id="tab-names" aria-selected="true">By name</button><button type="button" role="tab" id="tab-recs" aria-selected="false">Records</button><button type="button" role="tab" id="tab-hist" aria-selected="false">Changes</button></div>
+      <div class="xp-tabs" role="tablist" aria-label="View"><button type="button" role="tab" id="tab-names" aria-selected="true">By name</button><button type="button" role="tab" id="tab-recs" aria-selected="false">Records</button><button type="button" role="tab" id="tab-hist" aria-selected="false">Changes</button><button type="button" role="tab" id="tab-place" aria-selected="false">Place a sequence</button></div>
     </div>
     <p class="muted small" id="summary"></p>
     <div class="xp-filters" id="filters">
@@ -37,7 +37,20 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
       </div>
       <button id="b-save" type="button">Save the change</button> <button id="b-clear" type="button" class="secondary">Clear the selection</button><div id="bmsg"></div>
     </div>
-    <div class="xp-scroll"><table id="table"><thead id="head"></thead><tbody id="rows"><tr><td class="muted">Loading the working set.</td></tr></tbody></table></div>
+    <div class="xp-scroll" id="table-wrap"><table id="table"><thead id="head"></thead><tbody id="rows"><tr><td class="muted">Loading the working set.</td></tr></tbody></table></div>
+    <div id="place-panel" hidden>
+      <p class="small"><strong>Place a sequence among this working set's records.</strong> This is a placement, <strong>not an identification</strong>: no threshold is applied and no name is chosen. It shows which records and working names the sequence is nearest to, how far, and over how much of it. The sequence is compared in your browser and is not sent anywhere.</p>
+      <label for="pq">One ITS sequence (plain or FASTA)</label>
+      <textarea id="pq" rows="6" spellcheck="false" autocomplete="off" style="width:100%;font-family:monospace"></textarea>
+      <p><button id="pgo" type="button">Place in this working set</button> <span id="pstat" class="muted small" aria-live="polite"></span></p>
+      <div id="pout"></div>
+      <details class="xp-msg info small"><summary><strong>How placement works</strong></summary><ul>
+        <li><strong>Compared with</strong>: every type reference and working reference, and the 40 other records sharing the most 8-base words with the sequence (excluded records are left out).</li>
+        <li><strong>Alignment</strong>: one pairwise alignment per record, free end gaps, affine gap costs. The sequence is reverse-complemented if that matches the working set better.</li>
+        <li><strong>Distance</strong>: over the stretch both sequences cover. A substitution counts 1; a run of gaps counts 1 whatever its length; an ambiguity code that fits the other base is not a difference; columns with N are skipped.</li>
+        <li><strong>Covers</strong>: how much of the pasted sequence that stretch includes. A record covering under half (for example an ITS2-only type fragment) is marked partial and listed after the rest.</li>
+        <li>These are plain pairwise distances. The engine's figures (region by region, with alignment uncertainty) can differ slightly. Where the types of two names are close or identical, see the genus review report: a small distance to one of them does not separate them.</li></ul></details>
+    </div>
   </div>
 </ExplorerLayout>
 <script>

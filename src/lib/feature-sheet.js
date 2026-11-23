@@ -98,6 +98,13 @@ export function featurePhotoHtml(f) {
   return `<img src="${esc(photoUrl(p, 'large'))}" srcset="${esc(photoUrl(p, 'medium'))} 500w, ${esc(photoUrl(p, 'large'))} 1024w, ${esc(photoUrl(p, 'original'))} 2048w" sizes="(max-width: 760px) 92vw, 34vw" alt="${esc(alt)}" style="object-position:${pos};transform:scale(${p.zoom});transform-origin:${pos}" loading="eager" decoding="async">`;
 }
 
+/** "88 Nanopore Reads in Consensus (RiC)"; just the technology if the read count is missing. */
+export const readsLine = (its) => {
+  if (!its) return '';
+  const tech = its.tech ? `${its.tech} ` : '';
+  return its.reads ? `${its.reads} ${tech}Reads in Consensus (RiC)` : (its.tech || '');
+};
+
 const splitName = (name) => { const m = String(name).match(/^(\S+)\s+(.*)$/); return m ? [m[1], m[2]] : [String(name), '']; };
 
 /** The whole sheet. opts.photoHtml overrides the photo (the build uses an optimised local image);
@@ -107,7 +114,7 @@ export function renderSheet(f, opts = {}) {
   const restTyped = rest.split(/('[^']+')/).filter(Boolean).map((part) => (part.startsWith("'") ? `<u>${esc(part)}</u>` : esc(part))).join('');
   const inat = `https://www.inaturalist.org/observations/${f.id}`;
   const its = f.its;
-  const itsLine = its ? [its.tech, its.reads ? `${its.reads} reads in consensus` : ''].filter(Boolean).join(', ') : '';
+  const itsLine = readsLine(its);
   const determined = its ? (f.provisional ? 'ITS barcode (provisional)' : 'ITS barcode') : 'iNaturalist community';
   const credit = f.photo && f.photo.credit ? `<figcaption class="sheet-credit">${esc(f.photo.credit)}</figcaption>` : '';
   const scale = opts.scaleHtml
@@ -162,7 +169,7 @@ export function renderLede(f) {
 export function renderJourney(f) {
   const its = f.its;
   const rows = [[f.observed || 'Observed', `Photographed and posted to iNaturalist, #${f.id}`]];
-  const seq = [its && its.plate && `Mycota Lab, plate ${its.plate}`, its && its.tech && its.reads && `${its.tech}, ${its.reads} reads in consensus`].filter(Boolean);
+  const seq = [its && its.plate && `Mycota Lab, plate ${its.plate}`, its && readsLine(its)].filter(Boolean);
   if (seq.length) rows.push(['Sequenced', seq.join(' · ')]);
   if (its) rows.push(['Read', `${its.length} letters of the ITS barcode region`]);
   if (f.provisional) rows.push(['Named', `${splitName(f.name)[1].replace(/^sp\.\s*/, '')}, a provisional name until the species is formally described`]);

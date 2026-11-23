@@ -1433,7 +1433,7 @@ function buildReport(forExport){
     </ul>
   </section>
   ${(()=>{const cal=calFor(genusForComparison(A,B,an));if(!cal)return'';const pp=an.pairs.filter(p=>{const gi=an.items[p.i].group,gj=an.items[p.j].group;return(gi===A&&gj===B)||(gi===B&&gj===A);}).map(p=>p.res).filter(r=>Number.isFinite(r.pct));if(!pp.length)return'';
-    const pair={min:Math.min(...pp.map(r=>r.pct)),max:Math.max(...pp.map(r=>r.pct)),med:median(pp.map(r=>r.pct)),L:median(pp.map(r=>r.L))},x=calSentences(cal,pair);
+    const pair={min:Math.min(...pp.map(r=>r.pct)),max:Math.max(...pp.map(r=>r.pct)),med:median(pp.map(r=>r.pct)),L:median(pp.map(r=>r.L)),taxa:calTaxa(an.items.filter(s=>s.group===A||s.group===B),[A,B])},x=calSentences(cal,pair);
     return`<section><h3>Against the ${esc(cal.genus)} ITS standard</h3>${calGaugeSVG(cal,pair)}<p><strong>${esc(x.verdict)}</strong></p><ul>${x.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul><p class="small muted">Standard built ${new Date(cal.built).toLocaleDateString()} from GenBank${cal.opts.useINat?' and iNaturalist':''}; distances use p-distance over ITS1–5.8S–ITS2 with each gap counted once and homopolymer gaps skipped.</p></section>`;})()}
   <section><h3>Data used</h3>
     <p class="small">A: ${esc(srcs(A))}. B: ${esc(srcs(B))}. Excluded: ${excluded.length?excluded.map(s=>`${esc(s.label)}${s.reason?` (${esc(s.reason)})`:''}`).join(', '):'none'}. Sequences flagged for missing 5.8S: ${qcBad}. Settings: indels ${opt.indelMode==='events'?'one per event':opt.indelMode==='bases'?'one per base':'not counted'}, ${opt.trim?'trimmed to ITS1–5.8S–ITS2':'full length'}, cutoff ${fmt(thrE.pct,2)}% (from ${esc(thrE.src)}), ${opt.minFixed} fixed differences to call distinct.</p>
@@ -1751,7 +1751,8 @@ async function buildCalibration(){
   finally{$('#calGo').disabled=false;$('#calCancel').disabled=true;setTimeout(()=>$('#calBar').style.width='0',1200);}
 }
 function calGaugeSVG(cal,pair){
-  const hiV=Math.max(cal.nn.p95||0,cal.intra.p95||0,pair?pair.max:0,cal.thr.pct||0)*1.15||1;
+  const spW=calSpread(cal),hi0=Math.max(cal.nn.p95||0,cal.intra.p95||0,pair?pair.max:0,cal.thr.pct||0)*1.15||1;
+  const hiV=Math.min(hi0*2,Math.max(hi0,...spW.within.map(r=>r.maxIntraPct*1.08),...spW.nn.map(r=>r.nnPct*1.08)));
   const W=640,H=pair?140:110,ml=128,mr=18,pw=W-ml-mr,x=v=>ml+pw*Math.min(v,hiV)/hiV;
   const bp=v=>Math.round(v*cal.Lmed/100);
   let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="${esc(cal.genus)} ITS standard">`;
@@ -1760,6 +1761,10 @@ function calGaugeSVG(cal,pair){
   const band=(y,lo,hi,mid,col,lab,tip)=>`<text x="${ml-10}" y="${y+4}" text-anchor="end">${lab}</text><rect x="${x(lo)}" y="${y-8}" width="${Math.max(6,x(hi)-x(lo))}" height="16" rx="8" fill="${col}" opacity=".8"><title>${tip}</title></rect><line x1="${x(mid)}" x2="${x(mid)}" y1="${y-11}" y2="${y+11}" stroke="var(--ink)" stroke-width="2"/>`;
   if(cal.intra.n)s+=band(36,0,cal.intra.p95,cal.intra.median,'var(--accent)','Within a species',`Within one species: typically ${fmt(cal.intra.median)}%, 95% of pairs up to ${fmt(cal.intra.p95)}% (~${bp(cal.intra.p95)} bases)`);
   s+=band(66,cal.nn.p5,cal.nn.p95,cal.nn.median,'var(--spore)','Closest species',`Distance to the closest other species: middle 90% ${fmt(cal.nn.p5)}–${fmt(cal.nn.p95)}%, typically ${fmt(cal.nn.median)}% (~${bp(cal.nn.median)} bases)`);
+  // 2026-11-23: one dot per species, so it shows how unevenly the species vary
+  const dot=(y,v,tip)=>`<circle class="spdot" cx="${x(v)}" cy="${y}" r="3.2" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2" opacity=".75"><title>${esc(tip)}</title></circle>`;
+  for(const r of spW.within)s+=dot(36,r.maxIntraPct,`${r.sp}: its ${r.n} sequences differ by up to ${fmt(r.maxIntraPct,1)}%`+(r.maxIntraPct>hiV?' (off the scale)':''));
+  for(const r of spW.nn)s+=dot(66,r.nnPct,`${r.sp}: ${fmt(r.nnPct,1)}% from its closest relative sampled, ${r.nnSp}`+(r.nnPct>hiV?' (off the scale)':''));
   if(Number.isFinite(cal.thr.pct))s+=`<line x1="${x(cal.thr.pct)}" x2="${x(cal.thr.pct)}" y1="16" y2="${H-30}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="${x(cal.thr.pct)}" y="11" text-anchor="middle" style="fill:var(--ink)">cutoff ${fmt(cal.thr.pct)}%</text>`;
   if(pair){const px=x(pair.med);s+=`<text x="${ml-10}" y="100" text-anchor="end">This pair</text><rect x="${x(pair.min)}" y="94" width="${Math.max(4,x(pair.max)-x(pair.min))}" height="12" rx="6" fill="var(--g3)" opacity=".85"><title>This A–B comparison: ${fmt(pair.min)}–${fmt(pair.max)}%, typically ${fmt(pair.med)}%</title></rect><path d="M${px-6},86 L${px+6},86 L${px},94 Z" fill="var(--ink)"/>`;}
   return s+`</svg>`;
@@ -1771,14 +1776,53 @@ function calSentences(cal,pair){
   if(cal.intra.n)out.push(`Sequences within one species usually differ by up to ${fmt(cal.intra.p95,1)}% (about ${bpL(cal.intra.p95)} bases; 95th percentile of ${cal.intra.n} pairs).`);
   if(Number.isFinite(cal.thr.pct))out.push(`The cutoff that best separates the two in ${cal.genus} is ${fmt(cal.thr.pct,2)}% (~${bpL(cal.thr.pct)} bases)${Number.isFinite(cal.thr.err)?`; it misplaces ${Math.round(100*cal.thr.err/2)}% of comparisons on average`:''}.`);
   if(cal.gapOf)out.push(`${cal.gapN} of ${cal.gapOf} species with two or more sequences show a clear barcode gap.`);
-  if(!pair)return{lines:out,cls:''};
+  const sw=calSpread(cal);
+  if(sw.within.length>=3){const a=sw.within[0],z=sw.within[sw.within.length-1];
+    out.push(`Species differ in how variable they are: the largest difference within one species ranges from ${fmt(a.maxIntraPct,1)}% (${a.sp}) to ${fmt(z.maxIntraPct,1)}% (${z.sp}) across the ${sw.within.length} species with two or more sequences; the middle half lie between ${fmt(sw.wq1,1)}% and ${fmt(sw.wq3,1)}%.`);}
+  if(sw.nn.length>=3){const a=sw.nn[0],z=sw.nn[sw.nn.length-1];
+    out.push(`Distances to the closest relative sampled range from ${fmt(a.nnPct,1)}% (${a.sp}) to ${fmt(z.nnPct,1)}% (${z.sp}).`);}
+  if(sw.uneven)out.push(`Species in ${cal.genus} vary unevenly, so a single genus figure fits some of them poorly. Where a species in your comparison is in the standard, its own figures are the better guide, and comparing with its closest relatives is better than any genus-wide figure. A very large figure for one species can also mean misidentified records filed under its name.`);
+  const note=`This standard summarizes named, sequenced ${cal.genus} species from GenBank${cal.opts&&cal.opts.useINat?' and iNaturalist':''} (names as filed, up to ${cal.per} sequences each). It is a reference point, not a rule that every ${cal.genus} species follows.`;
+  if(!pair){out.push(note);return{lines:out,cls:''};}
   const below=pctlRank(cal.rows.map(r=>r.nnPct).filter(Number.isFinite),pair.med);
   let cls,verdict;
-  if(pair.min>(cal.intra.n?cal.intra.p95:0)&&Number.isFinite(cal.thr.pct)&&pair.min>=cal.thr.pct){cls='distinct';verdict=`By the ${cal.genus} standard this is a species-level difference: even the closest A–B pair is above the genus cutoff and beyond normal within-species variation.`;}
-  else if(cal.intra.n&&pair.max<=cal.intra.p95){cls='conspecific';verdict=`By the ${cal.genus} standard this is within the normal variation of a single species.`;}
-  else{cls='ambiguous';verdict=`By the ${cal.genus} standard this sits in the grey zone between within-species and between-species variation.`;}
+  if(pair.min>(cal.intra.n?cal.intra.p95:0)&&Number.isFinite(cal.thr.pct)&&pair.min>=cal.thr.pct){cls='distinct';verdict=`Against the ${cal.genus} standard this looks like a between-species difference: even the closest A–B pair is above the genus cutoff and beyond the within-species differences seen in most sequenced ${cal.genus} species.`;}
+  else if(cal.intra.n&&pair.max<=cal.intra.p95){cls='conspecific';verdict=`Against the ${cal.genus} standard this is within the differences seen inside most sequenced ${cal.genus} species.`;}
+  else{cls='ambiguous';verdict=`Against the ${cal.genus} standard this sits in the grey zone between within-species and between-species differences.`;}
+  out.splice(0,0,...calOwnLines(cal,pair));out.push(note);
   out.unshift(`This pair differs by about ${fmt(pair.med,2)}% (~${Math.round(pair.med*pair.L/100)} bases). ${below===0?`That is smaller than the closest-relative distance of every ${cal.genus} species measured.`:below>=100?`That is larger than the closest-relative distance of every ${cal.genus} species measured.`:`${below}% of ${cal.genus} species are closer than this to their nearest relative.`}`);
   return{lines:out,cls,verdict};
+}
+/* 2026-11-23: how unevenly species vary, and the figures of the species actually being compared */
+function calSpread(cal){
+  const rows=cal.rows||[];
+  const within=rows.filter(r=>r.n>=2&&Number.isFinite(r.maxIntraPct)).sort((a,b)=>a.maxIntraPct-b.maxIntraPct);
+  const nn=rows.filter(r=>Number.isFinite(r.nnPct)).sort((a,b)=>a.nnPct-b.nnPct);
+  const wv=within.map(r=>r.maxIntraPct),wmed=median(wv),wq1=pctl(wv,0.25),wq3=pctl(wv,0.75);
+  const top=wv.length?wv[wv.length-1]:NaN;
+  const uneven=within.length>=3&&top>=1&&top>=2*Math.max(wmed,0.25);
+  return{within,nn,wmed,wq1,wq3,uneven};
+}
+function calTaxa(items,groupNames){
+  const out=new Set();const bin=t=>{const w=String(t||'').trim().split(/\s+/);return w.length>=2&&/^[A-Z][a-z]+$/.test(w[0])&&/^[a-z][a-z-]+$/.test(w[1])?`${w[0]} ${w[1]}`:'';};
+  for(const s of items){const b=bin(s.meta&&s.meta.taxon);if(b)out.add(b);}
+  for(const g of groupNames||[]){const b=bin(g);if(b)out.add(b);}
+  return[...out];
+}
+function calOwnLines(cal,pair){
+  if(!pair||!pair.taxa||!pair.taxa.length)return[];
+  const out=[];
+  for(const sp of pair.taxa){const r=(cal.rows||[]).find(x=>x.sp===sp);if(!r)continue;
+    const mi=r.n>=2&&Number.isFinite(r.maxIntraPct)?r.maxIntraPct:NaN,nn=Number.isFinite(r.nnPct)?r.nnPct:NaN,pm=pair.med;
+    const own=Number.isFinite(mi)?`its ${r.n} sequences in the standard differ by up to ${fmt(mi,1)}%`:`it has one usable sequence in the standard, so its own variation is unknown`;
+    const nb=Number.isFinite(nn)?`; its closest relative among the species sampled is ${r.nnSp} at ${fmt(nn,1)}%`:'';
+    let where='';
+    if(Number.isFinite(mi)&&pm<=mi)where=` This pair's typical difference (${fmt(pm,1)}%) is within that species' own range.`;
+    else if(Number.isFinite(nn)&&pm>=nn)where=` This pair's typical difference (${fmt(pm,1)}%) is at least as large as the distance between ${sp} and its closest relative.`;
+    else if(Number.isFinite(mi)&&Number.isFinite(nn))where=` This pair's typical difference (${fmt(pm,1)}%) falls between that species' own range and its closest-relative distance.`;
+    out.push(`${sp} (sequences filed under this name): ${own}${nb}.${where}`);
+    if(out.length>=2)break;}
+  return out;
 }
 function pctlRank(arr,v){if(!arr.length)return NaN;return Math.round(100*arr.filter(x=>x<v).length/arr.length);}
 function renderCal(){
@@ -1848,6 +1892,7 @@ function takeawayData(){
   const pp=abRes.map(r=>r.pct).filter(Number.isFinite);
   const pair=pp.length?{min:Math.min(...pp),max:Math.max(...pp),med:median(pp),L:median(abRes.map(r=>r.L))}:null;
   const genus=genusForComparison(A,B,an),cal=calFor(genus);
+  if(pair)pair.taxa=calTaxa([...itA,...itB],[A,B]);
   return{an,A,B,itA,itB,sA,sB,sX,fx,rec,dAB,LAB,dA,dB,subsAB,indAB,regs,types,mixed,mixedInd,sameInd,opt,regMed,pair,genus,cal,thrE};
 }
 function takeawayText(t){
@@ -1896,7 +1941,7 @@ function renderTakeaway(){
     ${diffBarSVG([...t.dA,...t.dB],t.dAB)}
     <ul class="tk-list">${x.items.map(([c,s])=>`<li class="${c}">${esc(s)}</li>`).join('')}</ul>
     ${x.std?`<div class="tk-std"><h3><span class="tipped" data-tip="calStd">Against the ${esc(t.cal.genus)} standard</span></h3>${calGaugeSVG(t.cal,t.pair)}<p class="tk-std-v ${x.std.cls}">${esc(x.std.verdict)}</p><ul class="tk-list">${x.std.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`:
-    `<div class="tk-std"><p class="small" style="margin:0;max-width:78ch"><strong><span class="tipped" data-tip="refPoints">Reference points.</span></strong> UNITE builds species hypotheses at 98.5% similarity (1.5% difference). A large study of filamentous fungi (Vu et al. 2019) found 99.6% ITS identity separated species best overall. A single cutoff fits many genera poorly, though, so the most reliable yardstick is the genus itself.</p>${t.genus?`<div class="row" style="margin-top:8px"><button type="button" class="shrink" data-calbuild="${esc(t.genus)}">Build the ${esc(t.genus)} standard</button></div>`:''}</div>`}
+    `<div class="tk-std"><p class="small" style="margin:0;max-width:78ch"><strong><span class="tipped" data-tip="refPoints">Reference points.</span></strong> UNITE builds species hypotheses at 98.5% similarity (1.5% difference). A large study of filamentous fungi (Vu et al. 2019) found 99.6% ITS identity separated species best overall. A single cutoff fits many genera poorly, though. A standard built from the genus is a better yardstick, and the closest related species are better still: species within one genus vary unevenly.</p>${t.genus?`<div class="row" style="margin-top:8px"><button type="button" class="shrink" data-calbuild="${esc(t.genus)}">Build the ${esc(t.genus)} standard</button></div>`:''}</div>`}
     <div class="tk-verdict ${t.rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${t.rec.cls}">${esc(x.plain)}</span></span><span class="small muted">Tool's call: ${esc(t.rec.label)} · confidence ${esc(t.rec.conf)} · cutoff ${fmt(t.thrE.pct,2)}% from ${esc(t.thrE.src)}</span></div>
     <p class="tk-next"><strong>Suggested next step:</strong> ${esc(x.next)}</p>
     <p class="small muted" style="margin:0">Counts follow your settings (a gap counts once however long it is; homopolymer gaps ${t.opt.ignoreHP?'are skipped':'are counted'}). The Report tab below has the full reasoning.</p>
@@ -2214,7 +2259,10 @@ function inatComment(fmtMd,full){
     li(`${w.charAt(0).toUpperCase()+w.slice(1)}. ${lo>Math.max(iA||0,iB||0)?'The groups do not overlap: every A–B pair differs more than any two sequences within a group.':'The groups overlap: some A–B pairs are as close as sequences within a group.'}`);
     if(t.itA.length>1&&t.itB.length>1)li(t.fx.total?`Consistent differences (every A sequence one base, every B sequence another): ${t.fx.total}${t.regs.length?` (${t.regs.map(([k,v])=>`${k} ${v}`).join(', ')})`:''}.`:'No difference is consistent across every sequence in both groups.');
   }
-  if(t.cal&&x.std)li(`Yardstick for ${i(t.cal.genus)}: ${x.std.verdict}`);else li(`Yardstick: no genus standard built, so the general ${fmt(t.thrE.pct,1)}% cutoff was used; genera differ a lot.`);
+  if(t.cal&&x.std){li(`Yardstick: ${x.std.verdict.replace(`Against the ${t.cal.genus} standard`,`against the ${i(t.cal.genus)} ITS standard (${t.cal.nSp} named species from GenBank),`)}`);
+    const names=(t.cal.rows||[]).map(r=>r.sp).sort((a,b)=>b.length-a.length);
+    for(const l of calOwnLines(t.cal,t.pair)){let m=l;for(const sp of names)m=m.replace(new RegExp(`(^|[^*\\w])${sp}(?![\\w*])`,'g'),(z,p1)=>p1+i(sp));li(m);}
+    if(calSpread(t.cal).uneven)li(`Species in ${i(t.cal.genus)} vary unevenly on ITS, so the genus figure is a rough guide only.`);}else li(`Yardstick: no genus standard built, so the general ${fmt(t.thrE.pct,1)}% cutoff was used; genera differ a lot.`);
   const types=t.types;
   if(types.length){const kinds=[...new Set(types.map(s=>s.meta.gbStatusLabel||'type material'))];
     li(types.length===1?`Type material included: ${seqName(types[0],fmtMd)}.`:`Type material included: ${types.length} sequences (${kinds.join('; ')}), listed below.`);
@@ -2585,7 +2633,7 @@ const TIPS={
  calMaxSp:'The most species to include. Species with type sequences and the most data are kept first.',
  calVoucher:'Use only GenBank sequences tied to a herbarium specimen, culture or type. Removes many misidentified or environmental sequences.',
  calINat:'Also use research-grade iNaturalist observations with ITS. Adds North American data, but identifications are less certain than vouchered GenBank records.',
- calStd:'Your comparison placed on the genus scale: the green band is how much one species normally varies, the brown band is how far species usually are from their closest relative, and the dashed line is the cutoff that best separates them.',
+ calStd:'Your comparison placed against the genus standard: the green band is how much sequences within one species usually differ, across the species sampled; the brown band is how far species usually are from their closest relative; the dashed line is the cutoff that best separates them. Each dot is one species, so you can see how unevenly they vary. It summarizes the sequenced species; it is not a rule every species follows.',
  intraDist:'The largest difference between two sequences of the same species.',
  nnDist:'The closest other species in the genus, and how different the two are at their most similar.',
  calN:'Number of quality sequences used for this species.',
@@ -3060,7 +3108,7 @@ function buildProfReport(items,incCmp,len){
     if(I.used>=2){
       const mx=I.max&&I.max.d>0?I.max:null,limit=cal&&cal.intra.n?cal.intra.p95:1.5;
       verdict=!mx?'coherent':mx.pct>limit?'mixed':'coherent';
-      itsShort=mx?`sequences differ by at most ${mx.d} bp (${fmt(mx.pct,1)}%)${verdict==='mixed'?`, more than ${cal&&cal.intra.n?`usual within a ${cal.genus} species (${fmt(limit,1)}%)`:'the common 1.5% species yardstick'}`:cal&&cal.intra.n?`, within normal variation for a ${cal.genus} species (up to ${fmt(limit,1)}%)`:', consistent with one species'}`:'all sequences identical';
+      itsShort=mx?`sequences differ by at most ${mx.d} bp (${fmt(mx.pct,1)}%)${verdict==='mixed'?`, more than ${cal&&cal.intra.n?`usual within a ${cal.genus} species (${fmt(limit,1)}%)`:'the common 1.5% species yardstick'}`:cal&&cal.intra.n?`, within the differences seen inside most sequenced ${cal.genus} species (up to ${fmt(limit,1)}%)`:', consistent with one species'}`:'all sequences identical';
       const br=mx?[mx.subs?`${mx.subs} substitution${mx.subs===1?'':'s'}`:'',mx.ind?`${mx.ind} indel${mx.ind===1?'':'s'}`:''].filter(Boolean).join(', '):'';
       itsDetail=`${I.n} sequence${I.n===1?'':'s'} (${techs}), ${I.lenMin===I.lenMax?I.lenMin:`${I.lenMin}–${I.lenMax}`} bp over ITS1–5.8S–ITS2.`;
       if(mx){const shared=I.haps.filter(x=>x>1);itsDetail+=` Most different pair ${mx.d} bp${br?` (${br})`:''}, typical pair ${Math.round(I.medD)} bp; ${shared.length?`${I.haps.length} haplotypes, the largest shared by ${I.haps[0]}`:'no two identical'} (ambiguity codes counted as matches, homopolymer length ignored).`;}
@@ -3395,7 +3443,7 @@ function renderAll(){renderGroups();renderSeqTable();renderResults();}
   checkSources();
 })();
 </script>
-<!-- MycoView website add-on: guided tours (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-22.html (SHA-256 recorded in the engine repository). -->
+<!-- MycoView website add-on: guided tours (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-23.html (SHA-256 recorded in the engine repository). -->
 <script src="tour.js" defer></script>
 </body>
 </html>

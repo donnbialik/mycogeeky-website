@@ -61,15 +61,15 @@ export function normalizeFeature(input) {
 
 // ---------------------------------------------------------------- pieces
 
-const CODE39 = { '0': 'nnnwwnwnn', '1': 'wnnwnnnnw', '2': 'nnwwnnnnw', '3': 'wnwwnnnnn', '4': 'nnnwwnnnw', '5': 'wnnwwnnnn', '6': 'nnwwwnnnn', '7': 'nnnwnnwnw', '8': 'wnnwnnwnn', '9': 'nnwwnnwnn', '*': 'nwnnwnwnn' };
-function barcodeSvg(id) {
-  let x = 0; let rects = '';
-  for (const ch of `*${id}*`) {
-    const pattern = CODE39[ch]; if (!pattern) continue;
-    [...pattern].forEach((e, i) => { const w = e === 'w' ? 3.5 : 1.4; if (i % 2 === 0) rects += `<rect x="${x.toFixed(1)}" y="0" width="${w}" height="34"/>`; x += w; });
-    x += 1.4;
-  }
-  return `<svg viewBox="0 0 ${x.toFixed(1)} 34" preserveAspectRatio="none" aria-hidden="true">${rects}</svg>`;
+/** The paper voucher slip laid on the photo: ruled boxes over "MG-<iNat number>", like the slips Donn photographs with collections. */
+export const voucherNumber = (id) => `MG-${id}`;
+function voucherSlipSvg(id) {
+  const x0 = 16, cw = 42, top = 14, bot = 58, n = 5;
+  let s = `<svg viewBox="0 0 240 112" aria-hidden="true"><path d="M5 3 L238 1 L238 111 L3 110 L6 96 L2 84 L6 70 L3 57 L6 44 L2 30 L6 17 Z" fill="#FBFBF7"/>`;
+  s += `<rect x="${x0}" y="${top}" width="${cw * n}" height="${bot - top}" fill="none" stroke="#1d1d1d" stroke-width="2.2"/>`;
+  for (let c = 1; c < n; c++) s += `<line x1="${x0 + c * cw}" y1="${top}" x2="${x0 + c * cw}" y2="${bot}" stroke="#1d1d1d" stroke-width="2.2"/>`;
+  for (let c = 0; c < n; c++) s += `<line x1="${x0 + c * cw + cw / 2}" y1="${top}" x2="${x0 + c * cw + cw / 2}" y2="${top + 20}" stroke="#1d1d1d" stroke-width="1.6"/>`;
+  return s + `<text x="120" y="94" text-anchor="middle" fill="#4a4a4a" font-family="Work Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5">${voucherNumber(id)}</text></svg>`;
 }
 
 function scaleSvg() {
@@ -123,7 +123,8 @@ export function renderSheet(f, opts = {}) {
   return `<figure class="sheet" aria-label="Specimen sheet for ${esc(f.name)}">
 ${scale}
 <div class="sheet-row">
-  <figure class="sheet-print"><div class="sheet-crop">${opts.photoHtml || featurePhotoHtml(f)}</div>${credit}</figure>
+  <figure class="sheet-print"><div class="sheet-crop">${opts.photoHtml || featurePhotoHtml(f)}</div>${credit}
+    <a class="sheet-voucher" href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="Voucher ${voucherNumber(f.id)}: iNaturalist observation ${f.id}, opens in a new tab">${voucherSlipSvg(f.id)}</a></figure>
   ${its ? `<div class="sheet-card sheet-typed">
     <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p><hr>
     <p><u>${esc(genus.toUpperCase())}</u> ${restTyped}</p>
@@ -133,20 +134,27 @@ ${scale}
   </div>` : ''}
 </div>
 <div class="sheet-row">
-  <div class="sheet-card sheet-form">
-    <p class="sheet-card-head">MYCOVIEW FIELD STATION · NORTHEAST OHIO</p><hr>
-    <p><u><i>${esc(genus)}</i></u> ${esc(rest)}</p>
-    ${f.habitat ? `<p class="ind">${esc(f.habitat)}</p>` : ''}
-    ${f.locality ? `<p class="ind">${esc(f.locality)}</p>` : ''}
-    ${f.observed ? `<p class="ind">${esc(f.observed)}.</p>` : ''}
-    ${f.collector ? `<p class="sheet-line"><span>COLLECTED BY</span>${esc(f.collector)}</p>` : ''}
-    <p class="sheet-line"><span>DETERMINED BY</span>${esc(determined)}</p>
-  </div>
-  <div class="sheet-side">
-    ${f.provisional ? '<div class="sheet-provisional"><p>PROVISIONAL</p><p>not yet formally described</p></div>' : ''}
-    <a class="sheet-sticker" href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="iNaturalist observation ${f.id}, opens in a new tab">
-      <span class="sheet-sticker-head">MycoView · iNaturalist</span>${barcodeSvg(f.id)}<span class="sheet-sticker-num">${f.id}</span>
-    </a>
+  <div class="sheet-card sheet-slip">
+    <div class="slip-left">
+      <p class="slip-title">FIELD DATA SLIP</p>
+      <p class="slip-org">MycoView Field Station · Northeast Ohio</p>
+      <p class="slip-num"><b>#</b><span>${voucherNumber(f.id)}</span></p>
+      <p class="slip-cap">Voucher number</p>
+      <dl class="slip-rows">
+        ${f.observed ? `<div><dt>Date</dt><dd>${esc(f.observed)}</dd></div>` : ''}
+        ${f.locality ? `<div><dt>Locality</dt><dd>${esc(f.locality)}</dd></div>` : ''}
+        ${f.collector ? `<div><dt>Collected By</dt><dd>${esc(f.collector)}</dd></div>` : ''}
+        <div><dt>ID By</dt><dd>${esc(determined)}</dd></div>
+      </dl>
+    </div>
+    <div class="slip-right">
+      <div class="slip-id"><p><b>iNat#</b><a href="${inat}" target="_blank" rel="noopener noreferrer">${f.id}</a></p><p class="slip-cap">Permanent record (for sequencing &amp; vouchering)</p></div>
+      <p class="slip-species"><b>Species</b><span><u><i>${esc(genus)}</i></u> ${esc(rest)}</span></p>
+      ${f.habitat || f.provisional ? `<div class="slip-cols${f.habitat && f.provisional ? '' : ' slip-one'}">
+        ${f.habitat ? `<div><p class="slip-h">Field notes</p><p>${esc(f.habitat)}</p></div>` : ''}
+        ${f.provisional ? '<div><div class="sheet-provisional"><p>PROVISIONAL</p><p>not yet formally described</p></div></div>' : ''}
+      </div>` : ''}
+    </div>
   </div>
 </div>
 </figure>`;

@@ -119,3 +119,5 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 @media (max-width: 900px) { [data-tier="field"] .mv-support-grid { grid-template-columns: minmax(0, 1fr) !important; } }
 [data-tier="field"] main .mv-news-row { flex-wrap: wrap; }
 [data-tier="field"] main .mv-news-row input[type="email"] { flex: 1 1 160px; min-width: 0; }
+/* Cultivate's closing note had a hard-coded grey-green (2.1:1 on kraft). */
+[data-tier="field"] .mv-cult-note { color: var(--ds-ink-muted) !important; }

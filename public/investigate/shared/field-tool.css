@@ -6,7 +6,7 @@ html[data-tier="field"]:root {
   --wb-surface: #FFFFFF;
   --wb-surface-2: #F6F5EF;
   --wb-ink: #1A1A1A;
-  --wb-muted: #3A3A3A;
+  --wb-muted: #2A1E10; /* kraft-muted ink: 6.3:1 on kraft, higher on paper */
   --wb-line: #D9D2C1;
   --wb-accent: #1A120A;
   --wb-accent-ink: #FFFFFF;

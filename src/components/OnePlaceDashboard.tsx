@@ -165,7 +165,7 @@ export default function OnePlaceDashboard() {
     </div>
     <div className="opd-footer" aria-live="polite" role="status">
       <p>{loading ? 'Loading current iNaturalist records…' : error ? 'Unable to load current statistics.' : 'Updated ' + stats?.updated + '. ' + (stats?.warnings.length ? stats.warnings.join(' ') : 'Data retrieved successfully.')} Species-level names may be provisional. Genus ranking counts distinct species-ranked names, excluding observations without species-level identifications. Search counts can differ from the Traditional Project overview and do not measure total site biodiversity.</p>
-      {!loading && (error || Boolean(stats?.warnings.length)) && <button type="button" onClick={() => setRefresh(n=>n+1)}>Retry ↻</button>}
+      {!loading && (error || Boolean(stats?.warnings.length)) && <button type="button" onClick={() => setRefresh(n=>n+1)}>Retry</button>}
     </div>
   </section>;
 }

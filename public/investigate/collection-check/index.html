@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="field">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -8,7 +8,7 @@
 <meta name="description" content="Check an iNaturalist user's fungi records for collections that stalled partway: provisional names without vouchers, sequences without specimens, vouchers never sequenced, sequences not in GenBank.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <title>Collection Check · MycoView</title>
 <script>try{const t=JSON.parse(localStorage.getItem('collectionCheck.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -84,6 +84,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 .wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 
 </style>
+<link rel="stylesheet" href="/investigate/shared/field-tool.css"><!-- Field tier (kraft) theme -->
 </head>
 <body>
 <header class="wb-top">
@@ -95,7 +96,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   <div class="wb-sources">
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
     <span class="wb-hint" data-tour-hint hidden>New here?</span>
-    <button id="tourBtn" type="button" data-tour-start>▶ Take the tour</button>
+    <button id="tourBtn" type="button" data-tour-start>Take the tour</button>
     <button id="wbThemeBtn" type="button">Theme</button>
   </div>
 </header>
@@ -136,7 +137,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   <h2><span class="n">3</span>What’s missing a step</h2>
   <div class="stats" id="stats"></div>
   <div class="checks" id="checks"></div>
-  <div class="row" style="margin-top:14px"><button class="btn sec" type="button" id="csvBtn">Download the flagged records (CSV)</button><a href="/investigate/field/tracking/">Why each link in the chain matters →</a><a id="fpLink" href="/investigate/observation-footprint/">See where these observations went →</a></div>
+  <div class="row" style="margin-top:14px"><button class="btn sec" type="button" id="csvBtn">Download the flagged records (CSV)</button><a href="/investigate/field/tracking/">Why each link in the chain matters</a><a id="fpLink" href="/investigate/observation-footprint/">See where these observations went</a></div>
 </section>
 
 <section id="s-rare" class="hidden">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="field">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -8,7 +8,7 @@
 <meta name="description" content="See where your iNaturalist observations went: records shared with GBIF, DNA sequences and GenBank accessions, provisional names that now have a species name, projects your records feed, and identifications you've added for others.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <title>Observation Footprint · MycoView</title>
 <script>try{const t=JSON.parse(localStorage.getItem('footprint.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -73,6 +73,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 .wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 
 </style>
+<link rel="stylesheet" href="/investigate/shared/field-tool.css"><!-- Field tier (kraft) theme -->
 </head>
 <body>
 <header class="wb-top">
@@ -85,7 +86,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
     <span class="srcchip" id="wb-src-gbif" title="Live data from GBIF"><span class="dot"></span>GBIF <span class="st">checking…</span></span>
     <span class="wb-hint" data-tour-hint hidden>New here?</span>
-    <button id="tourBtn" type="button" data-tour-start>▶ Take the tour</button>
+    <button id="tourBtn" type="button" data-tour-start>Take the tour</button>
     <button id="wbThemeBtn" type="button">Theme</button>
   </div>
 </header>
@@ -167,7 +168,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     var el = $('#c-' + id); if (!el) return; el.classList.remove('wait'); if (na) el.classList.add('na');
     el.querySelector('.v').textContent = typeof v === 'number' ? fmt(v) : v;
     if (note) el.querySelector('.d').innerHTML = note;
-    if (more) el.insertAdjacentHTML('beforeend', '<a class="more" href="' + esc(more[0]) + '">' + esc(more[1]) + ' →</a>');
+    if (more) el.insertAdjacentHTML('beforeend', '<a class="more" href="' + esc(more[0]) + '">' + esc(more[1]) + '</a>');
   }
   function obsUrl(q) { return 'https://www.inaturalist.org/observations?' + q; }
 

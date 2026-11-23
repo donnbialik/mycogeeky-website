@@ -6,7 +6,7 @@ export function getStaticPaths(){return disciplines.map(d=>({params:{slug:d.slug
 const {discipline:d}=Astro.props;
 const other=disciplines.filter(item=>item.slug!==d.slug);
 ---
-<Base title={d.title} description={d.summary}>
+<Base tier="lab" title={d.title} description={d.summary}>
 <section class="station-hero station-hero-split discipline-page-head"><div class="station-hero-copy"><p class="eyebrow"><a href="/investigate/resources/">RESEARCH RESOURCES</a> / WHO DOES WHAT</p><h1>{d.title}</h1><p class="lead">{d.question}</p><p class="station-hero-note">{d.summary}</p></div><div class="station-hero-aside"><DisciplineArt kind={d.icon} accent={d.accent}/></div></section>
 <section class="section"><div class="container discipline-lesson">
 <div class="discipline-main">

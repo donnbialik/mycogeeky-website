@@ -35,7 +35,7 @@ const tourJson = JSON.stringify({ key: tourKey, steps: tour });
     <p class="eyebrow">{eyebrow}</p>
     <h1 set:html={heading} />
     <p class="lead">{lead}</p>
-    <div class="station-actions"><button type="button" class="station-button" data-tour-start>▶ Take the tour</button><span class="mv-guide-hint" data-tour-hint hidden>New here? The tour takes about a minute.</span></div>
+    <div class="station-actions"><button type="button" class="station-button" data-tour-start>Take the tour</button><span class="mv-guide-hint" data-tour-hint hidden>New here? The tour takes about a minute.</span></div>
   </div></section>
   <nav class="mv-guide-nav" aria-label={navLabel}>
     {pages.map(([id, label, href]) => <a href={href} aria-current={id === current ? 'page' : undefined}>{label}</a>)}

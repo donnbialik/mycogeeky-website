@@ -41,16 +41,17 @@ export const GET: APIRoute = () => {
   var saved = null; try { saved = localStorage.getItem('mv.path'); } catch (e) { /* storage unavailable */ }
   var path = onPaths.filter(function (p) { return p.id === saved; })[0] || onPaths[0] || null;
 
-  var css = '.mvtb{background:#10382c;color:#e1e9d8;font:500 13px/1.3 "IBM Plex Sans",system-ui,sans-serif;position:relative;z-index:50}'
+  // Design-system tool bar: neutral ink bar, boxed MYCOVIEW wordmark, Work Sans / Courier Prime. Same in both tiers.
+  var css = '.mvtb{background:#1A120A;color:#F3EDE2;font:500 14px/1.3 "Work Sans",system-ui,sans-serif;position:relative;z-index:50}'
     + '.mvtb-in{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:8px max(16px,env(safe-area-inset-left)) 8px max(16px,env(safe-area-inset-right))}'
-    + '.mvtb a{color:#f4f3db;text-decoration:none}.mvtb a:hover{text-decoration:underline;text-underline-offset:3px}'
-    + '.mvtb a:focus-visible,.mvtb button:focus-visible{outline:2px solid #d8ed43;outline-offset:2px}'
-    + '.mvtb-home{display:flex;align-items:center;gap:7px;font-weight:600}.mvtb-mark{color:#d8ed43;font-size:15px;line-height:1}'
-    + '.mvtb-sep{color:#8fae97}.mvtb-crumbs{display:flex;align-items:center;gap:8px}'
+    + '.mvtb a{color:#FFFFFF;text-decoration:none}.mvtb a:hover{text-decoration:underline;text-underline-offset:3px}'
+    + '.mvtb a:focus-visible,.mvtb button:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}'
+    + '.mvtb-home{display:flex;align-items:center}.mvtb-mark{border:2px solid currentColor;padding:1px 7px;font:800 15px/1.2 "Archivo","Arial Narrow",sans-serif;font-stretch:70%;letter-spacing:.04em}'
+    + '.mvtb-sep{color:#B9AE9C}.mvtb-crumbs{display:flex;align-items:center;gap:10px}'
     + '.mvtb-path{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-left:auto}'
-    + '.mvtb-step{color:#c5dba4;font:500 11px/1.3 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase}'
-    + '.mvtb-step b{color:#f4f3db;font-weight:600}.mvtb-nav{display:flex;gap:14px}.mvtb-planned{color:#9fb5a5}'
-    + '.mvtb button{font:inherit;color:#c5dba4;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}'
+    + '.mvtb-step{color:#E6DDCD;font:400 13px/1.3 "Courier Prime",ui-monospace,monospace}'
+    + '.mvtb-step b{color:#FFFFFF;font-weight:700}.mvtb-nav{display:flex;gap:14px}.mvtb-planned{color:#B9AE9C}'
+    + '.mvtb button{font:inherit;color:#FFFFFF;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}'
     + '.has-mvtb .site-home{display:none!important}'
     + '@media(max-width:700px){.mvtb-path{margin-left:0;width:100%}.mvtb-nav{width:100%;justify-content:space-between}}';
   var style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
@@ -63,7 +64,7 @@ export const GET: APIRoute = () => {
     return href ? '<a href="' + esc(href) + '">' + text + '</a>' : '<span class="mvtb-planned">' + text + ' (planned)</span>';
   }
   function render() {
-    var html = '<div class="mvtb-in"><nav class="mvtb-crumbs" aria-label="MycoView"><a class="mvtb-home" href="/"><span class="mvtb-mark" aria-hidden="true">◉</span>MycoView</a>'
+    var html = '<div class="mvtb-in"><nav class="mvtb-crumbs" aria-label="MycoView"><a class="mvtb-home" href="/" aria-label="MycoView home"><span class="mvtb-mark">MYCOVIEW</span></a>'
       + '<span class="mvtb-sep" aria-hidden="true">/</span><a href="/investigate/#workbench">Toolbox</a></nav>';
     if (path) {
       // A tool can cover several consecutive steps (e.g. Habitat Profiler on the forager path).

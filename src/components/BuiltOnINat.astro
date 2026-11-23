@@ -4,5 +4,5 @@ interface Props { tone?: 'light' | 'plain'; context?: string }
 const { tone = 'light', context = 'Every tool and story here' } = Astro.props;
 ---
 <aside class={`mv-inat-band mv-inat-${tone}`} aria-label="Built on iNaturalist">
-  <p><strong>Built on iNaturalist.</strong> {context} starts with community observations on <a href="https://www.inaturalist.org/">iNaturalist</a>, and helps turn them into evidence: specimens, DNA sequences, new names and reports a land manager can act on. <a href="https://help.inaturalist.org/">New to iNaturalist? Start here ↗</a></p>
+  <p><strong>Built on iNaturalist.</strong> {context} starts with community observations on <a href="https://www.inaturalist.org/">iNaturalist</a>, and helps turn them into evidence: specimens, DNA sequences, new names and reports a land manager can act on. <a href="https://help.inaturalist.org/">New to iNaturalist? Start here</a></p>
 </aside>

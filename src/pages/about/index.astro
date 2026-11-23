@@ -18,7 +18,7 @@ const talks = [
         <h1 id="about-title">Geeky <em>here.</em></h1>
         <p class="about-intro">I'm obsessed with fungi, especially gilled fungi, and I love to learn about them, talk about them, and hang out with other mycophiles.</p>
         <p>Based in Northeast Ohio. Usually following a question into the woods—or introducing two people who really ought to know each other.</p>
-        <div class="about-actions"><a class="mv-primary" href="#research">Explore my work ↓</a><a class="mv-secondary" href="#speaking">Speaking &amp; press ↓</a></div>
+        <div class="about-actions"><a class="mv-primary" href="#research">Explore my work</a><a class="mv-secondary" href="#speaking">Speaking &amp; press</a></div>
       </div>
       <figure class="about-portrait"><Photo src="mycogeeky-1.jpg" alt="Donn Bialik, MycoGeeky, holding two mushrooms with an exuberant expression" loading="eager" fetchpriority="high" /></figure>
     </section>
@@ -42,7 +42,7 @@ const talks = [
         <article><p class="mv-kicker">TAXONOMY / WORK IN PROGRESS</p><h3>Helping describe two new species</h3><p>Through connections made in the Amateur Mycology Publishing Group, I’m collaborating on descriptions of two potentially new mushroom species. The work brings together careful observation, comparison, and discussion with experienced mycologists. These descriptions are in progress, not yet published.</p></article>
         <article><p class="mv-kicker">FIELD SURVEYS / NORTHEAST OHIO</p><h3>Returning to a changing landscape</h3><p>My collecting permit with Cleveland Metroparks focuses on fungal diversity at Hinckley Reservation, where lake drainage for dam repairs changed local water conditions. I’m documenting fungi over time to help investigate what that change may mean. Repeated records can reveal patterns; establishing their causes takes further evidence.</p><p>My wider survey work includes permitted collecting in Summit Metro Parks and Cuyahoga Valley National Park, and collaboration with my friend Jessica Williams.</p></article>
       </div>
-      <div class="about-resource-links"><a href="https://www.inaturalist.org/people/mycogeekyohio" class="mv-inline-link">See my field observations ↗</a><a href="/investigate/learn/#surveys" class="mv-inline-link">Explore the surveys →</a><a href="/investigate/#workbench" class="mv-inline-link">Visit the Research Workbench →</a></div>
+      <div class="about-resource-links"><a href="https://www.inaturalist.org/people/mycogeekyohio" class="mv-inline-link">See my field observations</a><a href="/investigate/learn/#surveys" class="mv-inline-link">Explore the surveys</a><a href="/investigate/#workbench" class="mv-inline-link">Visit the Research Workbench</a></div>
     </div></section>
 
     <section class="about-section about-connection" aria-labelledby="connection-title">
@@ -51,7 +51,7 @@ const talks = [
     </section>
 
     <section class="about-vision" id="together" aria-labelledby="vision-title"><div class="about-section about-vision-grid">
-      <div><p class="mv-kicker">04 / THE NEXT CHAPTER</p><h2 id="vision-title">What could we <br/>discover <em>together?</em></h2><a class="mv-primary" href="/neo-myco/">Explore NEO Myco →</a></div>
+      <div><p class="mv-kicker">04 / THE NEXT CHAPTER</p><h2 id="vision-title">What could we <br/>discover <em>together?</em></h2><a class="mv-primary" href="/neo-myco/">Explore NEO Myco</a></div>
       <div class="about-prose"><p>I’m helping build NEO Myco—the Northeast Ohio Mycology Collaborative—around that question. My hope is to develop a model that helps interested clubs turn shared curiosity into well-documented observations, achievable research projects, and lasting contributions.</p><p>Many clubs already do valuable scientific work. I want to learn from that tradition and help more people participate: through careful iNaturalist records, local surveys, shared methods, and relationships with researchers.</p><p>The pleasure of getting together and romping around the woods belongs at the center. Nobody needs to pursue a publication to belong. But when someone wants to go deeper, I want there to be a welcoming way in.</p><p>MycoView is where I bring these interests together through stories, learning, and research tools. The MycoView carries the conversation into video; MycoGeeky is the person you’ll meet along the way.</p></div>
     </div></section>
 
@@ -60,14 +60,14 @@ const talks = [
     <section class="about-section" id="speaking" aria-labelledby="speaking-title">
       <div class="about-heading"><p class="mv-kicker">05 / SPEAKING &amp; CONVERSATION</p><h2 id="speaking-title">Bring your curiosity. <br/><em>Let’s put it to work.</em></h2><p>Invite me to your mushroom club, festival, or community event for accessible science, lively stories, and practical next steps. Let’s discuss a talk, workshop, or conversation suited to your audience.</p></div>
       <div class="about-talks">{talks.map((talk, i) => <article><span class="mv-kicker">0{i + 1} / TOPIC TO EXPLORE</span><h3>{talk.title}</h3><p>{talk.text}</p></article>)}</div>
-      <div class="about-booking"><a class="mv-primary" href={inquiry('Speaking inquiry for Donn / MycoGeeky')}>Invite MycoGeeky to speak ↗</a><p>Tell me about your audience, location, dates, and the questions you’d like to explore.</p></div>
+      <div class="about-booking"><a class="mv-primary" href={inquiry('Speaking inquiry for Donn / MycoGeeky')}>Invite MycoGeeky to speak</a><p>Tell me about your audience, location, dates, and the questions you’d like to explore.</p></div>
     </section>
 
     <section class="about-section about-press" id="press" aria-labelledby="press-title">
       <div><p class="mv-kicker">06 / FOR PRESS &amp; ORGANIZERS</p><h2 id="press-title">A few useful details.</h2><p>For interviews, event introductions, photographs, and research inquiries.</p><a class="mv-inline-link" href={inquiry('Press inquiry for Donn / MycoGeeky')}>{email}</a></div>
       <div class="about-press-materials">
         <details open><summary>Short biography</summary><p id="short-bio">{bio}</p><button id="copy-bio" type="button" hidden>Copy biography</button><span id="copy-status" role="status" aria-live="polite"></span></details>
-        <details><summary>Photographs &amp; event materials</summary><p>Email me for a portrait, the appropriate photographer credit, and a biography or topic description tailored to your event.</p><a class="mv-inline-link" href={inquiry('Photo and event materials request')}>Request materials ↗</a></details>
+        <details><summary>Photographs &amp; event materials</summary><p>Email me for a portrait, the appropriate photographer credit, and a biography or topic description tailored to your event.</p><a class="mv-inline-link" href={inquiry('Photo and event materials request')}>Request materials</a></details>
         <details><summary>Explore the work</summary><ul><li><a href="https://www.inaturalist.org/people/mycogeekyohio">Field observations on iNaturalist</a></li><li><a href="https://www.youtube.com/@TheMycoView">The MycoView on YouTube</a></li><li><a href="https://www.buzzsprout.com/2269786">The MycoGeeky Podcast archive</a></li><li><a href="/investigate/">MycoView research tools &amp; methods</a></li><li><a href="/neo-myco/">NEO Myco: the community taking shape</a></li></ul></details>
       </div>
     </section>

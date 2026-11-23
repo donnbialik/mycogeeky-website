@@ -293,7 +293,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
   </div>
   <div class="sources hbtns">
     <span class="srcchip" id="src-inat" data-help="Live connection to the iNaturalist API. Everything on this page comes from iNaturalist; green means it’s answering."><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
-    <button id="tourBtn" class="primary sm" data-help="A step-by-step walk through the page and what each part of the results means. Works with your own results, or with example data if you haven’t searched yet.">▶ Guided tour</button>
+    <button id="tourBtn" class="primary sm" data-help="A step-by-step walk through the page and what each part of the results means. Works with your own results, or with example data if you haven’t searched yet.">Guided tour</button>
     <button id="tipToggle" class="ghost sm toggle on" data-help="Turns these hover explanations on or off.">Hover help <span class="sw"></span></button>
     <button id="helpBtn" class="ghost sm" data-help="A one-page glossary of every column and flag.">Glossary</button>
     <button id="themeBtn" class="ghost sm theme" type="button" data-help="Switch between light and dark.">Theme</button>
@@ -1329,7 +1329,7 @@ function tourEnd(early) {
   tourOn = false;
   if (tourEls) { Object.values(tourEls).forEach(e => e.remove()); tourEls = null; }
   closeDrawer();
-  if (early) toast('Tour closed. Restart it any time with “▶ Guided tour” up here, or hover over anything for a quick explanation.');
+  if (early) toast('Tour closed. Restart it any time with “Guided tour” up here, or hover over anything for a quick explanation.');
 }
 let toastEl = null, toastTimer = null;
 function toast(msg) {

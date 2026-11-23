@@ -45,7 +45,7 @@
     { title: '3 · Choose two groups and run', target: () => cardOf('#groupA'),
       body: 'Pick <b>Group A</b> (e.g. the provisional bin) and <b>Group B</b> (e.g. the sister taxon), then press <b>Run analysis</b>. The <b>Advanced settings</b> (ambiguity codes, how indels count, the distance shown, the species cutoff) can stay at their defaults the first time.' },
     { title: '4 · Read the quick takeaway first', target: () => $('#takeawayCard'),
-      body: 'After a run, a plain-language summary of how the two groups differ appears here. Read it before anything else. <b>Copy summary</b> puts it on your clipboard for notes or an iNaturalist comment. To learn how to read its graphs, press <b>▶ Explain the graphs</b> on this card.' },
+      body: 'After a run, a plain-language summary of how the two groups differ appears here. Read it before anything else. <b>Copy summary</b> puts it on your clipboard for notes or an iNaturalist comment. To learn how to read its graphs, press <b>Explain the graphs</b> on this card.' },
     { title: 'Provisional profile', target: () => $('#profCard'),
       body: 'A short, pasteable summary of a provisional name’s range, distribution and season from its iNaturalist records. Optionally compare it with another provisional in the same genus, or place your own observation in that context. Useful when writing up or commenting on a provisional.' },
     { title: 'Genus ITS standard', target: () => $('#calCard'),
@@ -117,24 +117,24 @@
   // A small schematic for the first step: the same two kinds of bar the tool draws, once with a gap and once overlapping.
   const GAP_SKETCH = (() => {
     const W = 384, x = (v) => 92 + v * 27;                  // 0–10 differences across the plot
-    const bar = (y, lo, hi, md, col) => `<rect x="${x(lo) - 3}" y="${y - 6}" width="${x(hi) - x(lo) + 6}" height="12" rx="6" fill="${col}" opacity=".85"/><line x1="${x(md)}" x2="${x(md)}" y1="${y - 9}" y2="${y + 9}" stroke="var(--ink,#15201B)" stroke-width="2"/>`;
+    const bar = (y, lo, hi, md, col) => `<rect x="${x(lo) - 3}" y="${y - 6}" width="${x(hi) - x(lo) + 6}" height="12" rx="6" fill="${col}" opacity=".85"/><line x1="${x(md)}" x2="${x(md)}" y1="${y - 9}" y2="${y + 9}" stroke="var(--ink,var(--ink,#111418))" stroke-width="2"/>`;
     const panel = (y0, title, a, b, note) => `<text x="0" y="${y0}" font-weight="600">${title}</text>`
-      + `<text x="84" y="${y0 + 20}" text-anchor="end">Within</text>${bar(y0 + 16, ...a, 'var(--accent,#1D6B55)')}`
-      + `<text x="84" y="${y0 + 42}" text-anchor="end">Between</text>${bar(y0 + 38, ...b, 'var(--spore,#8A5A2B)')}`
+      + `<text x="84" y="${y0 + 20}" text-anchor="end">Within</text>${bar(y0 + 16, ...a, 'var(--accent,var(--accent,#111418))')}`
+      + `<text x="84" y="${y0 + 42}" text-anchor="end">Between</text>${bar(y0 + 38, ...b, 'var(--spore,var(--spore,#8A5A2B))')}`
       + note;
-    const gapNote = `<line x1="${x(2)}" x2="${x(2)}" y1="14" y2="66" stroke="var(--ink,#15201B)" stroke-dasharray="3 3"/><line x1="${x(6)}" x2="${x(6)}" y1="14" y2="66" stroke="var(--ink,#15201B)" stroke-dasharray="3 3"/><text x="${(x(2) + x(6)) / 2}" y="${71}" text-anchor="middle" font-weight="600">gap</text>`;
-    const ovNote = `<rect x="${x(3) - 3}" y="94" width="${x(5) - x(3) + 6}" height="54" fill="var(--warn,#A86E14)" opacity=".18"/><text x="${(x(3) + x(5)) / 2}" y="${158}" text-anchor="middle" font-weight="600">overlap</text>`;
+    const gapNote = `<line x1="${x(2)}" x2="${x(2)}" y1="14" y2="66" stroke="var(--ink,var(--ink,#111418))" stroke-dasharray="3 3"/><line x1="${x(6)}" x2="${x(6)}" y1="14" y2="66" stroke="var(--ink,var(--ink,#111418))" stroke-dasharray="3 3"/><text x="${(x(2) + x(6)) / 2}" y="${71}" text-anchor="middle" font-weight="600">gap</text>`;
+    const ovNote = `<rect x="${x(3) - 3}" y="94" width="${x(5) - x(3) + 6}" height="54" fill="var(--warn,var(--warn,#7A4E00))" opacity=".18"/><text x="${(x(3) + x(5)) / 2}" y="${158}" text-anchor="middle" font-weight="600">overlap</text>`;
     let ticks = ''; for (let t = 0; t <= 10; t += 2) ticks += `<text x="${x(t)}" y="178" text-anchor="middle">${t}</text>`;
-    return `<svg viewBox="0 0 ${W} 192" width="100%" role="img" aria-label="Sketch: two groups with a barcode gap, and two groups that overlap" style="display:block;margin:4px 0 10px;font:11.5px var(--f-body,system-ui,sans-serif);fill:var(--ink,#15201B)">`
+    return `<svg viewBox="0 0 ${W} 192" width="100%" role="img" aria-label="Sketch: two groups with a barcode gap, and two groups that overlap" style="display:block;margin:4px 0 10px;font:11.5px var(--f-body,system-ui,sans-serif);fill:var(--ink,var(--ink,#111418))">`
       + panel(10, 'Clear gap', [0, 2, 1], [6, 9, 7], gapNote)
       + panel(92, 'Overlap', [0, 5, 2], [3, 8, 5], ovNote)
-      + ticks + `<text x="${x(5)}" y="191" text-anchor="middle" style="fill:var(--muted,#56655E)">differences per pair</text></svg>`;
+      + ticks + `<text x="${x(5)}" y="191" text-anchor="middle" style="fill:var(--muted,var(--muted,#4A505A))">differences per pair</text></svg>`;
   })();
   const takeawayGraph = () => $('#takeaway svg[aria-label^="Number of differences"]');
   const takeawayGauge = () => $('#takeaway .tk-std svg');
   const reportHist = () => $('#resultsTabsCard svg[aria-label="Barcode gap histogram"]');
   const calGauge = () => $('#calResult svg');
-  const GAP = { label: 'Reading the barcode gap graphs', btn: '▶ Explain the graphs', where: () => $('#takeawayCard'), steps: [
+  const GAP = { label: 'Reading the barcode gap graphs', btn: 'Explain the graphs', where: () => $('#takeawayCard'), steps: [
     { title: 'What a barcode gap is',
       body: `The tool compares every pair of sequences and counts the bases where they differ. There are two kinds of pair. <b>Within a group</b>: both sequences come from the same group (both from A, or both from B). These show how much the sequences in a group vary among themselves. <b>Between groups</b>: one sequence from A and one from B. These show how far apart the two groups are.<br><br>The question is: <b>are the two groups further apart than the sequences inside each group are from each other?</b>${GAP_SKETCH}<b>Barcode gap (top):</b> yes. Even the two most similar A–B sequences differ more than the two most different sequences inside either group. The bars do not touch. This suggests A and B are different species.<br><br><b>Overlap (bottom):</b> no. Some A–B pairs are as similar as sequences inside a group, so ITS alone cannot tell the groups apart. This does <i>not</i> mean they are the same species: closely related species often have nearly identical ITS.<br><br>The tool shows this in three graphs. The next steps explain each one.` },
     { title: 'First, get some results', target: () => cardOf('#groupA'), skip: () => !!takeawayGraph(),
@@ -230,36 +230,36 @@
   /* ---------------- tour engine ---------------- */
   const css = `
   .mvt-shade{position:fixed;inset:0;z-index:9998;background:rgba(5,10,8,.55)}
-  .mvt-spot{position:fixed;z-index:9999;border-radius:10px;box-shadow:0 0 0 9999px rgba(5,10,8,.55),0 0 0 3px var(--accent,#1D6B55);pointer-events:none;transition:all .25s ease}
-  .mvt-spot.mvt-live{box-shadow:0 0 0 9999px rgba(5,10,8,.35),0 0 0 3px var(--accent,#1D6B55)}
-  .mvt-pop{position:fixed;z-index:10000;width:min(420px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:var(--surface,#fff);color:var(--ink,#15201B);border:1px solid var(--line,#D2DCD7);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);padding:18px 18px 14px;font:14.5px/1.5 var(--f-body,system-ui,sans-serif)}
-  .mvt-pop h2{margin:0 0 8px;font:600 18px/1.25 var(--f-display,system-ui,sans-serif);color:var(--ink,#15201B)}
+  .mvt-spot{position:fixed;z-index:9999;border-radius:10px;box-shadow:0 0 0 9999px rgba(5,10,8,.55),0 0 0 3px var(--accent,var(--accent,#111418));pointer-events:none;transition:all .25s ease}
+  .mvt-spot.mvt-live{box-shadow:0 0 0 9999px rgba(5,10,8,.35),0 0 0 3px var(--accent,var(--accent,#111418))}
+  .mvt-pop{position:fixed;z-index:10000;width:min(420px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:var(--surface,#fff);color:var(--ink,var(--ink,#111418));border:1px solid var(--line,var(--line,#DADDE3));border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);padding:18px 18px 14px;font:14.5px/1.5 var(--f-body,system-ui,sans-serif)}
+  .mvt-pop h2{margin:0 0 8px;font:600 18px/1.25 var(--f-display,system-ui,sans-serif);color:var(--ink,var(--ink,#111418))}
   .mvt-pop p{margin:0 0 12px}
   .mvt-pop .mvt-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-  .mvt-pop .mvt-count{font:12px var(--f-mono,monospace);color:var(--muted,#56655E)}
+  .mvt-pop .mvt-count{font:12px var(--f-mono,monospace);color:var(--muted,var(--muted,#4A505A))}
   .mvt-pop .mvt-btns{display:flex;gap:8px;flex-wrap:wrap}
   .mvt-pop .mvt-choices{display:grid;gap:8px;margin:4px 0 12px}
   .mvt-pop .mvt-choices button{text-align:left;padding:10px 14px}
-  .mvt-pop .mvt-choices small{display:block;font-weight:400;color:var(--muted,#56655E)}
-  .mvt-pop button{font:600 13.5px var(--f-body,system-ui,sans-serif);padding:8px 14px;border-radius:8px;border:1px solid var(--line,#D2DCD7);background:transparent;color:var(--ink,#15201B);cursor:pointer;min-height:36px}
-  .mvt-pop button.mvt-primary{background:var(--accent,#1D6B55);border-color:var(--accent,#1D6B55);color:var(--accent-ink,#fff)}
+  .mvt-pop .mvt-choices small{display:block;font-weight:400;color:var(--muted,var(--muted,#4A505A))}
+  .mvt-pop button{font:600 13.5px var(--f-body,system-ui,sans-serif);padding:8px 14px;border-radius:8px;border:1px solid var(--line,var(--line,#DADDE3));background:transparent;color:var(--ink,var(--ink,#111418));cursor:pointer;min-height:36px}
+  .mvt-pop button.mvt-primary{background:var(--accent,var(--accent,#111418));border-color:var(--accent,var(--accent,#111418));color:var(--accent-ink,#fff)}
   .mvt-pop button:disabled{opacity:.5;cursor:default}
-  .mvt-pop button:focus-visible{outline:3px solid var(--spore,#8A5A2B);outline-offset:2px}
-  .mvt-pop .mvt-wait{display:block;margin:0 0 12px;font-size:13px;color:var(--warn,#A86E14)}
-  .mvt-pop .mvt-done{display:block;margin:0 0 12px;font-size:13px;color:var(--good,#2E7D4F);font-weight:600}
+  .mvt-pop button:focus-visible{outline:3px solid var(--spore,var(--spore,#8A5A2B));outline-offset:2px}
+  .mvt-pop .mvt-wait{display:block;margin:0 0 12px;font-size:13px;color:var(--warn,var(--warn,#7A4E00))}
+  .mvt-pop .mvt-done{display:block;margin:0 0 12px;font-size:13px;color:var(--good,var(--good,#1E6B3A));font-weight:600}
   .mvt-pop .mvt-fill{margin:0 0 12px}
-  .mvt-pop a{color:var(--accent,#1D6B55);font-weight:600}
+  .mvt-pop a{color:var(--accent,var(--accent,#111418));font-weight:600}
   .mvt-pop .mvt-video{display:inline-block;margin:0 0 12px}
   .mvt-start{margin-left:8px}
-  .mvt-pop .mvt-sub{margin:0 0 6px;font-size:13px;color:var(--muted,#56655E)}
+  .mvt-pop .mvt-sub{margin:0 0 6px;font-size:13px;color:var(--muted,var(--muted,#4A505A))}
   .mvt-pop .mvt-secs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
   .mvt-pop .mvt-secs button{font-size:12.5px;padding:6px 10px;min-height:30px}
-  .mvt-sec-btn{font:600 12.5px var(--f-body,system-ui,sans-serif);margin-left:10px;padding:4px 10px;border-radius:999px;border:1px solid var(--accent,#1D6B55);background:transparent;color:var(--accent,#1D6B55);cursor:pointer;vertical-align:middle;white-space:nowrap}
-  .mvt-sec-btn:hover{background:var(--accent,#1D6B55);color:var(--accent-ink,#fff)}
-  .mvt-sec-btn:focus-visible{outline:3px solid var(--spore,#8A5A2B);outline-offset:2px}
-  #tourBtn.mvt-start{background:var(--accent,#1D6B55)!important;border-color:var(--accent,#1D6B55)!important;color:var(--accent-ink,#fff)!important;font-weight:600}
+  .mvt-sec-btn{font:600 12.5px var(--f-body,system-ui,sans-serif);margin-left:10px;padding:4px 10px;border-radius:999px;border:1px solid var(--accent,var(--accent,#111418));background:transparent;color:var(--accent,var(--accent,#111418));cursor:pointer;vertical-align:middle;white-space:nowrap}
+  .mvt-sec-btn:hover{background:var(--accent,var(--accent,#111418));color:var(--accent-ink,#fff)}
+  .mvt-sec-btn:focus-visible{outline:3px solid var(--spore,var(--spore,#8A5A2B));outline-offset:2px}
+  #tourBtn.mvt-start{background:var(--accent,var(--accent,#111418))!important;border-color:var(--accent,var(--accent,#111418))!important;color:var(--accent-ink,#fff)!important;font-weight:600}
   .mvt-hint{margin:8px 0 0;font:600 14px var(--f-body,system-ui,sans-serif)}
-  .mvt-hint button{font:inherit;color:var(--accent,#1D6B55);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  .mvt-hint button{font:inherit;color:var(--accent,var(--accent,#111418));background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   @media (max-width:640px){.mvt-pop{left:16px!important;right:16px;width:auto;bottom:16px;top:auto!important;max-height:55vh}}
   @media (prefers-reduced-motion:reduce){.mvt-spot{transition:none}}`;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
@@ -305,8 +305,8 @@
     const waiting = !!(st.wait && !st.wait());
     pop.innerHTML = `<h2 id="mvt-title">${st.title}</h2><p id="mvt-body">${typeof st.body === 'function' ? st.body() : st.body}</p>`
       + (st.fill && waiting !== false || st.fill && !st.wait ? `<button type="button" class="mvt-fill" data-act="fill">${st.fillLabel || 'Fill this in for me'}</button>` : '')
-      + (st.wait ? (waiting ? `<span class="mvt-wait" role="status">${st.waitText || 'Waiting…'}</span>` : '<span class="mvt-done" role="status">✓ Done. Press Next.</span>') : '')
-      + (last && VIDEO_URL ? `<a class="mvt-video" href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : '')
+      + (st.wait ? (waiting ? `<span class="mvt-wait" role="status">${st.waitText || 'Waiting…'}</span>` : '<span class="mvt-done" role="status">Done. Press Next.</span>') : '')
+      + (last && VIDEO_URL ? `<a class="mvt-video" href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video</a>` : '')
       + buttons(last, waiting);
     place();
     return waiting;
@@ -370,7 +370,7 @@
         <button type="button" class="mvt-primary" data-act="overview">Quick tour<small style="color:inherit;opacity:.85">About 3 minutes: what each part of the page does and when to use it.</small></button>
         <button type="button" data-act="example">Walk through a real example<small>About 5 minutes, live data: compare ${esc(EX.prov)} with the type sequences of ${esc(EX.species)}.</small></button>
         <button type="button" data-act="sec" data-sec="gap">How to read the barcode gap graphs<small>About 4 minutes: what each graph shows, what a gap or an overlap means, and when not to trust one.</small></button>
-        ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video →</a>` : ''}
+        ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank" rel="noopener">Watch the walk-through video</a>` : ''}
       </div><p class="mvt-sub">Or learn one section:</p><div class="mvt-secs">${Object.entries(SECTIONS).filter(([k]) => k !== 'gap').map(([k, v]) => `<button type="button" data-act="sec" data-sec="${k}">${esc(v.label)}</button>`).join('')}</div><div class="mvt-meta"><span></span><div class="mvt-btns"><button type="button" data-act="end">No thanks</button></div></div>`;
     place();
     pop.querySelector('[data-act="overview"]').focus({ preventScroll: true });
@@ -391,16 +391,16 @@
     const theme = $('#themeBtn');
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = (theme ? theme.className + ' ' : '') + 'mvt-start'; btn.id = 'tourBtn';
-    btn.textContent = '▶ Take the tour'; btn.setAttribute('aria-label', 'Take the guided tour'); btn.addEventListener('click', () => { if (pop) end(); menu(); });
+    btn.textContent = 'Take the tour'; btn.setAttribute('aria-label', 'Take the guided tour'); btn.addEventListener('click', () => { if (pop) end(); menu(); });
     if (theme && theme.parentNode) theme.parentNode.insertBefore(btn, theme); else document.body.prepend(btn);
     const stepsBar = $("nav.steps");
-    if (stepsBar && !seen()) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example →</button>';
+    if (stepsBar && !seen()) { const h = document.createElement('p'); h.className = 'mvt-hint'; h.innerHTML = 'New here? <button type="button">Take the guided tour or walk through a real example</button>';
       h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
     for (const [, v] of Object.entries(SECTIONS)) {
       const host = v.where(); if (!host) continue;
       const head = host.matches('details') ? host.querySelector('summary h2') : host.querySelector('h3, h2');
       if (!head) continue;
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = v.btn || '▶ Tour this section';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = v.btn || 'Tour this section';
       b.setAttribute('aria-label', `Guided tour of ${v.label}`);
       b.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (pop) end(); markSeen(); if (!pop) open(); begin(v.steps); });
       head.appendChild(b);

@@ -10,7 +10,7 @@ interface Props { compact?: boolean; id?: string }
 const { compact = false, id = 'support' } = Astro.props;
 ---
 {compact ? (
-  <p class="mv-support-line">MycoView’s tools are free to use. {donateUrl && <a href={donateUrl}>Support them with a donation ↗</a>}{donateUrl && shopUrl && ' · '}{shopUrl && <a href={shopUrl}>Visit the MycoGeeky shop ↗</a>}</p>
+  <p class="mv-support-line">MycoView’s tools are free to use. {donateUrl && <a href={donateUrl}>Support them with a donation</a>}{donateUrl && shopUrl && ' · '}{shopUrl && <a href={shopUrl}>Visit the MycoGeeky shop</a>}</p>
 ) : (
   <section class="mv-support station-content" id={id} aria-labelledby={`${id}-title`}>
     <div class="mv-support-head">
@@ -20,8 +20,8 @@ const { compact = false, id = 'support' } = Astro.props;
     </div>
     <div class="mv-support-grid">
       {buttondownUsername && <div class="mv-support-card"><h3>Get updates</h3><p>New tools, field stories and episodes, a few times a year.</p><NewsletterForm id={`${id}-news`} /></div>}
-      {shopUrl && <div class="mv-support-card"><h3>Shop</h3><p>MycoGeeky goods on Etsy. Purchases support the work behind MycoView.</p><a class="station-button" href={shopUrl}>Visit the Etsy shop ↗</a></div>}
-      {donateUrl && <div class="mv-support-card"><h3>Donate</h3><p>A gift through PayPal helps keep the tools online and the research going.</p><a class="station-button" href={donateUrl}>Donate with PayPal ↗</a></div>}
+      {shopUrl && <div class="mv-support-card"><h3>Shop</h3><p>MycoGeeky goods on Etsy. Purchases support the work behind MycoView.</p><a class="station-button" href={shopUrl}>Visit the Etsy shop</a></div>}
+      {donateUrl && <div class="mv-support-card"><h3>Donate</h3><p>A gift through PayPal helps keep the tools online and the research going.</p><a class="station-button" href={donateUrl}>Donate with PayPal</a></div>}
     </div>
   </section>
 )}

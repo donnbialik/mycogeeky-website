@@ -86,7 +86,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
     <span class="srcchip" id="wb-src-gbif" title="Live data from GBIF"><span class="dot"></span>GBIF <span class="st">checking…</span></span>
     <span class="wb-hint" data-tour-hint hidden>New here?</span>
-    <button id="tourBtn" type="button" data-tour-start>▶ Take the tour</button>
+    <button id="tourBtn" type="button" data-tour-start>Take the tour</button>
     <button id="wbThemeBtn" type="button">Theme</button>
   </div>
 </header>
@@ -168,7 +168,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     var el = $('#c-' + id); if (!el) return; el.classList.remove('wait'); if (na) el.classList.add('na');
     el.querySelector('.v').textContent = typeof v === 'number' ? fmt(v) : v;
     if (note) el.querySelector('.d').innerHTML = note;
-    if (more) el.insertAdjacentHTML('beforeend', '<a class="more" href="' + esc(more[0]) + '">' + esc(more[1]) + ' →</a>');
+    if (more) el.insertAdjacentHTML('beforeend', '<a class="more" href="' + esc(more[0]) + '">' + esc(more[1]) + '</a>');
   }
   function obsUrl(q) { return 'https://www.inaturalist.org/observations?' + q; }
 

@@ -1,0 +1,203 @@
+---
+import Base from '../../layouts/Base.astro';
+import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
+---
+<Base title="Phone Photos · Admin" tier="lab">
+  <div class="station-page">
+    <section class="station-content photo-editor">
+      <h1>Phone Photos editor</h1>
+      <p>Load an iNaturalist observation, choose a step, then pick the photo that demonstrates it. You can reuse the same observation across steps or load another one.</p>
+      <p><a href="/admin/feature/">Homepage specimen editor</a> · <a href="/investigate/field/photography/#shots">View the public guide</a></p>
+      <p id="photo-status" role="status">Checking your sign-in…</p>
+      <fieldset id="photo-editor" disabled>
+        <legend>Edit step photos</legend>
+        <form id="photo-lookup">
+          <label>iNaturalist observation number or link <input id="photo-lookup-id" required></label>
+          <button type="submit">Load observation</button>
+        </form>
+        <label>Guide step
+          <select id="photo-step">{PHOTO_STEPS.map(([id, label]) => <option value={id}>{label}</option>)}</select>
+        </label>
+        <p id="photo-library-label" aria-live="polite"></p>
+        <div id="photo-library"></div>
+        <label>Or upload a photo for this step <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp"></label>
+        <figure id="photo-preview" hidden>
+          <img id="photo-preview-image" alt="">
+          <figcaption id="photo-preview-credit"></figcaption>
+        </figure>
+        <div id="photo-details" hidden>
+          <label>Describe what this photo shows for someone who can’t see it
+            <input id="photo-alt" maxlength="200" placeholder="e.g. Pale gills meeting the stem">
+          </label>
+          <div id="photo-upload-details" hidden>
+            <label>Related iNaturalist observation link or number (optional) <input id="photo-related"></label>
+            <label>Credit to show under the upload (optional) <input id="photo-credit" maxlength="250"></label>
+            <label><input id="photo-rights" type="checkbox"> I have permission to publish this upload.</label>
+          </div>
+          <button type="button" id="photo-remove">Remove from this step</button>
+        </div>
+        <button type="button" class="station-button" id="photo-save">Publish step photos</button>
+      </fieldset>
+    </section>
+  </div>
+</Base>
+<style>
+  .photo-editor { max-width: 810px; }
+  .photo-editor h1 { line-height: 1.1; }
+  fieldset { min-width: 0; display: grid; gap: 14px; }
+  label { display: block; margin: 8px 0; }
+  label input:not([type=checkbox]), label select { display: block; max-width: 100%; width: 100%; }
+  #photo-library { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+  #photo-library button { min-width: 0; padding: 4px; }
+  #photo-library button[aria-pressed=true] { outline: 3px solid currentColor; }
+  #photo-library img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  #photo-preview { margin: 0; }
+  #photo-preview img { max-width: 100%; max-height: 330px; }
+  #photo-preview-credit { overflow-wrap: anywhere; }
+  #photo-save { justify-self: start; }
+</style>
+<script>
+  import { loadObservation, MAX_UPLOAD, observationId, observationPhotos, PHOTO_STEPS } from '../../lib/field-guide-photos.js';
+  import { photoUrl } from '../../lib/feature-sheet.js';
+
+  const get = <T extends HTMLElement>(id: string) => document.getElementById('photo-' + id) as T;
+  const editor = get<HTMLFieldSetElement>('editor');
+  const step = get<HTMLSelectElement>('step');
+  const status = get('status');
+  const alt = get<HTMLInputElement>('alt');
+  const related = get<HTMLInputElement>('related');
+  const credit = get<HTMLInputElement>('credit');
+  const rights = get<HTMLInputElement>('rights');
+  type LibraryPhoto = { host: string; pid: number; ext: string; usable: boolean; credit: string };
+  type StepPhoto = { observation: string; alt: string; credit: string } & (
+    { kind: 'inat'; host: string; pid: number; ext: string } |
+    { kind: 'upload'; data: string; rights: boolean }
+  );
+  let photos: Record<string, StepPhoto> = {};
+  let loaded = '';
+  let library: LibraryPhoto[] = [];
+  let pending = false;
+
+  async function api(body?: typeof photos) {
+    const response = await fetch('/api/admin/field-guide-photos', body ? {
+      method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    } : {});
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'The editor could not connect.');
+    return result.photos;
+  }
+
+  function render() {
+    const entry = photos[step.value];
+    get('preview').hidden = !entry;
+    get('details').hidden = !entry;
+    get('upload-details').hidden = entry?.kind !== 'upload';
+    const image = get<HTMLImageElement>('preview-image');
+    if (entry) image.src = entry.kind === 'inat' ? photoUrl(entry, 'medium') : 'data:image/webp;base64,' + entry.data;
+    else image.removeAttribute('src');
+    image.alt = entry?.alt || '';
+    get('preview-credit').textContent = entry?.credit || '';
+    alt.value = entry?.alt || '';
+    related.value = entry?.observation || '';
+    credit.value = entry?.credit || '';
+    rights.checked = entry?.kind === 'upload' && entry.rights;
+    get('library-label').textContent = loaded ? `Observation ${loaded} · ${library.length} photos` : '';
+    get('library').replaceChildren(...library.map((photo, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.disabled = !photo.usable;
+      button.textContent = `Photo ${index + 1}${photo.usable ? '' : ' · reuse unavailable'}`;
+      button.setAttribute('aria-pressed', String(entry?.kind === 'inat' && entry.observation === loaded && entry.pid === photo.pid));
+      const thumbnail = document.createElement('img');
+      thumbnail.src = photoUrl(photo, 'square');
+      thumbnail.alt = '';
+      button.prepend(thumbnail);
+      button.onclick = () => {
+        if (entry?.kind === 'inat' && entry.observation === loaded && entry.pid === photo.pid) return;
+        photos[step.value] = { kind: 'inat', observation: loaded, ...photo, alt: '' };
+        status.textContent = 'Photo selected. Add a description before publishing.';
+        render();
+        alt.focus();
+      };
+      return button;
+    }));
+    for (const option of step.options) {
+      const label = PHOTO_STEPS.find(([id]) => id === option.value)?.[1];
+      option.textContent = photos[option.value] ? `${label} · photo assigned` : label || '';
+    }
+  }
+
+  async function run(action: () => Promise<void>) {
+    if (pending) return;
+    pending = true;
+    editor.disabled = true;
+    try { await action(); }
+    catch (error) { status.textContent = error instanceof Error ? error.message : 'The request failed.'; }
+    finally { pending = false; editor.disabled = false; }
+  }
+
+  get<HTMLFormElement>('lookup').onsubmit = event => {
+    event.preventDefault();
+    void run(async () => {
+      const id = observationId(get<HTMLInputElement>('lookup-id').value);
+      if (!id) throw new Error('Enter a valid iNaturalist observation link or number.');
+      status.textContent = 'Loading observation…';
+      library = observationPhotos(await loadObservation(id));
+      loaded = id;
+      status.textContent = library.length ? 'Choose a photo for the selected step.' : 'This observation has no supported photos.';
+      render();
+    });
+  };
+  step.onchange = render;
+  alt.oninput = () => { photos[step.value].alt = alt.value; get<HTMLImageElement>('preview-image').alt = alt.value; };
+  related.oninput = () => { photos[step.value].observation = related.value; };
+  credit.oninput = () => { photos[step.value].credit = credit.value; get('preview-credit').textContent = credit.value; };
+  rights.onchange = () => {
+    const entry = photos[step.value];
+    if (entry?.kind === 'upload') entry.rights = rights.checked;
+  };
+  get('remove').onclick = () => {
+    delete photos[step.value];
+    render();
+    status.textContent = 'Photo removed from the draft. Publish to apply the change.';
+    step.focus();
+  };
+  get<HTMLInputElement>('file').onchange = event => {
+    const input = event.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    void run(async () => {
+      if (file.size > 20_000_000) throw new Error('Choose a photo under 20 MB.');
+      status.textContent = 'Preparing upload…';
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      const ratio = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.max(1, Math.round(bitmap.width * ratio));
+      canvas.height = Math.max(1, Math.round(bitmap.height * ratio));
+      const context = canvas.getContext('2d');
+      if (!context) { bitmap.close(); throw new Error('This browser could not prepare the photo.'); }
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      let encoded = canvas.toDataURL('image/webp', .82);
+      if (encoded.length > MAX_UPLOAD + 'data:image/webp;base64,'.length) encoded = canvas.toDataURL('image/webp', .65);
+      const data = encoded.split(',')[1];
+      if (!encoded.startsWith('data:image/webp;base64,') || !data || data.length > MAX_UPLOAD) throw new Error('Choose a smaller photo.');
+      photos[step.value] = { kind: 'upload', data, alt: '', observation: loaded, credit: '', rights: false };
+      status.textContent = 'Upload ready. Add a description and confirm publication rights.';
+      render();
+    });
+  };
+  get('save').onclick = () => void run(async () => {
+    status.textContent = 'Publishing…';
+    photos = await api(photos);
+    render();
+    status.textContent = 'Published. The public guide may take a minute to update.';
+  });
+  api().then(saved => {
+    photos = saved;
+    render();
+    editor.disabled = false;
+    status.textContent = 'Ready to edit.';
+  }).catch(error => { status.textContent = error.message; });
+</script>

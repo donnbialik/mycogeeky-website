@@ -83,3 +83,10 @@
 /fonts/*.woff2
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
+
+/admin/field-guide-photos/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Referrer-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY

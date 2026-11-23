@@ -4,7 +4,7 @@ import FieldGuide from '../../../components/FieldGuide.astro';
 import photographInPlace from '../../../assets/field-illustrations/photograph-in-place.webp';
 import numberFieldSlip from '../../../assets/field-illustrations/number-field-slip.webp';
 import separateCompartment from '../../../assets/field-illustrations/separate-compartment.webp';
-// What a research collection looks like from the woods to GenBank. Photo boxes are placeholders for Donn's photos (a video will follow).
+// What a research collection looks like from the woods to GenBank.
 const sources = [
   { cite: 'FunDiS. <em>Sequencing protocol</em>: photograph, collect, dry, voucher, sequence.', url: 'https://fundis.org/sequence' },
   { cite: 'FunDiS. <em>Field data slips.</em>', url: 'https://www.fundis.org/field-data-slips' },
@@ -26,9 +26,12 @@ const tour = [
 
 <section id="before">
 
-  <h2>Decide how many you can finish.</h2>
+  <div class="illustrated-step">
+    <div><h2>Decide how many you can finish.</h2>
   <p>Every collection you pick commits you to an evening of uploading, labelling and loading the dehydrator, and a morning of bagging. Picking more than you can process is how specimens end up rotting in the fridge. Set a limit before you go, and leave the rest.</p>
-  <p>The <a href="/investigate/collection-planner/">Collection Planner</a> works out a daily limit from your own evening time, morning time and dehydrator space.</p>
+  <p>The <a href="/investigate/collection-planner/">Collection Planner</a> works out a daily limit from your own evening time, morning time and dehydrator space.</p></div>
+    <figure><img src="/images/field-illustrations/planning.webp" width="720" height="540" alt="A partly filled field box, pencil and planner illustrate setting a collection limit." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+  </div>
 </section>
 
 <section id="field">
@@ -41,7 +44,10 @@ const tour = [
         <figcaption><strong>Illustration.</strong> Keep the mushroom and what it’s growing on in the frame.</figcaption>
       </figure>
     </li>
-    <li><span class="mv-guide-when">Then</span><h3>Dig it out, whole</h3><p>Collect the whole base, and several mushrooms at different ages if there are enough. Many identifications depend on the base or on young specimens. See <a href="/investigate/field/genus-notes/">Genus notes</a>.</p></li>
+    <li class="illustrated-step">
+      <div><span class="mv-guide-when">Then</span><h3>Dig it out, whole</h3><p>Collect the whole base, and several mushrooms at different ages if there are enough. Many identifications depend on the base or on young specimens. See <a href="/investigate/field/genus-notes/">Genus notes</a>.</p></div>
+      <figure><img src="/images/field-illustrations/intact-base.webp" width="720" height="540" alt="A trowel loosens material around the stem while a hand steadies the mushroom." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
     <li class="illustrated-step"><div><span class="mv-guide-when">Then</span><h3>Number it and photograph the rest</h3><p>A field slip with its number goes in the remaining photos: underside, side, base, cut section.<sup class="mv-ref"><a href="#sources">2</a></sup></p></div>
       <figure>
         <Image src={numberFieldSlip} widths={[360, 540, 960]} sizes="(max-width: 700px) 90vw, 380px" alt="A numbered field slip lies beside the whole mushroom with its stem base visible." loading="lazy" />
@@ -62,11 +68,26 @@ const tour = [
   <h2>Upload, label, dehydrator. Same day.</h2>
   <p>FunDiS advises starting to dry as soon as possible after collecting.<sup class="mv-ref"><a href="#sources">3</a></sup> Mushrooms keep changing after they’re picked: they mature, rot, and get eaten by the larvae already inside them.</p>
   <ol class="mv-guide-steps">
-    <li><h3>Post each observation</h3><p>Upload to iNaturalist with every photo for that collection, using the iNaturalist app or website (Seek doesn’t share observations to the science record).<sup class="mv-ref"><a href="#sources">5</a></sup> The observation number becomes the specimen number.<sup class="mv-ref"><a href="#sources">2</a></sup> Add a voucher field so the record shows a specimen exists.</p></li>
-    <li><h3>Optional: a spore print</h3><p>Some genera need one. Start it now, because it takes hours.</p></li>
-    <li><h3>Print the labels</h3><p>Alan Rockefeller’s <a href="https://dikarya.us/labels">Herbarium Label Generator</a> prints labels for the whole day from the observation numbers.</p></li>
-    <li><h3>Load the dehydrator, in order</h3><p>Each collection in its own spot, with space between them. I lay them out in the order I made the observations, starting at the 12 o’clock position on my round dehydrator, so the position on the tray tells me which observation it is. See <a href="/investigate/field/drying/">Drying &amp; storage</a>.</p><div class="mv-guide-photo">Photo to come: a loaded tray, starting at 12 o’clock</div></li>
-    <li><h3>Photograph each tray</h3><p>A quick photo of every tray, before it goes in. Some mushrooms dry down to look completely different, and the photo is how you match them up in the morning.</p></li>
+    <li class="illustrated-step">
+      <div><h3>Post each observation</h3><p>Upload to iNaturalist with every photo for that collection, using the iNaturalist app or website (Seek doesn’t share observations to the science record).<sup class="mv-ref"><a href="#sources">5</a></sup> The observation number becomes the specimen number.<sup class="mv-ref"><a href="#sources">2</a></sup> Add a voucher field so the record shows a specimen exists.</p></div>
+      <figure><img src="/images/field-illustrations/post-observation.webp" width="720" height="540" alt="A phone displays several views of the same mushroom beside its field slip." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Optional: a spore print</h3><p>Some genera need one. Start it now, because it takes hours.</p></div>
+      <figure><img src="/images/field-illustrations/spore-print.webp" width="720" height="540" alt="A mushroom cap rests gill-side down on paper beneath an inverted clear cup." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Print the labels</h3><p>Alan Rockefeller’s <a href="https://dikarya.us/labels">Herbarium Label Generator</a> prints labels for the whole day from the observation numbers.</p></div>
+      <figure><img src="/images/field-illustrations/print-labels.webp" width="720" height="540" alt="A printer produces a voucher label beside a specimen and field slip." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Load the dehydrator, in order</h3><p>Each collection in its own spot, with space between them. I lay them out in the order I made the observations, starting at the 12 o’clock position on my round dehydrator, so the position on the tray tells me which observation it is. See <a href="/investigate/field/drying/">Drying &amp; storage</a>.</p></div>
+      <figure><img src="/images/field-illustrations/load-tray.webp" width="720" height="540" alt="Separate groups of mushrooms sit on a round mesh tray with a marker at the top." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Photograph each tray</h3><p>A quick photo of every tray, before it goes in. Some mushrooms dry down to look completely different, and the photo is how you match them up in the morning.</p></div>
+      <figure><img src="/images/field-illustrations/photograph-tray.webp" width="720" height="540" alt="A phone photographs the positions of the collections on a drying tray from above." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
   </ol>
 </section>
 
@@ -74,10 +95,22 @@ const tour = [
 
   <h2>Check, bag, store.</h2>
   <ol class="mv-guide-steps">
-    <li><h3>Is it cracker dry?</h3><p>It should snap rather than bend. Drying usually takes 12–48 hours, so big or wet collections may need to stay on.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
-    <li><h3>One at a time</h3><p>Take one collection off, put it in its bag with its label inside, seal it, then the next. Use last night’s tray photos to check each one. For me this takes about 30 minutes.</p><div class="mv-guide-photo">Photo to come: bagged and labelled specimens</div></li>
-    <li><h3>Store it dry, and findable</h3><p>Dried fungi pick up moisture from the air, which damages DNA. Add desiccant if your storage is above 50% humidity.<sup class="mv-ref"><a href="#sources">4</a></sup> I group bags by month, by sequencing plate, or by foray event. Provisionals and rare species are kept; common species are discarded once they’re confidently identified. See <a href="/investigate/field/drying/#fungarium">A fungarium at home</a>.</p></li>
-    <li><h3>If you’re not sure, it doesn’t go in</h3><p>If I can’t confidently tell which collection a dried mushroom belongs to, it’s thrown away, or I make a new observation of it in the lab and note what happened. A specimen with a doubtful label does more harm than no specimen.</p></li>
+    <li class="illustrated-step">
+      <div><h3>Is it cracker dry?</h3><p>It should snap rather than bend. Drying usually takes 12–48 hours, so big or wet collections may need to stay on.<sup class="mv-ref"><a href="#sources">3</a></sup></p></div>
+      <figure><img src="/images/field-illustrations/check-dry.webp" width="720" height="540" alt="Two hands snap a dry mushroom stem into two pieces." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>One at a time</h3><p>Take one collection off, put it in its bag with its label inside, seal it, then the next. Use last night’s tray photos to check each one. For me this takes about 30 minutes.</p></div>
+      <figure><img src="/images/field-illustrations/bag-collection.webp" width="720" height="540" alt="One dried collection and its label share a resealable bag." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Store it dry, and findable</h3><p>Dried fungi pick up moisture from the air, which damages DNA. Add desiccant if your storage is above 50% humidity.<sup class="mv-ref"><a href="#sources">4</a></sup> I group bags by month, by sequencing plate, or by foray event. Provisionals and rare species are kept; common species are discarded once they’re confidently identified. See <a href="/investigate/field/drying/#fungarium">A fungarium at home</a>.</p></div>
+      <figure><img src="/images/field-illustrations/store-vouchers.webp" width="720" height="540" alt="Labeled bags of dried specimens are arranged in a storage box with a desiccant packet." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>If you’re not sure, it doesn’t go in</h3><p>If I can’t confidently tell which collection a dried mushroom belongs to, it’s thrown away, or I make a new observation of it in the lab and note what happened. A specimen with a doubtful label does more harm than no specimen.</p></div>
+      <figure><img src="/images/field-illustrations/uncertain-label.webp" width="720" height="540" alt="A dried mushroom sits on its own tray, separated from two possible labels." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
   </ol>
 </section>
 
@@ -85,9 +118,18 @@ const tour = [
 
   <h2>Sequencing, then close the loop.</h2>
   <ol class="mv-guide-steps">
-    <li><h3>Send tissue for sequencing</h3><p>A small piece of the dried specimen goes into a plate well. The <a href="/investigate/plate-tagger/">Plate Tagger</a> writes the plate onto each observation, so you can find the bag again.</p></li>
-    <li><h3>Add the result to the record</h3><p>The ITS sequence goes in the “DNA Barcode ITS” field. If it doesn’t match a described species, the <a href="/investigate/provisional-finder/">Provisional Finder</a> and <a href="/investigate/its-bin-comparator/">ITS Comparator</a> help you place it.</p></li>
-    <li><h3>Check nothing fell through</h3><p>The <a href="/investigate/collection-check/">Collection Check</a> lists records that are missing a step: vouchered but never sequenced, sequenced but not in GenBank, a provisional name with no specimen behind it.</p></li>
+    <li class="illustrated-step">
+      <div><h3>Send tissue for sequencing</h3><p>A small piece of the dried specimen goes into a plate well. The <a href="/investigate/plate-tagger/">Plate Tagger</a> writes the plate onto each observation, so you can find the bag again.</p></div>
+      <figure><img src="/images/field-illustrations/sequencing-plate.webp" width="720" height="540" alt="A sample plate sits near the dried collection and its voucher paperwork." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Add the result to the record</h3><p>The ITS sequence goes in the “DNA Barcode ITS” field. If it doesn’t match a described species, the <a href="/investigate/provisional-finder/">Provisional Finder</a> and <a href="/investigate/its-bin-comparator/">ITS Comparator</a> help you place it.</p></div>
+      <figure><img src="/images/field-illustrations/record-result.webp" width="720" height="540" alt="A schematic laptop screen pairs a mushroom observation with a DNA result beside the physical specimen." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
+    <li class="illustrated-step">
+      <div><h3>Check nothing fell through</h3><p>The <a href="/investigate/collection-check/">Collection Check</a> lists records that are missing a step: vouchered but never sequenced, sequenced but not in GenBank, a provisional name with no specimen behind it.</p></div>
+      <figure><img src="/images/field-illustrations/check-records.webp" width="720" height="540" alt="An unchecked item in a field notebook sits beside a bagged voucher and a digital observation." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </li>
   </ol>
 </section>
 
@@ -95,9 +137,15 @@ const tour = [
 
   <h2>How I keep up</h2>
   <div class="mv-guide-grid">
-    <div class="mv-guide-card"><h3>Weekdays</h3><p>I collect for 1–2 hours and bring home 20–30 collections, never more than 40. About an hour that evening goes on labels and getting everything onto the dehydrator, and bagging the next morning takes about 30 minutes.</p></div>
-    <div class="mv-guide-card"><h3>Weekends</h3><p>I collect until I drop. There’s more time at home to keep up.</p></div>
-    <div class="mv-guide-card"><h3>Why a limit</h3><p>The cap on weekdays isn’t about the woods. It’s so everything I pick gets labelled, dried and bagged properly, without anything sitting in the fridge.</p></div>
+    <div class="mv-guide-card illustrated-card"><h3>Weekdays</h3><p>I collect for 1–2 hours and bring home 20–30 collections, never more than 40. About an hour that evening goes on labels and getting everything onto the dehydrator, and bagging the next morning takes about 30 minutes.</p>
+      <figure><img src="/images/field-illustrations/weekdays.webp" width="720" height="540" alt="A naturalist examines one mushroom beside a small field box." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </div>
+    <div class="mv-guide-card illustrated-card"><h3>Weekends</h3><p>I collect until I drop. There’s more time at home to keep up.</p>
+      <figure><img src="/images/field-illustrations/weekends.webp" width="720" height="540" alt="A naturalist with a field kit surveys mushrooms beside a woodland trail." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </div>
+    <div class="mv-guide-card illustrated-card"><h3>Why a limit</h3><p>The cap on weekdays isn’t about the woods. It’s so everything I pick gets labelled, dried and bagged properly, without anything sitting in the fridge.</p>
+      <figure><img src="/images/field-illustrations/collection-limit.webp" width="720" height="540" alt="A naturalist closes a field case while another mushroom remains on a log." loading="lazy" decoding="async"><figcaption><strong>Illustration.</strong></figcaption></figure>
+    </div>
   </div>
   <p>Everyone works at a different speed. The <a href="/investigate/collection-planner/">Collection Planner</a> works out your own limit from your own times.</p>
   <div class="mv-guide-note"><p>A video of the full routine is planned.</p></div>
@@ -106,9 +154,9 @@ const tour = [
 </FieldGuide>
 
 <style>
-  .illustrated-step figure { margin: 12px 0 0; min-width: 0; }
-  .illustrated-step img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
-  .illustrated-step figcaption { margin-top: 6px; font-size: .85rem; }
+  .illustrated-step figure, .illustrated-card figure { margin: 12px 0 0; min-width: 0; }
+  .illustrated-step img, .illustrated-card img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+  .illustrated-step figcaption, .illustrated-card figcaption { margin-top: 6px; font-size: .85rem; }
   @media (min-width: 701px) {
     .illustrated-step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 42%); align-items: start; gap: 20px; }
     .illustrated-step figure { margin-top: 0; }

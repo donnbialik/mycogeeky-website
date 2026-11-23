@@ -7,7 +7,8 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] :is(.station-page, .op-page, .about-page, .station-data, .soft, .op-cream, .mv-cult, .mv-guide, .mv-guide-body, .about-research-band) { background: transparent !important; }
 [data-tier="field"] main { color: var(--ds-ink); }
 /* The old pages hard-code greens on almost every text element; on kraft and paper, text is ink. */
-[data-tier="field"] main :where(p, li, h1, h2, h3, h4, h5, small, figcaption, label, td, th, dt, dd, span, strong, b, em, a, blockquote, summary) { color: inherit !important; }
+/* Limited to the older page wrappers, so the homepage and new components keep their own colours. */
+[data-tier="field"] :is(.station-page, .station-hero, .op-page, .about-page, .mv-guide, .mv-cult) :where(p, li, h1, h2, h3, h4, h5, small, figcaption, label, td, th, dt, dd, span, strong, b, em, a, blockquote, summary) { color: inherit !important; }
 [data-tier="field"] main :is(.lead, .muted, .station-footnote, .curiosity-disclaimer, .mv-news-note, .station-tool-intro) { color: var(--ds-ink-muted) !important; }
 [data-tier="field"] main a { text-underline-offset: 4px; }
 

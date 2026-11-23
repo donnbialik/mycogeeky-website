@@ -9,7 +9,7 @@ export default function ResearchJourney({framework,area,choiceId,original,refine
  const next=goal==='understand'?lesson.explore:goal==='audit'?lesson.audit:goal==='survey'?lesson.survey:lesson.collaborate;
  const resources=framework.resourceIds.map(id=>resourceLibrary[id]).filter(Boolean).slice(0,4);
  return <div className="mv-nav-journey">
-  <p className="mv-nav-journey-eyebrow">{framework.id} · {areas.find(a=>a.id===area)?.title}{location.trim()?' · '+location.trim():''}</p>
+  <p className="mv-nav-journey-ds-label">{framework.id} · {areas.find(a=>a.id===area)?.title}{location.trim()?' · '+location.trim():''}</p>
   <h2>Your curiosity has somewhere to go.</h2>
   {!!original.trim()&&<div className="mv-nav-original"><span>YOU STARTED WITH</span><p>{original.trim()}</p></div>}
   <section className="mv-nav-question"><span>LET'S MAKE THAT QUESTION INVESTIGABLE</span><h3>{refined}</h3><p>This is an editable template suggested by your menu selections, not an automatic interpretation of your words.</p><button type="button" onClick={onEdit}>Revise my question</button></section>

@@ -24,19 +24,19 @@ const tour = [
 <FieldGuide title="Field Research Toolkit" description="Guides and tools for collecting fungi for science: the full workflow, phone photography, specimen tracking, drying and storage, genus-specific field notes, a collection planner and a record checker." eyebrow="FIELD RESEARCH TOOLKIT" heading="What collecting for science <em>actually looks like.</em>" lead="Not a gear list. How to photograph, number, dry and store a collection so it’s still useful in ten years, and tools that help you keep up." tourKey="field-hub" tour={tour} current="hub">
 
 <section id="guides">
-  <p class="mv-guide-kicker">Guides</p>
+
   <h2>Learn the workflow</h2>
   <div class="mv-guide-grid">{guides.map(([t, d, h]) => <a class="mv-guide-card mv-hub-card" href={h}><h3>{t}</h3><p>{d}</p></a>)}</div>
 </section>
 
 <section id="tools">
-  <p class="mv-guide-kicker">Tools</p>
+
   <h2>Keep up with it</h2>
   <div class="mv-guide-grid">{tools.map(([t, d, h]) => <a class="mv-guide-card mv-hub-card mv-hub-tool" href={h}><h3>{t}</h3><p>{d}</p></a>)}</div>
 </section>
 
 <section id="others">
-  <p class="mv-guide-kicker">Tools from others</p>
+
   <h2>Already built, and good</h2>
   <p>Alan Rockefeller’s free tools handle labels and voucher numbers. FunDiS publishes the sequencing protocol and printable field slips most of these guides draw on.</p>
   <div class="mv-guide-ext">

@@ -39,7 +39,7 @@ export default function SurveyDashboard() {
     return ()=>{active=false};
   },[refresh]);
   return <section className="survey-dashboard" style={{color:"#1b3029",backgroundColor:"#fffefa"}} aria-label="Crane Hollow project dashboard">
-    <div className="survey-dashboard-heading"><div><span className="eyebrow">PROJECT SNAPSHOT · iNATURALIST</span><h3 style={{color:"#1b3029"}}>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} style={{color:"#1b3029"}} target="_blank" rel="noopener noreferrer">View iNaturalist project</a></div>
+    <div className="survey-dashboard-heading"><div><span className="ds-label">Project snapshot · iNaturalist</span><h3 style={{color:"#1b3029"}}>Crane Hollow Fungal Diversity Survey</h3><p>A growing record of fungal observations from Crane Hollow Nature Preserve.</p></div><a href={URL} style={{color:"#1b3029"}} target="_blank" rel="noopener noreferrer">View iNaturalist project</a></div>
     <div className="survey-metrics">
       <div><span>Observations</span><strong style={{color:"#1b3029"}}>{data?number(data.observations):'—'}</strong></div>
       <div><span>Recorded taxa</span><strong style={{color:"#1b3029"}}>{data?number(data.taxa):'—'}</strong></div>

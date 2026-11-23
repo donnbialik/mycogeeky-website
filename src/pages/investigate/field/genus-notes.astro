@@ -39,7 +39,7 @@ const tour = [
       <article class="mv-guide-card mv-genus" id={c.id}>
         <h2><em>{c.genus}</em></h2>
         <p class="mv-genus-why">{c.why}</p>
-        <p class="mv-guide-kicker">Don’t miss</p>
+
         <ul>{c.miss.map((m) => <li>{m}</li>)}</ul>
         <p class="mv-genus-src">Sources: {c.src.map(([t, u], i) => <>{i > 0 && ' · '}<a href={u}>{t}</a></>)}</p>
       </article>
@@ -48,7 +48,7 @@ const tour = [
 </section>
 
 <section id="general">
-  <p class="mv-guide-kicker">For every genus</p>
+
   <h2>The habits that cover most of the rest</h2>
   <div class="mv-guide-grid">
     <div class="mv-guide-card"><h3>The whole base</h3><p>Dig, don’t snap.</p></div>

@@ -32,7 +32,7 @@ const tourJson = JSON.stringify({ key: tourKey, steps: tour });
 <Base title={title} description={description} tier={Astro.url.pathname.startsWith('/investigate/provisional-taxonomist') ? 'lab' : 'field'}>
 <div class="station-page mv-guide">
   <section class="station-hero station-hero-solo"><div class="station-hero-copy">
-    <p class="eyebrow">{eyebrow}</p>
+
     <h1 set:html={heading} />
     <p class="lead">{lead}</p>
     <div class="station-actions"><button type="button" class="station-button" data-tour-start>Take the tour</button><span class="mv-guide-hint" data-tour-hint hidden>New here? The tour takes about a minute.</span></div>

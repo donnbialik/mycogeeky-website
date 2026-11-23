@@ -44,6 +44,23 @@ export function uploadBytes(data) {
   } catch { return null; }
 }
 
+const bounded = (value, min, max, fallback) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
+
+/** @param {{x?: unknown, y?: unknown, zoom?: unknown, fit?: unknown} | null} [frame] */
+export function photoFrame(frame = null) {
+  return {
+    x: bounded(frame?.x, 0, 100, 50),
+    y: bounded(frame?.y, 0, 100, 50),
+    zoom: bounded(frame?.zoom, 1, 3, 1),
+    fit: frame?.fit === 'contain' ? 'contain' : 'cover',
+  };
+}
+export function photoFrameStyle(value) {
+  const { x, y, zoom, fit } = photoFrame(value);
+  return `--photo-x:${x}%;--photo-y:${y}%;--photo-zoom:${zoom};--photo-fit:${fit}`;
+}
+
 export async function validatePhotos(input, fetchObservation = loadObservation) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Expected a set of step photos.');
   const output = {};
@@ -51,6 +68,7 @@ export async function validatePhotos(input, fetchObservation = loadObservation) 
   for (const [step, label] of PHOTO_STEPS) {
     const entry = input[step];
     if (!entry) continue;
+    const frame = photoFrame(entry.frame);
     const alt = typeof entry.alt === 'string' ? entry.alt.trim() : '';
     if (!alt || alt.length > 200) throw new Error(`${label}: enter a photo description of 1–200 characters.`);
     const id = observationId(entry.observation);
@@ -58,14 +76,14 @@ export async function validatePhotos(input, fetchObservation = loadObservation) 
     if (entry.kind === 'upload') {
       if (!uploadBytes(entry.data)) throw new Error(`${label}: the WebP upload is invalid or too large.`);
       if (entry.rights !== true) throw new Error(`${label}: confirm you have permission to publish this upload.`);
-      output[step] = { kind: 'upload', data: entry.data, rights: true, observation: id, alt, credit: String(entry.credit || '').trim().slice(0, 250) };
+      output[step] = { kind: 'upload', data: entry.data, rights: true, observation: id, alt, frame, credit: String(entry.credit || '').trim().slice(0, 250) };
       continue;
     }
     if (entry.kind !== 'inat' || !id) throw new Error(`${label}: choose a photo from an iNaturalist observation.`);
     if (!observations.has(id)) observations.set(id, observationPhotos(await fetchObservation(id)));
     const photo = observations.get(id).find(p => p.pid === Number(entry.pid));
     if (!photo?.usable) throw new Error(`${label}: that photo is unavailable or its reuse rights could not be confirmed.`);
-    output[step] = { kind: 'inat', observation: id, pid: photo.pid, host: photo.host, ext: photo.ext, credit: photo.credit, alt };
+    output[step] = { kind: 'inat', observation: id, pid: photo.pid, host: photo.host, ext: photo.ext, credit: photo.credit, alt, frame };
   }
   return output;
 }
@@ -73,5 +91,5 @@ export async function validatePhotos(input, fetchObservation = loadObservation) 
 export function renderStepPhoto(step, entry) {
   const url = entry.kind === 'inat' ? photoUrl(entry, 'large') : `/api/field-guide-photo?step=${step}`;
   const link = entry.observation ? `<a href="${observationLink(entry.observation)}">View iNaturalist observation</a>` : '';
-  return `<figure class="mv-step-photo"><img src="${esc(url)}" alt="${esc(entry.alt)}" loading="lazy" decoding="async"><figcaption>${[link, esc(entry.credit)].filter(Boolean).join(' · ')}</figcaption></figure>`;
+  return `<figure class="mv-step-photo"><div class="mv-photo-frame" style="${photoFrameStyle(entry.frame)}"><img src="${esc(url)}" alt="${esc(entry.alt)}" loading="lazy" decoding="async"></div><figcaption>${[link, esc(entry.credit)].filter(Boolean).join(' · ')}</figcaption></figure>`;
 }

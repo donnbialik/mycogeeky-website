@@ -1248,11 +1248,16 @@ async function alignMany(items,todo,keyOf,progress){
     const works=items.map(s=>s.work),CH=48;let next=0;
     await new Promise((resolve,reject)=>{
       let active=0;
-      const feed=w=>{if(next>=todo.length){if(--active===0)resolve();return;}const chunk=todo.slice(next,next+CH);next+=CH;w.postMessage({pairs:chunk});};
+      const finish=()=>{if(--active===0)resolve();};
+      const feed=w=>{if(next>=todo.length){finish();return;}const chunk=todo.slice(next,next+CH);next+=CH;w.postMessage({pairs:chunk});};
       for(let k=0;k<nw;k++){const w=new Worker(url);workers.push(w);active++;
         w.onerror=ev=>{ev.preventDefault();reject(new Error(ev.message||'worker failed'));};
         w.onmessage=e=>{for(const [i,j,a,b,score] of e.data)alnCache.set(keyOf(i,j),{a,b,score});done+=e.data.length;progress(done);feed(w);};
         w.postMessage({init:true,T:ALN_T,works});feed(w);}
+      // The page helps too, in short slices so it stays responsive. Some browsers run background workers on slower cores.
+      active++;(async()=>{while(next<todo.length){const t=performance.now();
+        while(next<todo.length&&performance.now()-t<40){const [i,j]=todo[next++];alnCache.set(keyOf(i,j),align(items[i].work,items[j].work));done++;}
+        progress(done);await sleep(0);}finish();})().catch(reject);
     });
   }catch(err){log(`Background alignment unavailable (${err.message}); continuing on this page, which is slower.`,'warn');
     await local(todo.filter(([i,j])=>!alnCache.has(keyOf(i,j))));}

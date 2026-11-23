@@ -1,4 +1,5 @@
 ---
+import '../../../styles/field-photo-frame.css';
 import FieldGuide from '../../../components/FieldGuide.astro';
 import { PHOTO_STEPS } from '../../../lib/field-guide-photos.js';
 // Phone photography for identification: the shot list, getting it in focus, and checking before you leave.
@@ -35,7 +36,10 @@ const shots = [
   <h2>Seven views to look for</h2>
   <p>A photo-only observation can be useful. If you’re leaving the mushroom in place, photograph the features you can see and skip any step that would disturb it. Where collecting is permitted, a dried, labeled specimen can be examined or sequenced later. See <a href="/investigate/field/start-to-finish/">the specimen collection workflow</a> if you plan to preserve one.</p>
   <p>FunDiS asks for the cap, the gill or pore surface and the stem, plus the bulb or volva and any staining where they apply, with something for scale and the host or substrate visible.<sup class="mv-ref"><a href="#sources">1</a></sup> Their in-depth guide adds all sides, close-ups of details, and the hidden base.<sup class="mv-ref"><a href="#sources">2</a></sup></p>
-  <ol class="mv-guide-steps">{shots.map(([t, b, s], index) => <li><h3>{t}</h3><p>{b}<sup class="mv-ref"><a href="#sources">{s}</a></sup></p><div data-step-photo={PHOTO_STEPS[index][0]}></div></li>)}</ol>
+  <ol class="mv-guide-steps">{shots.map(([t, b, s], index) => <li class="mv-photo-step">
+    <div><h3>{t}</h3><p>{b}<sup class="mv-ref"><a href="#sources">{s}</a></sup></p></div>
+    <div data-step-photo={PHOTO_STEPS[index][0]}></div>
+  </li>)}</ol>
 </section>
 
 <section id="focus">
@@ -87,7 +91,16 @@ const shots = [
 </FieldGuide>
 
 <style is:global>
-  .mv-step-photo { margin: 12px 0 0; }
-  .mv-step-photo img { display: block; width: auto; max-width: 100%; max-height: 520px; height: auto; }
+  .mv-photo-step > [data-step-photo]:empty { display: none; }
+  .mv-step-photo { margin: 12px 0 0; min-width: 0; }
   .mv-step-photo figcaption { margin-top: 6px; font-size: .85rem; overflow-wrap: anywhere; }
+  @media (min-width: 701px) {
+    .mv-photo-step:has(.mv-step-photo) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 42%);
+      align-items: start;
+      gap: 20px;
+    }
+    .mv-step-photo { margin-top: 0; }
+  }
 </style>

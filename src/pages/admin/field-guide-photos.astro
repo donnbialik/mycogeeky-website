@@ -1,4 +1,5 @@
 ---
+import '../../styles/field-photo-frame.css';
 import Base from '../../layouts/Base.astro';
 import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
 ---
@@ -22,10 +23,18 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
         <div id="photo-library"></div>
         <label>Or upload a photo for this step <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp"></label>
         <figure id="photo-preview" hidden>
-          <img id="photo-preview-image" alt="">
+          <div id="photo-frame" class="mv-photo-frame"><img id="photo-preview-image" alt=""></div>
           <figcaption id="photo-preview-credit"></figcaption>
         </figure>
         <div id="photo-details" hidden>
+          <fieldset class="framing">
+            <legend>Frame the photo</legend>
+            <label>Fit <select id="photo-fit"><option value="cover">Fill frame</option><option value="contain">Show full photo</option></select></label>
+            <label>Zoom <input id="photo-zoom" type="range" min="1" max="3" step=".05" value="1"></label>
+            <label>Left–right <input id="photo-x" type="range" min="0" max="100" value="50"></label>
+            <label>Up–down <input id="photo-y" type="range" min="0" max="100" value="50"></label>
+            <button type="button" id="photo-reset-frame">Reset framing</button>
+          </fieldset>
           <label>Describe what this photo shows for someone who can’t see it
             <input id="photo-alt" maxlength="200" placeholder="e.g. Pale gills meeting the stem">
           </label>
@@ -55,14 +64,16 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
   #photo-library button[aria-pressed=true] { outline: 3px solid currentColor; }
   #photo-library img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
   #photo-preview { margin: 0; }
-  #photo-preview img { max-width: 100%; max-height: 330px; }
+  #photo-preview .mv-photo-frame { max-width: 420px; }
+  .framing { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+  @media (max-width: 500px) { .framing { grid-template-columns: 1fr; } }
   #photo-preview-credit { overflow-wrap: anywhere; }
   .publish-controls { display: grid; gap: 8px; justify-items: start; }
   #photo-publish-status { margin: 0; }
   #photo-publish-status[data-error] { font-weight: 700; }
 </style>
 <script>
-  import { loadObservation, MAX_UPLOAD, observationId, observationPhotos, PHOTO_STEPS } from '../../lib/field-guide-photos.js';
+  import { loadObservation, MAX_UPLOAD, observationId, observationPhotos, photoFrame, photoFrameStyle, PHOTO_STEPS } from '../../lib/field-guide-photos.js';
   import { photoUrl } from '../../lib/feature-sheet.js';
 
   const get = <T extends HTMLElement>(id: string) => document.getElementById('photo-' + id) as T;
@@ -75,7 +86,7 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
   const credit = get<HTMLInputElement>('credit');
   const rights = get<HTMLInputElement>('rights');
   type LibraryPhoto = { host: string; pid: number; ext: string; usable: boolean; credit: string };
-  type StepPhoto = { observation: string; alt: string; credit: string } & (
+  type StepPhoto = { observation: string; alt: string; credit: string; frame?: ReturnType<typeof photoFrame> } & (
     { kind: 'inat'; host: string; pid: number; ext: string } |
     { kind: 'upload'; data: string; rights: boolean }
   );
@@ -98,15 +109,30 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
     return result.photos;
   }
 
+  const x = get<HTMLInputElement>('x');
+  const y = get<HTMLInputElement>('y');
+  const zoom = get<HTMLInputElement>('zoom');
+  const fit = get<HTMLSelectElement>('fit');
+
+  function renderFrame(value?: ReturnType<typeof photoFrame>) {
+    const frame = photoFrame(value);
+    x.value = String(frame.x);
+    y.value = String(frame.y);
+    zoom.value = String(frame.zoom);
+    fit.value = frame.fit;
+    get('frame').setAttribute('style', photoFrameStyle(frame));
+  }
+
   function render() {
     const entry = photos[step.value];
     get('preview').hidden = !entry;
     get('details').hidden = !entry;
     get('upload-details').hidden = entry?.kind !== 'upload';
     const image = get<HTMLImageElement>('preview-image');
-    if (entry) image.src = entry.kind === 'inat' ? photoUrl(entry, 'medium') : 'data:image/webp;base64,' + entry.data;
+    if (entry) image.src = entry.kind === 'inat' ? photoUrl(entry, 'large') : 'data:image/webp;base64,' + entry.data;
     else image.removeAttribute('src');
     image.alt = entry?.alt || '';
+    renderFrame(entry?.frame);
     get('preview-credit').textContent = entry?.credit || '';
     alt.value = entry?.alt || '';
     related.value = entry?.observation || '';
@@ -164,6 +190,20 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
     });
   };
   step.onchange = render;
+  for (const input of [x, y, zoom, fit]) {
+    input.oninput = () => {
+      const entry = photos[step.value];
+      if (!entry) return;
+      entry.frame = photoFrame({ x: x.valueAsNumber, y: y.valueAsNumber, zoom: zoom.valueAsNumber, fit: fit.value });
+      renderFrame(entry.frame);
+    };
+  }
+  get('reset-frame').onclick = () => {
+    const entry = photos[step.value];
+    if (!entry) return;
+    entry.frame = photoFrame();
+    renderFrame(entry.frame);
+  };
   alt.oninput = () => { photos[step.value].alt = alt.value; get<HTMLImageElement>('preview-image').alt = alt.value; };
   related.oninput = () => { photos[step.value].observation = related.value; };
   credit.oninput = () => { photos[step.value].credit = credit.value; get('preview-credit').textContent = credit.value; };

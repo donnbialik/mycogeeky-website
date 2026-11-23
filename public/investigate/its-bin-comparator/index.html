@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tier="lab">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,7 +7,7 @@
 <script src="/investigate/toolbar.js" defer></script><!-- MycoView tool bar (built from src/data/tools.ts) -->
 <title>ITS Bin Comparator · MycoView</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: lab-bench tool. Left rail = sample intake, right = analysis bench with tabbed results. */
 :root{
@@ -260,6 +260,8 @@ details.trim>summary h3{display:inline;margin:0}
 .inatbox{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
 .inatbox pre{white-space:pre-wrap;font:12.5px/1.5 var(--f-mono,monospace);background:var(--bg2,rgba(0,0,0,.03));border:1px solid var(--line);border-radius:8px;padding:10px;max-height:420px;overflow:auto}
 </style>
+<link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
+<script src="/investigate/shared/lab-theme.js"></script>
 </head>
 <body>
 <header class="top">

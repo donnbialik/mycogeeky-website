@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="lab">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -8,7 +8,7 @@
 <title>Provisional Finder · MycoView</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <script>try{const t=JSON.parse(localStorage.getItem('provfinder.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
 :root{
@@ -281,6 +281,8 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
   main{padding:16px}
 }
 </style>
+<link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
+<script src="/investigate/shared/lab-theme.js"></script>
 </head>
 <body>
 <header class="top">
@@ -291,7 +293,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
   </div>
   <div class="sources hbtns">
     <span class="srcchip" id="src-inat" data-help="Live connection to the iNaturalist API. Everything on this page comes from iNaturalist; green means it’s answering."><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
-    <button id="tourBtn" class="primary sm" data-help="A step-by-step walk through the page and what each part of the results means. Works with your own results, or with example data if you haven’t searched yet.">▶ Guided tour</button>
+    <button id="tourBtn" class="primary sm" data-help="A step-by-step walk through the page and what each part of the results means. Works with your own results, or with example data if you haven’t searched yet.">Guided tour</button>
     <button id="tipToggle" class="ghost sm toggle on" data-help="Turns these hover explanations on or off.">Hover help <span class="sw"></span></button>
     <button id="helpBtn" class="ghost sm" data-help="A one-page glossary of every column and flag.">Glossary</button>
     <button id="themeBtn" class="ghost sm theme" type="button" data-help="Switch between light and dark.">Theme</button>
@@ -304,7 +306,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
     <li><span class="stepn">3</span><span><strong>Narrow down</strong> with Research candidates, Singletons or Filters</span></li>
     <li><span class="stepn">4</span><span><strong>Click a name</strong> for its full profile; save results to keep or share them</span></li>
   </ol>
-  <p class="newhere"><strong>New here?</strong> <a href="#" id="newHereTour">Take the guided tour, with example data if you haven’t searched yet →</a></p>
+  <p class="newhere"><strong>New here?</strong> <a href="#" id="newHereTour">Take the guided tour, with example data if you haven’t searched yet</a></p>
 </nav>
 <main>
   <section class="search card">
@@ -1016,7 +1018,7 @@ function renderObs() {
       <td class="num">${o.nPhotos}</td>
       <td>${o.voucher ? `<span class="tag t-moss" title="${esc(o.voucherText)}">Yes</span>` : '<span class="dim">—</span>'}</td>
       <td class="num">${o.len} bp ${o.seqIssues.length ? `<span class="tag t-och" title="${esc(o.seqIssues.join(', '))}">check</span>` : ''}</td>
-      <td style="white-space:nowrap"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener" onclick="event.stopPropagation()">iNat ↗</a></td></tr>`;
+      <td style="white-space:nowrap"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener" onclick="event.stopPropagation()">iNat</a></td></tr>`;
   }).join('') : `<tr><td colspan="10" class="empty">Results will appear here.</td></tr>`;
   tbody.querySelectorAll('tr[data-k]').forEach(tr => tr.onclick = () => openName(tr.dataset.k));
   $('#obsCount').textContent = state.mine.length ? `${pl(state.mine.length, 'collection')}${state.mine.length > 2000 ? ' (first 2,000 shown; CSV has all)' : ''}` : '';
@@ -1036,9 +1038,9 @@ async function openName(key) {
   const g = state.names.get(key); if (!g) return;
   $('#drawer').classList.add('on'); $('#scrim').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false');
   $('#dTitle').textContent = g.name;
-  $('#dLinks').innerHTML = `<a href="${esc(inatSearch(g.name))}" target="_blank" rel="noopener">All sequenced obs on iNat ↗</a>` +
-    (g.stats && g.stats.taxon ? `<a href="https://www.inaturalist.org/taxa/${g.stats.taxon.id}" target="_blank" rel="noopener">iNat taxon page ↗</a>` : '') +
-    `<a href="https://mycomap.org/temp-codes" target="_blank" rel="noopener">MycoMap temp codes ↗</a>`;
+  $('#dLinks').innerHTML = `<a href="${esc(inatSearch(g.name))}" target="_blank" rel="noopener">All sequenced obs on iNat</a>` +
+    (g.stats && g.stats.taxon ? `<a href="https://www.inaturalist.org/taxa/${g.stats.taxon.id}" target="_blank" rel="noopener">iNat taxon page</a>` : '') +
+    `<a href="https://mycomap.org/temp-codes" target="_blank" rel="noopener">MycoMap temp codes</a>`;
   drawerSort = 'photos';
   renderDrawer(g);
   // lazily fetch the count of all tagged obs (with or without a sequence)
@@ -1105,7 +1107,7 @@ function obsCards(list, g) {
           ${o.taxon && o.taxon.rank === 'species' && keyOf(o.taxon.name) !== o.key ? `<span class="tag t-och">IDed as ${esc(o.taxon.name)}</span>` : ''}
           ${o.micro ? '<span class="tag t-moss">Microscopy</span>' : ''}</div>
         <div class="credit">${showable(o) ? `Photo ${esc(creditOf(o))}` : o.nPhotos ? 'Photos are all rights reserved: view them on iNaturalist' : 'No photos'}</div>
-        <div class="l2"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">Observation ↗</a>${o.blast ? `<a href="${esc(o.blast)}" target="_blank" rel="noopener">MycoMap BLAST ↗</a>` : ''}</div>
+        <div class="l2"><a href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">Observation</a>${o.blast ? `<a href="${esc(o.blast)}" target="_blank" rel="noopener">MycoMap BLAST</a>` : ''}</div>
       </div></div>`).join('')}${sorted.length > 300 ? `<p class="dim">Showing 300 of ${fmt(sorted.length)}.</p>` : ''}</div>`;
 }
 function bindDrawer(g) {
@@ -1327,7 +1329,7 @@ function tourEnd(early) {
   tourOn = false;
   if (tourEls) { Object.values(tourEls).forEach(e => e.remove()); tourEls = null; }
   closeDrawer();
-  if (early) toast('Tour closed. Restart it any time with “▶ Guided tour” up here, or hover over anything for a quick explanation.');
+  if (early) toast('Tour closed. Restart it any time with “Guided tour” up here, or hover over anything for a quick explanation.');
 }
 let toastEl = null, toastTimer = null;
 function toast(msg) {

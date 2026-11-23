@@ -20,7 +20,7 @@ const tour = [
   <p class="mv-guide-kicker">Open cases</p>
   <h2>Cases</h2>
   <div class="mv-guide-grid">
-    {cases.map((c) => <a class="mv-guide-card mv-pt-case" href={c.href}><p class="mv-guide-when">{c.status} · data {c.pulled}</p><h3 set:html={`${c.name} →`} /><p>{c.summary}</p></a>)}
+    {cases.map((c) => <a class="mv-guide-card mv-pt-case" href={c.href}><p class="mv-guide-when">{c.status} · data {c.pulled}</p><h3 set:html={`${c.name}`} /><p>{c.summary}</p></a>)}
   </div>
 </section>
 
@@ -34,7 +34,7 @@ const tour = [
     <li>the nearest relative on your tree and what the ITS Bin Comparator said (step 3);</li>
     <li>your difficulty rating (step 4), and whether anyone is already working on it.</li>
   </ul>
-  <div class="mv-guide-ext"><a href={suggestHref}>Email a case suggestion →<small>{suggestEmail}</small></a></div>
+  <div class="mv-guide-ext"><a href={suggestHref}>Email a case suggestion<small>{suggestEmail}</small></a></div>
   <p>Not every suggestion becomes a page right away. Codes that someone is already working on, or that have no vouchers anywhere, may wait.</p>
 </section>
 

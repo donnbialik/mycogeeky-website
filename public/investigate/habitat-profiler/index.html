@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="lab">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -8,7 +8,7 @@
 <title>Habitat Profiler · MycoView</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script>try{const t=JSON.parse(localStorage.getItem('habprof.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -146,6 +146,8 @@ table.cmp td{vertical-align:middle}
 @media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
 @media (max-width:560px){.form{grid-template-columns:1fr}.pb{width:50px}}
 </style>
+<link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
+<script src="/investigate/shared/lab-theme.js"></script>
 </head>
 <body>
 <header class="top">
@@ -776,7 +778,7 @@ async function scoreView() {
       const why = r.water ? 'Open water or ice' : r.score == null ? 'No data for this cell' : `<b>×${fmt(r.score, 1)}</b> against typical land near known finds<br>${r.parts.map(([k, x]) => `${esc(k)} ×${fmt(x, 1)}`).join(' · ')}`;
       const v = c.env.veg, t = c.env.terrain;
       const desc = [v && v.name ? esc(v.name) : null, t && !t.none ? `${fmt(t.elev)} m, slope ${fmt(t.slope)}°${t.slope >= 5 ? ` facing ${sectorOf(t.aspect)}` : ''}` : null].filter(Boolean).join('<br>');
-      const plan = `<br><a href="/investigate/plan-a-visit/?lat=${c.lat.toFixed(5)}&lng=${c.lon.toFixed(5)}">Plan a visit here →</a>`;
+      const plan = `<br><a href="/investigate/plan-a-visit/?lat=${c.lat.toFixed(5)}&lng=${c.lon.toFixed(5)}">Plan a visit here</a>`;
       L.rectangle(c.b, { color: 'transparent', weight: 0, fillColor: fill, fillOpacity: .55 }).bindPopup(`${why}${desc ? '<br><span style="color:#666">' + desc + '</span>' : ''}${r.water ? '' : plan}`).addTo(S.layers.cells);
     }
     S.layers.pts && S.layers.pts.bringToFront && S.layers.pts.eachLayer(l => l.bringToFront && l.bringToFront());

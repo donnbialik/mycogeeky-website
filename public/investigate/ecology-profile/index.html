@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="lab">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -8,7 +8,7 @@
 <title>Ecology Profile · MycoView</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script>try{const t=JSON.parse(localStorage.getItem('ecoprofile.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -117,6 +117,8 @@ button.rep{font-size:12px;padding:3px 9px}
 @media (max-width:560px){.form{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+<link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
+<script src="/investigate/shared/lab-theme.js"></script>
 </head>
 <body>
 <header class="top">
@@ -263,7 +265,7 @@ button.rep{font-size:12px;padding:3px 9px}
     <h2 id="repTitle" style="margin-bottom:8px">Site report</h2>
     <p class="muted" style="margin:0 0 8px;font-size:12.5px">Paste into the observation’s <b>comments</b> on iNaturalist. These values are derived from the coordinates and public datasets, not observed in the field, so they don’t belong in fields like “Habitat”.</p>
     <textarea id="repText" readonly></textarea>
-    <div class="row"><span id="repNote" class="muted" style="font-size:12.5px;margin-right:auto"></span><a id="repOpen" href="#" target="_blank" rel="noopener"><button type="button">Open observation on iNaturalist ↗</button></a><button id="repCopy" class="primary" type="button">Copy</button><button id="repClose" type="button">Close</button></div>
+    <div class="row"><span id="repNote" class="muted" style="font-size:12.5px;margin-right:auto"></span><a id="repOpen" href="#" target="_blank" rel="noopener"><button type="button">Open observation on iNaturalist</button></a><button id="repCopy" class="primary" type="button">Copy</button><button id="repClose" type="button">Close</button></div>
   </dialog>
   <p class="note" style="margin-top:22px">Experimental and not independently evaluated. Data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a>; weather and elevation by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0); vegetation type from <a href="https://landfire.gov" target="_blank" rel="noopener">LANDFIRE</a>; soils from USDA NRCS SSURGO or <a href="https://soilgrids.org" target="_blank" rel="noopener">ISRIC SoilGrids</a> (CC BY 4.0); basemap from the <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS National Map</a> (public domain). Not affiliated with or endorsed by any of these.</p>
 </main>

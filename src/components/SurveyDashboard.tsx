@@ -47,7 +47,11 @@ export default function SurveyDashboard() {
       <div><span>Project created</span><strong className="survey-date" style={{color:"#1b3029"}}>{data?.created?new Date(data.created).toLocaleDateString(undefined,{month:'short',year:'numeric'}):'—'}</strong></div>
     </div>
     <div className="mv-survey-feedback" data-state={loading?'loading':error?'error':partial?'partial':'ready'} role="status" aria-live="polite">
-      <span aria-hidden="true">{loading?'◷':error?'!':partial?'!':'✓'}</span>
+      <span aria-hidden="true">{loading
+        ?<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        :(error||partial)
+        ?<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><path d="M12 6v8M12 18h.01"/></svg>
+        :<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>}</span>
       <p>{loading?'Loading live iNaturalist statistics…':error?'Live data could not be loaded; the values above are not current.':partial?'Some iNaturalist figures could not be retrieved. Missing values are shown as dashes.':'Live snapshot retrieved '+data?.updated+'.'} Recorded taxa are not necessarily confirmed species. Formal sampling visits are tracked separately.</p>
       {!loading&&(error||partial)&&<button type="button" onClick={()=>setRefresh(n=>n+1)}>Try again ↻</button>}
     </div>

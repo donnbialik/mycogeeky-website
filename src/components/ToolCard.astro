@@ -6,7 +6,7 @@ const steps=stepsFor(tool.id);
 const available=Boolean(tool.href);
 const invitation=available&&tool.access==='invitation';
 const state=invitation?'invitation':available?'available':'planned';
-const stateLabel=tool.lifecycle==='archived'&&!available?'Archived':{available:'✓ Available to explore',invitation:'◐ Preview / by invitation',planned:'◷ Not yet available'}[state];
+const stateLabel=tool.lifecycle==='archived'&&!available?'Archived':{available:'Available to explore',invitation:'Preview / by invitation',planned:'Not yet available'}[state];
 const maturity:Record<ResearchTool['lifecycle'],string>={
  experimental:'Experimental',beta:'Beta',stable:'Stable',archived:'Archived'
 };
@@ -26,5 +26,5 @@ const validation:Record<ResearchTool['validation'],string>={
  </div>
  <p class="mv-tool-science"><strong>Scientific status:</strong> {validation[tool.validation]}.</p>
  {tool.limitations.length>0&&<details class="mv-tool-limits"><summary>What this tool cannot establish</summary><ul>{tool.limitations.map(limit=><li>{limit}</li>)}</ul></details>}
- {invitation?<a class="text-link mv-tool-open" href={tool.href}>About the {tool.name} →</a>:available?<a class="text-link mv-tool-open" href={tool.href}>Open the {tool.name} →</a>:tool.lifecycle==='archived'?<p class="mv-tool-unavailable">Archived: kept here for transparency and no longer available.</p>:<p class="mv-tool-unavailable">This tool is on the development roadmap. No working application is linked yet.</p>}
+ {invitation?<a class="text-link mv-tool-open" href={tool.href}>About the {tool.name}</a>:available?<a class="text-link mv-tool-open" href={tool.href}>Open the {tool.name}</a>:tool.lifecycle==='archived'?<p class="mv-tool-unavailable">Archived: kept here for transparency and no longer available.</p>:<p class="mv-tool-unavailable">This tool is on the development roadmap. No working application is linked yet.</p>}
 </article>

@@ -127,7 +127,7 @@ export default function ResearchNavigator(){
     <div className="mv-nav-area-grid">
      {areas.map(a=><button key={a.id} type="button" className={`mv-nav-area ${a.id===area?'is-selected':''}`} aria-pressed={a.id===area} onClick={()=>setAreaAndFramework(a.id)}><span aria-hidden="true">{a.icon}</span><strong>{a.title}</strong><small>{a.description}</small></button>)}
     </div>
-    <div className="mv-nav-case-invite"><strong>Want to see how a real investigation works first?</strong><p>Follow a published case study about an unexpected <i>Clathrus archeri</i> observation in Ukraine. Trace the evidence and see the limits of a distribution claim.</p><a href="/investigate/case-studies/clathrus-archeri/">Explore the real research case →</a></div>
+    <div className="mv-nav-case-invite"><strong>Want to see how a real investigation works first?</strong><p>Follow a published case study about an unexpected <i>Clathrus archeri</i> observation in Ukraine. Trace the evidence and see the limits of a distribution claim.</p><a href="/investigate/case-studies/clathrus-archeri/">Explore the real research case</a></div>
     <label className="mv-nav-field">Optional: describe your curiosity in your own words<textarea rows={3} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="I keep finding this fungus near certain trees, and I want to know why..." /></label>
    </section>}
    {stage===1&&<section className="mv-nav-step">
@@ -140,7 +140,7 @@ export default function ResearchNavigator(){
     <div className="mv-nav-choice-box">
      <h3>Let's be precise. What do you mean?</h3>
      <div className="mv-nav-choices">{chosen.choices.map(o=><label className={choice===o.id?'is-selected':''} key={o.id}><input type="radio" name="specific-question" value={o.id} checked={choice===o.id} onChange={()=>{setChoice(o.id);setRefinedQuestion('')}}/><span>{o.label}</span></label>)}</div>
-     <div className="mv-nav-choice-feedback" role="status"><span aria-hidden="true">✓</span><div><strong>You're investigating: {selectedChoice.meaning}</strong><p>{selectedChoice.methodNote}</p><small>This identifies your research direction, not a right or wrong answer.</small></div></div>
+     <div className="mv-nav-choice-feedback" role="status"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg><div><strong>You're investigating: {selectedChoice.meaning}</strong><p>{selectedChoice.methodNote}</p><small>This identifies your research direction, not a right or wrong answer.</small></div></div>
      <label className="mv-nav-field">A more researchable question (edit this to name your fungus, comparison, and location)<textarea rows={3} value={refinedQuestion||proposedQuestion} onChange={e=>setRefinedQuestion(e.target.value)} /></label>
      <p className="mv-nav-explain">This is a transparent suggestion based on your menu choices, not an AI interpretation of your original wording.</p>
     </div>
@@ -174,16 +174,16 @@ export default function ResearchNavigator(){
     <div className="mv-nav-result-grid"><section><h3>Evidence by purpose</h3>{[{name:'To begin',ids:tiers.starting},{name:'To strengthen',ids:tiers.strengthening},{name:'Advanced or separate questions',ids:tiers.advanced}].filter(t=>t.ids.length).map(t=><div key={t.name}><h4>{t.name}</h4><ul>{t.ids.map(id=><li key={id}>{evidenceLabels[id]}{evidence.includes(id)?<small> · Available</small>:null}</li>)}</ul></div>)}</section><section><h3>Methods: why, evidence, limits</h3>{chosen.methods.map(m=><article key={m.name}><h4>{m.name}</h4><p><b>Why:</b> {m.why}</p><p><b>Requires:</b> {m.requires.join('; ')}.</p><p><b>What this method cannot demonstrate:</b> {m.cannot}</p></article>)}</section></div>
     <section className="mv-nav-result-section"><h3>Important methodological cautions</h3><ul>{caveats.map(x=><li key={x}>{x}</li>)}</ul></section>
     <section className="mv-nav-result-section"><h3>Additional planning considerations</h3><ol>{suggested.map((x,i)=><li key={i}>{x}</li>)}</ol></section>
-    <section className="mv-nav-result-section"><h3>Curated research sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title} ↗</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
+    <section className="mv-nav-result-section"><h3>Curated research sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title}</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
     </>}
-    <section className="mv-nav-related"><h3>Related questions worth exploring</h3><div>{chosen.related.map(id=>frameworkById[id]).filter(Boolean).map(f=><button type="button" key={f.id} onClick={()=>{setFramework(f.id);setStage(1)}}>{f.id} · {f.title} ↗</button>)}</div></section>
-    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button>{feedback&&<p role="status" className={'mv-nav-action-status is-'+feedbackTone}>{feedbackTone==='success'?'✓ ':feedbackTone==='caution'?'! ':''}{feedback}</p>}</div>
+    <section className="mv-nav-related"><h3>Related questions worth exploring</h3><div>{chosen.related.map(id=>frameworkById[id]).filter(Boolean).map(f=><button type="button" key={f.id} onClick={()=>{setFramework(f.id);setStage(1)}}>{f.id} · {f.title}</button>)}</div></section>
+    <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button>{feedback&&<p role="status" className={'mv-nav-action-status is-'+feedbackTone}>{feedback}</p>}</div>
     <details className="mv-nav-full"><summary>View full, shareable technical brief</summary><pre tabIndex={0}>{report}</pre></details>
     <p className="mv-nav-disclaimer">Framework draft 1.1 · Not independently scientifically reviewed. This guide does not access data sources, verify your claims, certify protocols, or authorize ecological interventions.</p>
    </section>}
    <nav className="mv-nav-actions" aria-label="Research Navigator steps">
-    {stage>0&&<button type="button" onClick={back} className="mv-nav-back">← Previous</button>}
-    {stage<4?<button type="button" onClick={next} className="mv-primary">{stage===3?'Build my research pathway →':'Continue →'}</button>:<button type="button" className="mv-nav-back" onClick={restart}>Explore another question ↶</button>}
+    {stage>0&&<button type="button" onClick={back} className="mv-nav-back">Previous</button>}
+    {stage<4?<button type="button" onClick={next} className="mv-primary">{stage===3?'Build my research pathway':'Continue'}</button>:<button type="button" className="mv-nav-back" onClick={restart}>Explore another question ↶</button>}
    </nav>
   </div>
  </div>;

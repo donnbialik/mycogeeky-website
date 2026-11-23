@@ -30,6 +30,11 @@
   --ds-data-match: #1F48C4;
   --ds-data-far: #C02A22;
   --ds-row-highlight: #FFF4D6;
+  /* Status: text colour, a tint behind it and its border. Always paired with a word, never colour alone. */
+  --ds-good: #1E6B3A; --ds-good-bg: #E6F2E9; --ds-good-line: #3E8A57;
+  --ds-warn: #7A4E00; --ds-warn-bg: #FFF3D9; --ds-warn-line: #B07A16;
+  --ds-bad: #A3221B;  --ds-bad-bg: #FBE7E5;  --ds-bad-line: #C0473F;
+  --ds-info-bg: #EEF1F6;
 }
 [data-tier="lab"][data-theme="night"] {
   --ds-ground: #141A3A;
@@ -44,6 +49,10 @@
   --ds-data-match: #E0A32E;
   --ds-data-far: #E86A5E;
   --ds-row-highlight: #283068;
+  --ds-good: #8FD9A8; --ds-good-bg: #1D3A3A; --ds-good-line: #4FAF72;
+  --ds-warn: #F2C46B; --ds-warn-bg: #3A3424; --ds-warn-line: #C99A3A;
+  --ds-bad: #F49A90;  --ds-bad-bg: #3E2236;  --ds-bad-line: #D0645A;
+  --ds-info-bg: #222A5C;
 }
 :root {
   /* Fixed colours: paper is a physical object and looks the same in every theme. */

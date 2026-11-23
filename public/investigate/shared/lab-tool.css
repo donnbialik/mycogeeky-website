@@ -1,0 +1,24 @@
+/* Lab-tier theme for the Toolbox tools (MycoView Design System): white day, navy night with amber actions.
+   Covers both palette families the tools use (--bg/--ink… and --wb-bg/--wb-ink…). Data colours (bases, regions,
+   genus series) are left to each tool. Day/night is shared with the rest of the site via lab-theme.js (mv.labTheme). */
+html[data-tier="lab"]:root {
+  --bg: #FFFFFF; --surface: #F6F7F9; --surface-2: #ECEEF2; --ink: #111418; --muted: #4A505A; --line: #DADDE3;
+  --accent: #111418; --accent-ink: #FFFFFF; --good: #1E6B3A; --warn: #7A4E00; --bad: #A3221B;
+  --wb-bg: #FFFFFF; --wb-surface: #F6F7F9; --wb-surface-2: #ECEEF2; --wb-ink: #111418; --wb-muted: #4A505A; --wb-line: #DADDE3;
+  --wb-accent: #111418; --wb-accent-ink: #FFFFFF; --wb-good: #1E6B3A; --wb-warn: #7A4E00; --wb-bad: #A3221B;
+  --f-body: "Work Sans", system-ui, sans-serif;
+  --f-display: "Archivo", "Arial Narrow", sans-serif;
+  --f-mono: "Courier Prime", "Courier New", monospace;
+  color-scheme: light;
+}
+html[data-tier="lab"][data-theme="dark"]:root {
+  --bg: #141A3A; --surface: #1B2250; --surface-2: #232B60; --ink: #EDEFF6; --muted: #B7BEDA; --line: #2E3770;
+  --accent: #E0A32E; --accent-ink: #141A3A; --good: #8FD9A8; --warn: #F2C46B; --bad: #F49A90;
+  --wb-bg: #141A3A; --wb-surface: #1B2250; --wb-surface-2: #232B60; --wb-ink: #EDEFF6; --wb-muted: #B7BEDA; --wb-line: #2E3770;
+  --wb-accent: #E0A32E; --wb-accent-ink: #141A3A; --wb-good: #8FD9A8; --wb-warn: #F2C46B; --wb-bad: #F49A90;
+  color-scheme: dark;
+}
+html[data-tier="lab"] :is(h1, h2, h3) { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; letter-spacing: 0; }
+html[data-tier="lab"] :focus-visible { outline: 3px solid var(--accent) !important; outline-offset: 3px; }
+/* The tools' own "Theme" button becomes the design-system pill. */
+html[data-tier="lab"] :is(#themeBtn, #wbThemeBtn) { min-height: 36px; padding: 0 14px !important; border: 1.5px solid var(--muted) !important; border-radius: 22px !important; background: transparent !important; color: var(--ink) !important; font: 500 14px var(--f-body) !important; }

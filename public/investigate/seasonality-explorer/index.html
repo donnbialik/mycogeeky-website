@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tier="lab">
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Work+Sans:wght@400;500;600;700&display=swap">
 <title>iNat Seasonality Explorer · MycoView</title>
 <script>try{const t=JSON.parse(localStorage.getItem('seasonality.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -201,6 +201,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 .wb-hint button{font:inherit;color:var(--wb-accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .wb-steps .stepn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--wb-accent);color:var(--wb-accent-ink);font:600 12px/1 var(--f-body);margin-top:-1px}
 </style>
+<link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
+<script src="/investigate/shared/lab-theme.js"></script>
 </head>
 <body>
 <header class="wb-top">
@@ -211,7 +213,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   </div>
   <div class="wb-sources">
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
-    <button type="button" id="guideBtn">▶ Take the tour</button><button id="wbThemeBtn" type="button">Theme</button>
+    <button type="button" id="guideBtn">Take the tour</button><button id="wbThemeBtn" type="button">Theme</button>
   </div>
 </header>
 <nav class="wb-steps" aria-label="How to use this tool">
@@ -927,8 +929,8 @@ function render() {
   if (state.taxon) { const hp = new URLSearchParams({ taxon_id: state.taxon.id, taxon: state.taxon.name });
     if (state.taxon.common) hp.set('common', state.taxon.common);
     if (state.placeMode === 'place' && state.place) { hp.set('place_id', state.place.id); hp.set('place', state.place.name); }
-    a += '<p class="nextsteps">Next: <a href="/investigate/habitat-profiler/?' + esc(hp.toString()) + '">profile its habitat' + (state.placeMode === 'place' && state.place ? ' in ' + esc(state.place.name) : '') + ' →</a>' +
-      (state.placeMode === 'radius' && state.lat && state.lng ? ' · <a href="/investigate/plan-a-visit/?lat=' + encodeURIComponent(state.lat) + '&lng=' + encodeURIComponent(state.lng) + '">plan a visit to this spot →</a>' : ' · <a href="/investigate/plan-a-visit/">plan a visit →</a>') + '</p>'; }
+    a += '<p class="nextsteps">Next: <a href="/investigate/habitat-profiler/?' + esc(hp.toString()) + '">profile its habitat' + (state.placeMode === 'place' && state.place ? ' in ' + esc(state.place.name) : '') + '</a>' +
+      (state.placeMode === 'radius' && state.lat && state.lng ? ' · <a href="/investigate/plan-a-visit/?lat=' + encodeURIComponent(state.lat) + '&lng=' + encodeURIComponent(state.lng) + '">plan a visit to this spot</a>' : ' · <a href="/investigate/plan-a-visit/">plan a visit</a>') + '</p>'; }
   $('answer').innerHTML = a;
   const anyData = views.some(v => v.st);
   $('charts').classList.toggle('hidden', !anyData);

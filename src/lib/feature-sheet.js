@@ -123,7 +123,6 @@ export function renderSheet(f, opts = {}) {
   const inat = `https://www.inaturalist.org/observations/${f.id}`;
   const its = f.its;
   const itsLine = readsLine(its);
-  const determined = its ? 'ITS barcode' : 'iNaturalist community';
   const stamp = f.provisional ? '<p class="sheet-stamp" role="note"><b>PROVISIONAL</b><span>not yet formally described</span></p>' : '';
   const credit = f.photo && f.photo.credit ? `<figcaption class="sheet-credit">${esc(f.photo.credit)}</figcaption>` : '';
   const scale = opts.scaleHtml
@@ -151,7 +150,7 @@ ${scale}
         ${f.observed ? `<div><dt>Date</dt><dd>${esc(f.observed)}</dd></div>` : ''}
         ${f.locality ? `<div><dt>Locality</dt><dd>${esc(f.locality)}</dd></div>` : ''}
         ${f.collector ? `<div><dt>Collected By</dt><dd>${esc(f.collector)}</dd></div>` : ''}
-        <div><dt>ID By</dt><dd>${esc(determined)}</dd></div>
+        ${its ? '<div><dt>Evidence</dt><dd>ITS DNA barcode</dd></div>' : '<div><dt>ID By</dt><dd>iNaturalist community</dd></div>'}
         ${f.habitat ? `<div class="slip-notes"><dt>Field notes</dt><dd>${esc(f.habitat)}</dd></div>` : ''}
       </dl>
       ${its ? '' : stamp}

@@ -19,11 +19,11 @@ const { data: sheet } = await loadFeaturedSheet();
   <section class="hp-hero" aria-labelledby="hp-title">
     <div class="hp-hero-copy">
       <h1 id="hp-title">See fungi differently.</h1>
+      <p class="hp-sub">Learn to notice and document fungi, then follow the evidence as far as you like.</p>
       <p class="hp-lede" id="hp-lede" set:html={renderLede(sheet)} />
-      <p class="hp-sub">MycoView shows how a photo becomes a specimen, and a specimen becomes evidence. You can do it too.</p>
       <div class="hp-actions">
-        <a class="hp-btn" href="#start">Start exploring</a>
-        <a class="hp-link" href="/investigate/#workbench">Open the Research Toolbox</a>
+        <a class="hp-btn" href="/learn/#play">Try a mushroom observation activity</a>
+        <a class="hp-link" href="/investigate/#workbench">Open the Research Workbench</a>
       </div>
       <p class="hp-aside">No credentials required. Just curiosity.</p>
     </div>
@@ -109,7 +109,7 @@ const { data: sheet } = await loadFeaturedSheet();
           <SurveyDashboard client:visible />
         </div>
       </div>
-      <p class="hp-lab-more"><a class="hp-link" href="/investigate/#workbench">See every tool in the Research Toolbox</a></p>
+      <p class="hp-lab-more"><a class="hp-link" href="/investigate/#workbench">See every tool in the Research Workbench</a></p>
     </div>
   </section>
 

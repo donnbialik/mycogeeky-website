@@ -65,7 +65,7 @@ export const GET: APIRoute = () => {
   }
   function render() {
     var html = '<div class="mvtb-in"><nav class="mvtb-crumbs" aria-label="MycoView"><a class="mvtb-home" href="/" aria-label="MycoView home"><span class="mvtb-mark">MYCOVIEW</span></a>'
-      + '<span class="mvtb-sep" aria-hidden="true">/</span><a href="/investigate/#workbench">Toolbox</a></nav>';
+      + '<span class="mvtb-sep" aria-hidden="true">/</span><a href="/investigate/#workbench">Research Workbench</a></nav>';
     if (path) {
       // A tool can cover several consecutive steps (e.g. Habitat Profiler on the forager path).
       var i = -1; path.steps.some(function (s, k) { if (s.toolId === tool.id) { i = k; return true; } return false; });

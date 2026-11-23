@@ -42,10 +42,16 @@
       body: 'Every sequence you added is listed here. Edit a group name to move a sequence to another group. Untick a sequence to leave it out of the analysis, and note why. Very short or unusual sequences deserve a second look before you run.' },
     { title: 'Identical sequences within a group', target: () => $('.hap') || cardOf('#hapGroup'),
       body: 'Use this when one group may hold more than one sequence type, which is common in provisional bins built from many collectors. It sorts the group into <b>haplotypes</b> (sets of identical sequences) and splits it: the <b>main haplotype vs the rest</b>, or <b>each shared haplotype separately</b>. Then compare the pieces: if the outliers sit as close to another group as to the main haplotype, the bin may be mixed. <b>Undo haplotype split</b> restores the group. It needs at least 3 sequences in the group.' },
+    { title: 'Compare any sequences', target: () => $('#pickBar'),
+      body: 'Groups follow names, so an iNaturalist observation and GenBank records with the same name land in one group. To compare exactly what you want, click <b>A</b> or <b>B</b> on any rows. <b>Make all other included sequences B</b> compares one observation with everything else. <b>Compare A vs B</b> runs on your picks only; <b>Restore groups</b> puts everything back.' },
+    { title: 'Trim a large set', target: () => $('#trimBox'),
+      body: 'One run takes up to 400 sequences; over 150 it takes longer. If a genus fetch brings back too many, open this to drop partial reads, sequences with QC problems, extra identical copies, places or technologies you do not need, and then the oldest observations. Preview shows what would go; nothing is deleted, and <b>Undo last trim</b> puts it back.' },
     { title: '3 · Choose two groups and run', target: () => cardOf('#groupA'),
       body: 'Pick <b>Group A</b> (e.g. the provisional bin) and <b>Group B</b> (e.g. the sister taxon), then press <b>Run analysis</b>. The <b>Advanced settings</b> (ambiguity codes, how indels count, the distance shown, the species cutoff) can stay at their defaults the first time.' },
     { title: '4 · Read the quick takeaway first', target: () => $('#takeawayCard'),
       body: 'After a run, a plain-language summary of how the two groups differ appears here. Read it before anything else. <b>Copy summary</b> puts it on your clipboard for notes or an iNaturalist comment. To learn how to read its graphs, press <b>▶ Explain the graphs</b> on this card.' },
+    { title: 'Comment for iNaturalist', target: () => $('#inatOpen'),
+      body: 'Writes a comment for identifiers from the current result: what was compared, the result and the evidence behind it, its limits, and links to every sequence. Choose Markdown or plain text, short or full, check it, then paste it on the observation.' },
     { title: 'Provisional profile', target: () => $('#profCard'),
       body: 'A short, pasteable summary of a provisional name’s range, distribution and season from its iNaturalist records. Optionally compare it with another provisional in the same genus, or place your own observation in that context. Useful when writing up or commenting on a provisional.' },
     { title: 'Genus ITS standard', target: () => $('#calCard'),
@@ -161,6 +167,45 @@
 
   const SECTIONS = {
     gap: GAP,
+    picks: { label: 'Compare any sequences (A/B)', btn: '▶ Show me how', where: () => $('#pickBar'), head: () => $('#pickBar > span.small'), steps: [
+      { title: 'Compare exactly the sequences you choose', target: () => $('#pickBar'),
+        body: 'Groups come from names. An iNaturalist observation named <i>Boletus variipes</i> and the GenBank type of <i>Boletus variipes</i> fall into the same group, so you cannot set one against the other. Picking fixes that: any rows, from any group, can be A or B for one run.' },
+      { title: 'Pick A', target: () => cardOf('#seqFilter'),
+        body: 'Click <b>A</b> on the row (or rows) you want on one side, for example your own observation. Click it again to unpick.',
+        fill: () => { if (!state.seqs.some((x) => x.pick === 'A')) { const b = $('#seqTable tr[data-id] [data-pick="A"]'); if (b) b.click(); } }, fillLabel: 'Pick the first row for me',
+        wait: () => state.seqs.some((x) => x.pick === 'A'), waitText: 'Waiting for you to pick at least one A…' },
+      { title: 'Pick B, or make it everything else', target: () => $('#pickBar'),
+        body: 'Click <b>B</b> on the rows to compare against, such as one GenBank type sequence. Or press <b>Make all other included sequences B</b> to compare your A with everything else that is ticked in the current view.',
+        fill: () => { if (!state.seqs.some((x) => x.pick === 'B')) { const b = $('#pickRest'); if (b) b.click(); } }, fillLabel: 'Make all others B for me',
+        wait: () => state.seqs.some((x) => x.pick === 'B'), waitText: 'Waiting for at least one B…' },
+      { title: 'Compare A vs B', target: () => $('#pickBar'),
+        prep: () => { runMark = ($('#runInfo') || {}).textContent || ''; },
+        body: 'Press <b>Compare A vs B</b>. The run uses your picks only, so it is quick even when many sequences are loaded. The picked sequences are put in groups named after them for the run.',
+        wait: () => idle('#runBtn') && /selection only/.test(($('#runInfo') || {}).textContent || '') && (($('#runInfo') || {}).textContent || '') !== runMark, waitText: 'Waiting for you to press Compare A vs B…' },
+      { title: 'Read it, then restore', target: () => $('#takeawayCard'), end: true,
+        body: 'The takeaway now describes your A against your B. With one sequence on each side it reports exactly how many bases differ and where, but it cannot say how variable either taxon is. <b>Comment for iNaturalist</b> turns the result into a comment for identifiers. When you are done, press <b>Restore groups</b> in the bar above the table.' } ] },
+    trim: { label: 'Trim a large set', where: () => $('#trimBox'), head: () => $('#trimBox > summary h3'), steps: [
+      { title: 'Why trim', prep: () => { const d = $('#trimBox'); if (d) d.open = true; }, target: () => $('#trimBox'),
+        body: 'Every pair of sequences is aligned, so the work grows fast: 150 sequences make 11,175 pairs, 400 make 79,800. One run takes up to 400. A genus fetch can bring back more, and many of those add little: partial reads, poor reads, and dozens of identical copies.' },
+      { title: 'Choose the rules', prep: () => { const d = $('#trimBox'); if (d) d.open = true; }, target: () => $('#trimBox'),
+        body: '<b>Apply to</b> one group or all. <b>Keep at most</b> sets the target. Ticked rules run in order: QC problems, partial reads (ITS1 or ITS2 incomplete), length, ambiguity codes, extra identical copies (keeping type, vouchered, Sanger and newest first), places and technologies you do not need, then the <b>oldest observations</b>, taken from the largest groups first so small groups survive. Type material and your A/B picks are protected unless you untick that.',
+        fill: () => { const d = $('#trimBox'); if (d) d.open = true; const m = $('#trimMax'); if (m) { m.value = String(Math.max(2, state.seqs.filter((x) => x.include).length - 3)); m.dispatchEvent(new Event('change', { bubbles: true })); } }, fillLabel: 'Set a small target for practice' },
+      { title: 'Preview first', target: () => $('#trimBox'),
+        prep: () => { runMark = ($('#trimResult') || {}).innerText || ''; },
+        body: 'Press <b>Preview</b>. It lists what would be excluded and why, and how many remain. If you are still over your target, it says so and suggests what to change.',
+        wait: () => /would be excluded/.test(($('#trimResult') || {}).innerText || ''), waitText: 'Waiting for you to press Preview…' },
+      { title: 'Apply, and undo if needed', target: () => $('#trimBox'), end: true,
+        body: '<b>Exclude these</b> unticks those sequences and writes the reason in each one’s exclusion note, so the record is kept. Nothing is deleted. <b>Undo last trim</b> includes them again. Then run the analysis as usual.' } ] },
+    inat: { label: 'Comment for iNaturalist', where: () => $('#inatOpen'), head: () => $('#inatOpen') && $('#inatOpen').parentNode, steps: [
+      { title: 'A comment for identifiers', target: () => $('#takeawayCard'),
+        body: 'After a run, this writes a comment you can paste on an iNaturalist observation. It names what was compared, with links; gives the result and the evidence (differences, where they are, overlap, the yardstick used, type material); states the limits; and suggests a next step. Places are given as state and country only.' },
+      { title: 'Open it', target: () => $('#takeawayCard'),
+        body: 'Press <b>Comment for iNaturalist</b> under the takeaway heading. You need a finished run with two groups chosen.',
+        fill: () => { const b = $('#inatBox'); if (b && b.hidden) $('#inatOpen').click(); }, fillLabel: 'Open it for me',
+        wait: () => { const b = $('#inatBox'); return !!b && !b.hidden; }, waitText: 'Waiting for the comment box to open…' },
+      { title: 'Choose the form and copy', target: () => $('#inatBox'), end: true,
+        body: '<b>Markdown</b> keeps bold labels and links on iNaturalist; <b>Plain text</b> suits places that do not render Markdown. <b>Short</b> fits most comments; <b>Full</b> adds the methods and lists every sequence. Read it before posting: it reports what the tool found, and you know the specimen. ITS similarity alone does not establish species identity, and the comment says so.' } ] },
+
     hap: { label: 'Identical sequences within a group', where: () => $('.hap'), steps: [
       { title: 'Identical sequences within a group', target: () => $('.hap'),
         body: 'This splits one group by <b>haplotype</b>: sequences that are identical to each other. Use it when a group may hold more than one sequence type, for example a provisional bin assembled from many collectors, or when you want to know whether a few odd sequences are pulling the comparison. It needs at least 3 sequences in the group.' },
@@ -290,6 +335,8 @@
     else if (r.right + gap + pw <= innerWidth - 16) { left = r.right + gap; top = clampTop(r.top); }
     else if (r.left - gap - pw >= 16) { left = r.left - gap - pw; top = clampTop(r.top); }
     else { left = clampLeft(r.right - pw - 16); top = clampTop(r.bottom - ph - 16); }
+    // whatever the target does (scrolled away by the page, off screen), the tour card itself stays on screen
+    top = Math.min(innerHeight - ph - 16, Math.max(16, top)); left = Math.min(innerWidth - pw - 16, Math.max(16, left));
     pop.style.left = `${left}px`; pop.style.top = `${top}px`;
   }
 
@@ -398,7 +445,7 @@
       h.querySelector('button').addEventListener('click', () => { if (pop) end(); menu(); }); stepsBar.appendChild(h); }
     for (const [, v] of Object.entries(SECTIONS)) {
       const host = v.where(); if (!host) continue;
-      const head = host.matches('details') ? host.querySelector('summary h2') : host.querySelector('h3, h2');
+      const head = v.head ? v.head() : host.matches('details') ? host.querySelector('summary h2, summary h3') : host.querySelector('h3, h2');
       if (!head) continue;
       const b = document.createElement('button'); b.type = 'button'; b.className = 'mvt-sec-btn'; b.textContent = v.btn || '▶ Tour this section';
       b.setAttribute('aria-label', `Guided tour of ${v.label}`);

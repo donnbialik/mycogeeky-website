@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script src="/investigate/toolbar.js" defer></script><!-- MycoView tool bar (built from src/data/tools.ts) -->
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ITS Bin Comparator · MycoView</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -241,6 +241,24 @@ details.adv > summary{cursor:pointer;font-size:13px;font-weight:500;color:var(--
   .card{border:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* 2026-11-22: A/B picks, trimming, iNaturalist comment */
+.pickbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px}
+.pickdemo,.pickbtn{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:24px;padding:0 6px;border-radius:6px;border:1px solid var(--line);font:600 12px var(--f-mono,monospace);background:transparent;color:var(--muted)}
+.pickbtn{cursor:pointer;margin:0 2px 0 0}
+.pickbtn[aria-pressed="true"][data-pick="A"],.pickdemo:first-of-type{background:var(--accent);border-color:var(--accent);color:var(--accent-ink,#fff)}
+.pickbtn[aria-pressed="true"][data-pick="B"],.pickdemo+.pickdemo{background:var(--spore);border-color:var(--spore);color:#fff}
+tr.picked-A td:first-child{box-shadow:inset 3px 0 0 var(--accent)}tr.picked-B td:first-child{box-shadow:inset 3px 0 0 var(--spore)}
+details.trim{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+details.trim>summary{cursor:pointer;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+details.trim>summary h3{display:inline;margin:0}
+.trimrules{display:grid;gap:6px;margin:10px 0}
+.trimrules input[type=number],.trimrules input[type=text],.trimrules select{padding:3px 6px;max-width:100%}
+.trimrules label.inline{flex-wrap:wrap;white-space:normal;min-width:0}
+.pickbar>*{min-width:0}
+.trimlist{max-height:240px;overflow:auto;margin:6px 0;padding-left:18px}
+.inatbox{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.inatbox pre{white-space:pre-wrap;font:12.5px/1.5 var(--f-mono,monospace);background:var(--bg2,rgba(0,0,0,.03));border:1px solid var(--line);border-radius:8px;padding:10px;max-height:420px;overflow:auto}
 </style>
 </head>
 <body>
@@ -368,8 +386,41 @@ details.adv > summary{cursor:pointer;font-size:13px;font-weight:500;color:var(--
         <button type="button" class="shrink ghost" id="clearAll">Remove all</button>
       </div>
     </div>
+    <div class="pickbar" id="pickBar">
+      <span class="small"><b>Compare any sequences:</b> click <span class="pickdemo">A</span> or <span class="pickdemo">B</span> on rows to pick them.</span>
+      <span class="small" id="pickCount"></span>
+      <button type="button" class="shrink" id="pickRest" data-tip="pickRest">Make all other included sequences B</button>
+      <button type="button" class="primary shrink" id="pickGo" data-tip="pickGo">Compare A vs B</button>
+      <button type="button" class="shrink ghost" id="pickClear">Clear picks</button>
+      <button type="button" class="shrink ghost" id="pickRestore" data-tip="pickRestore">Restore groups</button>
+    </div>
     <div class="tablewrap"><table id="seqTable"></table></div>
     <p class="hint">Edit a group name to move a sequence. Untick to exclude it and note why. Region lengths come from conserved 5.8S and flanking SSU/LSU motifs and are approximate.</p>
+    <details class="trim" id="trimBox">
+      <summary><h3>Trim a large set</h3><span class="small muted" id="trimCount"></span></summary>
+      <p class="hint">One run can include up to 400 sequences; more than 150 takes longer. Choose what to drop. Sequences are excluded, not deleted, each with a note saying why, and <b>Undo last trim</b> puts them back.</p>
+      <div class="row">
+        <label>Apply to<select id="trimGroup"><option value="">All groups</option></select></label>
+        <label>Keep at most<input type="number" id="trimMax" value="150" min="2" max="400" step="1"></label>
+        <label class="inline shrink"><input type="checkbox" id="trimKeepTypes" checked> Never drop type material or picked A/B sequences</label>
+      </div>
+      <div class="trimrules">
+        <label class="inline"><input type="checkbox" id="trimQC" checked> QC problems: 5.8S not found, or more than 1% N</label>
+        <label class="inline"><input type="checkbox" id="trimPartial" checked> Partial reads: ITS1 or ITS2 not complete</label>
+        <label class="inline"><input type="checkbox" id="trimLen"> Short (under 350 bp) or long (over 1,500 bp)</label>
+        <label class="inline"><input type="checkbox" id="trimAmb"> 3 or more ambiguity codes</label>
+        <label class="inline"><input type="checkbox" id="trimDup" checked> Identical copies beyond <input type="number" id="trimDupN" value="2" min="1" max="50" style="width:60px"> per haplotype in a group (keeps type, vouchered, Sanger and newest first)</label>
+        <label class="inline"><input type="checkbox" id="trimPlaceOn"> Places not matching <input type="text" id="trimPlace" placeholder="e.g. Ohio; Michigan; Ontario" style="width:240px"> <span class="small muted">(sequences with no place are kept)</span></label>
+        <label class="inline"><input type="checkbox" id="trimTechOn"> Sequencing technology other than <select id="trimTech"></select></label>
+        <label class="inline"><input type="checkbox" id="trimOld" checked> Then the oldest observations until the limit is reached, taken from the largest groups first <span class="small muted">(undated sequences are kept)</span></label>
+      </div>
+      <div class="row">
+        <button type="button" class="shrink" id="trimPreview">Preview</button>
+        <button type="button" class="primary shrink" id="trimApply" disabled>Exclude these</button>
+        <button type="button" class="shrink ghost" id="trimUndo">Undo last trim</button>
+      </div>
+      <div id="trimResult" class="small"></div>
+    </details>
     <div class="hap">
       <h3><span class="tipped" data-tip="haplotype">Identical sequences within a group</span></h3>
       <p class="hint">Sorts the sequences of one group into haplotypes (sets that match 100%), then splits the group so you can compare the main haplotype with everything else.</p>
@@ -423,8 +474,18 @@ details.adv > summary{cursor:pointer;font-size:13px;font-weight:500;color:var(--
   </div>
 
   <div class="card takeaway" id="takeawayCard">
-    <div class="card-head"><h2><span class="stepn">4</span>Quick takeaway</h2><button type="button" class="shrink" id="copyTake">Copy summary</button></div>
+    <div class="card-head"><h2><span class="stepn">4</span>Quick takeaway</h2><div class="row" style="flex:0 1 auto"><button type="button" class="shrink" id="copyTake">Copy summary</button><button type="button" class="shrink" id="inatOpen" data-tip="inatComment">Comment for iNaturalist</button></div></div>
     <div id="takeaway"></div>
+    <div class="inatbox" id="inatBox" hidden>
+      <h3>Comment for iNaturalist</h3>
+      <p class="hint">A comment written for identifiers: what was compared, the result, the evidence behind it and its limits, with links to every sequence. Check it, then paste it on the observation.</p>
+      <div class="row">
+        <label>Format<select id="inatFmt"><option value="md">Markdown (iNaturalist)</option><option value="txt">Plain text</option></select></label>
+        <label>Length<select id="inatLen"><option value="short">Short</option><option value="full">Full: plus methods and every sequence</option></select></label>
+        <button type="button" class="primary shrink" id="inatCopy">Copy comment</button>
+      </div>
+      <pre id="inatText"></pre>
+    </div>
   </div>
 
   <details class="card fold" id="profCard" open>
@@ -656,23 +717,29 @@ function prepareWork(s,trim){
 const SC={match:2,mis:-3,amb:1,n:0,go:-6,ge:-1};
 function score(x,y){if(x===y&&isDef(x))return SC.match;if(x==='N'||y==='N')return SC.n;if(isDef(x)&&isDef(y))return SC.mis;return compat(x,y)?SC.amb:SC.mis;}
 // Gotoh affine-gap alignment with free end gaps (overlap alignment)
-function align(a,b){
-  const n=a.length,m=b.length,W=m+1,NEG=-1e9;
+// 2026-11-22: same algorithm, scores and tie-breaking as before. Base scores come from a table built from score(), and a
+// run with many pairs spreads them over background workers, so results are identical to the 2026-11-15 version.
+const ALN_CODES='ACGTRYSWKMBDHVN',ALN_T=(()=>{const idx=new Uint8Array(128).fill(14);for(let k=0;k<15;k++)idx[ALN_CODES.charCodeAt(k)]=k;
+  const sc=new Int32Array(225);for(let x=0;x<15;x++)for(let y=0;y<15;y++)sc[x*15+y]=score(ALN_CODES[x],ALN_CODES[y]);return{idx,sc,go:SC.go,ge:SC.ge};})();
+function align(a,b){return alignWith(a,b,ALN_T);}
+function alignWith(a,b,T){
+  const n=a.length,m=b.length,W=m+1,NEG=-1e9,IDX=T.idx,SCT=T.sc,GO=T.go,GE=T.ge;
+  const eb=new Int32Array(m);for(let j=0;j<m;j++)eb[j]=IDX[b.charCodeAt(j)];
   const tb=new Uint8Array((n+1)*W);
-  let pM=new Float64Array(W),pX=new Float64Array(W),pY=new Float64Array(W);
-  let cM=new Float64Array(W),cX=new Float64Array(W),cY=new Float64Array(W);
+  let pM=new Int32Array(W),pX=new Int32Array(W),pY=new Int32Array(W);
+  let cM=new Int32Array(W),cX=new Int32Array(W),cY=new Int32Array(W);
   pM[0]=0;pX[0]=NEG;pY[0]=NEG;
   for(let j=1;j<=m;j++){pM[j]=NEG;pX[j]=NEG;pY[j]=0;}
   let best=NEG,bi=0,bj=0;
   for(let i=1;i<=n;i++){
     cM[0]=NEG;cX[0]=0;cY[0]=NEG;
-    const ai=a[i-1],row=i*W;
+    const ai=IDX[a.charCodeAt(i-1)]*15,row=i*W;
     for(let j=1;j<=m;j++){
       let mm=pM[j-1],src=0;if(pX[j-1]>mm){mm=pX[j-1];src=1;}if(pY[j-1]>mm){mm=pY[j-1];src=2;}
-      cM[j]=mm+score(ai,b[j-1]);
-      let xx=pM[j]+SC.go,xs=0;const xe=pX[j]+SC.ge;if(xe>xx){xx=xe;xs=1;}const xy=pY[j]+SC.go;if(xy>xx){xx=xy;xs=2;}
+      cM[j]=mm+SCT[ai+eb[j-1]];
+      let xx=pM[j]+GO,xs=0;const xe=pX[j]+GE;if(xe>xx){xx=xe;xs=1;}const xy=pY[j]+GO;if(xy>xx){xx=xy;xs=2;}
       cX[j]=xx;
-      let yy=cM[j-1]+SC.go,ys=0;const ye=cY[j-1]+SC.ge;if(ye>yy){yy=ye;ys=2;}const yx=cX[j-1]+SC.go;if(yx>yy){yy=yx;ys=1;}
+      let yy=cM[j-1]+GO,ys=0;const ye=cY[j-1]+GE;if(ye>yy){yy=ye;ys=2;}const yx=cX[j-1]+GO;if(yx>yy){yy=yx;ys=1;}
       cY[j]=yy;
       tb[row+j]=src|(xs<<2)|(ys<<4);
     }
@@ -886,6 +953,7 @@ function addSeq(o){
   const s={id:state.nextId++,key:o.key||null,source:o.source,label:o.label,url:o.url||'',group:o.group||'Ungrouped',meta:o.meta||{},include:true,reason:'',seq:or.seq,rc:or.rc,regions:or.regions};
   s.tech=techCat(s.meta.seqTech);if(o.baseGroup)s.baseGroup=o.baseGroup;
   if(o.hapBase)s.hapBase=o.hapBase;if(o.hap){s.hap=o.hap;s.hapN=o.hapN;}
+  if(o.pick)s.pick=o.pick;if(o.pickBase)s.pickBase=o.pickBase;if(o.trimTag){s.trimTag=o.trimTag;s.prevReason=o.prevReason||'';}
   qc(s);state.seqs.push(s);return true;
 }
 function techCat(v){
@@ -935,8 +1003,8 @@ function renderSeqTable(){
     const sub=[m.taxon,m.place,m.date].filter(Boolean).join(' · ');
     const near=nn?`<span class="${nn.otherGenus?'flag bad':''}"${nn.otherGenus?' data-tip="otherGenus"':''}>${esc(nn.label)} · ${fmt(nn.d)}%</span>${nn.otherGenus?'<br><span class="small muted">different genus</span>':''}`:'<span class="muted">–</span>';
     const techRaw=m.seqTech&&techCat(m.seqTech)!==m.seqTech?`<div class="small muted">${esc(m.seqTech)}</div>`:'';
-    return `<tr data-id="${s.id}" class="${s.include?'':'off'}">
-      <td><input type="checkbox" data-act="inc" ${s.include?'checked':''} aria-label="Include ${esc(s.label)}"></td>
+    return `<tr data-id="${s.id}" class="${s.include?'':'off'}${s.pick?' picked-'+s.pick:''}">
+      <td style="white-space:nowrap"><input type="checkbox" data-act="inc" ${s.include?'checked':''} aria-label="Include ${esc(s.label)}"> <button type="button" class="pickbtn" data-act="pick" data-pick="A" aria-pressed="${s.pick==='A'}" aria-label="Pick ${esc(s.label)} as A">A</button><button type="button" class="pickbtn" data-act="pick" data-pick="B" aria-pressed="${s.pick==='B'}" aria-label="Pick ${esc(s.label)} as B">B</button></td>
       <td class="wrapcell">${lbl}${sub?`<div class="small muted">${esc(sub)}</div>`:''}</td>
       <td><span class="gdot" style="background:${gColor(s.group)}"></span><input type="text" data-act="grp" value="${esc(s.group)}" list="groupList" style="width:200px"></td>
       <td>${esc(s.source)}</td>
@@ -951,6 +1019,7 @@ function renderSeqTable(){
       <td><button type="button" class="ghost" data-act="del" aria-label="Remove">✕</button></td></tr>`;
   }).join('');
   $('#seqTable').innerHTML=head+'<tbody>'+body+'</tbody>';
+  renderPickBar();renderTrimCount();
 }
 $('#seqTable').addEventListener('change',e=>{
   const tr=e.target.closest('tr[data-id]');if(!tr)return;const s=state.seqs.find(x=>x.id==tr.dataset.id);if(!s)return;
@@ -967,6 +1036,8 @@ $('#splitTech').addEventListener('click',()=>{
   renderAll();markStale();
 });
 $('#seqTable').addEventListener('click',e=>{
+  if(e.target.dataset.act==='pick'){const tr=e.target.closest('tr[data-id]'),s=state.seqs.find(x=>x.id==tr.dataset.id);if(!s)return;
+    const p=e.target.dataset.pick;s.pick=s.pick===p?null:p;if(s.pick&&!s.include){s.include=true;}renderSeqTable();return;}
   if(e.target.dataset.act!=='del')return;const tr=e.target.closest('tr[data-id]');
   state.seqs=state.seqs.filter(x=>x.id!=tr.dataset.id);renderAll();markStale();
 });
@@ -1162,35 +1233,73 @@ $('#pasteGo').addEventListener('click',()=>{
 
 /* ---------- analysis ---------- */
 function dist(res,metric){return metric==='k2p'?res.k2p:res.pct;}
-async function runAnalysis(){
+const MAX_RUN=400,LARGE_RUN=150;
+// Align the listed pairs (index pairs into items) and put them in alnCache. Many pairs go to background workers, one
+// per spare processor core; a few, or a browser without workers, run here. Same function either way.
+async function alignMany(items,todo,keyOf,progress){
+  if(!todo.length)return;
+  let nw=Math.max(1,Math.min(8,(navigator.hardwareConcurrency||4)-1));
+  if(todo.length<200||typeof Worker==='undefined')nw=0;
+  let done=0;const local=async list=>{for(const [i,j] of list){alnCache.set(keyOf(i,j),align(items[i].work,items[j].work));if(++done%25===0){progress(done);await sleep(0);}}};
+  if(!nw){await local(todo);progress(done);return;}
+  let url=null,workers=[];
+  try{
+    url=URL.createObjectURL(new Blob([`const alignWith=${alignWith.toString()};let T=null,W=[];onmessage=e=>{const d=e.data;if(d.init){T=d.T;W=d.works;return;}const out=[];for(const p of d.pairs){const r=alignWith(W[p[0]],W[p[1]],T);out.push([p[0],p[1],r.a,r.b,r.score]);}postMessage(out);};`],{type:'text/javascript'}));
+    const works=items.map(s=>s.work),CH=48;let next=0;
+    await new Promise((resolve,reject)=>{
+      let active=0;
+      const finish=()=>{if(--active===0)resolve();};
+      const feed=w=>{if(next>=todo.length){finish();return;}const chunk=todo.slice(next,next+CH);next+=CH;w.postMessage({pairs:chunk});};
+      for(let k=0;k<nw;k++){const w=new Worker(url);workers.push(w);active++;
+        w.onerror=ev=>{ev.preventDefault();reject(new Error(ev.message||'worker failed'));};
+        w.onmessage=e=>{for(const [i,j,a,b,score] of e.data)alnCache.set(keyOf(i,j),{a,b,score});done+=e.data.length;progress(done);feed(w);};
+        w.postMessage({init:true,T:ALN_T,works});feed(w);}
+      // The page helps too, in short slices so it stays responsive. Some browsers run background workers on slower cores.
+      active++;(async()=>{while(next<todo.length){const t=performance.now();
+        while(next<todo.length&&performance.now()-t<40){const [i,j]=todo[next++];alnCache.set(keyOf(i,j),align(items[i].work,items[j].work));done++;}
+        progress(done);await sleep(0);}finish();})().catch(reject);
+    });
+  }catch(err){log(`Background alignment unavailable (${err.message}); continuing on this page, which is slower.`,'warn');
+    await local(todo.filter(([i,j])=>!alnCache.has(keyOf(i,j))));}
+  finally{workers.forEach(w=>w.terminate());if(url)URL.revokeObjectURL(url);}
+}
+async function runAnalysis(arg){
   const opt=readSettings();lsSet('itsbin.settings',opt);
-  const items=state.seqs.filter(s=>s.include&&s.seq.length>=50&&(!opt.tech||s.tech===opt.tech)).sort((a,b)=>groups().indexOf(a.group)-groups().indexOf(b.group)||a.id-b.id);
+  const only=arg&&arg.only instanceof Set?arg.only:null;
+  const items=state.seqs.filter(s=>s.include&&s.seq.length>=50&&(!opt.tech||s.tech===opt.tech)&&(!only||only.has(s.id))).sort((a,b)=>groups().indexOf(a.group)-groups().indexOf(b.group)||a.id-b.id);
   if(items.length<2){log('Include at least two sequences to run the analysis.','bad');return;}
-  if(items.length>150){log(`${items.length} sequences selected. The limit for one run is 150; exclude some or filter by group.`,'bad');return;}
+  if(items.length>MAX_RUN){log(`${items.length} sequences selected. The limit for one run is ${MAX_RUN}. Use “Trim a large set” under Check your sequences to bring it down, or exclude some by hand.`,'bad');openTrim();return;}
   $('#runBtn').disabled=true;
   items.forEach(s=>prepareWork(s,opt.trim));
   const pairs=[],N=items.length,total=N*(N-1)/2;let done=0;const t0=performance.now();
+  if(N>LARGE_RUN)log(`${N} sequences: ${total.toLocaleString()} pairs to align. This can take a few minutes; the rest of the page stays usable.`,'warn');
+  const keyOf=(i,j)=>`${items[i].id}:${items[j].id}:${opt.trim?1:0}`;
+  const todo=[];for(let i=0;i<N;i++)for(let j=i+1;j<N;j++)if(!alnCache.has(keyOf(i,j)))todo.push([i,j]);
+  const cached=total-todo.length;
+  try{await alignMany(items,todo,keyOf,k=>{$('#runBar').style.width=`${90*(cached+k)/total}%`;$('#runInfo').textContent=`Aligning ${(cached+k).toLocaleString()} of ${total.toLocaleString()} pairs…`;});}
+  catch(err){log(`Alignment failed: ${err.message}`,'bad');$('#runBtn').disabled=false;return;}
   for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
-    const key=`${items[i].id}:${items[j].id}:${opt.trim?1:0}`;
-    let al=alnCache.get(key);if(!al){al=align(items[i].work,items[j].work);alnCache.set(key,al);}
+    const al=alnCache.get(keyOf(i,j));
     pairs.push({i,j,al,res:compareAln(al.a,al.b,items[i],items[j],opt)});
-    if(++done%15===0){$('#runBar').style.width=`${100*done/total}%`;$('#runInfo').textContent=`Aligning ${done} of ${total} pairs…`;await sleep(0);}
+    if(++done%400===0){$('#runBar').style.width=`${90+10*done/total}%`;$('#runInfo').textContent=`Comparing ${done.toLocaleString()} of ${total.toLocaleString()} pairs…`;await sleep(0);}
   }
   const pm=new Map();pairs.forEach(p=>pm.set(p.i+','+p.j,p));
   const getAln=(i,j)=>{if(i<j)return pm.get(i+','+j).al;const a=pm.get(j+','+i).al;return{a:a.b,b:a.a};};
   const sums=new Array(N).fill(0);pairs.forEach(p=>{const d=Number.isFinite(p.res.pct)?p.res.pct:50;sums[p.i]+=d;sums[p.j]+=d;});
   const center=sums.indexOf(Math.min(...sums));
   const msa=buildMSA(items,getAln,center);
-  const nearest={};
-  for(let k=0;k<N;k++){let best=null;for(const p of pairs){if(p.i!==k&&p.j!==k)continue;const o=p.i===k?p.j:p.i;const d=dist(p.res,opt.metric);if(!Number.isFinite(d))continue;if(!best||d<best.d)best={d,o};}
+  const nearest={},bestOf=new Array(N).fill(null);
+  for(const p of pairs){const d=dist(p.res,opt.metric);if(!Number.isFinite(d))continue;   // one pass, same pair order and tie rule as before
+    if(!bestOf[p.i]||d<bestOf[p.i].d)bestOf[p.i]={d,o:p.j};if(!bestOf[p.j]||d<bestOf[p.j].d)bestOf[p.j]={d,o:p.i};}
+  for(let k=0;k<N;k++){const best=bestOf[k];
     if(best){const me=items[k],ot=items[best.o];const gen=s=>(s.meta.taxon||s.group||'').split(/\s+/)[0].toLowerCase();nearest[me.id]={label:ot.label,d:best.d,otherGenus:gen(me)&&gen(ot)&&gen(me)!==gen(ot)};}}
-  state.analysis={items,pairs,msa,opt,nearest,groupsOf:items.map(s=>s.group)};
+  state.analysis={items,pairs,msa,opt,nearest,groupsOf:items.map(s=>s.group),only:only?only.size:0};
   $('#runBar').style.width='100%';setTimeout(()=>$('#runBar').style.width='0',600);
-  $('#runInfo').textContent=`${N} sequences, ${total} pairs, alignment ${msa.rows[0].length} columns (${((performance.now()-t0)/1000).toFixed(1)} s).`;
+  $('#runInfo').textContent=`${N} sequences${only?' (your A/B selection only)':''}, ${total.toLocaleString()} pairs, alignment ${msa.rows[0].length} columns (${((performance.now()-t0)/1000).toFixed(1)} s).`;
   $('#runBtn').disabled=false;
   renderSeqTable();renderResults();
 }
-$('#runBtn').addEventListener('click',runAnalysis);
+$('#runBtn').addEventListener('click',()=>runAnalysis());
 try{const tm=lsGet('itsbin.thrMode',null);if(tm)$('#setThrMode').value=tm;}catch(e){}
 $('#setThrMode').addEventListener('change',()=>{lsSet('itsbin.thrMode',$('#setThrMode').value);renderTakeaway();renderReport();});
 [...SET_IDS,'setTech'].forEach(id=>$('#'+id).addEventListener('change',()=>{lsSet('itsbin.settings',readSettings());if(state.analysis){$('#runInfo').textContent='Settings changed. Run the analysis again to apply them.';}}));
@@ -1211,7 +1320,7 @@ function groupStats(an,A,B,metric){
 /* ---------- results rendering ---------- */
 let currentRes='report';
 function renderResults(){
-  renderTakeaway();renderReport();renderPairs();renderMatrix();renderSites();
+  renderTakeaway();renderReport();renderPairs();renderMatrix();renderSites();if(typeof renderInatComment==='function')renderInatComment();
   if(currentRes==='aln')renderAln();else alnDirty=true;
 }
 let alnDirty=true;
@@ -1932,7 +2041,7 @@ $('#panel-export').addEventListener('click',e=>{
 $('#printBtn').addEventListener('click',()=>{$('#resTabs button[data-tab=report]').click();setTimeout(()=>window.print(),100);});
 $('#saveSession').addEventListener('click',()=>{
   const data={version:1,saved:new Date().toISOString(),settings:readSettings(),groupA:state.groupA,groupB:state.groupB,notes:state.notes,cal:state.cal,
-    seqs:state.seqs.map(s=>({key:s.key,source:s.source,label:s.label,url:s.url,group:s.group,baseGroup:s.baseGroup,hapBase:s.hapBase,hap:s.hap,hapN:s.hapN,meta:s.meta,include:s.include,reason:s.reason,seq:s.seq}))};
+    seqs:state.seqs.map(s=>({key:s.key,source:s.source,label:s.label,url:s.url,group:s.group,baseGroup:s.baseGroup,hapBase:s.hapBase,hap:s.hap,hapN:s.hapN,pick:s.pick,pickBase:s.pickBase,trimTag:s.trimTag,prevReason:s.prevReason,meta:s.meta,include:s.include,reason:s.reason,seq:s.seq}))};
   download(`its_session_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(data),'application/json');
 });
 $('#loadSession').addEventListener('change',e=>{
@@ -1945,6 +2054,196 @@ $('#loadSession').addEventListener('change',e=>{
   catch(err){log(`That file isn't a valid session: ${err.message}`,'bad');}};
   r.readAsText(f);e.target.value='';
 });
+
+
+/* ---------- 2026-11-22: pick any sequences as A or B ---------- */
+function picks(){const A=state.seqs.filter(s=>s.pick==='A'),B=state.seqs.filter(s=>s.pick==='B');return{A,B};}
+function renderPickBar(){
+  const {A,B}=picks(),bar=$('#pickBar');if(!bar)return;
+  $('#pickCount').innerHTML=A.length||B.length?`Picked: <b>${A.length}</b> as A, <b>${B.length}</b> as B.`:'';
+  $('#pickRest').disabled=!A.length;$('#pickGo').disabled=!(A.length&&B.length);$('#pickClear').disabled=!(A.length||B.length);
+  $('#pickRestore').hidden=!state.seqs.some(s=>s.pickBase!=null);
+}
+function pickName(list,letter){
+  if(list.length===1){const s=list[0];return `${letter}: ${s.label}${s.meta.taxon?` (${s.meta.taxon})`:''}`;}
+  const names=[...new Set(list.map(s=>s.pickBase??s.group))];
+  return names.length===1?`${letter}: ${names[0]} (${list.length})`:`${letter}: selection of ${list.length}`;
+}
+$('#pickRest').addEventListener('click',()=>{
+  const f=$('#seqFilter').value,tf=$('#techFilter').value;let n=0;
+  state.seqs.forEach(s=>{if(s.pick!=='A'&&s.include&&(!f||s.group===f)&&(!tf||s.tech===tf)){s.pick='B';n++;}});
+  log(`${n} other included sequence${n===1?'':'s'}${f||tf?' in the current view':''} picked as B.`,'good');renderSeqTable();
+});
+$('#pickClear').addEventListener('click',()=>{state.seqs.forEach(s=>{delete s.pick;});renderSeqTable();});
+$('#pickRestore').addEventListener('click',()=>{
+  let n=0;state.seqs.forEach(s=>{if(s.pickBase!=null){s.group=s.pickBase;delete s.pickBase;n++;}});
+  log(`Restored the original groups of ${n} sequence${n===1?'':'s'}.`,'good');renderAll();markStale();
+});
+$('#pickGo').addEventListener('click',()=>{
+  const {A,B}=picks();if(!A.length||!B.length)return;
+  state.seqs.forEach(s=>{if(s.pickBase!=null&&!s.pick){s.group=s.pickBase;delete s.pickBase;}});   // earlier picks not picked now go home
+  const nA=pickName(A,'A'),nB=pickName(B,'B');
+  for(const s of A){if(s.pickBase==null)s.pickBase=s.group;s.group=nA;s.include=true;}
+  for(const s of B){if(s.pickBase==null)s.pickBase=s.group;s.group=nB;s.include=true;}
+  state.groupA=nA;state.groupB=nB;renderAll();
+  log(`Comparing your selection: ${A.length} as A and ${B.length} as B. Other sequences are left out of this run; “Restore groups” puts everything back.`,'good');
+  runAnalysis({only:new Set([...A,...B].map(s=>s.id))}).then(()=>{const c=$('#takeawayCard');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});});
+});
+
+/* ---------- 2026-11-22: trim a large set ---------- */
+let trimPlan=null;
+function openTrim(){const d=$('#trimBox');if(d){d.open=true;renderTrimCount();d.scrollIntoView({behavior:'smooth',block:'center'});}}
+function renderTrimCount(){
+  const el=$('#trimCount');if(!el)return;const inc=state.seqs.filter(s=>s.include).length;
+  el.textContent=`${inc} sequence${inc===1?'':'s'} included${inc>MAX_RUN?` · over the ${MAX_RUN} limit for one run`:inc>LARGE_RUN?' · over 150: a run will take longer':''}`;
+  el.className=inc>MAX_RUN?'small flag bad':'small muted';
+  if(inc>MAX_RUN&&$('#trimBox'))$('#trimBox').open=true;
+  const g=$('#trimGroup'),cur=g.value;g.innerHTML='<option value="">All groups</option>'+groups().map(x=>`<option${x===cur?' selected':''}>${esc(x)}</option>`).join('');
+  const t=$('#trimTech'),ct=t.value;t.innerHTML=techs().map(x=>`<option${x===ct?' selected':''}>${esc(x)}</option>`).join('');
+  $('#trimUndo').disabled=!state.seqs.some(s=>s.trimTag);
+}
+const sDate=s=>/^\d{4}/.test(s.meta.date||'')?s.meta.date:'';
+const isTypeSeq=s=>s.meta.gbStatus==='type';
+function keepRank(s){return(isTypeSeq(s)?8:0)+((s.meta.vouchers||[]).length?4:0)+(s.tech==='Sanger'?2:0);}
+function planTrim(){
+  const scope=$('#trimGroup').value,max=Math.max(2,Math.min(MAX_RUN,+$('#trimMax').value||150)),protect=$('#trimKeepTypes').checked;
+  const inScope=s=>s.include&&(!scope||s.group===scope);
+  const cand=state.seqs.filter(inScope);const drop=new Map();
+  const can=s=>!drop.has(s.id)&&!(protect&&(isTypeSeq(s)||s.pick));
+  const mark=(s,why)=>{if(can(s))drop.set(s.id,{s,why});};
+  const r=s=>s.regions||{};
+  if($('#trimQC').checked)cand.forEach(s=>{if(r(s).s58Start==null||r(s).its2Start==null)mark(s,'QC: 5.8S not found');else if(s.qc.npct>1)mark(s,`QC: ${s.qc.npct.toFixed(1)}% N`);});
+  if($('#trimPartial').checked)cand.forEach(s=>{if(r(s).its1Start==null||r(s).its2End==null)mark(s,`partial read: ${r(s).its1Start==null?'start of ITS1':'end of ITS2'} missing`);});
+  if($('#trimLen').checked)cand.forEach(s=>{if(s.qc.len<350)mark(s,'short (under 350 bp)');else if(s.qc.len>1500)mark(s,'long (over 1,500 bp)');});
+  if($('#trimAmb').checked)cand.forEach(s=>{if(s.qc.amb>=3)mark(s,`${s.qc.amb} ambiguity codes`);});
+  if($('#trimPlaceOn').checked){const terms=$('#trimPlace').value.split(/[;\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+    if(terms.length)cand.forEach(s=>{const p=(s.meta.place||'').toLowerCase();if(p&&!terms.some(t=>p.includes(t)))mark(s,`place: ${s.meta.place}`);});}
+  if($('#trimTechOn').checked){const keep=$('#trimTech').value;cand.forEach(s=>{if(s.tech!==keep)mark(s,`technology: ${s.tech}`);});}
+  if($('#trimDup').checked){const per=Math.max(1,+$('#trimDupN').value||2),byKey=new Map();
+    cand.filter(s=>!drop.has(s.id)).forEach(s=>{const k=s.group+'\u0000'+s.seq;(byKey.get(k)||byKey.set(k,[]).get(k)).push(s);});
+    for(const list of byKey.values()){if(list.length<=per)continue;
+      list.sort((a,b)=>keepRank(b)-keepRank(a)||sDate(b).localeCompare(sDate(a))||a.id-b.id);
+      list.slice(per).forEach(s=>mark(s,`identical copy (${list.length} identical in the group; ${per} kept)`));}}
+  const left=()=>cand.filter(s=>!drop.has(s.id));
+  let short=0;
+  if($('#trimOld').checked){
+    const totalIncluded=()=>state.seqs.filter(s=>s.include&&!drop.has(s.id)).length;
+    const target=scope?max:max;const count=scope?()=>left().length:totalIncluded;
+    while(count()>target){
+      const byG=new Map();left().forEach(s=>{(byG.get(s.group)||byG.set(s.group,[]).get(s.group)).push(s);});
+      const gs=[...byG.entries()].sort((a,b)=>b[1].length-a[1].length);let took=false;
+      for(const [,list] of gs){const dated=list.filter(s=>sDate(s)&&can(s)).sort((a,b)=>sDate(a).localeCompare(sDate(b))||a.id-b.id);
+        if(dated.length){mark(dated[0],`oldest (${dated[0].meta.date})`);took=true;break;}}
+      if(!took)break;}
+  }
+  const remainAll=state.seqs.filter(s=>s.include&&!drop.has(s.id)).length,remainScope=left().length;
+  if((scope?remainScope:remainAll)>max)short=(scope?remainScope:remainAll)-max;
+  return{drop:[...drop.values()],remainAll,remainScope,scope,max,short};
+}
+$('#trimPreview').addEventListener('click',()=>{
+  trimPlan=planTrim();const P=trimPlan,box=$('#trimResult');
+  const byWhy=new Map();P.drop.forEach(d=>{const k=d.why.replace(/:.*$|\s*\(.*$/,'');byWhy.set(k,(byWhy.get(k)||0)+1);});
+  box.innerHTML=`<p><b>${P.drop.length}</b> sequence${P.drop.length===1?'':'s'} would be excluded${byWhy.size?`: ${[...byWhy.entries()].map(([k,v])=>`${v} ${esc(k)}`).join(', ')}`:''}. <b>${P.scope?P.remainScope:P.remainAll}</b> would remain ${P.scope?`in ${esc(P.scope)} (${P.remainAll} in all)`:'included'}.</p>`
+    +(P.short?`<p class="flag warn">Still ${P.short} over your limit of ${P.max}. Tick more rules, lower the copies kept per haplotype, or untick “Never drop type material”.</p>`:'')
+    +(P.drop.length?`<details><summary>Show the list</summary><ol class="trimlist">${P.drop.map(d=>`<li>${esc(d.s.label)} <span class="muted">· ${esc(d.s.group)} · ${esc(d.why)}</span></li>`).join('')}</ol></details>`:'');
+  $('#trimApply').disabled=!P.drop.length;
+});
+['trimGroup','trimMax','trimKeepTypes','trimQC','trimPartial','trimLen','trimAmb','trimDup','trimDupN','trimPlaceOn','trimPlace','trimTechOn','trimTech','trimOld'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('change',()=>{trimPlan=null;$('#trimApply').disabled=true;$('#trimResult').innerHTML='<p class="muted">Settings changed: press Preview.</p>';});});
+$('#trimApply').addEventListener('click',()=>{
+  if(!trimPlan)return;const tag=Date.now();
+  state.seqs.forEach(s=>{if(s.trimTag)delete s.trimTag;});   // undo covers the latest trim only
+  trimPlan.drop.forEach(({s,why})=>{s.prevReason=s.reason;s.include=false;s.reason=`Trimmed: ${why}`;s.trimTag=tag;});
+  log(`Excluded ${trimPlan.drop.length} sequences. ${state.seqs.filter(s=>s.include).length} remain included.`,'good');
+  trimPlan=null;$('#trimApply').disabled=true;$('#trimResult').innerHTML='';renderAll();markStale();
+});
+$('#trimUndo').addEventListener('click',()=>{
+  let n=0;state.seqs.forEach(s=>{if(s.trimTag){s.include=true;s.reason=s.prevReason||'';delete s.trimTag;delete s.prevReason;n++;}});
+  log(`Undo: ${n} sequence${n===1?'':'s'} included again.`,'good');renderAll();markStale();
+});
+
+/* ---------- 2026-11-22: comment for iNaturalist ---------- */
+const TOOL_URL='https://mycoview.com/investigate/its-bin-comparator/';
+function voucherOf(m){   // the specimen, not the collector: herbarium + catalogue number, else a voucher number
+  const f=(re)=>{const x=(m.vouchers||[]).find(v=>re.test(String(v).split(':')[0]));return x?String(x).replace(/^[^:]*:\s*/,'').trim():'';};
+  const herb=f(/^herbarium name$/i),cat=f(/herbarium catalog(ue)? number$/i);
+  if(cat)return `${herb?herb+' ':''}${cat}`;
+  return f(/^voucher number/i)||f(/^voucher$/i)||f(/^fungarium|^accession/i);
+}
+const REGIONS=new Set('Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware Florida Georgia Hawaii Idaho Illinois Indiana Iowa Kansas Kentucky Louisiana Maine Maryland Massachusetts Michigan Minnesota Mississippi Missouri Montana Nebraska Nevada|New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota Ohio Oklahoma Oregon Pennsylvania|Rhode Island|South Carolina|South Dakota Tennessee Texas Utah Vermont Virginia Washington|West Virginia Wisconsin Wyoming Alberta|British Columbia Manitoba|New Brunswick|Newfoundland and Labrador|Nova Scotia Ontario|Prince Edward Island Quebec Québec Saskatchewan Yukon'.split(/\|| (?=[A-Z])/).map(x=>x.trim().toLowerCase()));
+function shortPlace(p){   // state/province and country only: never a street address
+  p=String(p||'').trim();if(!p)return'';
+  const clean=x=>x.split(',').map(y=>y.trim()).filter(y=>y&&!/\d/.test(y));
+  if(/^[^,]{2,40}:/.test(p)){const [c,rest]=p.split(/:(.*)/s);const reg=clean(rest||'').find(x=>REGIONS.has(x.toLowerCase()));return reg?`${reg}, ${c.trim()}`:c.trim();}
+  const parts=clean(p),reg=parts.find(x=>REGIONS.has(x.toLowerCase()));
+  return reg?`${reg}, ${parts[parts.length-1]}`.replace(new RegExp(`^${reg}, ${reg}$`),reg):parts.slice(-2).join(', ');
+}
+function seqName(s,md){
+  const m=s.meta,link=md&&s.url?`[${s.label}](${s.url})`:s.label;
+  if(isTypeSeq(s))return `${link}, ${m.gbStatusLabel||'type material'}`;
+  return m.taxon&&!s.label.includes(m.taxon)?`${link} (${md?`*${m.taxon}*`:m.taxon})`:link;
+}
+function seqRef(s,md){
+  const m=s.meta,vo=voucherOf(m),hasVo=vo&&s.label.replace(/[:\s]/g,'').includes(vo.replace(/[:\s]/g,''));
+  const det=[shortPlace(m.place),m.date,s.tech!=='Not recorded'?s.tech:'',vo&&!hasVo?`voucher ${vo}`:''].filter(Boolean).join(', ');
+  return `${seqName(s,md)}${det?` — ${det}`:''}`;
+}
+function inatComment(fmtMd,full){
+  const t=takeawayData();if(!t||!t.dAB.length)return null;
+  const x=takeawayText(t),b=s=>fmtMd?`**${s}**`:s,i=s=>fmtMd?`*${s}*`:s,L=[],li=s=>L.push(`- ${s}`);
+  const one=t.itA.length===1&&t.itB.length===1;
+  const md=Math.round(median(t.dAB)),lo=Math.min(...t.dAB),hi=Math.max(...t.dAB),len=Math.round(median(t.LAB));
+  const pct=t.pair?t.pair.med:100*md/len;
+  const desc=(g,list)=>{if(list.length===1)return seqName(list[0],fmtMd);
+    const homes=new Map();list.forEach(s=>{const h=s.pickBase??s.group;homes.set(h,(homes.get(h)||0)+1);});
+    const name=g.replace(/^[AB]: /,'');
+    if(homes.size===1){const h=[...homes.keys()][0];return `${i(h)} (${list.length} sequences)`;}
+    return `${list.length} sequences (${[...homes.entries()].map(([h,n])=>`${h} ${n}`).join(', ')})`;};
+  L.push(b(`ITS comparison: ${desc(t.A,t.itA)} vs ${desc(t.B,t.itB)}`));L.push('');
+  L.push(`${b('Result:')} ${x.plain}`);L.push('');
+  if(one){const r=t.an.pairs.find(p=>(t.an.items[p.i].group===t.A&&t.an.items[p.j].group===t.B)||(t.an.items[p.i].group===t.B&&t.an.items[p.j].group===t.A)).res;
+    const hpTxt=r.hp?`; ${r.hp} homopolymer-length difference${r.hp===1?'':'s'}${t.opt.ignoreHP?', not counted':''}`:'';
+    const indTxt=r.indelEvents>0?`, ${r.indelEvents} indel event${r.indelEvents===1?'':'s'}`:'';
+    li(md===0?`Identical over ~${len} bp of ITS1–5.8S–ITS2${hpTxt}.`:`They differ by ${nBases(md)} (${fmt(pct,1)}%) over ~${len} bp of ITS1–5.8S–ITS2: ${nBases(r.subs)} substituted${indTxt}${hpTxt}.`);
+    li(`By region: ITS1 ${r.reg.ITS1.d}, 5.8S ${r.reg['5.8S'].d}, ITS2 ${r.reg.ITS2.d}.`);
+    li('One sequence on each side cannot show how variable either taxon is; add more sequences of each before drawing conclusions.');
+  }else{
+    li(`Typical difference between the groups: ${nBases(md)} (${fmt(pct,1)}%) over ~${len} bp of ITS1–5.8S–ITS2${lo===hi?'':` (range ${lo}–${hi})`}.`);
+    const iA=t.dA.length?Math.max(...t.dA):null,iB=t.dB.length?Math.max(...t.dB):null;
+    const side=(n,len,lt)=>len===1?`${lt} is a single sequence`:n===0?`the ${lt} sequences are identical`:`within ${lt}, sequences differ by up to ${n}`;
+    const w=`${side(iA,t.itA.length,'A')}; ${side(iB,t.itB.length,'B')}`;
+    li(`${w.charAt(0).toUpperCase()+w.slice(1)}. ${lo>Math.max(iA||0,iB||0)?'The groups do not overlap: every A–B pair differs more than any two sequences within a group.':'The groups overlap: some A–B pairs are as close as sequences within a group.'}`);
+    if(t.itA.length>1&&t.itB.length>1)li(t.fx.total?`Consistent differences (every A sequence one base, every B sequence another): ${t.fx.total}${t.regs.length?` (${t.regs.map(([k,v])=>`${k} ${v}`).join(', ')})`:''}.`:'No difference is consistent across every sequence in both groups.');
+  }
+  if(t.cal&&x.std)li(`Yardstick for ${i(t.cal.genus)}: ${x.std.verdict}`);else li(`Yardstick: no genus standard built, so the general ${fmt(t.thrE.pct,1)}% cutoff was used; genera differ a lot.`);
+  const types=t.types;
+  if(types.length){const kinds=[...new Set(types.map(s=>s.meta.gbStatusLabel||'type material'))];
+    li(types.length===1?`Type material included: ${seqName(types[0],fmtMd)}.`:`Type material included: ${types.length} sequences (${kinds.join('; ')}), listed below.`);
+    // closest type sequence to the other side, as a plain fact
+    const an=t.an,tid=new Set(types.map(s=>s.id));let best=null;
+    for(const p of an.pairs){const a=an.items[p.i],c=an.items[p.j],r=p.res;if(!r.L)continue;
+      const ty=tid.has(a.id)?a:tid.has(c.id)?c:null,ot=ty===a?c:a;if(!ty||tid.has(ot.id)||ot.group===ty.group)continue;
+      if(!best||r.d<best.d)best={d:r.d,pct:r.pct,ty,ot};}
+    if(best)li(`Closest type sequence: ${best.ty.label} is ${best.d===0?'identical to':`${nBases(best.d)} (${fmt(best.pct,1)}%) from`} ${best.ot.label}.`);
+  }else li('No type sequence was included, so the name on side B is not anchored to its type.');
+  const cav=x.items.filter(k=>k[0]==='warn'&&!/type sequence|groups overlap|None of the differences/i.test(k[1])).map(k=>k[1]);if(cav.length&&!one)cav.slice(0,2).forEach(c=>li(`Caution: ${c}`));
+  L.push('');L.push(`${b('Suggested next step:')} ${x.next}`);
+  const listSide=(g,list)=>{const max=full?40:5;const out=list.slice(0,max).map(s=>seqRef(s,fmtMd));return `${g}: ${out.join('; ')}${list.length>max?`; +${list.length-max} more`:''}`;};
+  L.push('');L.push(b('Sequences compared'));li(listSide('A',t.itA));li(listSide('B',t.itB));
+  if(full){const o=t.opt;L.push('');L.push(b('Methods'));
+    li(`Pairwise alignment (affine gaps, free end gaps), ${o.metric==='k2p'?'K2P distance':'p-distance'}; indels counted ${o.indelMode==='events'?'once per event':o.indelMode==='bases'?'once per base':'not at all'}; ${o.ignoreHP?'homopolymer-length indels ignored':'homopolymer indels counted'}; ambiguity codes ${o.ambMode==='compatible'?'matched where compatible':o.ambMode==='mismatch'?'counted as differences':'ignored'}; ${o.trim?'trimmed to ITS1–5.8S–ITS2':'whole reads'}.`);
+    li(`Recommendation: ${t.rec.label} (confidence ${t.rec.conf}; cutoff ${fmt(t.thrE.pct,2)}% from ${t.thrE.src}).`);
+    const techA=[...new Set(t.itA.map(s=>s.tech))].join(', '),techB=[...new Set(t.itB.map(s=>s.tech))].join(', ');li(`Sequencing: A ${techA}; B ${techB}.`);}
+  L.push('');L.push(i(`ITS similarity alone does not establish species identity. Compared with the MycoView ITS Bin Comparator, ${(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`)(new Date())}: ${TOOL_URL}`));
+  return L.join('\n');
+}
+function renderInatComment(){const box=$('#inatBox');if(!box||box.hidden)return;
+  const txt=inatComment($('#inatFmt').value==='md',$('#inatLen').value==='full');
+  $('#inatText').textContent=txt||'Run the analysis and choose two groups first.';$('#inatCopy').disabled=!txt;}
+$('#inatOpen').addEventListener('click',()=>{const box=$('#inatBox');box.hidden=!box.hidden;renderInatComment();if(!box.hidden)box.scrollIntoView({behavior:'smooth',block:'nearest'});});
+['inatFmt','inatLen'].forEach(id=>$('#'+id).addEventListener('change',renderInatComment));
+$('#inatCopy').addEventListener('click',async()=>{const txt=$('#inatText').textContent;
+  try{await navigator.clipboard.writeText(txt);$('#inatCopy').textContent='Copied';setTimeout(()=>$('#inatCopy').textContent='Copy comment',1500);}
+  catch(e){const r=document.createRange();r.selectNodeContents($('#inatText'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);log('Your browser blocked copying. The comment is selected; press Ctrl+C (or Cmd+C).','warn');}});
 
 /* ---------- examples (synthetic) ---------- */
 function makeExamples(){
@@ -2253,6 +2552,10 @@ $('#tfResults').addEventListener('click',e=>{
 
 /* ---------- hover bubbles ---------- */
 const TIPS={
+ pickRest:'Picks every other included sequence in the current view as B. Use it to compare one observation (A) with everything else.',
+ pickGo:'Runs the analysis on the picked sequences only: A against B. Their groups are renamed for the run; “Restore groups” puts them back.',
+ pickRestore:'Puts every picked sequence back in the group it had before “Compare A vs B”.',
+ inatComment:'A comment written for identifiers, ready to paste on an iNaturalist observation.',
  srcLive:'Green means this page can pull data from the site directly. Red means the site could not be reached; check your internet connection, or that you opened the file in a normal browser tab.',
  tfNames:'Species to search. Use the name as published; NCBI also matches its own listed synonyms.',
  gsGenus:'The genus to survey. The species list comes from GBIF, which draws on Index Fungorum and other checklists.',
@@ -3092,7 +3395,7 @@ function renderAll(){renderGroups();renderSeqTable();renderResults();}
   checkSources();
 })();
 </script>
-<!-- MycoView website add-on: guided tours (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-15.html (SHA-256 recorded in the engine repository). -->
+<!-- MycoView website add-on: guided tours (tour.js). Not part of the frozen Comparator, its-bin-comparator.2026-11-22.html (SHA-256 recorded in the engine repository). -->
 <script src="tour.js" defer></script>
 </body>
 </html>

@@ -152,3 +152,4 @@ html[data-tier="lab"][data-theme="night"] .xp-seq .its1 { background: #2F5B4A !i
 html[data-tier="lab"][data-theme="night"] .xp-seq .s58 { background: #5E4E2C !important; }
 html[data-tier="lab"][data-theme="night"] .xp-seq .its2 { background: #34466E !important; }
 html[data-tier="lab"] .xp-seq .flank { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .personal-intro :is(p, li, a, strong) { color: var(--ds-ink) !important; }

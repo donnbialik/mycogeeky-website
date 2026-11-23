@@ -22,9 +22,10 @@ the question link must be a page on this site (starting with `/`) or an `https:/
 
 ## One-time setup (owner, Cloudflare dashboard)
 
-1. **Storage:** Storage & Databases → KV → Create a namespace, e.g. `mycoview-site`.
-2. **Binding:** Workers & Pages → `mycogeeky-website` → Settings → Bindings → Add → KV namespace, variable name `SITE`,
-   namespace `mycoview-site`. Add it for **Production** and for **Preview**.
+1. **Storage:** Storage & Databases → KV → two namespaces: `mycoview-site` (live) and `mycoview-site-preview` (previews).
+2. **Binding:** Workers & Pages → `mycogeeky-website` → Settings → Bindings → KV namespace, variable name `SITE`:
+   **Production** → `mycoview-site`; **Preview** → `mycoview-site-preview`. Keeping them separate means a feature saved
+   while testing on a preview address never changes the live homepage. (Set up 22–23 Nov 2026.)
 3. **Sign-in on the live site:** in Zero Trust → Access → Applications, make sure an application covers
    `mycoview.com/admin` and `mycoview.com/api/admin` with a policy that allows only your e-mail.
    (Preview addresses on `*.mycogeeky-website.pages.dev` are already covered by the Explorer's application.)

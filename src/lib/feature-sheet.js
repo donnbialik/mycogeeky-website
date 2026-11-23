@@ -122,45 +122,38 @@ export function renderSheet(f, opts = {}) {
   const inat = `https://www.inaturalist.org/observations/${f.id}`;
   const its = f.its;
   const itsLine = readsLine(its);
-  const determined = its ? (f.provisional ? 'ITS barcode (provisional)' : 'ITS barcode') : 'iNaturalist community';
+  const determined = its ? 'ITS barcode' : 'iNaturalist community';
+  const stamp = f.provisional ? '<p class="sheet-stamp" role="note"><b>PROVISIONAL</b><span>not yet formally described</span></p>' : '';
   const credit = f.photo && f.photo.credit ? `<figcaption class="sheet-credit">${esc(f.photo.credit)}</figcaption>` : '';
   const scale = opts.scaleHtml
     ? `<div class="sheet-scale">${opts.scaleHtml}</div>`
     : `<div class="sheet-scale"><div class="sheet-ruler"><div class="sheet-ruler-bar">${scaleSvg()}</div><span class="sheet-code">MYCOVIEW</span></div><div class="sheet-cc">${colourCardSvg()}</div></div>`;
   return `<figure class="sheet" aria-label="Specimen sheet for ${esc(f.name)}">
 ${scale}
-<div class="sheet-row">
+<div class="sheet-body">
   <figure class="sheet-print"><div class="sheet-crop">${opts.photoHtml || featurePhotoHtml(f)}</div>${credit}
     <a class="sheet-voucher" href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="Voucher ${voucherNumber(f.id)}: iNaturalist observation ${f.id}, opens in a new tab">${voucherSlipSvg(f.id)}</a></figure>
-  ${its ? `<div class="sheet-card sheet-typed">
-    <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p><hr>
-    <p><u>${esc(genus.toUpperCase())}</u> ${restTyped}</p>
-    <p class="ind">ITS, ${its.length} bp.</p>
-    ${itsLine ? `<p class="ind">${esc(itsLine)}.</p>` : ''}
-    ${its.plate ? `<p class="ind">Mycota Lab plate ${esc(its.plate)}.</p>` : ''}
-  </div>` : ''}
-</div>
-<div class="sheet-row">
-  <div class="sheet-card sheet-slip">
-    <div class="slip-left">
-      <p class="slip-title">FIELD DATA SLIP</p>
-      <p class="slip-org">MycoView Field Station · Northeast Ohio</p>
-      <p class="slip-num"><b>#</b><span>${voucherNumber(f.id)}</span></p>
-      <p class="slip-cap">Voucher number</p>
+  <div class="sheet-labels">
+    ${its ? `<div class="sheet-card sheet-typed">
+      <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p><hr>
+      <p><u>${esc(genus.toUpperCase())}</u> ${restTyped}</p>
+      <p class="ind">ITS, ${its.length} bp.</p>
+      ${itsLine ? `<p class="ind">${esc(itsLine)}.</p>` : ''}
+      ${its.plate ? `<p class="ind">Mycota Lab plate ${esc(its.plate)}.</p>` : ''}
+      ${stamp}
+    </div>` : ''}
+    <div class="sheet-slip">
+      <div class="slip-head"><p class="slip-title">FIELD DATA SLIP</p><p class="slip-org">MycoView Field Station · NE Ohio</p></div>
+      <div class="slip-id"><b>iNat#</b><a href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="iNaturalist observation ${f.id}, opens in a new tab">${f.id}</a></div>
+      ${its ? '' : `<p class="slip-species"><b>Species</b><span><i>${esc(genus)}</i> ${esc(rest)}</span></p>`}
       <dl class="slip-rows">
         ${f.observed ? `<div><dt>Date</dt><dd>${esc(f.observed)}</dd></div>` : ''}
         ${f.locality ? `<div><dt>Locality</dt><dd>${esc(f.locality)}</dd></div>` : ''}
         ${f.collector ? `<div><dt>Collected By</dt><dd>${esc(f.collector)}</dd></div>` : ''}
         <div><dt>ID By</dt><dd>${esc(determined)}</dd></div>
+        ${f.habitat ? `<div class="slip-notes"><dt>Field notes</dt><dd>${esc(f.habitat)}</dd></div>` : ''}
       </dl>
-    </div>
-    <div class="slip-right">
-      <div class="slip-id"><p><b>iNat#</b><a href="${inat}" target="_blank" rel="noopener noreferrer">${f.id}</a></p><p class="slip-cap">Permanent record (for sequencing &amp; vouchering)</p></div>
-      <p class="slip-species"><b>Species</b><span><u><i>${esc(genus)}</i></u> ${esc(rest)}</span></p>
-      ${f.habitat || f.provisional ? `<div class="slip-cols${f.habitat && f.provisional ? '' : ' slip-one'}">
-        ${f.habitat ? `<div><p class="slip-h">Field notes</p><p>${esc(f.habitat)}</p></div>` : ''}
-        ${f.provisional ? '<div><div class="sheet-provisional"><p>PROVISIONAL</p><p>not yet formally described</p></div></div>' : ''}
-      </div>` : ''}
+      ${its ? '' : stamp}
     </div>
   </div>
 </div>

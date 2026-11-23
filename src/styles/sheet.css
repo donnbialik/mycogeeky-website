@@ -1,33 +1,65 @@
 /* Specimen sheet (src/lib/feature-sheet.js). Global so the server-swapped and admin-preview sheets are styled too. */
-.sheet { margin: 0; background: var(--ds-paper-sheet); color: var(--ds-paper-ink); padding: 22px; box-shadow: var(--ds-shadow-sheet); display: flex; flex-direction: column; gap: 18px; }
+.sheet { container-type: inline-size; margin: 0; background: var(--ds-paper-sheet); color: var(--ds-paper-ink); padding: 22px; box-shadow: var(--ds-shadow-sheet); display: flex; flex-direction: column; gap: 18px; }
 .sheet figure { margin: 0; }
 .sheet-scale { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
 .sheet-scale > img { display: block; width: 100%; height: auto; }
-.sheet-ruler { flex: 1 1 300px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; background: var(--ds-paper-card); }
+.sheet-ruler { flex: 1 1 300px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; background: var(--ds-paper-card); transform: rotate(-.5deg); box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 1px rgba(0,0,0,.18), 0 3px 4px rgba(0,0,0,.14), 0 10px 18px -8px rgba(0,0,0,.35); }
 .sheet-ruler-bar { flex: 1 1 240px; min-width: 0; }
 .sheet-ruler-bar svg { display: block; width: 100%; height: auto; }
 .sheet-code { margin: 10px 14px; border: 1.5px solid var(--ds-scale-black); padding: 6px 12px; font-family: var(--ds-font-display); font-size: 22px; font-weight: 500; background: var(--ds-paper-card); }
-.sheet-cc { flex: none; }
+.sheet-cc { flex: none; transform: rotate(1.2deg); border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 1px 1px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 12px 20px -8px rgba(0,0,0,.4); }
 .sheet-cc svg { display: block; }
-.sheet-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
-.sheet-print { flex: 1 1 340px; min-width: 0; background: var(--ds-paper-card); padding: 8px; box-shadow: var(--ds-shadow-card); }
-.sheet-crop { aspect-ratio: 4 / 3; overflow: hidden; }
+/* Body: photo print on the left; the labels (DNA card, stamp, field slip) on the right, like a mounted herbarium sheet. */
+.sheet-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; align-items: stretch; }
+.sheet-print { position: relative; display: flex; flex-direction: column; margin: 0 0 14px; background: var(--ds-paper-card); padding: 8px; box-shadow: var(--ds-shadow-card); }
+.sheet-crop { aspect-ratio: 3 / 2; overflow: hidden; }
 .sheet-crop img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .sheet-credit { font-family: var(--ds-font-body); font-size: 12px; color: var(--ds-paper-ink-muted); padding: 6px 2px 0; }
-.sheet-card { flex: 1 1 260px; min-width: 0; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 16px 20px 14px; font-family: var(--ds-font-mono); font-size: 15px; line-height: 1.45; }
-.sheet-form { flex: 1 1 340px; background: var(--ds-paper-card-warm); }
+/* Keep the photo credit (licence) clear of the slip. */
+.sheet-print .sheet-credit { padding-right: calc(clamp(140px, 40%, 210px) - 4px); }
+.sheet-labels { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; min-width: 0; }
+.sheet-card { position: relative; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 16px 20px 16px; font-family: var(--ds-font-mono); font-size: 15px; line-height: 1.45; }
 .sheet-card p { margin: 0; max-width: none; font-size: 15px; line-height: 1.45; }
 .sheet-card .ind { padding-left: 2ch; }
 .sheet-card .sheet-card-head { text-align: center; font-family: var(--ds-font-display); font-stretch: 68%; font-weight: 800; font-size: 16px; letter-spacing: .05em; }
 .sheet-card hr { width: 110px; margin: 8px auto 12px; border: 0; border-top: 2px solid var(--ds-paper-ink); }
-.sheet-line { display: flex; gap: 12px; align-items: baseline; }
-.sheet-line span { flex: none; width: 112px; font-family: var(--ds-font-display); font-weight: 700; font-size: 12px; letter-spacing: .06em; }
-.sheet-side { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-.sheet-provisional { align-self: stretch; border: 10px solid var(--ds-label-red); background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 12px 16px; font-family: var(--ds-font-mono); }
-.sheet-provisional p { margin: 0; font-size: 15px; }
-.sheet-provisional p:first-child { font-weight: 700; font-size: 20px; letter-spacing: .04em; }
-.sheet-sticker { display: block; width: 220px; background: var(--ds-paper-card); box-shadow: var(--ds-shadow-card); padding: 8px 12px 6px; text-align: center; text-decoration: none; color: inherit; }
-.sheet-sticker svg { display: block; width: 100%; height: 34px; fill: var(--ds-scale-black); }
-.sheet-sticker-head { display: block; font-size: 12px; margin-bottom: 4px; }
-.sheet-sticker-num { display: block; font-size: 13px; letter-spacing: .08em; margin-top: 3px; }
-@media (max-width: 480px) { .sheet { padding: 14px; gap: 14px; } .sheet-sticker { width: 180px; } }
+.sheet-typed { padding-bottom: 46px; }
+.sheet-typed u { white-space: nowrap; }
+/* Determination stamp: red ink, rotated, a little uneven, overlapping the card's lower edge. */
+.sheet-stamp { position: absolute; right: 14px; bottom: -16px; transform: rotate(-7deg); margin: 0; padding: 5px 12px 6px; border: 3px solid var(--ds-label-red); outline: 1.5px solid var(--ds-label-red); outline-offset: 2px; color: var(--ds-label-red); text-align: center; mix-blend-mode: multiply; -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 2.05'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23m)'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 2.05'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23m)'/%3E%3C/svg%3E"); }
+.sheet-stamp b { display: block; font-family: var(--ds-font-display); font-stretch: 75%; font-weight: 800; font-size: 24px; letter-spacing: .08em; line-height: 1.1; }
+.sheet-stamp span { display: block; font-family: var(--ds-font-mono); font-size: 11.5px; line-height: 1.2; }
+/* Field data slip: a small paper card glued on the sheet. */
+.sheet-slip { position: relative; background: #F6F1E2  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85 .4' numOctaves='3' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .36 0 0 0 0 .28 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); background-blend-mode: multiply; box-shadow: var(--ds-shadow-card); border: 1.5px solid var(--ds-paper-ink); transform: rotate(.6deg); font-family: var(--ds-font-mono); color: var(--ds-paper-ink); }
+.sheet-slip b { font-family: var(--ds-font-display); font-weight: 800; }
+.sheet-slip p { margin: 0; max-width: none; }
+.slip-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; padding: 9px 12px 4px; }
+.sheet-slip .slip-title { font-family: var(--ds-font-display); font-stretch: 68%; font-weight: 800; font-size: 15px; letter-spacing: .05em; }
+.sheet-slip .slip-org { font-family: var(--ds-font-display); font-size: 11.5px; letter-spacing: .03em; }
+.slip-id { display: flex; gap: 12px; align-items: baseline; border: 2.5px solid var(--ds-paper-ink); margin: 2px 8px 8px; padding: 5px 10px; font-size: 16px; }
+.slip-id b { font-size: 17px; }
+.slip-id a { color: inherit; }
+.slip-species { display: flex; gap: 10px; align-items: baseline; padding: 0 12px 8px; font-size: 14px; }
+.slip-species b { font-size: 12px; }
+.slip-rows { margin: 0; }
+.slip-rows > div { display: flex; gap: 10px; align-items: baseline; border-top: 1px solid var(--ds-paper-ink); padding: 5px 12px; }
+.slip-rows dt { flex: none; width: 84px; font-family: var(--ds-font-display); font-size: 12px; }
+.slip-rows dd { margin: 0; font-size: 14px; line-height: 1.35; min-width: 0; }
+.slip-notes { flex-direction: column; gap: 2px !important; }
+.slip-notes dd { padding-bottom: 4px; }
+.sheet-slip .sheet-stamp { position: relative; right: auto; bottom: auto; display: inline-block; margin: 6px 12px 12px; }
+/* Voucher slip laid on the photo print: overhangs the corner so it reads as paper on the print, not part of the scene. */
+.sheet-voucher { position: absolute; right: -14px; bottom: -20px; z-index: 1; width: clamp(140px, 40%, 210px); transform: rotate(-4deg); filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)) drop-shadow(1px 4px 5px rgba(0,0,0,.22)); }
+.sheet-voucher svg { display: block; width: 100%; height: auto; }
+.sheet-voucher:focus-visible { outline: 3px solid var(--ds-scale-black); outline-offset: 3px; }
+/* Layout follows the sheet's own width: stacked on phones; big photo over two label columns when the sheet is
+   mid-width (e.g. beside the hero text); photo beside the labels, grown to their height, when the sheet is wide. */
+@container (min-width: 540px) { .sheet-labels { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; } .sheet-card .sheet-card-head { font-size: 14px; letter-spacing: .03em; } .sheet-card { padding-left: 16px; padding-right: 16px; } }
+@container (min-width: 860px) {
+  .sheet-body { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .sheet-labels { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .sheet-card .sheet-card-head { font-size: 16px; letter-spacing: .05em; }
+  .sheet-card { padding-left: 20px; padding-right: 20px; }
+  .sheet-crop { aspect-ratio: auto; flex: 1 1 auto; min-height: 320px; }
+}
+@media (max-width: 480px) { .sheet { padding: 14px; gap: 14px; } }

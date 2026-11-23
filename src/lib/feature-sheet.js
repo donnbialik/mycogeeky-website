@@ -61,15 +61,22 @@ export function normalizeFeature(input) {
 
 // ---------------------------------------------------------------- pieces
 
-const CODE39 = { '0': 'nnnwwnwnn', '1': 'wnnwnnnnw', '2': 'nnwwnnnnw', '3': 'wnwwnnnnn', '4': 'nnnwwnnnw', '5': 'wnnwwnnnn', '6': 'nnwwwnnnn', '7': 'nnnwnnwnw', '8': 'wnnwnnwnn', '9': 'nnwwnnwnn', '*': 'nwnnwnwnn' };
-function barcodeSvg(id) {
-  let x = 0; let rects = '';
-  for (const ch of `*${id}*`) {
-    const pattern = CODE39[ch]; if (!pattern) continue;
-    [...pattern].forEach((e, i) => { const w = e === 'w' ? 3.5 : 1.4; if (i % 2 === 0) rects += `<rect x="${x.toFixed(1)}" y="0" width="${w}" height="34"/>`; x += w; });
-    x += 1.4;
-  }
-  return `<svg viewBox="0 0 ${x.toFixed(1)} 34" preserveAspectRatio="none" aria-hidden="true">${rects}</svg>`;
+/** The paper voucher slip laid on the photo: ruled boxes over "MG-<iNat number>", like the slips Donn photographs with collections. */
+export const voucherNumber = (id) => `MG-${id}`;
+function voucherSlipSvg(id) {
+  const x0 = 16, cw = 41.6, top = 12, bot = 62, n = 5, k = `vs${id}`;
+  const paper = 'M5 3 L238 1 L238 111 L3 110 L6 96 L2 84 L6 70 L3 57 L6 44 L2 30 L6 17 Z';
+  let ink = `<rect x="${x0}" y="${top}" width="${cw * n}" height="${bot - top}" fill="none" stroke="#1d1d1d" stroke-width="2.6"/>`;
+  for (let c = 1; c < n; c++) ink += `<line x1="${x0 + c * cw}" y1="${top}" x2="${x0 + c * cw}" y2="${bot}" stroke="#1d1d1d" stroke-width="2.6"/>`;
+  for (let c = 0; c < n; c++) ink += `<line x1="${x0 + c * cw + cw / 2}" y1="${top}" x2="${x0 + c * cw + cw / 2}" y2="${top + 22}" stroke="#1d1d1d" stroke-width="2"/>`;
+  ink += `<text x="120" y="96" text-anchor="middle" fill="#4a4a4a" font-family="Work Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5">${voucherNumber(id)}</text>`;
+  // Paper: fibre grain, a faint fold-shadow gradient, rough cut edges, and ink that sits slightly into the paper.
+  return `<svg viewBox="0 0 240 112" aria-hidden="true"><defs>
+<linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDFCF7"/><stop offset=".65" stop-color="#F8F6EE"/><stop offset="1" stop-color="#EEEADF"/></linearGradient>
+<filter id="${k}e" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter>
+<filter id="${k}n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="11"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .41 0 0 0 0 .33 1.05 0 0 0 -.4"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+<filter id="${k}i"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="2"/><feDisplacementMap in="SourceGraphic" scale="0.9"/></filter>
+</defs><g filter="url(#${k}e)"><path d="${paper}" fill="url(#${k}g)"/><path d="${paper}" fill="#000" filter="url(#${k}n)"/></g><g filter="url(#${k}i)" opacity=".88">${ink}</g></svg>`;
 }
 
 function scaleSvg() {
@@ -87,7 +94,8 @@ function colourCardSvg() {
   const s = 18, g = 4, pad = 8, w = pad * 2 + 6 * s + 5 * g, h = pad * 2 + 4 * s + 3 * g;
   let out = `<svg viewBox="0 0 ${w} ${h}" width="${Math.round(w * 1.25)}" aria-hidden="true"><rect width="${w}" height="${h}" rx="3" fill="#141414"/>`;
   CC.forEach((c, i) => { const r = Math.floor(i / 6), k = i % 6; out += `<rect x="${pad + k * (s + g)}" y="${pad + r * (s + g)}" width="${s}" height="${s}" rx="1.5" fill="${c}"/>`; });
-  return out + '</svg>';
+  // A soft sheen so the card reads as a laminated object, not a flat graphic.
+  return out + `<defs><linearGradient id="ccg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".45" stop-color="#fff" stop-opacity=".03"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient></defs><rect width="${w}" height="${h}" rx="3" fill="url(#ccg)"/><rect x=".5" y=".5" width="${w - 1}" height="${h - 1}" rx="2.6" fill="none" stroke="#fff" stroke-opacity=".12"/></svg>`;
 }
 
 /** <img> for a feature photo straight from iNaturalist, cropped by the saved focus point and zoom. */
@@ -98,6 +106,13 @@ export function featurePhotoHtml(f) {
   return `<img src="${esc(photoUrl(p, 'large'))}" srcset="${esc(photoUrl(p, 'medium'))} 500w, ${esc(photoUrl(p, 'large'))} 1024w, ${esc(photoUrl(p, 'original'))} 2048w" sizes="(max-width: 760px) 92vw, 34vw" alt="${esc(alt)}" style="object-position:${pos};transform:scale(${p.zoom});transform-origin:${pos}" loading="eager" decoding="async">`;
 }
 
+/** "88 Nanopore Reads in Consensus (RiC)"; just the technology if the read count is missing. */
+export const readsLine = (its) => {
+  if (!its) return '';
+  const tech = its.tech ? `${its.tech} ` : '';
+  return its.reads ? `${its.reads} ${tech}Reads in Consensus (RiC)` : (its.tech || '');
+};
+
 const splitName = (name) => { const m = String(name).match(/^(\S+)\s+(.*)$/); return m ? [m[1], m[2]] : [String(name), '']; };
 
 /** The whole sheet. opts.photoHtml overrides the photo (the build uses an optimised local image);
@@ -107,39 +122,40 @@ export function renderSheet(f, opts = {}) {
   const restTyped = rest.split(/('[^']+')/).filter(Boolean).map((part) => (part.startsWith("'") ? `<u>${esc(part)}</u>` : esc(part))).join('');
   const inat = `https://www.inaturalist.org/observations/${f.id}`;
   const its = f.its;
-  const itsLine = its ? [its.tech, its.reads ? `${its.reads} reads in consensus` : ''].filter(Boolean).join(', ') : '';
-  const determined = its ? (f.provisional ? 'ITS barcode (provisional)' : 'ITS barcode') : 'iNaturalist community';
+  const itsLine = readsLine(its);
+  const determined = its ? 'ITS barcode' : 'iNaturalist community';
+  const stamp = f.provisional ? '<p class="sheet-stamp" role="note"><b>PROVISIONAL</b><span>not yet formally described</span></p>' : '';
   const credit = f.photo && f.photo.credit ? `<figcaption class="sheet-credit">${esc(f.photo.credit)}</figcaption>` : '';
   const scale = opts.scaleHtml
     ? `<div class="sheet-scale">${opts.scaleHtml}</div>`
     : `<div class="sheet-scale"><div class="sheet-ruler"><div class="sheet-ruler-bar">${scaleSvg()}</div><span class="sheet-code">MYCOVIEW</span></div><div class="sheet-cc">${colourCardSvg()}</div></div>`;
   return `<figure class="sheet" aria-label="Specimen sheet for ${esc(f.name)}">
 ${scale}
-<div class="sheet-row">
-  <figure class="sheet-print"><div class="sheet-crop">${opts.photoHtml || featurePhotoHtml(f)}</div>${credit}</figure>
-  ${its ? `<div class="sheet-card sheet-typed">
-    <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p><hr>
-    <p><u>${esc(genus.toUpperCase())}</u> ${restTyped}</p>
-    <p class="ind">ITS, ${its.length} bp.</p>
-    ${itsLine ? `<p class="ind">${esc(itsLine)}.</p>` : ''}
-    ${its.plate ? `<p class="ind">Mycota Lab plate ${esc(its.plate)}.</p>` : ''}
-  </div>` : ''}
-</div>
-<div class="sheet-row">
-  <div class="sheet-card sheet-form">
-    <p class="sheet-card-head">MYCOVIEW FIELD STATION · NORTHEAST OHIO</p><hr>
-    <p><u><i>${esc(genus)}</i></u> ${esc(rest)}</p>
-    ${f.habitat ? `<p class="ind">${esc(f.habitat)}</p>` : ''}
-    ${f.locality ? `<p class="ind">${esc(f.locality)}</p>` : ''}
-    ${f.observed ? `<p class="ind">${esc(f.observed)}.</p>` : ''}
-    ${f.collector ? `<p class="sheet-line"><span>COLLECTED BY</span>${esc(f.collector)}</p>` : ''}
-    <p class="sheet-line"><span>DETERMINED BY</span>${esc(determined)}</p>
-  </div>
-  <div class="sheet-side">
-    ${f.provisional ? '<div class="sheet-provisional"><p>PROVISIONAL</p><p>not yet formally described</p></div>' : ''}
-    <a class="sheet-sticker" href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="iNaturalist observation ${f.id}, opens in a new tab">
-      <span class="sheet-sticker-head">MycoView · iNaturalist</span>${barcodeSvg(f.id)}<span class="sheet-sticker-num">${f.id}</span>
-    </a>
+<div class="sheet-body">
+  <figure class="sheet-print"><div class="sheet-crop">${opts.photoHtml || featurePhotoHtml(f)}</div>${credit}
+    <a class="sheet-voucher" href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="Voucher ${voucherNumber(f.id)}: iNaturalist observation ${f.id}, opens in a new tab">${voucherSlipSvg(f.id)}</a></figure>
+  <div class="sheet-labels">
+    ${its ? `<div class="sheet-card sheet-typed">
+      <p class="sheet-card-head">MYCOVIEW FIELD STATION · DNA BARCODE</p><hr>
+      <p><u>${esc(genus.toUpperCase())}</u> ${restTyped}</p>
+      <p class="ind">ITS, ${its.length} bp.</p>
+      ${itsLine ? `<p class="ind">${esc(itsLine)}.</p>` : ''}
+      ${its.plate ? `<p class="ind">Mycota Lab plate ${esc(its.plate)}.</p>` : ''}
+      ${stamp}
+    </div>` : ''}
+    <div class="sheet-slip">
+      <div class="slip-head"><p class="slip-title">FIELD DATA SLIP</p><p class="slip-org">MycoView Field Station · NE Ohio</p></div>
+      <div class="slip-id"><b>iNat#</b><a href="${inat}" target="_blank" rel="noopener noreferrer" aria-label="iNaturalist observation ${f.id}, opens in a new tab">${f.id}</a></div>
+      ${its ? '' : `<p class="slip-species"><b>Species</b><span><i>${esc(genus)}</i> ${esc(rest)}</span></p>`}
+      <dl class="slip-rows">
+        ${f.observed ? `<div><dt>Date</dt><dd>${esc(f.observed)}</dd></div>` : ''}
+        ${f.locality ? `<div><dt>Locality</dt><dd>${esc(f.locality)}</dd></div>` : ''}
+        ${f.collector ? `<div><dt>Collected By</dt><dd>${esc(f.collector)}</dd></div>` : ''}
+        <div><dt>ID By</dt><dd>${esc(determined)}</dd></div>
+        ${f.habitat ? `<div class="slip-notes"><dt>Field notes</dt><dd>${esc(f.habitat)}</dd></div>` : ''}
+      </dl>
+      ${its ? '' : stamp}
+    </div>
   </div>
 </div>
 </figure>`;
@@ -162,7 +178,7 @@ export function renderLede(f) {
 export function renderJourney(f) {
   const its = f.its;
   const rows = [[f.observed || 'Observed', `Photographed and posted to iNaturalist, #${f.id}`]];
-  const seq = [its && its.plate && `Mycota Lab, plate ${its.plate}`, its && its.tech && its.reads && `${its.tech}, ${its.reads} reads in consensus`].filter(Boolean);
+  const seq = [its && its.plate && `Mycota Lab, plate ${its.plate}`, its && readsLine(its)].filter(Boolean);
   if (seq.length) rows.push(['Sequenced', seq.join(' · ')]);
   if (its) rows.push(['Read', `${its.length} letters of the ITS barcode region`]);
   if (f.provisional) rows.push(['Named', `${splitName(f.name)[1].replace(/^sp\.\s*/, '')}, a provisional name until the species is formally described`]);

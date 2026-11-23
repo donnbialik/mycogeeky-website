@@ -81,3 +81,30 @@ html[data-tier="lab"] .mv-discovery-indicator { background: transparent !importa
 
 /* Story dialog (investigate/learn). */
 html[data-tier="lab"] .story-dialog::backdrop { background: rgba(10, 14, 30, .6); }
+
+/* Investigate hub bands, research paths and tool cards. */
+html[data-tier="lab"] :is(.mv-investigate-designer, .mv-case-feature) { background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-lg) !important; }
+html[data-tier="lab"] .mv-investigate-designer { border-left: 4px solid var(--ds-line-strong) !important; }
+html[data-tier="lab"] :is(.mv-investigate-designer, .mv-case-feature) :where(h2, p, a, i, figcaption, span) { color: inherit !important; }
+html[data-tier="lab"] .mv-case-feature :is(figcaption, .mv-case-credit) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .mv-research-path li a { background: var(--ds-ground) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] .mv-research-path li a:is(:hover, :focus-visible) { border-color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-research-path li a :where(strong, span) { color: inherit !important; }
+html[data-tier="lab"] .mv-research-path .mv-path-q { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .mv-research-path li.is-planned a { border-style: dashed !important; }
+html[data-tier="lab"] :is(.mv-path-n, .mv-tool-step) { background: var(--ds-action) !important; color: var(--ds-action-ink) !important; }
+html[data-tier="lab"] .mv-research-path li.is-planned .mv-path-n, html[data-tier="lab"] .mv-tool-card[data-availability="planned"] .mv-tool-step { background: var(--ds-line-strong) !important; color: var(--ds-ground) !important; }
+html[data-tier="lab"] :is(.mv-tool-science, .mv-tool-unavailable) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .mv-tool-limits summary { color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-tool-card :where(h3, p, li, span, strong, summary, a) { color: inherit; }
+
+/* Live survey dashboard on lab pages. */
+html[data-tier="lab"] .survey-dashboard :where(h3, h4, p, span, strong, small, a, div) { color: inherit; }
+html[data-tier="lab"] .survey-dashboard { color: var(--ds-ink) !important; }
+html[data-tier="lab"] .survey-metrics > div { background: var(--ds-ground) !important; border: 1px solid var(--ds-line-subtle); border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] .mv-survey-feedback { background: var(--ds-info-bg) !important; border-color: var(--ds-line-subtle) !important; color: var(--ds-ink) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] .mv-survey-feedback[data-state="ready"] { background: var(--ds-good-bg) !important; border-color: var(--ds-good-line) !important; }
+html[data-tier="lab"] .mv-survey-feedback[data-state="partial"] { background: var(--ds-warn-bg) !important; border-color: var(--ds-warn-line) !important; }
+html[data-tier="lab"] .mv-survey-feedback[data-state="error"] { background: var(--ds-bad-bg) !important; border-color: var(--ds-bad-line) !important; }
+html[data-tier="lab"] .mv-survey-feedback > span { background: var(--ds-ink) !important; color: var(--ds-ground) !important; }
+html[data-tier="lab"] .mv-survey-feedback p { color: var(--ds-ink) !important; }

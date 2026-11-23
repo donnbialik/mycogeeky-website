@@ -36,7 +36,10 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
           </div>
           <button type="button" id="photo-remove">Remove from this step</button>
         </div>
-        <button type="button" class="station-button" id="photo-save">Publish step photos</button>
+        <div class="publish-controls">
+          <button type="button" class="station-button" id="photo-save">Publish step photos</button>
+          <p id="photo-publish-status" role="status"></p>
+        </div>
       </fieldset>
     </section>
   </div>
@@ -54,7 +57,9 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
   #photo-preview { margin: 0; }
   #photo-preview img { max-width: 100%; max-height: 330px; }
   #photo-preview-credit { overflow-wrap: anywhere; }
-  #photo-save { justify-self: start; }
+  .publish-controls { display: grid; gap: 8px; justify-items: start; }
+  #photo-publish-status { margin: 0; }
+  #photo-publish-status[data-error] { font-weight: 700; }
 </style>
 <script>
   import { loadObservation, MAX_UPLOAD, observationId, observationPhotos, PHOTO_STEPS } from '../../lib/field-guide-photos.js';
@@ -64,6 +69,7 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
   const editor = get<HTMLFieldSetElement>('editor');
   const step = get<HTMLSelectElement>('step');
   const status = get('status');
+  const publishStatus = get('publish-status');
   const alt = get<HTMLInputElement>('alt');
   const related = get<HTMLInputElement>('related');
   const credit = get<HTMLInputElement>('credit');
@@ -82,8 +88,13 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
     const response = await fetch('/api/admin/field-guide-photos', body ? {
       method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
     } : {});
+    if (response.redirected || response.status === 401) throw new Error('Your sign-in expired. Sign in again in another tab, then retry here to keep your draft.');
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      throw new Error(`The editor did not receive a save response (HTTP ${response.status}). Check your sign-in and try again.`);
+    }
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'The editor could not connect.');
+    if (!result.photos || typeof result.photos !== 'object' || Array.isArray(result.photos)) throw new Error('The server did not confirm the saved photos.');
     return result.photos;
   }
 
@@ -127,12 +138,16 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
     }
   }
 
-  async function run(action: () => Promise<void>) {
+  async function run(action: () => Promise<void>, feedback = status) {
     if (pending) return;
     pending = true;
     editor.disabled = true;
+    feedback.removeAttribute('data-error');
     try { await action(); }
-    catch (error) { status.textContent = error instanceof Error ? error.message : 'The request failed.'; }
+    catch (error) {
+      feedback.setAttribute('data-error', '');
+      feedback.textContent = error instanceof Error ? error.message : 'The request failed.';
+    }
     finally { pending = false; editor.disabled = false; }
   }
 
@@ -189,11 +204,20 @@ import { PHOTO_STEPS } from '../../lib/field-guide-photos.js';
     });
   };
   get('save').onclick = () => void run(async () => {
-    status.textContent = 'Publishing…';
+    for (const [id, label] of PHOTO_STEPS) {
+      const entry = photos[id];
+      if (!entry) continue;
+      if (!entry.alt.trim() || (entry.kind === 'upload' && !entry.rights)) {
+        step.value = id;
+        render();
+        throw new Error(`${label}: ${!entry.alt.trim() ? 'add a photo description' : 'confirm permission to publish this upload'}, then try again.`);
+      }
+    }
+    publishStatus.textContent = 'Publishing…';
     photos = await api(photos);
     render();
-    status.textContent = 'Published. The public guide may take a minute to update.';
-  });
+    publishStatus.textContent = 'Published. The public guide may take a minute to update.';
+  }, publishStatus);
   api().then(saved => {
     photos = saved;
     render();

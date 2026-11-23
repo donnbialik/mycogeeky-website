@@ -129,3 +129,26 @@ html[data-tier="lab"] .closer-video.is-pending { background: var(--ds-panel) !im
 html[data-tier="lab"] .closer-video.is-pending :is(small, span) { color: var(--ds-ink-muted) !important; }
 html[data-tier="lab"] .story-dialog { background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-lg) !important; }
 html[data-tier="lab"] .story-dialog :where(h2, h3, p, a, li, span, strong, small) { color: inherit !important; }
+
+/* ---------- Barcode Reliability Explorer (explorer.css) ---------- */
+html[data-tier="lab"] .xp { --ink: var(--ds-ink); --muted: var(--ds-ink-muted); --line: var(--ds-line-subtle); --forest: var(--ds-action); --white: var(--ds-panel); --paper: var(--ds-ground); --amber: var(--ds-cc-12); --slate: var(--ds-ink); }
+html[data-tier="lab"] .xp :is(th, label) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .xp td { border-bottom-color: var(--ds-line-subtle) !important; }
+html[data-tier="lab"] .xp tbody tr:hover { background: var(--ds-row-highlight) !important; }
+html[data-tier="lab"] .xp :is(input[type="text"], input[type="search"], input[type="email"], input[type="number"], select, textarea) { background: var(--ds-ground) !important; color: var(--ds-ink) !important; border-color: var(--ds-line-strong) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] .xp :is(button, .button) { background: var(--ds-action) !important; color: var(--ds-action-ink) !important; border-color: var(--ds-action) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] .xp-status { background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle); border-radius: var(--ds-radius-lg); }
+html[data-tier="lab"] .xp-status :is(strong, a, span, p) { color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.xp-card, .xp-viewer, .xp-seq) { background: var(--ds-panel) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] .xp .xp-thumbs button { background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; }
+/* Outcome pills and messages: status tint + border + the word that is already in them. */
+html[data-tier="lab"] .pill { background: transparent !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-strong); border-radius: var(--ds-radius-pill) !important; }
+html[data-tier="lab"] :is(.pill.agree, .pill.formal, .pill.rg, .xp-msg.ok) { background: var(--ds-good-bg) !important; border-color: var(--ds-good-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.pill.minor, .pill.experimental, .pill.flag) { background: var(--ds-warn-bg) !important; border-color: var(--ds-warn-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.pill.conflict, .xp-msg.bad) { background: var(--ds-bad-bg) !important; border-color: var(--ds-bad-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.pill.insufficient, .xp-msg.info) { background: var(--ds-info-bg) !important; color: var(--ds-ink) !important; }
+/* Sequence regions keep distinct tints in both themes (they are data, and each is labelled). */
+html[data-tier="lab"][data-theme="night"] .xp-seq .its1 { background: #2F5B4A !important; }
+html[data-tier="lab"][data-theme="night"] .xp-seq .s58 { background: #5E4E2C !important; }
+html[data-tier="lab"][data-theme="night"] .xp-seq .its2 { background: #34466E !important; }
+html[data-tier="lab"] .xp-seq .flank { color: var(--ds-ink-muted) !important; }

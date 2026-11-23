@@ -903,8 +903,8 @@ function recommend(o){
   let label,cls,conf;
   if(o.qcBadFrac>0.5){label='Data quality issue';cls='quality';conf='—';ev.push('More than half of the sequences in these groups lack detectable 5.8S anchors, so region calls and distances are unreliable.');}
   else if(!o.inter.n){label='Ambiguous: needs more data';cls='ambiguous';conf='low';ev.push('No A–B pairs could be compared.');}
-  else if(o.fixed.total===0&&(o.inter.min<=maxIntra||o.inter.mean<0.5)){label='Likely conspecific: consider merging';cls='conspecific';ev.push('No fixed differences separate the groups.');ev.push(`Closest A–B pair (${o.inter.min.toFixed(2)}%) is within the variation seen inside the groups (max ${maxIntra.toFixed(2)}%).`);}
-  else if(gap>0&&o.fixed.total>=o.minFixed&&o.inter.min>=o.thr){label='Likely distinct: candidate for description';cls='distinct';ev.push(`${o.fixed.total} fixed difference(s) (${o.fixed.subs} substitution, ${o.fixed.indelEvents} indel event).`);ev.push(`Barcode gap of ${gap.toFixed(2)} percentage points; closest A–B pair is ${o.inter.min.toFixed(2)}% apart, at or above the ${o.thr}% reference threshold.`);}
+  else if(o.fixed.total===0&&(o.inter.min<=maxIntra||o.inter.mean<0.5)){label='Limited ITS separation in this sample';cls='conspecific';ev.push('No fixed differences separate the groups.');ev.push(`Closest A–B pair (${o.inter.min.toFixed(2)}%) is within the variation seen inside the groups (max ${maxIntra.toFixed(2)}%).`);}
+  else if(gap>0&&o.fixed.total>=o.minFixed&&o.inter.min>=o.thr){label='ITS separates the sampled groups';cls='distinct';ev.push(`${o.fixed.total} fixed difference(s) (${o.fixed.subs} substitution, ${o.fixed.indelEvents} indel event).`);ev.push(`Barcode gap of ${gap.toFixed(2)} percentage points; closest A–B pair is ${o.inter.min.toFixed(2)}% apart, at or above the ${o.thr}% reference threshold.`);}
   else{label='Ambiguous: needs more data';cls='ambiguous';
     if(!o.fixed.total)ev.push('No fixed differences, but the groups do not overlap cleanly either.');
     else if(o.fixed.total<o.minFixed)ev.push(`${o.fixed.total} fixed difference(s), fewer than the ${o.minFixed} you set to call the groups distinct.`);
@@ -1940,10 +1940,10 @@ function takeawayText(t){
   if(t.mixed&&t.sameInd.length&&median(t.mixedInd)>median(t.sameInd))items.push(['warn','Pairs read with different sequencing methods show more gaps than same-method pairs. Some differences may be technical.']);
   if(!t.types.length)items.push(['warn','No type sequence is included, so it is not confirmed that group B truly represents the described name.']);
   else items.push(['good',`Includes ${t.types.length} type-linked sequence${t.types.length===1?'':'s'} (${t.types.map(s=>s.label).join(', ')}).`]);
-  const plain={conspecific:'These look like the same species on ITS.',distinct:'These look like separate species on ITS.',ambiguous:'ITS alone cannot settle this.',quality:'The data are too rough to judge.'}[t.rec.cls];
+  const plain={conspecific:'ITS shows limited separation in the sequences compared.',distinct:'ITS separates the sequences compared under these settings.',ambiguous:'ITS alone cannot settle this.',quality:'The data are too rough to judge.'}[t.rec.cls];
   let next;
-  if(t.rec.cls==='conspecific')next='Check that the macro- and micro-morphology agree. If they do, the provisional is a candidate for merging into the described species.';
-  else if(t.rec.cls==='distinct')next=t.types.length?'Compare morphology and look at the other close relatives. If it holds up, this provisional may need a formal description.':'Add a type sequence for group B (Find type sequences) to confirm what the name means, then compare morphology.';
+  if(t.rec.cls==='conspecific')next='Check the reference identifications, macro- and micromorphology, and other loci before deciding whether the groups represent the same species.';
+  else if(t.rec.cls==='distinct')next='Verify the reference identifications and compare morphology, other loci, and close relatives before drawing a taxonomic conclusion.';
   else if(t.rec.cls==='quality')next='Untick sequences flagged red in the list (5.8S not found) and run again.';
   else next=t.itA.length<3||t.itB.length<3?'Add more sequences to each group, ideally from different places, and run again.':!t.types.length?'Add a type sequence of the described species, then check a second gene such as TEF1 or RPB2.':'Check a second gene such as TEF1 or RPB2; ITS is often too conserved to separate close species.';
   const std=t.cal&&t.pair?calSentences(t.cal,t.pair):null;
@@ -2126,7 +2126,7 @@ $('#panel-export').addEventListener('click',e=>{
 });
 $('#printBtn').addEventListener('click',()=>{$('#resTabs button[data-tab=report]').click();setTimeout(()=>window.print(),100);});
 // Update this ID when releasing changes to the comparator. Session format version is separate.
-const COMPARATOR_BUILD='2026-11-23.4';
+const COMPARATOR_BUILD='2026-11-23.5';
 $('#saveSession').addEventListener('click',()=>{
   const data={version:1,comparatorBuild:COMPARATOR_BUILD,saved:new Date().toISOString(),settings:readSettings(),groupA:state.groupA,groupB:state.groupB,notes:state.notes,cal:state.cal,
     seqs:state.seqs.map(s=>({key:s.key,source:s.source,label:s.label,url:s.url,group:s.group,baseGroup:s.baseGroup,hapBase:s.hapBase,hap:s.hap,hapN:s.hapN,pick:s.pick,pickBase:s.pickBase,trimTag:s.trimTag,prevReason:s.prevReason,meta:s.meta,include:s.include,reason:s.reason,seq:s.seq}))};
@@ -2788,7 +2788,7 @@ const TIPS={
  indelPerPair:'Average number of gap events per pair. If mixed-method pairs have more, the method may be adding false gaps.',
  confidence:'How much to trust the suggestion. It rises with more sequences per group and clearer separation.',
  v_conspecific:'ITS gives no sign the groups differ more than individuals within one species do. Merging is worth considering.',
- v_distinct:'ITS separates the groups cleanly with consistent differences. Worth checking whether the provisional deserves a formal description.',
+ v_distinct:'The sampled groups show a barcode gap and meet the selected distance and fixed-difference thresholds.',
  v_ambiguous:'ITS alone does not settle it. More sequences, type material, or a second gene (TEF1, RPB2) would help.',
  v_quality:'Too many sequences failed basic checks to draw a conclusion.',
  region:'Which part of ITS the position falls in.',

@@ -24,3 +24,5 @@ html[data-tier="lab"] :is(h1, h2, h3) { font-family: var(--f-display); font-stre
 html[data-tier="lab"] :focus-visible { outline: 3px solid var(--accent) !important; outline-offset: 3px; }
 /* The tools' own "Theme" button becomes the design-system pill. */
 html[data-tier="lab"] :is(#themeBtn, #wbThemeBtn) { min-height: 36px; padding: 0 14px !important; border: 1.5px solid var(--muted) !important; border-radius: 22px !important; background: transparent !important; color: var(--ink) !important; font: 500 14px var(--f-body) !important; }
+/* ITS Bin Comparator: group B badges use the spore colour; in night mode it is light, so the letter is navy. */
+html[data-tier="lab"][data-theme="dark"] :is(.pickbtn[aria-pressed="true"][data-pick="B"], .pickdemo + .pickdemo) { color: #141A3A !important; }

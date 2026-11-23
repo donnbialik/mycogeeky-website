@@ -54,10 +54,12 @@
 .sheet-voucher:focus-visible { outline: 3px solid var(--ds-scale-black); outline-offset: 3px; }
 /* Layout follows the sheet's own width: stacked on phones; big photo over two label columns when the sheet is
    mid-width (e.g. beside the hero text); photo beside the labels, grown to their height, when the sheet is wide. */
-@container (min-width: 540px) { .sheet-labels { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; } }
+@container (min-width: 540px) { .sheet-labels { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; } .sheet-card .sheet-card-head { font-size: 14px; letter-spacing: .03em; } .sheet-card { padding-left: 16px; padding-right: 16px; } }
 @container (min-width: 860px) {
   .sheet-body { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
   .sheet-labels { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .sheet-card .sheet-card-head { font-size: 16px; letter-spacing: .05em; }
+  .sheet-card { padding-left: 20px; padding-right: 20px; }
   .sheet-crop { aspect-ratio: auto; flex: 1 1 auto; min-height: 320px; }
 }
 @media (max-width: 480px) { .sheet { padding: 14px; gap: 14px; } }

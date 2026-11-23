@@ -1,0 +1,83 @@
+/* Lab tier (white day / navy night) restyle of the older research pages, per the MycoView Design System.
+   Scoped to html[data-tier="lab"] (never the homepage's lab section, which lives inside a field page).
+   Panels are flat with thin rules and small radii; headings a little wider and lighter than the field tier. */
+
+/* ---------- Ground and text ---------- */
+html[data-tier="lab"] body { background: var(--ds-ground); color: var(--ds-ink); }
+html[data-tier="lab"] :is(.station-page, .mv-study-page, .mv-case-page, .mv-guide, .mv-guide-body, .section, .soft, .station-data, .xp) { background: transparent !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.station-page, .station-hero, .section, .mv-study-page, .mv-case-page, .mv-guide, .xp, .station-content) :where(p, li, h1, h2, h3, h4, h5, small, figcaption, label, td, th, dt, dd, span, strong, b, em, a, blockquote, summary, legend, caption) { color: inherit !important; }
+html[data-tier="lab"] :is(.lead, .muted, .station-footnote, .station-tool-intro, .resource-footnote, .mv-study-note, .mv-case-lead) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] main :is(h1, h2, h3) { font-family: var(--ds-font-display); font-stretch: 85%; font-weight: 700; letter-spacing: 0 !important; }
+html[data-tier="lab"] main :is(h1, h2) em { color: inherit !important; font-style: italic; font-weight: inherit; }
+html[data-tier="lab"] main a { text-underline-offset: 4px; }
+
+/* ---------- Eyebrows / kickers: retired ---------- */
+html[data-tier="lab"] main :is(.eyebrow, .mv-kicker, .mv-guide-kicker, .mv-case-eyebrow, .station-section-head > span, .station-card-body > small, .mv-case-series) { display: none !important; }
+
+/* ---------- Heroes: on the ground, with a rule under them ---------- */
+html[data-tier="lab"] :is(.station-hero, .mv-study-hero, .mv-case-hero) { background: transparent !important; color: var(--ds-ink) !important; border-bottom: 1px solid var(--ds-line-subtle); }
+html[data-tier="lab"] :is(.station-hero, .mv-study-hero, .mv-case-hero) :is(p, .lead) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] :is(.station-hero, .mv-study-hero, .mv-case-hero) h1 { color: var(--ds-ink) !important; }
+html[data-tier="lab"] .station-hero > img, html[data-tier="lab"] .mv-case-hero-photo img { box-sizing: border-box; width: calc(100% - 2 * clamp(16px, 2.5vw, 32px)); height: calc(100% - 2 * clamp(16px, 2.5vw, 32px)); min-height: 280px; margin: clamp(16px, 2.5vw, 32px); border-radius: var(--ds-radius-lg); object-fit: cover; }
+html[data-tier="lab"] .station-hero-aside { background: transparent !important; }
+
+/* ---------- Buttons ---------- */
+html[data-tier="lab"] :is(.station-button, .mv-primary, .mv-case-start, main .button.primary, .mv-tool-open) {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 20px;
+  background: var(--ds-action) !important; color: var(--ds-action-ink) !important; border: 0 !important; border-radius: var(--ds-radius-md) !important;
+  font: 600 16px var(--ds-font-body); text-decoration: none; box-shadow: none !important; animation: none !important; }
+html[data-tier="lab"] :is(.station-button, .mv-primary, .mv-case-start, main .button.primary, .mv-tool-open):hover { filter: brightness(1.15); }
+html[data-tier="lab"] :is(main .button.outline, .mv-secondary, .mv-case-subtle-button, .mv-nav-back, .mv-wizard-back, .mv-nav-export button, .mv-nav-related button, .mv-wizard-export button, .mv-survey-feedback button, .mv-case-back, .mv-case-next) {
+  background: transparent !important; color: var(--ds-ink) !important; border: 1.5px solid var(--ds-line-strong) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] :is(.station-text-link, .text-link, .mv-inline-link) { color: var(--ds-ink) !important; font-weight: 600; text-decoration: underline; }
+
+/* ---------- Section heads ---------- */
+html[data-tier="lab"] .station-section-head { border-bottom: 1px solid var(--ds-line-strong); }
+html[data-tier="lab"] .station-section-head h2 { font: 700 clamp(1.5rem, 2.4vw, 1.9rem)/1.15 var(--ds-font-display); font-stretch: 85%; text-transform: none; }
+
+/* ---------- Panels: flat, thin rule, small radius ---------- */
+html[data-tier="lab"] :is(.station-editorial-card, .station-link-grid a, .tool-card, .mv-tool-card, .resource-entry, .discipline-card, .mv-case-index-card, .mv-guide-card, .mv-guide-do > div, .mv-guide-ext a, .mv-guide-steps > li, .mv-guide-table, .fungal-field, .fungal-initiative, .survey-project-card, .story-card, .xp-panel, .mv-inat-band, .mv-study-workspace, .mv-case, .mv-nav, .mv-research-path, .curiosity-generator, .narrative-photo, .story-dialog-inner, .mv-case-info, .mv-case-callout, .mv-otd-note, .resource-group, .research-tool, .mv-pt-table, .feature) {
+  background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-lg) !important; box-shadow: none !important; }
+html[data-tier="lab"] :is(.station-editorial-card, .tool-card, .mv-tool-card, .mv-case-index-card, .mv-guide-card, .discipline-card):hover { border-color: var(--ds-line-strong) !important; }
+/* Panels inside panels are plain. */
+html[data-tier="lab"] :is(.mv-study-workspace, .mv-case, .mv-nav, .resource-group, .mv-research-path) :is(.mv-case-info, .mv-case-callout, .research-tool, .resource-entry) { background: var(--ds-ground) !important; }
+html[data-tier="lab"] .station-card-body strong { font-family: var(--ds-font-display); font-stretch: 85%; font-weight: 700; }
+html[data-tier="lab"] .station-card-body b { text-decoration: underline; text-underline-offset: 4px; }
+html[data-tier="lab"] :is(.station-editorial-card, .story-card, .mv-case-index-card) img { border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0; }
+html[data-tier="lab"] .mv-inat-band { border-left: 4px solid var(--ds-line-strong) !important; }
+
+/* Toolkit-style guide pages (Provisional Taxonomist). */
+html[data-tier="lab"] .mv-guide-nav a { background: transparent !important; border: 1px solid var(--ds-line-strong) !important; border-radius: var(--ds-radius-pill) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-guide-nav a[aria-current="page"] { background: var(--ds-action) !important; color: var(--ds-action-ink) !important; border-color: var(--ds-action) !important; }
+html[data-tier="lab"] .mv-guide-steps > li { border-left: 4px solid var(--ds-line-strong) !important; }
+html[data-tier="lab"] .mv-guide-table :is(th, td), html[data-tier="lab"] .mv-pt-table :is(th, td) { border-bottom-color: var(--ds-line-subtle) !important; }
+html[data-tier="lab"] :is(.mv-guide-table, .mv-pt-table) th { background: var(--ds-ground) !important; }
+html[data-tier="lab"] .mv-guide-when { background: var(--ds-ground) !important; border: 1px solid var(--ds-line-subtle); color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-guide-photo { background: var(--ds-ground) !important; border: 2px dashed var(--ds-line-subtle) !important; color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .mv-guide-sources { border-top-color: var(--ds-line-subtle) !important; }
+
+/* ---------- Status: tint + border + word, readable in day and night ---------- */
+html[data-tier="lab"] :is(.mv-guide-note, .mv-otd-note.is-warn, .mv-pt-watch, .is-uncertain, .xp .minor) { background: var(--ds-warn-bg) !important; border-color: var(--ds-warn-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-guide-note { border: 0 !important; border-left: 4px solid var(--ds-warn-line) !important; border-radius: var(--ds-radius-md) !important; }
+html[data-tier="lab"] :is(.mv-pt-go, .is-supported, .xp .agree) { background: var(--ds-good-bg) !important; border-color: var(--ds-good-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.mv-pt-stop, .is-unsupported, .xp .conflict) { background: var(--ds-bad-bg) !important; border-color: var(--ds-bad-line) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] .xp .insufficient { background: var(--ds-info-bg) !important; color: var(--ds-ink) !important; }
+html[data-tier="lab"] .mv-guide-do > div:first-child { border-top: 4px solid var(--ds-good-line) !important; }
+html[data-tier="lab"] .mv-guide-do > div:last-child { border-top: 4px solid var(--ds-bad-line) !important; }
+
+/* Choice buttons, tabs and chapter lists in the interactive research pages. */
+html[data-tier="lab"] :is(.mv-case-options button, .mv-nav-view-tabs button, .mv-path-tabs button, .mv-case-chapters button, .mv-nav-question button, .mv-nav-boundaries button, .mv-nav-area) {
+  background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-md) !important; box-shadow: none !important; }
+html[data-tier="lab"] :is(.mv-case-options button.is-selected, .mv-nav-view-tabs button.is-selected, .mv-path-tabs button[aria-selected="true"], .mv-case-chapters button.is-current, .mv-nav-area.is-selected) { border: 2px solid var(--ds-ink) !important; }
+html[data-tier="lab"] :is(.mv-nav-view-tabs button.is-selected, .mv-path-tabs button[aria-selected="true"]) { background: var(--ds-action) !important; color: var(--ds-action-ink) !important; }
+html[data-tier="lab"] :is(.mv-case-progress-track, .mv-nav-meter) { background: var(--ds-line-subtle) !important; border-radius: var(--ds-radius-pill) !important; }
+html[data-tier="lab"] :is(.mv-case-progress-track, .mv-nav-meter) > * { background: var(--ds-data-match) !important; }
+
+/* Tags and pills. */
+html[data-tier="lab"] main :is(.tag, .pill, .mine-badge, .resource-origin, .mv-tool-state) { background: transparent !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-strong) !important; border-radius: var(--ds-radius-pill) !important; }
+
+/* The old "discovery" glow indicator becomes a plain marker. */
+html[data-tier="lab"] .mv-discovery-indicator { background: transparent !important; color: var(--ds-ink) !important; box-shadow: none !important; animation: none !important; }
+
+/* Story dialog (investigate/learn). */
+html[data-tier="lab"] .story-dialog::backdrop { background: rgba(10, 14, 30, .6); }

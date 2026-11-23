@@ -65,3 +65,12 @@ code, kbd, samp { font-family: var(--ds-font-mono); }
 .ds-footer .mv-news button:hover { background: #EDB54A; }
 .ds-footer .mv-news input:focus-visible, .ds-footer .mv-news button:focus-visible { outline-color: var(--ds-cc-12); }
 .ds-footer .mv-news-note, .ds-footer .mv-news-note a { color: #D3D0C6; opacity: 1; }
+
+/* Lab day/night toggle (lab tier only), beside the tier switch. Remembered as mv.labTheme. */
+.ds-themetoggle { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 10px; background: transparent; color: var(--ds-ink); border: 1.5px solid var(--ds-line-strong); border-radius: var(--ds-radius-pill); font: 500 15px var(--ds-font-body); cursor: pointer; }
+.ds-themetoggle:hover { border-color: var(--ds-ink); }
+.ds-themetoggle .ds-sun, [data-theme="night"] .ds-themetoggle .ds-moon { display: none; }
+[data-theme="night"] .ds-themetoggle .ds-sun { display: inline; }
+/* Lab tier: header and tier switch follow the theme. */
+[data-tier="lab"] .ds-tierswitch { border-color: var(--ds-line-strong); }
+[data-tier="lab"] body { background: var(--ds-ground); color: var(--ds-ink); }

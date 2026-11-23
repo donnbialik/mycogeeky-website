@@ -60,7 +60,7 @@ export const GET: APIRoute = () => {
   function stepLink(step, dir) {
     var t = byId[step.toolId], href = step.href || (t && t.href) || '';
     if (href && href.charAt(0) === '#') href = '/investigate/' + href;
-    var text = dir < 0 ? '← ' + esc(step.label) : esc(step.label) + ' →';
+    var text = (dir < 0 ? 'Back: ' : 'Next: ') + esc(step.label);
     return href ? '<a href="' + esc(href) + '">' + text + '</a>' : '<span class="mvtb-planned">' + text + ' (planned)</span>';
   }
   function render() {

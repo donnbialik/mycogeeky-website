@@ -4,9 +4,9 @@ type Stage=0|1|2|3|4|5|6;
 const stages=['The mystery','First hypothesis','Evaluate the record','Compare sources','The finding','Interpret the evidence','Continue investigating'];
 function PaperLinks({compact=false}:{compact?:boolean}){
  return <div className={compact?'mv-case-links mv-case-links-mini':'mv-case-links'}>
-  <a href={study.article.doi} target="_blank" rel="noopener noreferrer">Read the published paper ↗</a>
-  <a href={study.article.figures} target="_blank" rel="noopener noreferrer">See original Figure 2d ↗</a>
-  <a href={study.article.archive} target="_blank" rel="noopener noreferrer">Original data & R code ↗</a>
+  <a href={study.article.doi} target="_blank" rel="noopener noreferrer">Read the published paper</a>
+  <a href={study.article.figures} target="_blank" rel="noopener noreferrer">See original Figure 2d</a>
+  <a href={study.article.archive} target="_blank" rel="noopener noreferrer">Original data & R code</a>
  </div>;
 }
 export default function ClathrusCaseStudy(){
@@ -21,6 +21,11 @@ export default function ClathrusCaseStudy(){
   uncertain:{title:'Plausible, but not established',short:'Needs more evidence',symbol:'?'},
   unsupported:{title:'Not supported by this evidence',short:'Unsupported inference',symbol:'!'}
  } as const;
+ const assessIcon=(a:string)=>a==='supported'
+  ?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+  :a==='uncertain'
+  ?<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.5-1.5 1.2-1.5 2.3"/><path d="M12 18h.01"/></svg>
+  :<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>;
  const card=(index:number)=>{
   const q=study.questions[index];
   const chosen=q.choices.find(c=>c.id===answers[q.id]);
@@ -31,11 +36,11 @@ export default function ClathrusCaseStudy(){
     const assessment=visualLabels[choice.assessment];
     return <button type="button" key={choice.id} aria-pressed={selected} className={selected?'is-selected is-'+choice.assessment:''} onClick={()=>answer(q.id,choice.id)}>
      <span className="mv-case-option-label">{choice.label}</span>
-     {selected&&<span className="mv-case-option-status"><span aria-hidden="true">{assessment.symbol}</span> {assessment.short}</span>}
+     {selected&&<span className="mv-case-option-status">{assessIcon(choice.assessment)} {assessment.short}</span>}
     </button>;
    })}</div>
    {chosen&&<div className={'mv-case-feedback is-'+chosen.assessment} role="status" aria-live="polite">
-    <span className="mv-case-feedback-heading"><span aria-hidden="true" className="mv-case-feedback-icon">{visualLabels[chosen.assessment].symbol}</span><strong>{visualLabels[chosen.assessment].title}</strong></span>
+    <span className="mv-case-feedback-heading"><span aria-hidden="true" className="mv-case-feedback-icon">{assessIcon(chosen.assessment)}</span><strong>{visualLabels[chosen.assessment].title}</strong></span>
     <p>{chosen.response}</p>
     <small>This evaluates the strength of this interpretation, not you. Change your selection to explore the alternatives.</small>
    </div>}
@@ -66,14 +71,14 @@ export default function ClathrusCaseStudy(){
    </section>}
    {stage===5&&<section className="mv-case-section"><p className="mv-case-eyebrow">CHAPTER 06 / PROTECT THE CONCLUSION</p><h2>How far should the evidence take us?</h2><p>It's tempting to turn an exciting distribution record into an exciting story about how an organism moved. But the difference between those claims is the heart of good scientific reasoning.</p>{card(3)}
     <div className="mv-case-two"><div><strong>SUPPORTED BY THE STUDY</strong><p>Relative to the original comparison sources, the researchers documented an outlying occurrence near Kyiv using iNaturalist records.</p></div><div><strong>NOT DEMONSTRATED</strong><p>That the fungus arrived recently, traveled 350 km during the observation period, or occupied every intervening habitat.</p></div></div>
-    <button type="button" className="mv-case-subtle-button" onClick={()=>setShowMethods(v=>!v)} aria-expanded={showMethods}>{showMethods?'Hide':'Show'} the actual study design ↗</button>
+    <button type="button" className="mv-case-subtle-button" onClick={()=>setShowMethods(v=>!v)} aria-expanded={showMethods}>{showMethods?'Hide':'Show'} the actual study design</button>
     {showMethods&&<div className="mv-case-methods"><h3>What the published researchers actually did</h3><p>They analyzed verifiable Ukrainian fungal observations available on iNaturalist as of June 1, 2024, investigated geographic patterns and observer activity, and compared distributions of selected conspicuous fungal taxa—including <i>Clathrus archeri</i>—against published and curated occurrence information.</p><p>This was an observational biodiversity-data study. It was not an experiment tracking fungus dispersal, and this case walkthrough is a teaching adaptation of one part of the larger paper.</p><PaperLinks compact/></div>}
    </section>}
    {stage===6&&<section className="mv-case-section"><p className="mv-case-eyebrow">CHAPTER 07 / TAKE THE METHOD HOME</p><h2>Now apply the same scientific habit to your own question.</h2><p>You don't need to discover a 350 km record to contribute. You might find a missing locality, a doubtful identification, or a region where nobody has looked carefully yet.</p>{card(4)}
     <label className="mv-case-reflection"><strong>Optional: What's a fungus or locality you'd like to investigate?</strong><textarea rows={3} value={reflection} onChange={e=>setReflection(e.target.value)} placeholder="I want to compare records for..." /></label>
-    <div className="mv-case-continue"><span>NEXT · BIO-01 / OCCURRENCE MAPPING & SAMPLING GAPS</span><h3>Explore your own research pathway</h3><p>Carry the same distinction forward: documented occurrence, plausible absence, observer effort, and alternative explanations.</p><a className="mv-case-main-link" href="/investigate/research-navigator/?framework=BIO-01&case=clathrus-archeri">Open BIO-01 in the Research Navigator →</a><a href="https://www.inaturalist.org/observations?taxon_name=Clathrus%20archeri" target="_blank" rel="noopener noreferrer">Explore today's iNaturalist observations ↗</a><small>Today's observations are a separate, changing dataset—not the authors' June 2024 snapshot.</small></div>
+    <div className="mv-case-continue"><span>NEXT · BIO-01 / OCCURRENCE MAPPING & SAMPLING GAPS</span><h3>Explore your own research pathway</h3><p>Carry the same distinction forward: documented occurrence, plausible absence, observer effort, and alternative explanations.</p><a className="mv-case-main-link" href="/investigate/research-navigator/?framework=BIO-01&case=clathrus-archeri">Open BIO-01 in the Research Navigator</a><a href="https://www.inaturalist.org/observations?taxon_name=Clathrus%20archeri" target="_blank" rel="noopener noreferrer">Explore today's iNaturalist observations</a><small>Today's observations are a separate, changing dataset—not the authors' June 2024 snapshot.</small></div>
    </section>}
-   <footer className="mv-case-footer"><div><button type="button" className="mv-case-back" onClick={()=>move(stage-1)} disabled={stage===0}>← Previous</button>{stage<6&&<button type="button" className="mv-case-next" onClick={()=>move(stage+1)}>Continue investigation →</button>}{stage===6&&<button type="button" className="mv-case-back" onClick={()=>{move(0);setAnswers({});setReflection('');setShowMethods(false)}}>Start again ↺</button>}</div><p>Explore freely. There are no grades or leaderboards; your interpretations are yours to revisit.</p></footer>
+   <footer className="mv-case-footer"><div><button type="button" className="mv-case-back" onClick={()=>move(stage-1)} disabled={stage===0}>Previous</button>{stage<6&&<button type="button" className="mv-case-next" onClick={()=>move(stage+1)}>Continue investigation</button>}{stage===6&&<button type="button" className="mv-case-back" onClick={()=>{move(0);setAnswers({});setReflection('');setShowMethods(false)}}>Start again ↺</button>}</div><p>Explore freely. There are no grades or leaderboards; your interpretations are yours to revisit.</p></footer>
   </div>
  </div>;
 }

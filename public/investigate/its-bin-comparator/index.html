@@ -81,6 +81,10 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
 .row > *{flex:1 1 120px;min-width:0}
 .row > .shrink{flex:0 0 auto}
+@media (max-width:520px){
+  .row > label.inline.shrink{flex-shrink:1;max-width:100%;overflow-wrap:anywhere}
+  label.inline > input[type=checkbox]{flex:none}
+}
 button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:5px;padding:6px 12px;cursor:pointer}
 button:hover{border-color:var(--accent)}
 button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -2114,7 +2118,7 @@ $('#panel-export').addEventListener('click',e=>{
 });
 $('#printBtn').addEventListener('click',()=>{$('#resTabs button[data-tab=report]').click();setTimeout(()=>window.print(),100);});
 // Update this ID when releasing changes to the comparator. Session format version is separate.
-const COMPARATOR_BUILD='2026-11-23.2';
+const COMPARATOR_BUILD='2026-11-23.3';
 $('#saveSession').addEventListener('click',()=>{
   const data={version:1,comparatorBuild:COMPARATOR_BUILD,saved:new Date().toISOString(),settings:readSettings(),groupA:state.groupA,groupB:state.groupB,notes:state.notes,cal:state.cal,
     seqs:state.seqs.map(s=>({key:s.key,source:s.source,label:s.label,url:s.url,group:s.group,baseGroup:s.baseGroup,hapBase:s.hapBase,hap:s.hap,hapN:s.hapN,pick:s.pick,pickBase:s.pickBase,trimTag:s.trimTag,prevReason:s.prevReason,meta:s.meta,include:s.include,reason:s.reason,seq:s.seq}))};

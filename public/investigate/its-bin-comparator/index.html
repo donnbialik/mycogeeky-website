@@ -292,13 +292,13 @@ details.trim>summary h3{display:inline;margin:0}
 <aside>
   <div class="card">
     <h2><span class="stepn">1</span>Add sequences</h2>
-    <div class="tabs" role="tablist" id="srcTabs">
-      <button type="button" role="tab" aria-selected="true" data-tab="inat">iNaturalist</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="gb">GenBank</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="paste">Paste or file</button>
+    <div class="tabs" role="tablist" id="srcTabs" aria-label="Sequence source">
+      <button type="button" role="tab" id="srcTabs-inat" aria-controls="tab-inat" aria-selected="true" tabindex="0" data-tab="inat">iNaturalist</button>
+      <button type="button" role="tab" id="srcTabs-gb" aria-controls="tab-gb" aria-selected="false" tabindex="-1" data-tab="gb">GenBank</button>
+      <button type="button" role="tab" id="srcTabs-paste" aria-controls="tab-paste" aria-selected="false" tabindex="-1" data-tab="paste">Paste or file</button>
     </div>
 
-    <div id="tab-inat" class="srcpanel" style="display:flex;flex-direction:column;gap:10px">
+    <div id="tab-inat" role="tabpanel" aria-labelledby="srcTabs-inat" class="srcpanel" style="display:flex;flex-direction:column;gap:10px">
       <label>Search by
         <select id="inatMode">
           <option value="prov_exact">Provisional name (exact)</option>
@@ -335,7 +335,7 @@ details.trim>summary h3{display:inline;margin:0}
       <a href="#" id="inatLink" target="_blank" rel="noopener" class="small">Open this search on iNaturalist</a>
     </div>
 
-    <div id="tab-gb" class="srcpanel" style="display:none;flex-direction:column;gap:10px">
+    <div id="tab-gb" role="tabpanel" aria-labelledby="srcTabs-gb" class="srcpanel" style="display:none;flex-direction:column;gap:10px">
       <label>Species or genus name<input type="text" id="gbName" value="Boletus variipes"></label>
       <label class="inline"><input type="checkbox" id="gbType" checked> Type material only (sequence_from_type)</label>
       <label class="inline"><input type="checkbox" id="gbGenus"> Search the whole genus (first word of the name)</label>
@@ -353,7 +353,7 @@ details.trim>summary h3{display:inline;margin:0}
       <p class="hint">Searches ITS records 300–3000 bp. With "type material only" off, environmental and unvouchered records are included and flagged.</p>
     </div>
 
-    <div id="tab-paste" class="srcpanel" style="display:none;flex-direction:column;gap:10px">
+    <div id="tab-paste" role="tabpanel" aria-labelledby="srcTabs-paste" class="srcpanel" style="display:none;flex-direction:column;gap:10px">
       <label>Group name<input type="text" id="pasteGroup" list="groupList" placeholder="e.g. Boletus variipes (UNITE)"></label>
       <label>FASTA (one or more records)<textarea id="pasteText" placeholder=">my_sequence_1&#10;TCCGTAGGTGAACCTGCGG..."></textarea></label>
       <label>Or choose a FASTA file<input type="file" id="pasteFile" accept=".fa,.fas,.fasta,.txt,.fna"></label>
@@ -584,18 +584,18 @@ details.trim>summary h3{display:inline;margin:0}
 
   <div class="card" id="resultsTabsCard">
     <div class="card-head"><h2>Detailed results</h2><span class="small muted">Full report, every pair, the alignment and each variable position</span></div>
-    <div class="tabs" role="tablist" id="resTabs">
-      <button type="button" role="tab" aria-selected="true" data-tab="report">Report</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="pairs" data-tip="tabPairs">Pairs</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="matrix" data-tip="tabMatrix">Distance matrix</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="aln" data-tip="tabAln">Alignment</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="sites" data-tip="tabSites">Variable sites</button>
-      <button type="button" role="tab" aria-selected="false" data-tab="export">Export and session</button>
+    <div class="tabs" role="tablist" id="resTabs" aria-label="Detailed results">
+      <button type="button" role="tab" id="resTabs-report" aria-controls="panel-report" aria-selected="true" tabindex="0" data-tab="report">Report</button>
+      <button type="button" role="tab" id="resTabs-pairs" aria-controls="panel-pairs" aria-selected="false" tabindex="-1" data-tab="pairs" data-tip="tabPairs">Pairs</button>
+      <button type="button" role="tab" id="resTabs-matrix" aria-controls="panel-matrix" aria-selected="false" tabindex="-1" data-tab="matrix" data-tip="tabMatrix">Distance matrix</button>
+      <button type="button" role="tab" id="resTabs-aln" aria-controls="panel-aln" aria-selected="false" tabindex="-1" data-tab="aln" data-tip="tabAln">Alignment</button>
+      <button type="button" role="tab" id="resTabs-sites" aria-controls="panel-sites" aria-selected="false" tabindex="-1" data-tab="sites" data-tip="tabSites">Variable sites</button>
+      <button type="button" role="tab" id="resTabs-export" aria-controls="panel-export" aria-selected="false" tabindex="-1" data-tab="export">Export and session</button>
     </div>
 
-    <div id="panel-report" class="respanel"><div id="reportBody" class="report"></div></div>
+    <div id="panel-report" role="tabpanel" aria-labelledby="resTabs-report" class="respanel"><div id="reportBody" class="report"></div></div>
 
-    <div id="panel-pairs" class="respanel" hidden style="flex-direction:column;gap:10px">
+    <div id="panel-pairs" role="tabpanel" aria-labelledby="resTabs-pairs" class="respanel" hidden style="flex-direction:column;gap:10px">
       <div class="settings">
         <label>Pairs<select id="pRel"><option value="">All pairs</option><option value="AA">Within A</option><option value="BB">Within B</option><option value="AB">A vs B</option><option value="other">Other</option></select></label>
         <label>Sequencing technology<select id="pTech"><option value="">Any</option><option value="same">Same technology</option><option value="mixed">Different technologies</option></select></label>
@@ -611,12 +611,12 @@ details.trim>summary h3{display:inline;margin:0}
       <p class="hint">% difference = differences ÷ compared positions, over the overlap only (terminal gaps excluded). With a region selected, all counts are for that region.</p>
     </div>
 
-    <div id="panel-matrix" class="respanel" hidden style="flex-direction:column;gap:10px">
+    <div id="panel-matrix" role="tabpanel" aria-labelledby="resTabs-matrix" class="respanel" hidden style="flex-direction:column;gap:10px">
       <div class="tablewrap" style="max-height:640px"><table id="matrix" class="matrix"></table></div>
       <p class="hint">Values are % distance using the metric chosen above. Rows are ordered by group.</p>
     </div>
 
-    <div id="panel-aln" class="respanel" hidden style="flex-direction:column;gap:10px">
+    <div id="panel-aln" role="tabpanel" aria-labelledby="resTabs-aln" class="respanel" hidden style="flex-direction:column;gap:10px">
       <div class="row">
         <label class="inline shrink"><input type="checkbox" id="alnVarOnly"> Variable sites only</label>
         <label class="inline shrink"><input type="checkbox" id="alnABOnly"> Groups A and B only</label>
@@ -634,14 +634,14 @@ details.trim>summary h3{display:inline;margin:0}
       <p class="hint">Multiple alignment built by the center-star method: every sequence is aligned to the most central sequence. Good for closely related ITS; less reliable across distant genera.</p>
     </div>
 
-    <div id="panel-sites" class="respanel" hidden style="flex-direction:column;gap:10px">
+    <div id="panel-sites" role="tabpanel" aria-labelledby="resTabs-sites" class="respanel" hidden style="flex-direction:column;gap:10px">
       <div class="row">
         <label>Show<select id="siteClass"><option value="">All variable sites</option><option value="fixed">Fixed A–B differences</option><option value="poly">Polymorphic within A or B</option><option value="other">Variation in other groups only</option></select></label>
       </div>
       <div class="tablewrap"><table id="siteTable"></table></div>
     </div>
 
-    <div id="panel-export" class="respanel" hidden style="flex-direction:column;gap:12px">
+    <div id="panel-export" role="tabpanel" aria-labelledby="resTabs-export" class="respanel" hidden style="flex-direction:column;gap:12px">
       <div class="row">
         <button type="button" class="shrink" data-exp="obs">Observation list (CSV)</button>
         <button type="button" class="shrink" data-exp="pairs">Pairwise results (CSV)</button>
@@ -2068,10 +2068,30 @@ $('#aln').addEventListener('click',e=>{
 
 /* ---------- tabs ---------- */
 function wireTabs(bar,prefix,onShow){
-  $(bar).addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;
-    $$(bar+' button').forEach(x=>x.setAttribute('aria-selected',x===b?'true':'false'));
+  const tabList=$(bar);
+  const tabs=$$(bar+' button[data-tab]');
+  tabList.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(!b)return;
+    tabs.forEach(x=>{
+      x.setAttribute('aria-selected',String(x===b));
+      x.tabIndex=x===b?0:-1;
+    });
     $$(`[id^="${prefix}"]`).forEach(p=>{const on=p.id===prefix+b.dataset.tab;if(prefix==='tab-')p.style.display=on?'flex':'none';else{p.hidden=!on;if(on)p.style.display='flex';}});
     onShow&&onShow(b.dataset.tab);});
+  tabList.addEventListener('keydown',e=>{
+    const index=tabs.indexOf(e.target);
+    if(index===-1||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;
+    let next;
+    switch(e.key){
+      case 'ArrowLeft': next=(index+tabs.length-1)%tabs.length; break;
+      case 'ArrowRight': next=(index+1)%tabs.length; break;
+      case 'Home': next=0; break;
+      case 'End': next=tabs.length-1; break;
+      default: return;
+    }
+    e.preventDefault();
+    tabs[next].focus();
+    tabs[next].click();
+  });
 }
 wireTabs('#srcTabs','tab-');
 wireTabs('#resTabs','panel-',t=>{currentRes=t;if(t==='aln'&&alnDirty)renderAln();if(t==='report')renderReport();});
@@ -2093,8 +2113,10 @@ $('#panel-export').addEventListener('click',e=>{
   if(k==='report'&&need()){const css=document.querySelector('style').outerHTML;download(`its_report_${safe(state.groupA)}_vs_${safe(state.groupB)}.html`,`<!doctype html><html><head><meta charset="utf-8"><title>ITS report: ${esc(state.groupA)} vs ${esc(state.groupB)}</title>${css}</head><body style="padding:24px"><div class="report">${buildReport(true)}</div></body></html>`,'text/html');}
 });
 $('#printBtn').addEventListener('click',()=>{$('#resTabs button[data-tab=report]').click();setTimeout(()=>window.print(),100);});
+// Update this ID when releasing changes to the comparator. Session format version is separate.
+const COMPARATOR_BUILD='2026-11-23.2';
 $('#saveSession').addEventListener('click',()=>{
-  const data={version:1,saved:new Date().toISOString(),settings:readSettings(),groupA:state.groupA,groupB:state.groupB,notes:state.notes,cal:state.cal,
+  const data={version:1,comparatorBuild:COMPARATOR_BUILD,saved:new Date().toISOString(),settings:readSettings(),groupA:state.groupA,groupB:state.groupB,notes:state.notes,cal:state.cal,
     seqs:state.seqs.map(s=>({key:s.key,source:s.source,label:s.label,url:s.url,group:s.group,baseGroup:s.baseGroup,hapBase:s.hapBase,hap:s.hap,hapN:s.hapN,pick:s.pick,pickBase:s.pickBase,trimTag:s.trimTag,prevReason:s.prevReason,meta:s.meta,include:s.include,reason:s.reason,seq:s.seq}))};
   download(`its_session_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(data),'application/json');
 });

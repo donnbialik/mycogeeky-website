@@ -9,7 +9,7 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 /* The old pages hard-code greens on almost every text element; on kraft and paper, text is ink. */
 /* Limited to the older page wrappers, so the homepage and new components keep their own colours. */
 [data-tier="field"] :is(.station-page, .station-hero, .op-page, .about-page, .mv-guide, .mv-cult) :where(p, li, h1, h2, h3, h4, h5, small, figcaption, label, td, th, dt, dd, span, strong, b, em, a, blockquote, summary) { color: inherit !important; }
-[data-tier="field"] main :is(.lead, .muted, .station-footnote, .curiosity-disclaimer, .mv-news-note, .station-tool-intro) { color: var(--ds-ink-muted) !important; }
+[data-tier="field"] :is(.station-page, .station-hero, .op-page, .about-page, .mv-guide, .mv-cult) :is(.lead, .muted, .station-footnote, .curiosity-disclaimer, .mv-news-note, .station-tool-intro) { color: var(--ds-ink-muted) !important; }
 [data-tier="field"] main a { text-underline-offset: 4px; }
 
 /* ---------- Eyebrows / kickers: retired ---------- */
@@ -25,12 +25,12 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] .station-hero :is(.station-text-link, .station-hero-note, .mv-guide-hint) { color: var(--ds-ink) !important; }
 
 /* ---------- Buttons: black action, outlined secondary, square ---------- */
-[data-tier="field"] :is(.station-button, .mv-primary, .op-button, .button.primary, .curiosity-controls .primary, main .mv-news button) {
+[data-tier="field"] :is(.station-button, .mv-primary, .op-button, .station-page .button.primary, .station-page .curiosity-controls .primary, main .mv-news button) {
   display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px;
   background: var(--ds-action) !important; color: var(--ds-action-ink) !important; border: 0 !important; border-radius: 0 !important;
   font: 600 16px var(--ds-font-body); text-decoration: none; box-shadow: none !important; animation: none !important; }
-[data-tier="field"] :is(.station-button, .mv-primary, .op-button, .button.primary):hover { background: #3A2A18 !important; }
-[data-tier="field"] :is(.mv-secondary, .button.outline, .curiosity-controls .outline) {
+[data-tier="field"] :is(.station-button, .mv-primary, .op-button, .station-page .button.primary):hover { background: #3A2A18 !important; }
+[data-tier="field"] :is(.mv-secondary, .station-page .button.outline, .station-page .curiosity-controls .outline) {
   display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 20px;
   background: transparent !important; color: var(--ds-ink) !important; border: 2px solid var(--ds-line-strong) !important; border-radius: 0 !important;
   font: 600 16px var(--ds-font-body); text-decoration: none; }
@@ -41,7 +41,7 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] .station-section-head h2 { font: 800 clamp(1.6rem, 2.6vw, 2.1rem)/1.1 var(--ds-font-display); font-stretch: 72%; letter-spacing: 0; text-transform: none; }
 
 /* ---------- Paper: cards rest on kraft, square, with a physical shadow ---------- */
-[data-tier="field"] :is(.station-editorial-card, .station-link-grid a, .mv-support-card, .mv-media-item, .mv-guide-card, .mv-guide-do > div, .mv-guide-ext a, .mv-guide-steps > li, .mv-guide-table, .mv-inat-band, .curiosity-generator, .opd-panel, .opd-stat-grid, .feature, .tool-card, .one-place-dashboard, .station-data-grid .survey-dashboard) {
+[data-tier="field"] :is(.station-editorial-card, .station-link-grid a, .mv-support-card, .mv-media-item, .mv-guide-card, .mv-guide-do > div, .mv-guide-ext a, .mv-guide-steps > li, .mv-guide-table, .mv-inat-band, .station-page .curiosity-generator, .opd-panel, .opd-stat-grid, .feature, .tool-card, .one-place-dashboard, .station-data-grid .survey-dashboard) {
   background: var(--ds-paper-card) !important; color: var(--ds-paper-ink) !important; border: 0 !important; border-radius: 0 !important; box-shadow: var(--ds-shadow-paper) !important; }
 [data-tier="field"] :is(.station-editorial-card, .station-link-grid a, .mv-guide-card):hover { box-shadow: 0 14px 30px rgba(60,36,10,.36) !important; }
 [data-tier="field"] .station-card-body strong { font-weight: 800; font-stretch: 72%; }
@@ -56,7 +56,7 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] .mv-guide-when { background: var(--ds-paper-sheet) !important; border-radius: 0 !important; color: var(--ds-paper-ink) !important; }
 [data-tier="field"] .mv-guide-table th { background: var(--ds-paper-sheet) !important; }
 [data-tier="field"] .mv-guide-table :is(th, td) { border-bottom-color: #DDD8CB !important; }
-[data-tier="field"] .curiosity-insight { background: var(--ds-paper-sheet) !important; border-left: 4px solid var(--ds-line-strong) !important; }
+[data-tier="field"] .station-page .curiosity-insight { background: var(--ds-paper-sheet) !important; border-left: 4px solid var(--ds-line-strong) !important; }
 
 /* Field Research Toolkit chip nav: square tabs on kraft. */
 [data-tier="field"] .mv-guide-nav a { background: var(--ds-paper-card) !important; border: 1px solid var(--ds-line-strong) !important; border-radius: 0 !important; color: var(--ds-paper-ink) !important; }

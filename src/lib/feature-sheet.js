@@ -94,7 +94,8 @@ function colourCardSvg() {
   const s = 18, g = 4, pad = 8, w = pad * 2 + 6 * s + 5 * g, h = pad * 2 + 4 * s + 3 * g;
   let out = `<svg viewBox="0 0 ${w} ${h}" width="${Math.round(w * 1.25)}" aria-hidden="true"><rect width="${w}" height="${h}" rx="3" fill="#141414"/>`;
   CC.forEach((c, i) => { const r = Math.floor(i / 6), k = i % 6; out += `<rect x="${pad + k * (s + g)}" y="${pad + r * (s + g)}" width="${s}" height="${s}" rx="1.5" fill="${c}"/>`; });
-  return out + '</svg>';
+  // A soft sheen so the card reads as a laminated object, not a flat graphic.
+  return out + `<defs><linearGradient id="ccg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".45" stop-color="#fff" stop-opacity=".03"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient></defs><rect width="${w}" height="${h}" rx="3" fill="url(#ccg)"/><rect x=".5" y=".5" width="${w - 1}" height="${h - 1}" rx="2.6" fill="none" stroke="#fff" stroke-opacity=".12"/></svg>`;
 }
 
 /** <img> for a feature photo straight from iNaturalist, cropped by the saved focus point and zoom. */

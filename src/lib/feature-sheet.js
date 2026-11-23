@@ -64,12 +64,12 @@ export function normalizeFeature(input) {
 /** The paper voucher slip laid on the photo: ruled boxes over "MG-<iNat number>", like the slips Donn photographs with collections. */
 export const voucherNumber = (id) => `MG-${id}`;
 function voucherSlipSvg(id) {
-  const x0 = 16, cw = 42, top = 14, bot = 58, n = 5;
+  const x0 = 16, cw = 41.6, top = 12, bot = 62, n = 5;
   let s = `<svg viewBox="0 0 240 112" aria-hidden="true"><path d="M5 3 L238 1 L238 111 L3 110 L6 96 L2 84 L6 70 L3 57 L6 44 L2 30 L6 17 Z" fill="#FBFBF7"/>`;
-  s += `<rect x="${x0}" y="${top}" width="${cw * n}" height="${bot - top}" fill="none" stroke="#1d1d1d" stroke-width="2.2"/>`;
-  for (let c = 1; c < n; c++) s += `<line x1="${x0 + c * cw}" y1="${top}" x2="${x0 + c * cw}" y2="${bot}" stroke="#1d1d1d" stroke-width="2.2"/>`;
-  for (let c = 0; c < n; c++) s += `<line x1="${x0 + c * cw + cw / 2}" y1="${top}" x2="${x0 + c * cw + cw / 2}" y2="${top + 20}" stroke="#1d1d1d" stroke-width="1.6"/>`;
-  return s + `<text x="120" y="94" text-anchor="middle" fill="#4a4a4a" font-family="Work Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5">${voucherNumber(id)}</text></svg>`;
+  s += `<rect x="${x0}" y="${top}" width="${cw * n}" height="${bot - top}" fill="none" stroke="#1d1d1d" stroke-width="2.6"/>`;
+  for (let c = 1; c < n; c++) s += `<line x1="${x0 + c * cw}" y1="${top}" x2="${x0 + c * cw}" y2="${bot}" stroke="#1d1d1d" stroke-width="2.6"/>`;
+  for (let c = 0; c < n; c++) s += `<line x1="${x0 + c * cw + cw / 2}" y1="${top}" x2="${x0 + c * cw + cw / 2}" y2="${top + 22}" stroke="#1d1d1d" stroke-width="2"/>`;
+  return s + `<text x="120" y="96" text-anchor="middle" fill="#4a4a4a" font-family="Work Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5">${voucherNumber(id)}</text></svg>`;
 }
 
 function scaleSvg() {

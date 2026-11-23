@@ -48,7 +48,8 @@
 .slip-id a { color: inherit; }
 .sheet-card .slip-species { display: flex; gap: 12px; align-items: baseline; border-bottom: 1.5px solid var(--ds-paper-ink); padding: 8px 14px; }
 .slip-species b { flex: none; font-size: 14px; }
-.slip-cols { display: grid; grid-template-columns: 1fr 1fr; }
+.slip-right { display: flex; flex-direction: column; }
+.slip-cols { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
 .slip-cols.slip-one { grid-template-columns: 1fr; }
 .slip-cols > div { padding: 12px 14px 14px; min-width: 0; }
 .slip-cols > div + div { border-left: 1px solid var(--ds-paper-ink); }

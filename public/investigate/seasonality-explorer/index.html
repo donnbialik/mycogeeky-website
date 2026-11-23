@@ -1400,7 +1400,7 @@ if (!seenGuide) {
   const strip = document.querySelector('.wb-steps');
   if (strip) {
     const hint = document.createElement('p'); hint.className = 'wb-hint';
-    hint.innerHTML = 'New here? <button type="button">Take the one-minute tour →</button>';
+    hint.innerHTML = 'New here? <button type="button">Take the one-minute tour</button>';
     hint.querySelector('button').addEventListener('click', () => { hint.remove(); tourShow(0); });
     strip.appendChild(hint);
   }

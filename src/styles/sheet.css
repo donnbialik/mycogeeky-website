@@ -23,8 +23,10 @@
 .sheet-provisional p { margin: 0; font-size: 15px; }
 .sheet-provisional p:first-child { font-weight: 700; font-size: 20px; letter-spacing: .04em; }
 /* Voucher slip laid on the photo print: overhangs the corner so it reads as paper on the print, not part of the scene. */
-.sheet-print { position: relative; }
-.sheet-voucher { position: absolute; right: -14px; bottom: -16px; z-index: 1; width: clamp(150px, 42%, 220px); transform: rotate(-4deg); filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)) drop-shadow(1px 4px 5px rgba(0,0,0,.22)); }
+.sheet-print { position: relative; margin-bottom: 14px; }
+/* Keep the photo credit (licence) clear of the slip. */
+.sheet-print .sheet-credit { padding-right: calc(clamp(150px, 42%, 220px) - 4px); }
+.sheet-voucher { position: absolute; right: -14px; bottom: -20px; z-index: 1; width: clamp(150px, 42%, 220px); transform: rotate(-4deg); filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)) drop-shadow(1px 4px 5px rgba(0,0,0,.22)); }
 .sheet-voucher svg { display: block; width: 100%; height: auto; }
 .sheet-voucher:focus-visible { outline: 3px solid var(--ds-scale-black); outline-offset: 3px; }
 /* Field data slip: the field card laid out like a collection slip. */

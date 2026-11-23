@@ -72,9 +72,9 @@ function voucherSlipSvg(id) {
   ink += `<text x="120" y="96" text-anchor="middle" fill="#4a4a4a" font-family="Work Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="0.5">${voucherNumber(id)}</text>`;
   // Paper: fibre grain, a faint fold-shadow gradient, rough cut edges, and ink that sits slightly into the paper.
   return `<svg viewBox="0 0 240 112" aria-hidden="true"><defs>
-<linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDFCF7"/><stop offset=".6" stop-color="#F6F4EC"/><stop offset="1" stop-color="#E9E6DB"/></linearGradient>
+<linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FDFCF7"/><stop offset=".65" stop-color="#F8F6EE"/><stop offset="1" stop-color="#EEEADF"/></linearGradient>
 <filter id="${k}e" x="-3%" y="-6%" width="106%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter>
-<filter id="${k}n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="11"/><feColorMatrix values="0 0 0 0 .42 0 0 0 0 .39 0 0 0 0 .32 .75 0 0 0 -.3"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+<filter id="${k}n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.35" numOctaves="3" seed="11"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .41 0 0 0 0 .33 1.05 0 0 0 -.4"/><feComposite in2="SourceGraphic" operator="in"/></filter>
 <filter id="${k}i"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="2"/><feDisplacementMap in="SourceGraphic" scale="0.9"/></filter>
 </defs><g filter="url(#${k}e)"><path d="${paper}" fill="url(#${k}g)"/><path d="${paper}" fill="#000" filter="url(#${k}n)"/></g><g filter="url(#${k}i)" opacity=".88">${ink}</g></svg>`;
 }

@@ -9,7 +9,7 @@ import {activeTools,tools} from '../../data/tools';
 const retiredTools=tools.filter(t=>t.lifecycle==='archived');
 import PathSwitch from '../../components/PathSwitch.astro';
 ---
-<Base title="Investigate fungi">
+<Base title="Investigate fungi" tier="lab">
 <div class="station-page">
   <section class="station-hero station-hero-split">
     <div class="station-hero-copy"><p class="eyebrow">INVESTIGATE / THE RESEARCH STATION</p><h1>Follow the evidence. <br/><em>Question everything.</em></h1><p class="lead">An observation becomes a question. A question becomes an investigation. The work gets better when we share what we find—and what we still don't know.</p><div class="station-actions"><a class="station-button" href="/investigate/learn/">Explore the research →</a><a class="station-text-link" href="#workbench">Open the workbench ↓</a></div></div>

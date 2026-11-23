@@ -13,7 +13,7 @@ export default defineConfig({
     sitemap({
       customPages: tools.map((t) => `https://mycoview.com/investigate/${t}/`),
       // Keep out the restricted Explorer, the 404 page and the old addresses that only redirect.
-      filter: (page) => { const path = new URL(page).pathname; return !path.startsWith('/explorer/') && !/^\/(404|curious|explore)\/?$/.test(path); },
+      filter: (page) => { const path = new URL(page).pathname; return !path.startsWith('/explorer/') && !path.startsWith('/admin/') && !/^\/(404|curious|explore)\/?$/.test(path); },
     }),
   ],
 });

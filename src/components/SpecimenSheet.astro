@@ -1,0 +1,21 @@
+---
+/* Homepage specimen sheet, built at site-build time from the featured observation.
+   The markup comes from src/lib/feature-sheet.js, the same renderer the live homepage and the admin page use. */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { renderSheet, esc } from '../lib/feature-sheet.js';
+
+interface Props { data: any; photo: ImageMetadata; photoAlt: string; scaleImage?: ImageMetadata; }
+const { data, photo, photoAlt, scaleImage } = Astro.props;
+
+const sizes = [480, 760, 1100];
+const variants = await Promise.all(sizes.map((w) => getImage({ src: photo, width: w, format: 'webp' })));
+const photoHtml = `<img src="${esc(variants[1].src)}" srcset="${variants.map((v, i) => `${esc(v.src)} ${sizes[i]}w`).join(', ')}" sizes="(max-width: 760px) 92vw, 34vw" alt="${esc(photoAlt)}" width="${photo.width}" height="${photo.height}" loading="eager" decoding="async">`;
+let scaleHtml = '';
+if (scaleImage) {
+  const s = await getImage({ src: scaleImage, width: 1100, format: 'webp' });
+  scaleHtml = `<img src="${esc(s.src)}" alt="">`;
+}
+const html = renderSheet({ ...data, photo: null }, { photoHtml, scaleHtml });
+---
+<div id="hp-sheet" set:html={html} />

@@ -6,6 +6,7 @@ html[data-tier="lab"]:root {
   --accent: #111418; --accent-ink: #FFFFFF; --good: #1E6B3A; --warn: #7A4E00; --bad: #A3221B;
   --wb-bg: #FFFFFF; --wb-surface: #F6F7F9; --wb-surface-2: #ECEEF2; --wb-ink: #111418; --wb-muted: #4A505A; --wb-line: #DADDE3;
   --wb-accent: #111418; --wb-accent-ink: #FFFFFF; --wb-good: #1E6B3A; --wb-warn: #7A4E00; --wb-bad: #A3221B;
+  --faint: #5A606B; /* hint text, 6:1 on white */
   --f-body: "Work Sans", system-ui, sans-serif;
   --f-display: "Archivo", "Arial Narrow", sans-serif;
   --f-mono: "Courier Prime", "Courier New", monospace;
@@ -16,6 +17,7 @@ html[data-tier="lab"][data-theme="dark"]:root {
   --accent: #E0A32E; --accent-ink: #141A3A; --good: #8FD9A8; --warn: #F2C46B; --bad: #F49A90;
   --wb-bg: #141A3A; --wb-surface: #1B2250; --wb-surface-2: #232B60; --wb-ink: #EDEFF6; --wb-muted: #B7BEDA; --wb-line: #2E3770;
   --wb-accent: #E0A32E; --wb-accent-ink: #141A3A; --wb-good: #8FD9A8; --wb-warn: #F2C46B; --wb-bad: #F49A90;
+  --faint: #9AA2C4; /* hint text, 6:1 on navy */
   color-scheme: dark;
 }
 html[data-tier="lab"] :is(h1, h2, h3) { font-family: var(--f-display); font-stretch: 85%; font-weight: 700; letter-spacing: 0; }

@@ -125,3 +125,7 @@ html[data-tier="lab"] .mv-research-path li.is-planned a .mv-path-n { background:
 html[data-tier="lab"] main figcaption { background: transparent !important; color: var(--ds-ink-muted) !important; font-family: var(--ds-font-body) !important; letter-spacing: 0 !important; }
 html[data-tier="lab"] main .mv-case-hero-photo figcaption { background: linear-gradient(transparent, rgba(0, 0, 0, .85)) !important; }
 html[data-tier="lab"] main .mv-case-hero-photo figcaption, html[data-tier="lab"] main .mv-case-hero-photo figcaption * { color: #FFFFFF !important; }
+html[data-tier="lab"] .closer-video.is-pending { background: var(--ds-panel) !important; border: 1px dashed var(--ds-line-strong); color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .closer-video.is-pending :is(small, span) { color: var(--ds-ink-muted) !important; }
+html[data-tier="lab"] .story-dialog { background: var(--ds-panel) !important; color: var(--ds-ink) !important; border: 1px solid var(--ds-line-subtle) !important; border-radius: var(--ds-radius-lg) !important; }
+html[data-tier="lab"] .story-dialog :where(h2, h3, p, a, li, span, strong, small) { color: inherit !important; }

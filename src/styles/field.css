@@ -111,3 +111,8 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 [data-tier="field"] :is(.op-steps article, .op-resource-links) { border-top-color: var(--ds-line-subtle) !important; }
 [data-tier="field"] .op-outro aside { background: var(--ds-paper-card) !important; color: var(--ds-paper-ink) !important; box-shadow: var(--ds-shadow-paper); }
 [data-tier="field"] .op-section h2 { font-weight: 800; font-stretch: 75%; }
+/* Page wrappers set their own green text colour; on kraft it is ink. */
+[data-tier="field"] :is(.op-page, .about-page, .station-page, .mv-guide) { color: var(--ds-ink) !important; }
+/* Panels inside a paper dashboard are ruled boxes, not more paper. */
+[data-tier="field"] .one-place-dashboard :is(.opd-panel, .opd-stat-grid) { box-shadow: none !important; border: 1px solid #DDD8CB !important; }
+[data-tier="field"] .mv-guide-photo { background: var(--ds-paper-sheet) !important; border: 2px dashed var(--ds-line-subtle) !important; border-radius: 0 !important; color: var(--ds-paper-ink-muted) !important; }

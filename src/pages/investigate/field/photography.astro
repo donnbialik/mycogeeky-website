@@ -12,7 +12,7 @@ const sources = [
 ];
 const tour = [
   { title: 'Phone photos that can be identified', body: '<p>Most unidentifiable observations aren’t bad mushrooms, they’re missing views or out of focus. This walk-through covers the shots to take, how to get them sharp on a phone, and a ten-second check before you walk away.</p>' },
-  { sel: '#shots', title: 'The shot list', body: '<p>Top, underside, side profile, the whole base, a cut section, and the habitat. The base and underside are the ones people skip.</p>' },
+  { sel: '#shots', title: 'The shot list', body: '<p>Start with the mushroom in place, the cap, the underside and a side view. A whole base and a cut section can add detail when you have permission to collect.</p>' },
   { sel: '#focus', title: 'Getting it sharp', body: '<p>Tap the part that matters, lock focus, and don’t move closer afterwards. Use your phone’s real lenses rather than pinch-zooming.</p>' },
   { sel: '#light', title: 'Light and colour', body: '<p>Even light, no harsh sun or flash glare, and a slip or card in frame. Colour is evidence, and some of it fades within minutes.</p>' },
   { sel: '#check', title: 'Check before you leave', body: '<p>Zoom into one photo on the screen. If the gills aren’t crisp at full size, retake it now: you can’t go back for it later.</p>' },
@@ -21,9 +21,9 @@ const shots = [
   ['In place', 'Before you touch it: the mushroom where it grew, with the host tree, wood or soil visible.', '1'],
   ['Top of the cap', 'Colour, texture, scales or warts, sliminess. A slight angle often shows texture better than straight down.', '1'],
   ['Underside', 'Gills, pores or teeth, and how they meet the stem. This is the most commonly missing photo.', '1'],
-  ['Side profile', 'Cap shape, stem shape, any ring. Lay it on the ground or hold it up.', '2'],
-  ['The whole base', 'Dig it out, don’t snap it off. Bulbs, cups (volvas) and rooting bases are often underground.', '1'],
-  ['Cut in half', 'Top to bottom through cap and stem: flesh colour, hollow or solid stem, and any colour change. Photograph it again after a few minutes if it changes.', '2'],
+  ['Side profile', 'Cap shape, stem shape, any ring. Try a low angle while it’s still in place.', '2'],
+  ['The whole base', 'Photograph any base you can see. If you’re collecting with permission, lift the mushroom with its base intact. Bulbs, cups (volvas) and rooting bases are often underground.', '1'],
+  ['Cut in half', 'If you’ve collected a specimen, cut from top to bottom through cap and stem to show flesh colour, whether the stem is hollow or solid, and any colour change. Photograph it again after a few minutes if it changes.', '2'],
   ['Scale and number', 'A ruler, coin or your field slip in at least one shot. The slip also ties the photos to the specimen.', '1'],
 ];
 ---
@@ -31,7 +31,8 @@ const shots = [
 
 <section id="shots">
 
-  <h2>Seven views. Most observations miss two of them.</h2>
+  <h2>Seven views to look for</h2>
+  <p>A photo-only observation can be useful. If you’re leaving the mushroom in place, photograph the features you can see and skip any step that would disturb it. Where collecting is permitted, a dried, labeled specimen can be examined or sequenced later. See <a href="/investigate/field/start-to-finish/">the specimen collection workflow</a> if you plan to preserve one.</p>
   <p>FunDiS asks for the cap, the gill or pore surface and the stem, plus the bulb or volva and any staining where they apply, with something for scale and the host or substrate visible.<sup class="mv-ref"><a href="#sources">1</a></sup> Their in-depth guide adds all sides, close-ups of details, and the hidden base.<sup class="mv-ref"><a href="#sources">2</a></sup></p>
   <ol class="mv-guide-steps">{shots.map(([t, b, s]) => <li><h3>{t}</h3><p>{b}<sup class="mv-ref"><a href="#sources">{s}</a></sup></p></li>)}</ol>
   <div class="mv-guide-photo">Photo set to come: one collection shown in all seven views</div>
@@ -54,7 +55,7 @@ const shots = [
   <h2>Colour is evidence. Some of it doesn’t last.</h2>
   <p>FunDiS notes that photographs may not show colours accurately, which is why written notes on colour still matter.<sup class="mv-ref"><a href="#sources">2</a></sup> Some colour changes take minutes to appear after cutting (their guide shows a <em>Russula</em> turning pink-brown five minutes after it was cut),<sup class="mv-ref"><a href="#sources">2</a></sup> and others, like a bolete’s blue bruise, can fade.</p>
   <div class="mv-guide-do">
-    <div><h3>Do</h3><ul><li>Shade the mushroom with your body or hat in harsh sun</li><li>Get your field slip or a white card in one frame, for a colour reference</li><li>Photograph cut surfaces straight away, and again a few minutes later</li></ul></div>
+    <div><h3>Do</h3><ul><li>Shade the mushroom with your body or hat in harsh sun</li><li>Get your field slip or a white card in one frame, for a colour reference</li><li>If you cut a collected specimen, photograph the surface straight away and again a few minutes later</li></ul></div>
     <div><h3>Avoid</h3><ul><li>Dappled sun across the cap, which hides real colours</li><li>Flash straight on at close range, which blows out pale gills</li><li>“Beauty” filters and portrait-mode blur on the subject</li></ul></div>
   </div>
 </section>
@@ -63,12 +64,24 @@ const shots = [
 
   <h2>The ten-second check.</h2>
   <ol class="mv-guide-steps">
-    <li><p>Open the underside photo and spread two fingers to zoom in. Are individual gills or pores crisp?</p></li>
-    <li><p>Is the base in at least one photo, whole, not snapped?</p></li>
+    <li><p>If you could photograph the underside, zoom in. Are the gills, pores or teeth crisp?</p></li>
+    <li><p>If the base was visible or you collected the mushroom whole, is the base in at least one photo?</p></li>
     <li><p>Is your slip or a scale in at least one photo?</p></li>
   </ol>
-  <p>If any answer is no, retake it now. A photo can be fixed in the field; it can’t be fixed at home. The University of Kentucky’s extension guide makes the same point: photos are limited, which is why the specimen, and sometimes microscopy or DNA, matter too.<sup class="mv-ref"><a href="#sources">3</a></sup></p>
+  <p>Retake any blurry or missing view you can still get. A photo can be fixed in the field; it can’t be fixed at home. The University of Kentucky’s extension guide makes the same point: photos are limited, which is why the specimen, and sometimes microscopy or DNA, matter too.<sup class="mv-ref"><a href="#sources">3</a></sup></p>
   <p>Some genera need extra shots (latex colour, a cortina, a dug-out bulb). See <a href="/investigate/field/genus-notes/">Genus notes</a>. For iNaturalist’s own advice on phone photos, see their post <a href="https://www.inaturalist.org/blog/134313-smartphone-photography-for-inaturalist">Smartphone Photography for iNaturalist</a>.<sup class="mv-ref"><a href="#sources">7</a></sup></p>
+</section>
+
+<section id="observation">
+  <h2>Make one iNaturalist observation</h2>
+  <ol class="mv-guide-steps">
+    <li><p>Add the photos of the same find to one observation. Use separate observations for different finds.</p></li>
+    <li><p>Check that the date and map pin match when and where you found it.</p></li>
+    <li><p>In the notes, record what it was growing on and a detail about the habitat. For example, “On a fallen log in a shaded hardwood forest.” Add any feature the photos missed, such as a colour change you saw.</p></li>
+    <li><p>Use the most specific identification you can support. “Fungi” is enough to start if that’s all you know.</p></li>
+  </ol>
+  <p><strong>Try it on your next walk.</strong> Choose one mushroom you would usually photograph only from above. Add a sharp underside view if you can get it in place, write down what it grew on, and post the find to iNaturalist.</p>
+  <p><a href="https://www.inaturalist.org/">Open iNaturalist</a></p>
 </section>
 
 </FieldGuide>

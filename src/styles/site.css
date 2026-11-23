@@ -1455,7 +1455,7 @@ sup.mv-ref a{font:600 .7em var(--v5-mono);text-decoration:none;color:#3f7a55;pad
   .mv-guide-sources li{font-size:9pt!important}
 }
 
-/* Landing page: the hero's "Start exploring" button glows (a slow pulse; a steady glow for reduced motion). */
+/* Landing page: the hero activity button glows (a slow pulse; a steady glow for reduced motion). */
 .mv-hero-actions .mv-primary{box-shadow:0 0 18px 2px rgba(216,236,98,.45),0 0 2px rgba(216,236,98,.9)}
 @media(prefers-reduced-motion:no-preference){
   .mv-hero-actions .mv-primary{animation:mv-glow 2.8s ease-in-out infinite}

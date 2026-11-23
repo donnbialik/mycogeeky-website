@@ -1896,6 +1896,15 @@ function takeawayData(){
   if(pair)pair.taxa=calTaxa([...itA,...itB],[A,B]);
   return{an,A,B,itA,itB,sA,sB,sX,fx,rec,dAB,LAB,dA,dB,subsAB,indAB,regs,types,mixed,mixedInd,sameInd,opt,regMed,pair,genus,cal,thrE};
 }
+function sampleSeparation(t){
+  if(!t.dAB.length)return null;
+  const within=[...t.dA,...t.dB];
+  if(!within.length)return ['warn','No within-group ITS comparisons are available for these sequences.'];
+  const smallestBetween=Math.min(...t.dAB),largestWithin=Math.max(...within);
+  return smallestBetween>largestWithin
+    ? ['good',`For the sequences compared, the smallest between-group ITS difference (${smallestBetween}) exceeded the largest observed within-group difference (${largestWithin}).`]
+    : ['warn',`For the sequences compared, the smallest between-group ITS difference (${smallestBetween}) was at or below the largest observed within-group difference (${largestWithin}).`];
+}
 function takeawayText(t){
   const lines=[];
   const md=Math.round(median(t.dAB)),lo=Math.min(...t.dAB),hi=Math.max(...t.dAB),L=Math.round(median(t.LAB));
@@ -1906,9 +1915,8 @@ function takeawayText(t){
   const rm=t.regMed;if(rm)items.push(['',`Where they differ, on a typical pair: ITS1 ${rm.ITS1}, 5.8S ${rm['5.8S']}, ITS2 ${rm.ITS2}.`]);
   const iA=t.dA.length?rangeTxt(Math.min(...t.dA),Math.max(...t.dA)):null,iB=t.dB.length?rangeTxt(Math.min(...t.dB),Math.max(...t.dB)):null;
   if(iA||iB)items.push(['',`Inside each group, sequences differ by ${iA!==null?`${iA} (A)`:'– (A has one sequence)'} and ${iB!==null?`${iB} (B)`:'– (B has one sequence)'}.`]);
-  const hiIntra=Math.max(t.dA.length?Math.max(...t.dA):0,t.dB.length?Math.max(...t.dB):0);
-  if(t.dAB.length&&lo>hiIntra)items.push(['good',`Even the most similar A–B pair (${nBases(lo)}) differs more than any two sequences inside a group (${hiIntra} at most). The groups do not overlap.`]);
-  else if(t.dAB.length)items.push(['warn',`Some A–B pairs are as close as sequences inside a group (${lo} vs up to ${hiIntra}). The groups overlap.`]);
+  const separation=sampleSeparation(t);
+  if(separation)items.push(separation);
   const fxN=t.fx.total;
   if(fxN)items.push(['key',`${fxN} of the differences ${fxN===1?'is':'are'} consistent: every A sequence has one base and every B sequence another. ${fxN>=t.opt.minFixed?'These reliably tell the groups apart.':'That is only a few, so treat it with caution.'}`]);
   else items.push(['warn','None of the differences is consistent across every sequence in both groups.']);
@@ -1945,7 +1953,7 @@ function renderTakeaway(){
     `<div class="tk-std"><p class="small" style="margin:0;max-width:78ch"><strong><span class="tipped" data-tip="refPoints">Reference points.</span></strong> UNITE builds species hypotheses at 98.5% similarity (1.5% difference). A large study of filamentous fungi (Vu et al. 2019) found 99.6% ITS identity separated species best overall. A single cutoff fits many genera poorly, though. A standard built from the genus is a better yardstick, and the closest related species are better still: species within one genus vary unevenly.</p>${t.genus?`<div class="row" style="margin-top:8px"><button type="button" class="shrink" data-calbuild="${esc(t.genus)}">Build the ${esc(t.genus)} standard</button></div>`:''}</div>`}
     <div class="tk-verdict ${t.rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${t.rec.cls}">${esc(x.plain)}</span></span><span class="small muted">Tool's call: ${esc(t.rec.label)} · confidence ${esc(t.rec.conf)} · cutoff ${fmt(t.thrE.pct,2)}% from ${esc(t.thrE.src)}</span></div>
     <p class="tk-next"><strong>Suggested next step:</strong> ${esc(x.next)}</p>
-    <p class="small muted" style="margin:0">Counts follow your settings (a gap counts once however long it is; homopolymer gaps ${t.opt.ignoreHP?'are skipped':'are counted'}). The Report tab below has the full reasoning.</p>
+    <p class="small muted" style="margin:0">ITS differences alone cannot establish species boundaries. Counts follow your settings (a gap counts once however long it is; homopolymer gaps ${t.opt.ignoreHP?'are skipped':'are counted'}). The Report tab below has the full reasoning.</p>
   </div>`;
 }
 $('#takeaway').addEventListener('click',e=>{const g=e.target.dataset.calbuild;if(!g)return;$('#calGenus').value=g;$('#calCard').open=true;$('#calCard').scrollIntoView({behavior:'smooth'});renderCal();buildCalibration();});
@@ -2257,7 +2265,9 @@ function inatComment(fmtMd,full){
     const iA=t.dA.length?Math.max(...t.dA):null,iB=t.dB.length?Math.max(...t.dB):null;
     const side=(n,len,lt)=>len===1?`${lt} is a single sequence`:n===0?`the ${lt} sequences are identical`:`within ${lt}, sequences differ by up to ${n}`;
     const w=`${side(iA,t.itA.length,'A')}; ${side(iB,t.itB.length,'B')}`;
-    li(`${w.charAt(0).toUpperCase()+w.slice(1)}. ${lo>Math.max(iA||0,iB||0)?'The groups do not overlap: every A–B pair differs more than any two sequences within a group.':'The groups overlap: some A–B pairs are as close as sequences within a group.'}`);
+    li(`${w.charAt(0).toUpperCase()+w.slice(1)}.`);
+    const separation=sampleSeparation(t);
+    if(separation)li(separation[1]);
     if(t.itA.length>1&&t.itB.length>1)li(t.fx.total?`Consistent differences (every A sequence one base, every B sequence another): ${t.fx.total}${t.regs.length?` (${t.regs.map(([k,v])=>`${k} ${v}`).join(', ')})`:''}.`:'No difference is consistent across every sequence in both groups.');
   }
   if(t.cal&&x.std){li(`Yardstick: ${x.std.verdict.replace(`Against the ${t.cal.genus} standard`,`against the ${i(t.cal.genus)} ITS standard (${t.cal.nSp} named species from GenBank),`)}`);

@@ -2,6 +2,7 @@
 import Photo from '../../components/Photo.astro';
 import Base from '../../layouts/Base.astro';
 import SupportBlock from '../../components/SupportBlock.astro';
+import { contactEmail } from '../../data/site';
 import { Image } from 'astro:assets';
 import neoMycoLogo from '../../assets/logos/neo-myco-logo-dark-2027.png';
 ---
@@ -12,6 +13,11 @@ import neoMycoLogo from '../../assets/logos/neo-myco-logo-dark-2027.png';
 <a class="station-editorial-card" href="/investigate/learn/#surveys"><Photo src="community-mushroom-identification-table.jpg" class="connect-survey" alt="Community mycologists examining mushroom collections together" loading="lazy" decoding="async" /><span class="station-card-body"><strong>Community field surveys</strong><span>See how observations and repeat visits can become useful biodiversity records.</span><b>Explore projects</b></span></a>
 <a class="station-editorial-card" href="/investigate/learn/"><Photo src="mycogeeky-microscopy-research.jpeg" class="connect-microscopy" alt="MycoGeeky examining fungi with a microscope beside a research laptop" loading="lazy" decoding="async" /><span class="station-card-body"><strong>Find your role in mycology</strong><span>Discover research disciplines and ways to contribute at any experience level.</span><b>Find an entry point</b></span></a>
 </div></section>
+<section class="station-content" id="research-contact">
+  <div class="station-section-head"><h2>Ask a research question or propose a collaboration</h2></div>
+  <p>Include your question and, if you have one, a link to the observation, dataset, or tool you’re working with.</p>
+  <a class="station-text-link" href={`mailto:${contactEmail}`}>Email MycoView</a>
+</section>
 <SupportBlock id="support" />
 </div></Base>
 <style>

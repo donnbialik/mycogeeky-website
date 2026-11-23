@@ -116,3 +116,7 @@ html[data-tier="field"] body { background: var(--ds-ground); color: var(--ds-ink
 /* Panels inside a paper dashboard are ruled boxes, not more paper. */
 [data-tier="field"] .one-place-dashboard :is(.opd-panel, .opd-stat-grid) { box-shadow: none !important; border: 1px solid #DDD8CB !important; }
 [data-tier="field"] .mv-guide-photo { background: var(--ds-paper-sheet) !important; border: 2px dashed var(--ds-line-subtle) !important; border-radius: 0 !important; color: var(--ds-paper-ink-muted) !important; }
+/* Support cards: let the newsletter row wrap instead of pushing the card past the screen edge on phones. */
+@media (max-width: 900px) { [data-tier="field"] .mv-support-grid { grid-template-columns: minmax(0, 1fr) !important; } }
+[data-tier="field"] main .mv-news-row { flex-wrap: wrap; }
+[data-tier="field"] main .mv-news-row input[type="email"] { flex: 1 1 160px; min-width: 0; }

@@ -5,7 +5,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <script src="/investigate/toolbar.js" defer></script><!-- MycoView tool bar (built from src/data/tools.ts) -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Check an iNaturalist user's fungi records for collections that stalled partway: provisional names without vouchers, sequences without specimens, vouchers never sequenced, sequences not in GenBank.">
+<meta name="description" content="Review public iNaturalist fungi records for missing or conflicting voucher, sequencing, and GenBank fields.">
 <link rel="stylesheet" href="/fonts/mycoview.css" />
 <title>Collection Check · MycoView</title>
 <script>try{const t=JSON.parse(localStorage.getItem('collectionCheck.theme'));if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
@@ -40,6 +40,7 @@ details.chk summary h3{margin:0;font-size:14.5px}
 details.chk summary p{margin:2px 0 0;font-size:12.5px;color:var(--wb-muted)}
 details.chk summary .tag{font:500 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--wb-muted)}
 .chkbody{padding:0 14px 12px}
+.check-action{margin:0 0 10px}
 .scroll{max-height:420px;overflow:auto;border:1px solid var(--wb-line);border-radius:6px}
 table{border-collapse:collapse;width:100%;font-size:12.5px}
 th,td{border-bottom:1px solid var(--wb-line);padding:5px 8px;text-align:left;vertical-align:top}
@@ -89,7 +90,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   <div class="wb-brand">
     <a id="siteHome" class="site-home" href="/investigate/field/">← Field Research Toolkit</a>
     <h1>Collection Check</h1>
-    <p>Find fungi records that stalled partway between the woods and GenBank, from the observation fields on someone’s public iNaturalist observations.</p>
+    <p>Review public iNaturalist fungi records for missing or conflicting specimen and sequencing information.</p>
   </div>
   <div class="wb-sources">
     <span class="srcchip" id="wb-src-inat" title="Live data from iNaturalist"><span class="dot"></span>iNaturalist <span class="st">checking…</span></span>
@@ -133,6 +134,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 
 <section id="s-res" class="hidden">
   <h2><span class="n">3</span>What’s missing a step</h2>
+  <p class="muted small">These flags reflect the public records and fields this check reads. Open a flag, then select an observation number. On the iNaturalist website, use <strong>Observation Fields</strong> to review or update metadata on records you can edit. Rerun <strong>Check records</strong> after saving. <a href="https://help.inaturalist.org/en/support/solutions/articles/151000178357-how-to-use-observation-fields">iNaturalist’s guide to Observation Fields</a></p>
   <div class="stats" id="stats"></div>
   <div class="checks" id="checks"></div>
   <div class="row" style="margin-top:14px"><button class="btn sec" type="button" id="csvBtn">Download the flagged records (CSV)</button><a href="/investigate/field/tracking/">Why each link in the chain matters</a><a id="fpLink" href="/investigate/observation-footprint/">See where these observations went</a></div>
@@ -198,7 +200,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
  {"title":"Collection Check","body":"<p>A collection is only finished when the specimen, its record, its sequence and GenBank all point to each other. This tool reads someone’s iNaturalist fungi records and lists the ones that stopped partway.</p>"},
  {"sel":"#s-who","title":"Whose records","body":"<p>Enter an iNaturalist username. A date limits it to recent seasons. It reads up to the most recent 5,000 fungi records.</p>"},
  {"sel":"#s-who","title":"What it looks at","body":"<p>The observation fields on each record: voucher numbers, sequencing plates, the “DNA Barcode ITS” field, GenBank accessions and provisional names.</p>"},
- {"sel":"#s-who","title":"What it checks","body":"<p>For example: a provisional name with no specimen behind it, a sequence with no voucher, a voucher never sequenced, a plate with no sequence added, or a sequence not yet in GenBank.</p>"},
+ {"sel":"#s-who","title":"What it checks","body":"<p>For example: a provisional name with no voucher recorded, a sequencing plate with no ITS result shown, or an ITS sequence with no GenBank accession on the observation. Each flag suggests what to verify next.</p>"},
  {"sel":"#s-who","title":"Keep or discard?","body":"<p>After the check, step 4 ranks each of your species by how often <em>others</em> have recorded and sequenced it in your state, and optionally a second region such as an ecoregion. Provisionals and rarely documented species are flagged to keep.</p>"},
  {"sel":"#s-who","title":"What it can’t know","body":"<p>It only knows what the records say. If a specimen sits in your herbarium but the observation doesn’t mention it, the tool will count it as missing, which is itself worth fixing.</p>"}
 ]}</script>
@@ -225,14 +227,14 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
 
   var S = window.MVCheck = { obs: [], user: '', stop: false, off: new Set(store.get('collectionCheck.off') || []), extra: store.get('collectionCheck.extra') || {} };
   var CHECKS = [
-    { id: 'prov-nov', sev: 'high', title: 'Provisional name, no voucher', why: 'A provisional species with no kept specimen can’t be examined, re-sequenced or described.', test: function (r) { return r.prov && !r.vouchered; } },
-    { id: 'seq-nov', sev: 'high', title: 'Sequence, but no voucher recorded', why: 'If the name on the sequence is ever questioned, there’s no specimen on record to check it against.', test: function (r) { return r.its && !r.vouchered; } },
-    { id: 'conflict', sev: 'mid', title: 'Voucher fields disagree', why: 'A yes/no voucher field says no, but a voucher or plate number is filled in.', test: function (r) { return r.conflict; } },
-    { id: 'plate-noseq', sev: 'mid', title: 'On a sequencing plate, no sequence added', why: 'Tissue went for sequencing, but no ITS result is on the record. Recent plates may still be at the lab; older ones may have a failed read that isn’t noted.', test: function (r) { return r.plate && !r.its; } },
-    { id: 'seq-nogb', sev: 'mid', title: 'Sequence not in GenBank yet', why: 'The sequence is on iNaturalist but has no GenBank accession, so it isn’t in the database most researchers search. Leave this one if you don’t deposit to GenBank yourself.', test: function (r) { return r.its && !r.genbank; } },
-    { id: 'prov-noseq', sev: 'mid', title: 'Provisional name, no sequence on the record', why: 'Provisional names usually rest on a sequence; without it on the record, others can’t compare theirs.', test: function (r) { return r.prov && !r.its; } },
-    { id: 'v-coarse', sev: 'low', title: 'Vouchered, but identified only above genus', why: 'A kept specimen whose record is still at family level or higher is hard for anyone to find.', test: function (r) { return r.vouchered && (r.rank == null || r.rank > 20); } },
-    { id: 'v-unseq', sev: 'low', title: 'Vouchered, not sequenced yet', why: 'A queue, not a fault: specimens you could send for sequencing.', test: function (r) { return r.vouchered && !r.its && !r.plate; } }
+    { id: 'prov-nov', sev: 'high', title: 'Provisional name, no voucher recorded', why: 'The checked fields show a provisional name without a link to a specimen.', action: 'Look for a matching specimen in your collection or project records. If you find one, add its verified number in the voucher field your project uses. If no specimen is known, leave the field blank.', test: function (r) { return r.prov && !r.vouchered; } },
+    { id: 'seq-nov', sev: 'high', title: 'Sequence, but no voucher recorded', why: 'The checked fields show an ITS sequence without a link to a specimen.', action: 'Match the lab result to the original specimen label or catalog entry. Add the confirmed identifier to the voucher field. If you can’t match it, leave the field blank.', test: function (r) { return r.its && !r.vouchered; } },
+    { id: 'conflict', sev: 'mid', title: 'Voucher fields disagree', why: 'A yes/no voucher field says no, but a voucher or plate number is filled in.', action: 'Compare the yes/no field and the recorded number with the actual specimen or lab record. Correct the entry you can verify is wrong. A plate number alone doesn’t confirm that a dried specimen was kept.', test: function (r) { return r.conflict; } },
+    { id: 'plate-noseq', sev: 'mid', title: 'Sequencing plate recorded, no ITS result found', why: 'The checked fields show a plate number without a recognizable ITS sequence.', action: 'Look up the plate and well in your lab results. If you have a usable ITS result matched to this specimen, add it to DNA Barcode ITS or your project’s corresponding field. A pending or failed result can stay blank.', test: function (r) { return r.plate && !r.its; } },
+    { id: 'seq-nogb', sev: 'mid', title: 'No GenBank accession recorded', why: 'The checked fields show an ITS sequence without an accession. This check reads iNaturalist fields only.', action: 'Confirm the accession with your submitter or deposition record, then add it to the GenBank accession field. Leave it blank if no accession has been assigned.', test: function (r) { return r.its && !r.genbank; } },
+    { id: 'prov-noseq', sev: 'mid', title: 'Provisional name, no ITS sequence found', why: 'The checked fields show a provisional name without a recognizable ITS sequence.', action: 'Check the evidence for the provisional name. If a verified ITS result belongs to this specimen, add it to DNA Barcode ITS or your project’s corresponding field. Use only data from this specimen.', test: function (r) { return r.prov && !r.its; } },
+    { id: 'v-coarse', sev: 'low', title: 'Voucher recorded, no genus ID or finer', why: 'The record has voucher evidence and its current identification is broad or missing.', action: 'Review the photos, notes or specimen. Add an identification only as specific as the evidence supports, or ask an identifier which feature to check. This uses iNaturalist’s identification area.', test: function (r) { return r.vouchered && (r.rank == null || r.rank > 20); } },
+    { id: 'v-unseq', sev: 'low', title: 'Voucher recorded, no plate or ITS result found', why: 'This is a list of possible follow-ups for specimens with voucher evidence.', action: 'If there’s a reason to sequence this collection, confirm the specimen is still available and check your project’s submission instructions. Otherwise, it’s fine to leave the record as it is.', test: function (r) { return r.vouchered && !r.its && !r.plate; } }
   ];
 
   function sleep(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
@@ -294,8 +296,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     $('#checks').innerHTML = CHECKS.map(function (ck) {
       var hits = S.obs.filter(ck.test);
       var rows = hits.slice(0, 500).map(function (r) { return '<tr><td><a href="https://www.inaturalist.org/observations/' + r.id + '">' + r.id + '</a></td><td><i>' + esc(r.name) + '</i>' + (r.common ? ' <span class="muted">' + esc(r.common) + '</span>' : '') + '</td><td>' + esc(r.date) + '</td><td>' + esc(r.place) + '</td><td class="fv">' + esc(r.summary) + '</td></tr>'; }).join('');
-      return '<details class="chk s-' + ck.sev + (hits.length ? '' : ' zero') + '"><summary><span class="c">' + hits.length + '</span><span><h3>' + esc(ck.title) + '</h3><p>' + esc(ck.why) + '</p></span><span class="tag">' + (ck.sev === 'high' ? 'Fix first' : ck.sev === 'mid' ? 'Worth fixing' : 'To do') + '</span></summary>'
-        + (hits.length ? '<div class="chkbody"><div class="scroll"><table><thead><tr><th>Observation</th><th>Taxon</th><th>Observed</th><th>Place</th><th>What the record says</th></tr></thead><tbody>' + rows + '</tbody></table></div>' + (hits.length > 500 ? '<p class="small muted">Showing the first 500; the CSV has all ' + hits.length + '.</p>' : '') + '</div>' : '<div class="chkbody small muted">None found.</div>') + '</details>';
+      return '<details class="chk s-' + ck.sev + (hits.length ? '' : ' zero') + '"><summary><span class="c">' + hits.length + '</span><span><h3>' + esc(ck.title) + '</h3><p>' + esc(ck.why) + '</p></span><span class="tag">' + (ck.sev === 'high' ? 'Review first' : ck.sev === 'mid' ? 'Review' : 'Follow up') + '</span></summary>'
+        + (hits.length ? '<div class="chkbody"><p class="check-action"><strong>Next step:</strong> ' + esc(ck.action) + '</p><div class="scroll"><table><thead><tr><th>Observation</th><th>Taxon</th><th>Observed</th><th>Place</th><th>What the record says</th></tr></thead><tbody>' + rows + '</tbody></table></div>' + (hits.length > 500 ? '<p class="small muted">Showing the first 500; the CSV has all ' + hits.length + '.</p>' : '') + '</div>' : '<div class="chkbody small muted">None found.</div>') + '</details>';
     }).join('');
     $('#s-fields').classList.remove('hidden'); $('#s-res').classList.remove('hidden');
     document.dispatchEvent(new CustomEvent('mvcheck:render'));

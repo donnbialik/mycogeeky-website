@@ -6,7 +6,7 @@ const sources = [
   { cite: 'Osmundson TW et al. (2013). Filling gaps in biodiversity knowledge for macrofungi: contributions and assessment of an herbarium collection DNA barcode sequencing project. <em>PLoS ONE</em> 8(4): e62419.', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3640088/' },
   { cite: 'FunDiS. <em>Field data slips.</em>', url: 'https://www.fundis.org/field-data-slips' },
   { cite: 'FunDiS. <em>Sequencing protocol</em> (photograph, collect, dry, voucher).', url: 'https://fundis.org/sequence' },
-  { cite: 'FunDiS. <em>Dry your specimens</em> (label specimens on the rack).', url: 'https://fundis.org/sequence/collect-dry/dry-your-specimens' },
+  { cite: 'FunDiS. <em>Drying &amp; Storing Mushroom Specimens</em> (labels and finding the observation number).', url: 'https://www.fundis.org/processing-fungal-specimens' },
   { cite: 'Rockefeller A. <em>How to print high quality herbarium labels with iNaturalist observation information.</em> iNaturalist Forum.', url: 'https://forum.inaturalist.org/t/how-to-print-high-quality-herbarium-labels-with-inaturalist-observation-information/72302' },
   { cite: 'Mason B. et al. (2025). iNaturalist accelerates biodiversity research. <em>BioScience</em> 75(11): 953.', url: 'https://doi.org/10.1093/biosci/biaf104' },
   { cite: 'Best practices for using iNaturalist data in research. <em>BioScience</em> (2026).', url: 'https://doi.org/10.1093/biosci/biag135' },
@@ -14,12 +14,12 @@ const sources = [
 const tour = [
   { title: 'Specimen tracking', body: '<p>A sequence is only useful if everyone can be sure which mushroom it came from. This page shows why, and how to keep that link unbroken from the woods to GenBank.</p>' },
   { sel: '#why', title: 'Why it matters', body: '<p>A 2006 study estimated that about 1 in 5 fungal sequences in the public databases may carry the wrong species name. A kept specimen is what lets someone check.</p>' },
-  { sel: '#chain', title: 'The chain', body: '<p>One number follows the collection everywhere: basket, photos, iNaturalist, dehydrator, bag, plate and sequence.</p>' },
+  { sel: '#chain', title: 'The chain', body: '<p>Start with a field number. When the observation is posted, write its number alongside the field number so the photos, specimen and record stay linked.</p>' },
   { sel: '#breaks', title: 'Where it breaks', body: '<p>Most mix-ups happen at a handful of predictable moments. Knowing them is most of the fix.</p>' },
   { sel: '#tools', title: 'Tools that help', body: '<p>Free tools for labels and slips, including Alan Rockefeller’s, and MycoView tools that check your records for gaps.</p>' },
 ];
 ---
-<FieldGuide title="Specimen tracking" description="Why every fungal specimen, photo, record and DNA sequence must stay linked, what the research shows when they don't, and a simple system to keep them matched." eyebrow="FIELD RESEARCH TOOLKIT / SPECIMEN TRACKING" heading="One mushroom, <em>one number, all the way.</em>" lead="A DNA sequence is only as trustworthy as the label on the bag it came from. Here’s why that link matters, and how to keep it." tourKey="field-tracking" tour={tour} sources={sources} current="tracking">
+<FieldGuide title="Specimen tracking" description="Why every fungal specimen, photo, record and DNA sequence must stay linked, what the research shows when they don't, and a simple system to keep them matched." eyebrow="FIELD RESEARCH TOOLKIT / SPECIMEN TRACKING" heading="Keep the mushroom <em>with its record.</em>" lead="A DNA sequence is only as trustworthy as the label on the bag it came from. Here’s why that link matters, and how to keep it." tourKey="field-tracking" tour={tour} sources={sources} current="tracking">
 
 <section id="why">
 
@@ -36,14 +36,15 @@ const tour = [
 
 <section id="chain">
 
-  <h2>One number travels with the collection.</h2>
-  <p>FunDiS uses printed field data slips with a temporary number on each.<sup class="mv-ref"><a href="#sources">3</a></sup> The slip goes in every photo, and once the observation is posted, its iNaturalist or Mushroom Observer number becomes the specimen’s permanent ID. A corner of the slip stays with the specimen while it dries.<sup class="mv-ref"><a href="#sources">3</a></sup><sup class="mv-ref"><a href="#sources">4</a></sup></p>
+  <h2>Link the field number to the observation number.</h2>
+  <p>Start with a temporary field number. After posting, add the iNaturalist or Mushroom Observer observation number to the same slip or collection log. Keeping both numbers together lets you match the original photos to the online record and the dried specimen.<sup class="mv-ref"><a href="#sources">3</a></sup><sup class="mv-ref"><a href="#sources">5</a></sup></p>
+  <p class="mv-guide-note"><strong>Example:</strong> You photograph the mushroom with field slip <strong>F-017</strong>. After posting, the observation link ends in <strong>/observations/123456789</strong>. Write <strong>iNaturalist 123456789</strong> beside <strong>F-017</strong> on the slip. Keep that slip with the dried specimen.</p>
   <ol class="mv-guide-steps">
     <li><span class="mv-guide-when">In the field</span><h3>Number it before it goes in the basket</h3><p>A field slip (or any pre-numbered tag) goes with the collection, in its own container or wrap. Note the number on your phone or slip with anything you notice: smell, host tree, colour changes.</p></li>
     <li><span class="mv-guide-when">In the field</span><h3>Put the number in the photos</h3><p>Photograph the slip beside the mushroom. Now the photos and the specimen share a number, even before anything is uploaded.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
-    <li><span class="mv-guide-when">That evening</span><h3>Post it, and adopt the observation number</h3><p>Upload to iNaturalist. The observation number becomes the specimen number. Record it in a voucher field on the observation so anyone can see a specimen exists.<sup class="mv-ref"><a href="#sources">3</a></sup></p></li>
-    <li><span class="mv-guide-when">That evening</span><h3>Label it on the rack</h3><p>The slip corner or a printed label sits beside the specimen in the dehydrator.<sup class="mv-ref"><a href="#sources">5</a></sup></p></li>
-    <li><span class="mv-guide-when">Next morning</span><h3>Bag it with its label inside</h3><p>A herbarium label, printed from the observation, goes inside the bag. One collection at a time.</p></li>
+    <li><span class="mv-guide-when">After posting</span><h3>Write both numbers together</h3><p>Open the posted observation or copy its share link. On iNaturalist, the digits after <code>/observations/</code> are the observation number. Write it next to the field number before moving on to the next collection.<sup class="mv-ref"><a href="#sources">5</a></sup></p></li>
+    <li><span class="mv-guide-when">When drying</span><h3>Label it on the rack</h3><p>Keep the numbered slip corner or a label beside the specimen. If you haven’t posted yet, start drying with the field number and add the observation number once you post.<sup class="mv-ref"><a href="#sources">5</a></sup></p></li>
+    <li><span class="mv-guide-when">Once dry</span><h3>Bag it with its label inside</h3><p>Bag one collection at a time. Keep the matched slip with the specimen. If you use a printed label, check its observation number against the slip before sealing the bag.<sup class="mv-ref"><a href="#sources">5</a></sup></p></li>
     <li><span class="mv-guide-when">Later</span><h3>Sequencing, then back to the record</h3><p>Note the sequencing plate and well on the observation, add the ITS sequence when it arrives, and the GenBank accession once it’s deposited. Now every piece points to every other.</p></li>
   </ol>
   <div class="mv-guide-photo">Photo to come: a field slip in the photo, beside the mushroom</div>

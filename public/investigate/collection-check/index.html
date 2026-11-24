@@ -190,7 +190,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     <div id="wMsg"></div>
     <div id="wPrev"></div>
     <div class="row hidden" id="wProgRow" style="margin-top:8px"><progress id="wBar" max="1" value="0"></progress><span class="small muted" id="wProg"></span></div>
-    <div id="wLogWrap" class="hidden" style="margin-top:10px"><div class="scroll" style="max-height:220px"><table id="wLog"><thead><tr><th>Time</th><th>Observation</th><th>Action</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+    <p id="wBatchNext" class="small" role="status"></p>
+    <div id="wLogWrap" class="hidden" style="margin-top:10px">
+      <p class="small muted">The log stays on this page. Download a copy before leaving if you need to reconcile the batch later.</p>
+      <div class="scroll" style="max-height:220px"><table id="wLog"><thead><tr><th>Batch</th><th>Time</th><th>Observation</th><th>Field</th><th>Action</th><th>Status</th><th>Details</th></tr></thead><tbody></tbody></table></div>
       <div class="row" style="margin-top:6px"><button class="btn sec" type="button" id="wLogCsv">Download the log (CSV)</button></div></div>
   </div>
 </section>
@@ -466,7 +469,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   var $ = function (s) { return document.querySelector(s); };
   var API = 'https://api.inaturalist.org/v1';
   var VAL = { prov: 'provisional', doc: 'rarely documented', seq: 'rarely sequenced', well: 'well documented' };
-  var W = { token: '', me: null, field: null, jobs: [], stop: false, busy: false, log: [] };
+  var W = { token: '', me: null, field: null, jobs: [], stop: false, busy: false, log: [], batch: 0, unconfirmedScans: new WeakSet() };
   try { W.field = JSON.parse(localStorage.getItem('collectionCheck.writeField') || 'null'); } catch (e) { /* storage unavailable */ }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -483,7 +486,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
   function ownsScan() {
     return W.me && window.MVCheck && W.me.login.toLowerCase() === window.MVCheck.user.toLowerCase();
   }
-  function ready() { $('#wWrite').disabled = W.busy || !ownsScan() || !W.jobs.some(writable); }
+  function needsFreshScan() { return window.MVCheck && W.unconfirmedScans.has(window.MVCheck.obs); }
+  function ready() { $('#wWrite').disabled = W.busy || !ownsScan() || needsFreshScan() || !W.jobs.some(writable); }
   function invalidate() {
     W.jobs = [];
     $('#wPrev').innerHTML = ''; $('#wMsg').innerHTML = '';
@@ -547,44 +551,72 @@ h1,h2,h3{font-family:var(--f-display);font-weight:600;letter-spacing:.01em}
     });
     var n = function (a) { return W.jobs.filter(function (j) { return j.act === a; }).length; };
     $('#wMsg').innerHTML = '';
-    $('#wStatus').textContent = ownsScan() ? 'Preview ready.' : 'Verify a token for this account to write. Verification requires a new preview.';
+    $('#wStatus').textContent = needsFreshScan() ? 'Run Check records again before retrying this batch.' : ownsScan() ? 'Preview ready.' : 'Verify a token for this account to write. Verification requires a new preview.';
     $('#wPrev').innerHTML = '<p class="small">Account <b>' + esc(S.user) + '</b> · Field <b>' + esc(W.field.name) + '</b> (ID ' + W.field.id + ')</p>'
       + '<p class="small"><b>' + n('add') + '</b> to add · <b>' + n('update') + '</b> to replace · ' + (n('same') + n('keep existing')) + ' unchanged · ' + n('skipped') + ' skipped</p>'
       + '<div class="scroll" style="max-height:300px"><table><thead><tr><th>Observation</th><th>Species</th><th>Current value</th><th>Value after this batch</th><th>Action</th></tr></thead><tbody>'
       + W.jobs.map(function (j) { return '<tr><td><a href="https://www.inaturalist.org/observations/' + j.id + '">' + j.id + '</a></td><td><i>' + esc(j.name) + '</i></td><td>' + esc(j.cur || '—') + '</td><td>' + esc((writable(j) ? j.v : j.cur) || '—') + '</td><td>' + esc(j.skip || j.act) + '</td></tr>'; }).join('') + '</tbody></table></div>';
     ready();
   });
-  function log(id, action, result) { var t = new Date().toLocaleTimeString(); W.log.push([t, id, action, result]); $('#wLogWrap').classList.remove('hidden');
-    var tr = document.createElement('tr'); tr.innerHTML = '<td class="small">' + t + '</td><td><a href="https://www.inaturalist.org/observations/' + id + '">' + id + '</a></td><td class="small">' + esc(action) + '</td><td class="small">' + esc(result) + '</td>'; $('#wLog tbody').prepend(tr); }
-  $('#wStop').addEventListener('click', function () { W.stop = true; $('#wStop').disabled = true; });
+  function log(job, field, status, details) {
+    var time = new Date().toLocaleTimeString(), label = field.name + ' (ID ' + field.id + ')';
+    var action = job.act === 'update' ? 'Replace ' + job.cur + ' → ' + job.v : 'Add ' + job.v;
+    W.log.push([W.batch, time, job.id, label, action, status, details]); $('#wLogWrap').classList.remove('hidden');
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + W.batch + '</td><td>' + esc(time) + '</td><td><a href="https://www.inaturalist.org/observations/' + job.id + '">' + job.id + '</a></td><td>' + esc(label) + '</td><td>' + esc(action) + '</td><td>' + esc(status) + '</td><td>' + esc(details) + '</td>';
+    $('#wLog tbody').prepend(tr);
+  }
+  $('#wStop').addEventListener('click', function () {
+    W.stop = true; $('#wStop').disabled = true;
+    $('#wBatchNext').textContent = 'Stopping after the current request finishes.';
+  });
   $('#wWrite').addEventListener('click', async function () {
-    var jobs = W.jobs.filter(writable); if (W.busy || !jobs.length || !ownsScan()) return;
+    var jobs = W.jobs.filter(writable); if (W.busy || !jobs.length || !ownsScan() || needsFreshScan()) return;
     var field = W.field, adds = jobs.filter(function (j) { return j.act === 'add'; }).length;
     if (!confirm('On iNaturalist as ' + W.me.login + ', write “' + field.name + '” (ID ' + field.id + ')? Add ' + adds + ' and replace ' + (jobs.length - adds) + ' values.')) return;
     W.busy = true; W.stop = false; ready(); $('#wStop').disabled = false; $('#wProgRow').classList.remove('hidden'); $('#wBar').max = jobs.length; $('#wBar').value = 0;
+    W.batch++; $('#wBatchNext').textContent = '';
     $('#wToken').disabled = true; $('#wVerify').disabled = true;
-    var ok = 0, bad = 0, byId = new Map(window.MVCheck.obs.map(function (r) { return [r.id, r]; }));
-    for (var i = 0; i < jobs.length; i++) {
-      if (W.stop) { $('#wMsg').innerHTML = '<div class="note">Stopped after ' + i + ' of ' + jobs.length + '. Preview again to carry on; records already written show as “already right”.</div>'; break; }
+    var scan = window.MVCheck.obs, byId = new Map(scan.map(function (r) { return [r.id, r]; }));
+    var saved = 0, failed = 0, unconfirmed = 0, attempted = 0, next = '';
+    for (var i = 0; i < jobs.length && !W.stop; i++) {
       var j = jobs[i]; $('#wProg').textContent = (i + 1) + ' / ' + jobs.length + ': ' + j.id + ' → ' + j.v;
       var body = { observation_field_value: { observation_id: j.id, observation_field_id: field.id, value: j.v } };
       try {
         var d = j.act === 'update' && j.ofv ? await api('/observation_field_values/' + j.ofv, { method: 'PUT', body: body }) : await api('/observation_field_values', { method: 'POST', body: body });
         var r = byId.get(j.id); if (r) { r.fid = r.fid || {}; r.fid[field.id] = { id: (d && d.id) || j.ofv, value: j.v }; }
-        j.act = 'same'; ok++; log(j.id, (j.cur ? 'update ' + j.cur + ' → ' : 'add ') + j.v, 'ok');
+        saved++; log(j, field, 'Saved', '');
       } catch (e) {
-        bad++; log(j.id, 'write ' + j.v, ((e.status || '') + ' ' + e.message).trim());
-        if (e.status === 401) { $('#wMsg').innerHTML = '<div class="err">The token expired or was rejected. Paste a fresh one, verify it, preview and write again.</div>'; W.me = null; break; }
-        if (e.status === 429) { log(j.id, 'rate limited', 'waiting 60 s'); await sleep(60000); }
+        var unknown = !e.status || e.status === 408 || e.status >= 500;
+        var details = ((e.status || '') + ' ' + e.message).trim();
+        if (unknown) {
+          unconfirmed++; log(j, field, 'Unconfirmed', details);
+          W.unconfirmedScans.add(scan); W.stop = true;
+          next = 'iNaturalist may have saved the unconfirmed change. Check that observation in the log, then run Check records and compare regional records again before making a new preview.';
+        } else {
+          failed++; log(j, field, 'Failed', details);
+          if (e.status === 401) {
+            W.me = null; W.token = ''; W.stop = true;
+            next = 'iNaturalist rejected the token or it expired. Verify a fresh token, then preview the remaining changes.';
+          } else if (e.status === 429) {
+            W.stop = true;
+            next = 'iNaturalist asked the tool to slow down. Wait at least a minute, then preview the remaining changes.';
+          }
+        }
       }
-      $('#wBar').value = i + 1; if (i < jobs.length - 1) await sleep(1100);
+      attempted++; $('#wBar').value = attempted;
+      if (!W.stop && attempted < jobs.length) await sleep(1100);
     }
-    $('#wProg').textContent = 'Done: ' + ok + ' written, ' + bad + ' failed.'; W.busy = false; $('#wStop').disabled = true;
+    var remaining = jobs.length - attempted;
+    jobs.slice(attempted).forEach(function (j) { log(j, field, 'Not attempted', 'No request sent'); });
+    $('#wProg').textContent = saved + ' saved · ' + failed + ' failed · ' + unconfirmed + ' unconfirmed · ' + remaining + ' not attempted';
+    $('#wBatchNext').textContent = next || (remaining ? (scan === window.MVCheck.obs ? 'Stopped by you. Preview the remaining changes. Saved rows are already up to date.' : 'The scan changed. Compare regional records and preview again.') : failed ? 'Review the failed rows in the log and address the errors before previewing again.' : 'All changes in this batch were saved.');
+    W.busy = false; $('#wStop').disabled = true;
     $('#wToken').disabled = false; $('#wVerify').disabled = false;
-    W.jobs = []; $('#wPrev').innerHTML = ''; $('#wStatus').textContent = 'Preview again to review any remaining changes.'; ready();
+    W.jobs = []; $('#wPrev').innerHTML = ''; $('#wStatus').textContent = ''; ready();
   });
   $('#wLogCsv').addEventListener('click', function () {
-    var text = [['time', 'observation_id', 'action', 'result']].concat(W.log).map(function (l) { return l.map(function (x) { x = String(x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
+    var text = [['batch', 'time', 'observation_id', 'field', 'action', 'status', 'details']].concat(W.log).map(function (l) { return l.map(function (x) { x = String(x); if (/^\s*[=+@-]/.test(x)) x = "'" + x; return /[",\r\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }).join(','); }).join('\n');
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'keep-reason-write-log.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   });
   showField();

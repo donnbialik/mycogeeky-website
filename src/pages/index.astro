@@ -32,6 +32,12 @@ const { data: sheet } = await loadFeaturedSheet();
     </div>
   </section>
 
+  <nav class="hp-return" aria-labelledby="hp-return-title">
+    <h2 id="hp-return-title">Pick up where you left off</h2>
+    <a class="hp-link" href="/investigate/field/photography/#observation">Post your mushroom photos</a>
+    <a class="hp-link" href="/one-place/#return-visit">Log a return visit</a>
+  </nav>
+
   <aside class="hp-inat" aria-label="Built on iNaturalist">
     <p><strong>Built on iNaturalist.</strong> Everything on MycoView starts with community observations on <a href="https://www.inaturalist.org/">iNaturalist</a>, and helps turn them into evidence: specimens, DNA sequences, new names and reports a land manager can act on. <a href="https://help.inaturalist.org/">New to iNaturalist? Start here</a>.</p>
   </aside>
@@ -147,6 +153,9 @@ const { data: sheet } = await loadFeaturedSheet();
 
 .hp-inat { width: min(1360px, calc(100% - 48px)); margin: var(--ds-space-5) auto 0; background: var(--ds-paper-card); color: var(--ds-paper-ink); box-shadow: var(--ds-shadow-card); padding: 16px 22px; }
 .hp-inat p { margin: 0; max-width: none; font-size: 16px; }
+.hp-return { width: min(1360px, calc(100% - 48px)); margin: var(--ds-space-5) auto 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 24px; }
+.hp-return h2 { font: 700 1rem/1.4 var(--ds-font-body); margin: 0; }
+
 
 .hp-logbook { background: var(--ds-paper-card); color: var(--ds-paper-ink); box-shadow: var(--ds-shadow-paper); padding: 40px clamp(20px, 4vw, 56px) 30px clamp(44px, 7vw, 96px); position: relative; }
 .hp-logbook::before { content: ""; position: absolute; top: 0; bottom: 0; left: clamp(28px, 4.6vw, 64px); width: 2px; background: var(--ds-rule-margin); }

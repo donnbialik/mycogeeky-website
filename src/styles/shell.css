@@ -6,7 +6,11 @@ h1, h2, h3 { font-family: var(--ds-font-display); font-stretch: 75%; }
 /* Older page rules set tight tracking meant for Fraunces; condensed Archivo needs normal tracking. */
 h1, h2, h3, .brand { letter-spacing: -0.005em !important; }
 code, kbd, samp { font-family: var(--ds-font-mono); }
-:focus-visible { outline: 3px solid var(--ds-focus); outline-offset: 3px; }
+/* Match the specificity of legacy element rules so the tier token actually wins. */
+:focus-visible, a:focus-visible, button:focus-visible { outline: 3px solid var(--ds-focus); outline-offset: 3px; }
+.ds-footer { --ds-focus: #FFFFFF; }
+.mv-context-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 20px; font-size: 1rem; }
+.mv-context-links a { padding: 6px 0; }
 
 /* Header */
 .ds-header { background: var(--ds-ground); color: var(--ds-ink); border-bottom: 1px solid var(--ds-line-subtle); }

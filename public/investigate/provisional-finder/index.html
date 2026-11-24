@@ -300,7 +300,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
 <nav class="steps" aria-label="How to use this tool">
   <ol>
     <li><span class="stepn">1</span><span><strong>Add usernames</strong>, a provisional name, or both</span></li>
-    <li><span class="stepn">2</span><span><strong>Search</strong>; rows fill in rarest first</span></li>
+    <li><span class="stepn">2</span><span><strong>Search</strong>; rows fill in fewest posted sequenced records first</span></li>
     <li><span class="stepn">3</span><span><strong>Narrow down</strong> with Research candidates, Singletons or Filters</span></li>
     <li><span class="stepn">4</span><span><strong>Click a name</strong> for its full profile; save results to keep or share them</span></li>
   </ol>
@@ -321,7 +321,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
         <input id="pname" placeholder="Mycena sp. 'IN10'">
         <small>Exact text of the field, quotes included.</small>
       </div>
-      <div class="actions"><button type="submit" class="primary" id="goBtn" data-help="Starts the search. First it pulls the collections, then it looks up each provisional name across all of iNat, about one second per name. Rows fill in as they arrive, rarest names first.">Search</button></div>
+      <div class="actions"><button type="submit" class="primary" id="goBtn" data-help="Starts the search. First it pulls the collections, then it looks up each provisional name across all of iNat, about one second per name. Rows fill in as they arrive, fewest posted sequenced records first.">Search</button></div>
     </form>
     <div id="formMsg" class="msg"></div>
     <div class="savebar">
@@ -342,6 +342,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
   </section>
 
   <section id="results" class="hidden">
+    <p id="resultContext" class="note" role="status"></p>
     <div class="summary" id="summary"></div>
     <div class="tabs" role="tablist">
       <button class="tab active" data-tab="names" data-help="One row per provisional name, with statistics gathered from all of iNat.">Provisional names<span class="count" id="nNames"></span></button>
@@ -377,7 +378,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
 
   <footer>
     <p style="margin:0 0 8px;color:var(--muted)"><b>Data and photos from <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a></b>, through its public API. This tool is not affiliated with or endorsed by iNaturalist. Photos belong to their photographers and are shown under their Creative Commons licenses, credited on each photo; photos marked “all rights reserved” are not shown here and can be viewed on iNaturalist.</p>
-    Live data from the iNaturalist API. Only observations with <i>both</i> the “Provisional Species Name” and “DNA Barcode ITS” observation fields are counted. Names are matched exactly as typed in the field.
+    Data originates from the iNaturalist API; the result banner distinguishes searches, saved files and the saved example. Connection status does not describe the age of displayed results. Only observations with <i>both</i> the “Provisional Species Name” and “DNA Barcode ITS” observation fields are counted. Names are matched exactly as typed in the field.
     “Collections” means observations uploaded by the usernames you entered. Regions come from iNat’s place records (state or province), falling back to the observation’s place text outside North America. Each name’s results are kept in this browser for as long as you choose (1 day by default); use “Save results to a file” to keep or share a search. Sequence checks are simple screens (length and ambiguous bases), not a quality verdict.
     Requests are spaced about one per second to stay within iNat’s limits, so large searches take a few minutes.
   </footer>
@@ -392,7 +393,7 @@ textarea.fasta{width:100%;height:160px;font:11px var(--mono);margin-top:8px;bord
 <div id="help" class="modal hidden"><div class="card">
   <h3>Glossary</h3>
   <dl>
-    <dt>Sequenced</dt><dd>How many observations on all of iNat carry this exact provisional name <i>and</i> an ITS sequence. Lower means rarer. The default sort puts the rarest first.</dd>
+    <dt>Sequenced</dt><dd>How many observations on all of iNat carry this exact provisional name <i>and</i> an ITS sequence. Lower means fewer posted records, not greater rarity in nature. The default sort puts the fewest posted sequenced records first.</dd>
     <dt>Yours</dt><dd>How many of those came from the usernames you searched.</dd>
     <dt>Collectors</dt><dd>Different iNat accounts that uploaded a sequenced collection of this name. Several collectors usually means separate collection events and more material to study.</dd>
     <dt>Vouchered</dt><dd>Collections with a specimen record: a filled-in voucher, herbarium or fungarium field, or “Voucher Specimen Taken: Yes”. A new species needs a kept specimen for its holotype.</dd>
@@ -667,6 +668,7 @@ $('#form').addEventListener('submit', async e => {
 });
 
 async function runSearch(users, pname) {
+  state.dataMode = 'query';
   if (state.demo) { nameCache.clear(); state.demo = false; }
   const run = newRun();
   $('#goBtn').disabled = true;
@@ -797,6 +799,7 @@ function loadSnapshotData(snap, label, demo) {
     if (!snap || snap.app !== 'provisional-finder' || !Array.isArray(snap.mine)) throw new Error('That file wasn’t saved by Provisional Finder.');
     if (state.run) state.run.stopped = true;
     state.demo = !!demo;
+    state.dataMode = demo ? 'example' : 'snapshot';
     const snapUsers = snap.users.map(u => ({ ...u, status: 'ok' }));
     if (!demo) { state.users = snapUsers; renderChips(); $('#pname').value = snap.pname || ''; saveInputs(); }
     state.searchUsers = snapUsers; state.searchName = snap.pname || '';
@@ -847,7 +850,16 @@ storageNote('');
 /* ---------- rendering ---------- */
 let renderTimer = null;
 function scheduleRender() { if (renderTimer) return; renderTimer = setTimeout(() => { renderTimer = null; renderAll(); }, 400); }
-function renderAll() { renderSummary(); renderPresets(); renderNames(); renderObs(); }
+function resultContext() {
+  const date = state.searchedAt && Number.isFinite(+state.searchedAt) ? new Date(+state.searchedAt).toISOString() : 'date not recorded';
+  return state.dataMode === 'example' ? 'Saved example snapshot — Nov 2026; not a fresh query.' :
+    state.dataMode === 'snapshot' ? 'Saved results — original search ' + date + '; not a fresh query.' :
+    'iNaturalist query started ' + date + '. Name summaries may use cached results; check their dates. Counts describe posted records, not rarity in nature.';
+}
+function renderAll() {
+  $('#resultContext').textContent = resultContext();
+  renderSummary(); renderPresets(); renderNames(); renderObs();
+}
 
 function renderSummary() {
   const names = [...state.names.values()], done = names.filter(g => g.stats);
@@ -868,7 +880,7 @@ function renderSummary() {
 }
 
 const PRESETS = {
-  all: { label: 'All names', hint: 'Every provisional name in these collections. Sorted rarest first; click a column to re-sort.', test: () => true },
+  all: { label: 'All names', hint: 'Every provisional name in these collections. Sorted fewest posted sequenced records first; click a column to re-sort.', test: () => true },
   candidates: { label: 'Research candidates', hint: '2–10 sequenced collections on iNat, at least one vouchered, at least two collectors, and not flagged as likely described.', test: g => g.stats && g.stats.seq >= 2 && g.stats.seq <= 10 && g.stats.vouch > 0 && g.stats.nCollectors >= 2 && !g.stats.likelyDescribed },
   singletons: { label: 'Singletons', hint: 'Only one sequenced collection of this name on all of iNat, so the first job is finding a second.', test: g => g.stats && g.stats.seq === 1 },
   attention: { label: 'Needs attention', hint: 'Field/taxon disagreements, likely-described codes, retired taxa, ID updates requested, or where at least a quarter of the sequences need a look.', test: g => g.stats && (g.stats.flags.length || g.stats.seqFlag / Math.max(1, g.stats.n) >= 0.25) },
@@ -1120,6 +1132,8 @@ function bindDrawer(g) {
 
 /* ---------- CSV ---------- */
 function download(name, rows) {
+  const context = resultContext();
+  rows = rows.map((row, i) => [...row, ...(i === 0 ? ['data_context', 'interpretation_limit'] : [context, 'Posted records and heuristic flags are not natural rarity or taxonomic verdicts.'])]);
   const csv = rows.map(r => r.map(v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
@@ -1221,11 +1235,11 @@ const TOUR = [
   { title: 'Welcome to Provisional Finder', body: '<p>This tool helps you decide which provisional names are worth researching further: which are rare, which have specimens, who else has collected them, and which have problems to sort out first.</p><p>The tour points at each part of the page. Use <b>Next</b> or the arrow keys. Want to explore on your own instead? <b>Exit tour</b> or the <b>×</b> closes it at any step.</p>' },
   { el: () => $('.field'), title: 'Start with whose collections', body: '<p>Type one or more iNaturalist usernames and press Enter after each. Green means the account was found.</p><p>Only observations with <b>both</b> a Provisional Species Name and a DNA Barcode ITS sequence are included, so everything here is sequence-backed.</p>', before: () => { closeDrawer(); scrollTo({ top: 0, behavior: 'instant' }); } },
   { el: () => $('#pname').closest('.field'), title: '…or one provisional name', body: '<p>Optional. Type a name exactly as it appears in the field, quotes included, to narrow the search. With no usernames, you get every sequenced observation of that name on iNat.</p>' },
-  { el: () => $('#goBtn'), title: 'Search', body: '<p>The tool first pulls the collections, then looks up each name across all of iNat. It goes about one name per second to stay within iNat’s limits, so a big search takes a few minutes.</p><p>Rows fill in as they arrive, rarest first, so you can start reading straight away.</p>' },
+  { el: () => $('#goBtn'), title: 'Search', body: '<p>The tool first pulls the collections, then looks up each name across all of iNat. It goes about one name per second to stay within iNat’s limits, so a big search takes a few minutes.</p><p>Rows fill in as they arrive, fewest posted sequenced records first, so you can start reading straight away.</p>' },
   { el: () => $('#summary'), title: 'The overview', body: '<p>How many sequenced collections were found, across how many names, and how many of those names are singletons (only one sequenced collection anywhere) or research candidates.</p>', before: () => { switchTab('names'); scrollTo({ top: $('#summary').getBoundingClientRect().top + scrollY - 180, behavior: 'instant' }); } },
   { el: () => $('#presets'), title: 'Quick views', body: '<ul><li><b>Research candidates</b>: 2–10 sequenced collections, at least one vouchered, at least two collectors. A good place to start.</li><li><b>Singletons</b>: only one sequenced collection anywhere. Look for a second.</li><li><b>Needs attention</b>: something to clean up first, like an ID that disagrees with the field.</li></ul>' },
   { el: () => $('#filters summary'), title: 'Filters', body: '<p>Open this to set your own rules, such as “found in OH”, “at least 3 photos per observation” or “vouchered only”. Filters combine with the quick views.</p>' },
-  col(['name', 'seq'], 'Name and rarity', '<p><b>Sequenced</b> is the key number: how many observations on <i>all</i> of iNat have this exact name and an ITS sequence. Lower is rarer; the table starts with the rarest.</p><p>Click any column heading to sort by it.</p>'),
+  col(['name', 'seq'], 'Name and rarity', '<p><b>Sequenced</b> is the key number: how many observations on <i>all</i> of iNat have this exact name and an ITS sequence. Lower means fewer posted sequenced observations; it does not establish rarity in nature.</p><p>Click any column heading to sort by it.</p>'),
   col(['mine', 'coll'], 'Yours and collectors', '<p><b>Yours</b>: how many came from the usernames you searched.</p><p><b>Collectors</b>: how many different people have sequenced it. Several collectors usually means more material to compare and people you can contact.</p>'),
   col(['vouch', 'photos'], 'Specimens and photos', '<p><b>Vouchered</b>: collections with a specimen record. Describing a species needs a kept specimen for the holotype, so this matters.</p><p><b>Photos / obs</b>: a rough measure of how well each collection is documented.</p>'),
   col(['regions', 'season'], 'Where and when', '<p><b>Regions</b>: states, provinces or countries it has turned up in.</p><p><b>Season</b>: observations by month, January to December. The rust bar is the peak, when to go looking for fresh material.</p>'),
@@ -1359,7 +1373,7 @@ $('#themeBtn').addEventListener('click', () => {
     const r = await fetch(`${API}/v1/observations?per_page=0&${fieldParams('')}`);
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
-    chip.classList.add('live'); st.textContent = 'live';
+    chip.classList.add('live'); st.textContent = 'connected';
     chip.dataset.help = `Live connection to the iNaturalist API. Right now ${fmt(d.total_results)} observations on iNat have both a provisional name and an ITS sequence.`;
   } catch (e) { chip.classList.add('fail'); st.textContent = 'not reachable'; chip.dataset.help = 'iNaturalist isn’t answering right now. Searches will fail until it’s back; saved result files still open.'; }
 })();

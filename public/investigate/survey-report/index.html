@@ -268,7 +268,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
       <div class="opts" style="margin-top:0">
         <label class="inline"><input type="checkbox" id="optLichen"> Include lichens</label><button type="button" class="mv-i" data-help="lichens" aria-label="What does Include lichens mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline"><input type="checkbox" id="optSlime"> Include slime molds</label><button type="button" class="mv-i" data-help="slime" aria-label="What does Include slime molds mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
-        <label class="inline"><input type="checkbox" id="optProv" checked> Count provisional names as species</label><button type="button" class="mv-i" data-help="prov" aria-label="What does Provisional names mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+        <label class="inline"><input type="checkbox" id="optProv" checked> Count provisional names as separate reported units</label><button type="button" class="mv-i" data-help="prov" aria-label="What does Provisional names mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline" id="provSpWrap">A record with both a species ID and a provisional name counts as <select id="optProvSp" style="width:auto"><option value="prov" selected>the provisional name</option><option value="species">the species</option></select></label><button type="button" class="mv-i" data-help="provsp" aria-label="What does records with both mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline"><input type="checkbox" id="optRG"> Research grade only</label><button type="button" class="mv-i" data-help="rg" aria-label="What does Research grade only mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
       </div>
@@ -335,7 +335,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
       <h2>Checklist<button type="button" class="mv-i" data-help="checklist" aria-label="What does Checklist mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="ckSub"></span></h2>
       <div class="row" style="margin-bottom:8px">
         <input type="search" id="ckFilter" placeholder="Filter by name or group" style="width:240px">
-        <label class="inline">Sort <select id="ckSort" style="width:auto"><option value="tax" selected>by group (taxonomic)</option><option value="days">by survey days found</option><option value="records">by records</option><option value="name">by name</option><option value="first">by first found</option></select></label>
+        <label class="inline">Sort <select id="ckSort" style="width:auto"><option value="tax" selected>by group (taxonomic)</option><option value="days">by dates with records found</option><option value="records">by records</option><option value="name">by name</option><option value="first">by first found</option></select></label>
         <label class="inline"><input type="checkbox" id="ckOther"> Also list records not identified to species</label><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline hidden" id="ckNewWrap"><input type="checkbox" id="ckNew"> Only species new to the site</label><span class="hidden" id="ckNewTip"><button type="button" class="mv-i" data-help="ck_new" aria-label="What does new to the site mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span><span hidden><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
       </div>
@@ -346,7 +346,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
     <section class="card" style="margin-top:14px">
       <h2>When things were found<button type="button" class="mv-i" data-help="pheno" aria-label="What does When things were found mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub">the most often found species, by month, all years together</span></h2>
       <div class="tablewrap" style="max-height:560px"><table class="ph" id="pheno"></table></div>
-      <p class="note">Darker cells: found on more survey days in that month. The top row is the survey effort: how many survey days fell in each month.</p>
+      <p class="note">Darker cells: found on more dates with records in that month. The top row counts recorded dates; it does not measure comparable search effort.</p>
     </section>
 
     <section class="card" style="margin-top:14px">
@@ -361,10 +361,11 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
         <button type="button" id="dlDwc">Records, Darwin Core (CSV)</button><button type="button" class="mv-i" data-help="dl_dwc" aria-label="What does Darwin Core mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <button type="button" id="dlGeo">Records (GeoJSON)</button><button type="button" class="mv-i" data-help="dl_geo" aria-label="What does GeoJSON mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <button type="button" id="dlKml">Records (KML)</button><button type="button" class="mv-i" data-help="dl_kml" aria-label="What does KML mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
-        <button type="button" id="dlDays">Survey days (CSV)</button><button type="button" class="mv-i" data-help="dl_days" aria-label="What does Survey days CSV mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
+        <button type="button" id="dlDays">Dates with records (CSV)</button><button type="button" class="mv-i" data-help="dl_days" aria-label="What does Dates with records CSV mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <button type="button" id="dlYears">Year by year (CSV)</button>
+        <button type="button" id="dlSummary">Summary and methods (text)</button>
       </div>
-      <p class="note">Every download follows the “What counts” options above, so the files match what is on screen.</p>
+      <p class="note">Every download follows “What counts” and includes report context. CSV files append context columns; legacy species/survey_days columns mean reported species-level units/dates with records. Download Summary and methods when sharing the headline estimates.</p>
     </section>
 
     <section class="card" style="margin-top:14px">
@@ -425,7 +426,7 @@ MVHelp.init({
   whatcounts: 'These change the report straight away, without reading the records again. The downloads follow them too.',
   lichens: '<b>Include lichens.</b> Off by default, because most macrofungi surveys report lichens separately. Lichens are recognised by group: the classes Lecanoromycetes and Arthoniomycetes, the orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales and Monoblastiales, and basidiolichen genera such as <i>Lichenomphalia</i> and <i>Multiclavula</i>. Earth tongues (Geoglossales) are not lichens and are kept, although iNaturalist now places them in the same class as some lichens.<span class="eg">This is approximate: a few non-lichenised fungi sit in those groups, and a few lichens sit elsewhere.</span>',
   slime: '<b>Include slime molds</b> (Mycetozoa, e.g. <i>Lycogala</i>, <i>Stemonitis</i>). They aren’t fungi, but many fungal surveys record them.',
-  prov: '<b>Count provisional names as species.</b> A record with a “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, counts as that species even if iNaturalist only has it to genus. Usually these are DNA-sequenced and not yet formally named. Turn off to count only formally named species.',
+  prov: '<b>Count provisional names as separate reported units.</b> A record with a “Provisional Species Name” field, e.g. <i>Cortinarius</i> sp. ‘IN01’, counts as a separate reported unit even if iNaturalist only has it to genus. A provisional code does not establish that a species is new or distinct. Turn off to count only species-rank identifications.',
   provsp: '<b>A record with both a species ID and a provisional name.</b> Some records are identified to a named species on iNaturalist and also carry a “Provisional Species Name”, often because sequencing showed the name is wrong or covers more than one species. <b>The provisional name</b> (default) counts them as the provisional species. <b>The species</b> counts them under the iNaturalist name, so provisional names count only on records identified to genus or above.',
   recon: '<b>Matching iNaturalist’s numbers.</b> Step by step, why the totals here differ from the project page or Explore: records that aren’t fungi, the lichen and slime mold options, iNaturalist counting names above species as “species”, and provisional names.',
   vouchers: '<b>Vouchers and specimens.</b> Records with a voucher specimen, found from their iNaturalist observation fields: a yes/no field such as “Voucher Specimen Taken?”, or a number field such as “Voucher Number(s)”, a fungarium ID, “OMDL Number” or “Herbarium Catalog Number”, or a sequencing plate number such as “Mycota Lab Plate Number”, since sequenced tissue comes from a kept specimen. This is the list for the specimen part of a permit report, e.g. the NPS Investigator’s Annual Report.',
@@ -447,41 +448,41 @@ MVHelp.init({
   bl_total: 'Species known from the site: everything on the list plus the species new in this survey.',
   ck_new: 'Show only the species this survey recorded that aren’t on the baseline list.',
   c_base: '<b>listed</b>: on the baseline list under the same name. <b>as …</b>: on the list under that spelling or older name. <b>possible</b>: same epithet and family as a list name with another genus; check it. <b>new</b>: not on the list.',
-  dl_bl: '<b>New to the site</b>: the species not on the list, with records, survey days, first date and voucher counts. <b>Baseline not re-found</b>: listed species this survey didn’t record. <b>Name matches</b>: every survey species with the list name it was matched to and how, to check the matching.',
+  dl_bl: '<b>New to the site</b>: the species not on the list, with records, dates with records, first date and voucher counts. <b>Baseline not re-found</b>: listed species this survey didn’t record. <b>Name matches</b>: every survey species with the list name it was matched to and how, to check the matching.',
   rg: '<b>Research grade only.</b> Only records whose identification the community has agreed. Fewer, safer names; hard groups drop out.',
-  summary: 'Totals for the survey with the options above. A <b>survey day</b> is a date with at least one record.',
-  t_species: '<b>Species</b>: distinct species (subspecies and varieties count with their species), plus provisional names if that option is on.',
+  summary: 'Totals for the survey with the options above. A <b>date with records</b> is a date with at least one record.',
+  t_species: '<b>Reported species-level units</b>: species-rank identifications (subspecies and varieties merged), plus provisional names when selected. These are counting units, not independently verified species boundaries.',
   t_prov: 'Species known only by a provisional name.',
   t_records: 'Fungi records used, after the options above. One mushroom photographed twice is two records.',
-  t_days: '<b>Survey days</b>: dates with at least one record. Used as the unit of effort, as in most survey reports.',
+  t_days: '<b>Dates with records</b>: dates with at least one record. Used as an incidence unit for this report, not a verified sampling event or measurement of search effort.',
   t_obs: 'Different iNaturalist users with records in the survey.',
   t_seq: 'Records with a DNA Barcode ITS sequence of 100 or more bases, and the number of species they cover.',
   t_rg: 'Share of records at research grade.',
-  complete: '<b>How complete is the inventory?</b> The curve shows how the species total grows as survey days are added, averaged over 100 random orders of the days, with the range of most orders shaded. A curve that is still climbing means more species are out there.<span class="eg">The dashed line is the <b>Chao2</b> estimate of the total, from how many species were found on only one or two days.</span>',
-  chao2: '<b>Chao2</b> estimates the total number of species, including those not yet found, from species found on exactly one survey day (Q1) and exactly two (Q2): S + Q1²/(2·Q2) × (m−1)/m, where m is the number of survey days. The range is a 95% confidence interval. It is a lower bound in practice, especially for fungi, whose fruiting varies so much between years.',
-  completeness: '<b>Completeness</b>: species found as a share of the Chao2 estimate.',
-  coverage: '<b>Sample coverage</b>: an estimate of how much of the fungi you would meet on another survey day belongs to species already on the list. 90% means about 1 in 10 finds on the next day would be a new species.',
-  q1: '<b>Found on one day only</b> (Q1, “uniques”): species recorded on a single survey day. Many uniques mean the survey is far from complete.',
+  complete: '<b>How complete is the inventory?</b> The curve shows how the species total grows as dates with records are added, averaged over 100 random orders of the days, with the range of most orders shaded. A rising curve suggests the recorded list is still accumulating under the sampled conditions. It does not establish the true site total.<span class="eg">The dashed line is the <b>Chao2</b> estimate of the total, from how many species were found on only one or two days.</span>',
+  chao2: '<b>Chao2</b> estimates the total number of species, including those not yet found, from species found on exactly one date with records (Q1) and exactly two (Q2): S + Q1²/(2·Q2) × (m−1)/m, where m is the number of dates with records. The range is a 95% confidence interval. Interpret this estimator under its sampling assumptions. Uneven detection, search effort and identification uncertainty can affect it; it does not guarantee a minimum number of future discoveries.',
+  completeness: '<b>Estimated fraction recorded</b>: reported units divided by the Chao2 estimate, conditional on sampling and counting assumptions. This differs from sample coverage.',
+  coverage: '<b>Sample coverage</b>: an incidence-based estimate of the share of the sampled assemblage represented by recorded units. It is not the fraction of all site species found or a prediction for your next walk; interpretation depends on sampling and detection assumptions.',
+  q1: '<b>Found on one day only</b> (Q1, “uniques”): species recorded on a single date with records. Many uniques mean the survey is far from complete.',
   groups: 'The number of species in each group, largest first. Switch between order, class and family.',
-  years: '<b>Year by year.</b> Survey days, records, species and new species each year. “New to the survey” means the first year within these dates that the species was recorded. Read species together with survey days: a year with more days usually finds more.',
+  years: '<b>Year by year.</b> Dates with records, records, species and new species each year. “New to the survey” means the first year within these dates that the species was recorded. Read species together with dates with records: a year with more days usually finds more.',
   checklist: '<b>Checklist</b>, grouped by phylum, class, order and family. One row per species (or provisional name). Use the filter to find a name or a group.',
   ckOther: 'Adds names of records identified only to genus or higher, e.g. <i>Mycena</i> or Russulaceae, at the end of their group. They aren’t counted as species.',
   c_name: 'The species as currently identified on iNaturalist. A ‘quoted’ epithet is a provisional name.',
   c_records: 'Records of this species in the survey.',
-  c_days: 'Survey days on which it was recorded. Better than records for comparing species, because several photos on one visit count once.',
+  c_days: 'Dates with records on which it was recorded. Better than records for comparing species, because several photos on one visit count once.',
   c_years: 'Years in which it was recorded.',
   c_first: 'The first and last dates it was recorded in the survey.',
   c_months: 'Months in which it was recorded, January to December, all years together.',
   c_seq: 'Records of this species with a DNA Barcode ITS sequence.',
   c_rg: 'Records of this species at research grade.',
-  pheno: '<b>When things were found.</b> The 40 species found on the most survey days, with the months they turned up in. The top row shows how many survey days fell in each month, because a month nobody visited will always look empty.',
+  pheno: '<b>When things were found.</b> The 40 species found on the most dates with records, with the months they turned up in. The top row shows how many dates with records fell in each month, because a month nobody visited will always look empty.',
   map: 'Every record with a usable location, coloured by year (lighter is older). Records with obscured locations aren’t shown.',
   downloads: 'Files for the park and for your own analysis. All follow the options under “What counts”.',
-  dl_ck: '<b>Checklist CSV</b>: one row per species with its phylum, class, order, family and genus, records, survey days, years, first and last dates, months, sequenced and research-grade counts, and an iNaturalist taxon id.',
+  dl_ck: '<b>Checklist CSV</b>: one row per species with its phylum, class, order, family and genus, records, dates with records, years, first and last dates, months, sequenced and research-grade counts, and an iNaturalist taxon id.',
   dl_dwc: '<b>Darwin Core CSV</b>: one row per record in the standard format used by GBIF, MyCoPortal and park databases: occurrenceID, eventDate, recordedBy, scientificName, taxonomy, coordinates and their uncertainty, licence, and notes on provisional names and sequences.',
   dl_geo: '<b>GeoJSON</b>: every record with a location as a point, for QGIS, ArcGIS or a park GIS layer.',
   dl_kml: '<b>KML</b>: the same points for Google Earth or Google My Maps.',
-  dl_days: '<b>Survey days CSV</b>: one row per survey day with records, species and observers, for the effort section of a report.',
+  dl_days: '<b>Dates with records CSV</b>: one row per date with records with records, species and observers, for the effort section of a report.',
 });
 
 /* ---------- form ---------- */
@@ -572,7 +573,7 @@ async function build() {
     const r = await loadObs(run); if (!r || run !== S.run) return;
     setChip('#src-inat', 'live', 'live');
     if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#formMsg').textContent = 'No fungi records found for that survey and those dates.'; return; }
-    S.obs = r.obs; S.truncated = r.truncated; S.allTotal = null;
+    S.obs = r.obs; S.retrievedAt = new Date().toISOString(); S.truncated = r.truncated; S.allTotal = null;
     if (!S.settings.boundary) qInat(() => getJSON(`${INAT}/v1/observations?per_page=0&d1=${S.settings.d1}&d2=${S.settings.d2}${S.settings.src === 'project' ? `&project_id=${S.settings.proj.id}` : `&user_id=${S.settings.users.map(encodeURIComponent).join(',')}`}`)).then(d => { if (run === S.run) { S.allTotal = d.total_results; if (A) renderRecon(); } }, () => {});
     $('#statusTxt').textContent = 'Looking up the taxonomy (cached after the first time)…';
     await loadTaxa(S.obs, run); if (run !== S.run) return;
@@ -802,13 +803,13 @@ function counts() { const sets = { genus: new Set(), family: new Set(), order: n
 function renderSummary() {
   const st = S.settings, U = [...A.units.values()], nProv = U.filter(u => u.prov).length, seqUnits = U.filter(u => u.seq).length, seqRec = A.recs.filter(r => r.seq).length, rg = A.recs.filter(r => r.qg === 'research').length;
   $('#sumSub').textContent = `${srcLabel(st)} · ${shortDate(st.d1)} to ${shortDate(st.d2)}`;
-  $('#tiles').innerHTML = [tile(fmt(U.length), 'species', 't_species'), tile(fmt(nProv), 'of them provisional names', 't_prov'), tile(fmt(A.recs.length), 'records', 't_records'), tile(fmt(A.days.size), 'survey days', 't_days'),
+  $('#tiles').innerHTML = [tile(fmt(U.length), 'reported species-level units', 't_species'), tile(fmt(nProv), 'of them provisional names', 't_prov'), tile(fmt(A.recs.length), 'records', 't_records'), tile(fmt(A.days.size), 'dates with records', 't_days'),
     tile(fmt(A.people.size), 'observers', 't_obs'), tile(`${fmt(seqRec)} <small>· ${fmt(seqUnits)} spp.</small>`, 'records ITS-sequenced', 't_seq'), tile(A.recs.length ? fmt(100 * rg / A.recs.length) + '%' : '—', 'research grade', 't_rg')].join('');
   const c = counts(), yrs = [...new Set(A.recs.map(r => r.year))].sort(), o = A.o;
   const what = `${o.lichen ? 'fungi including lichens' : 'non-lichenised fungi'}${o.slime ? ' and slime molds' : ''}`;
-  $('#lede').innerHTML = `<b>${fmt(U.length)} species</b>${nProv ? ` (${fmt(U.length - nProv)} formally named and ${fmt(nProv)} provisional)` : ''} in ${fmt(c.genus.size)} genera, ${fmt(c.family.size)} families, ${fmt(c.order.size)} orders, ${fmt(c.class.size)} classes and ${fmt(c.phylum.size)} phyla of ${what}, from ${fmt(A.recs.length)} records on ${fmt(A.days.size)} survey days by ${fmt(A.people.size)} observer${A.people.size === 1 ? '' : 's'}${yrs.length ? `, ${yrs[0]}${yrs.length > 1 ? '–' + yrs[yrs.length - 1] : ''}` : ''}. ${fmt(A.other.size)} further name${A.other.size === 1 ? '' : 's'} identified only to genus or higher ${A.other.size === 1 ? 'is' : 'are'} not counted as species.`;
+  $('#lede').innerHTML = `<b>${fmt(U.length)} reported species-level units</b>${nProv ? ` (${fmt(U.length - nProv)} formally named and ${fmt(nProv)} provisional)` : ''} in ${fmt(c.genus.size)} genera, ${fmt(c.family.size)} families, ${fmt(c.order.size)} orders, ${fmt(c.class.size)} classes and ${fmt(c.phylum.size)} phyla of ${what}, from ${fmt(A.recs.length)} records on ${fmt(A.days.size)} dates with records by ${fmt(A.people.size)} observer${A.people.size === 1 ? '' : 's'}${yrs.length ? `, ${yrs[0]}${yrs.length > 1 ? '–' + yrs[yrs.length - 1] : ''}` : ''}. ${fmt(A.other.size)} further name${A.other.size === 1 ? '' : 's'} identified only to genus or higher ${A.other.size === 1 ? 'is' : 'are'} not counted as species.`;
   const lich = S.obs.filter(r => r.lichen).length, slime = S.obs.filter(r => r.slime).length;
-  $('#sumNote').innerHTML = [S.truncated ? `Only the first ${fmt(MAX_READ)} of ${fmt(S.truncated)} records were read; choose shorter dates for the rest.` : '',
+  $('#sumNote').innerHTML = ['Reported names and provisional codes are counting units, not confirmed species boundaries. Dates with records do not measure comparable effort. Retrieved ' + esc(S.retrievedAt || 'time not recorded') + '; interpretation depends on the selected counting rules.',S.truncated ? `Only the first ${fmt(MAX_READ)} of ${fmt(S.truncated)} records were read; choose shorter dates for the rest.` : '',
     !o.lichen && lich ? `${fmt(lich)} lichen records are left out (tick “Include lichens” to add them).` : '', !o.slime && slime ? `${fmt(slime)} slime mold records are left out.` : '',
     S.bCls ? `Boundary ${esc(st.boundary.name)}: ${fmt(S.bCls.in + (st.edge === 'keep' ? S.bCls.edge : 0))} records inside counted; ${fmt(S.bCls.out)} nearby but outside it and ${fmt(S.bCls.obscured)} with obscured locations left out; ${fmt(S.bCls.edge)} inside but with an accuracy reaching past the edge, ${st.edge === 'keep' ? 'included in that count' : 'left out'}.` : '',
     !st.boundary && S.obs.some(r => r.obscured) ? `${fmt(S.obs.filter(r => r.obscured).length)} records have obscured locations; they are counted (the project placed them here) but not mapped.` : ''].filter(Boolean).join(' ');
@@ -832,7 +833,7 @@ function renderRecon() {
   const steps = [`${fmt(a)} species-rank names in all the records read`];
   if (b !== a) steps.push(`${fmt(b)} after leaving out ${[!o.lichen ? 'lichens' : '', !o.slime ? 'slime molds' : '', o.rg ? 'records below research grade' : ''].filter(Boolean).join(' and ') || 'the options above'} (−${fmt(a - b)})`);
   if (o.prov) { steps.push(`+${fmt(P)} provisional names`); if (D > 0) steps.push(`−${fmt(D)} species whose every record carries a provisional name, so they count under that name instead${o.provSp === 'prov' ? ' (change this with “A record with both…” above)' : ''}`); }
-  li.push(`<b>This report: ${fmt(c)} species.</b> ${steps.join('; ')}${steps.length > 1 ? ` = ${fmt(c)}` : ''}.`);
+  li.push(`<b>This report: ${fmt(c)} reported species-level units.</b> ${steps.join('; ')}${steps.length > 1 ? ` = ${fmt(c)}` : ''}.`);
   li.push(`<b>Observers.</b> ${fmt(new Set(all.map(r => r.login)).size)} people recorded the fungi and slime molds read; ${fmt(A.people.size)} after the options above. iNaturalist’s “People” also counts anyone with only non-fungal records.`);
   $('#recon').innerHTML = li.map(x => `<li>${x}</li>`).join('');
 }
@@ -858,23 +859,23 @@ function renderVouchers() {
 const collector = r => { for (const n of ["Collector's name", 'Collector', 'Collected by', 'Collector name']) if (r.f[n] && String(r.f[n]).trim()) return String(r.f[n]).trim(); return r.uname || r.login; };
 function renderCompleteness() {
   const c = chao2(A.units, A.days.size), acc = accumulation(A.days);
-  $('#compSub').textContent = `${fmt(A.days.size)} survey days`;
+  $('#compSub').textContent = `${fmt(A.days.size)} dates with records`;
   const W = 560, H = 230, m = Math.max(1, acc.length), top = Math.max(c.hi || 0, c.est || 0, ...acc.map(a => a.hi)) * 1.05 || 1;
   const X = k => 44 + (W - 56) * k / m, Y = v => H - 26 - (H - 52) * v / top;
   const band = acc.length ? `M${X(0)},${Y(0)} ` + acc.map(a => `L${X(a.k).toFixed(1)},${Y(a.hi).toFixed(1)}`).join(' ') + ' ' + [...acc].reverse().map(a => `L${X(a.k).toFixed(1)},${Y(a.lo).toFixed(1)}`).join(' ') + ` L${X(0)},${Y(0)} Z` : '';
   const step = (() => { const raw = top / 4, p = 10 ** Math.floor(Math.log10(raw)), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; })(), ticks = []; for (let t = 0; t <= top; t += step) ticks.push(t);
-  $('#accum').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Species accumulation by survey day">
+  $('#accum').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Species accumulation by date with records">
     ${ticks.map(t => `<line x1="44" x2="${W - 12}" y1="${Y(t)}" y2="${Y(t)}" class="grid"/><text x="38" y="${Y(t) + 3.5}" text-anchor="end" class="tick">${t}</text>`).join('')}
     <path d="${band}" class="band"/><polyline points="${[`${X(0)},${Y(0)}`, ...acc.map(a => `${X(a.k).toFixed(1)},${Y(a.mean).toFixed(1)}`)].join(' ')}" class="cline"/>
     ${c.est != null ? `<line x1="44" x2="${W - 12}" y1="${Y(c.est)}" y2="${Y(c.est)}" class="est"/><text x="${W - 14}" y="${Y(c.est) - 5}" text-anchor="end" class="tick">Chao2 ≈ ${fmt(c.est)}</text>` : ''}
-    <text x="${W - 12}" y="${H - 8}" text-anchor="end" class="tick">${fmt(m)} survey days</text><text x="44" y="${H - 8}" class="tick">0</text>
+    <text x="${W - 12}" y="${H - 8}" text-anchor="end" class="tick">${fmt(m)} dates with records</text><text x="44" y="${H - 8}" class="tick">0</text>
     <text x="4" y="11" class="tick">species found</text></svg>`;
   const pct = c.est ? 100 * c.S / c.est : null;
-  $('#compTiles').innerHTML = [tile(c.est != null ? `${fmt(c.est)} <small>(${fmt(c.lo)}–${fmt(c.hi)})</small>` : '—', 'estimated total (Chao2)', 'chao2'), tile(pct != null ? fmt(pct) + '%' : '—', 'found so far', 'completeness'),
-    tile(c.cov != null ? fmt(100 * c.cov) + '%' : '—', 'sample coverage', 'coverage'), tile(`${fmt(c.Q1)} <small>· ${fmt(c.Q2)} on two</small>`, 'species found on one day only', 'q1')].join('');
+  $('#compTiles').innerHTML = [tile(c.est != null ? `${fmt(c.est)} <small>(${fmt(c.lo)}–${fmt(c.hi)})</small>` : '—', 'estimated total (Chao2)', 'chao2'), tile(pct != null ? fmt(pct) + '%' : '—', 'estimated fraction recorded', 'completeness'),
+    tile(c.cov != null ? fmt(100 * c.cov) + '%' : '—', 'sample coverage', 'coverage'), tile(`${fmt(c.Q1)} <small>· ${fmt(c.Q2)} on two</small>`, 'units recorded on one date only', 'q1')].join('');
   const left = c.est != null ? Math.max(0, c.est - c.S) : null;
-  $('#compNote').innerHTML = c.est == null ? 'At least two survey days are needed for an estimate.' :
-    `On the survey-day measure, about ${fmt(pct)}% of the species are on the list, and at least ${fmt(left)} more are likely to be found with more surveying. ${c.Q1 > c.S / 2 ? 'More than half the species were found on a single day, which is typical of fungi and means the list is still growing fast. ' : ''}Treat the estimate as a floor: fungi fruit so unevenly between years that new species keep turning up long after the curve seems to slow.`;
+  $('#compNote').innerHTML = c.est == null ? 'At least two dates with records are needed for an estimate.' :
+    `The recorded units are about ${fmt(pct)}% of the estimated total under the current counting and sampling assumptions. The difference is approximately ${fmt(left)} unrecorded units, not a guaranteed minimum of future discoveries. Dates with records are not standardized effort. Sample coverage is a different measure, not the fraction of all site species found.`;
   S.chao = c;
 }
 function renderGroups() {
@@ -895,18 +896,18 @@ function yearRows() {
 function renderYears() {
   const yrs = yearRows(); S.yrs = yrs;
   $('#yrSub').textContent = yrs.length ? `${yrs[0].y}–${yrs[yrs.length - 1].y}` : '';
-  $('#yrTable').innerHTML = `<thead><tr><th>Year</th><th class="num">Survey days</th><th class="num">Records</th><th class="num">Observers</th><th class="num">Species</th><th class="num">New to the survey${MVHelp.tip('years', 'New to the survey')}</th><th class="num">Running total</th></tr></thead><tbody>${yrs.map(g => `<tr><td>${g.y}</td><td class="num">${fmt(g.days)}</td><td class="num">${fmt(g.records)}</td><td class="num">${fmt(g.people.size)}</td><td class="num">${fmt(g.units.size)}</td><td class="num">${fmt(g.newN)}</td><td class="num">${fmt(g.cum)}</td></tr>`).join('')}</tbody>`;
+  $('#yrTable').innerHTML = `<thead><tr><th>Year</th><th class="num">Dates with records</th><th class="num">Records</th><th class="num">Observers</th><th class="num">Species</th><th class="num">New to the survey${MVHelp.tip('years', 'New to the survey')}</th><th class="num">Running total</th></tr></thead><tbody>${yrs.map(g => `<tr><td>${g.y}</td><td class="num">${fmt(g.days)}</td><td class="num">${fmt(g.records)}</td><td class="num">${fmt(g.people.size)}</td><td class="num">${fmt(g.units.size)}</td><td class="num">${fmt(g.newN)}</td><td class="num">${fmt(g.cum)}</td></tr>`).join('')}</tbody>`;
   const W = 520, H = 200, n = Math.max(1, yrs.length), maxS = Math.max(1, ...yrs.map(g => g.units.size)), maxD = Math.max(1, ...yrs.map(g => g.days)), bw = (W - 60) / n;
   const Y = v => H - 26 - (H - 44) * v / maxS;
   $('#yrChart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Species and new species per year">
     ${[0, .5, 1].map(f => { const v = Math.round(maxS * f); return `<line x1="40" x2="${W - 10}" y1="${Y(v)}" y2="${Y(v)}" class="grid"/><text x="34" y="${Y(v) + 3.5}" text-anchor="end" class="tick">${v}</text>`; }).join('')}
-    ${yrs.map((g, i) => { const x = 44 + i * bw, w = Math.max(4, bw * 0.62); return `<g><title>${g.y}: ${g.units.size} species, ${g.newN} new to the survey, ${g.days} survey days</title>
+    ${yrs.map((g, i) => { const x = 44 + i * bw, w = Math.max(4, bw * 0.62); return `<g><title>${g.y}: ${g.units.size} species, ${g.newN} new to the survey, ${g.days} dates with records</title>
       <rect x="${x}" y="${Y(g.units.size)}" width="${w}" height="${Y(0) - Y(g.units.size)}" class="ybar"/><rect x="${x}" y="${Y(g.newN)}" width="${w}" height="${Y(0) - Y(g.newN)}" class="ynew"/>
       <rect x="${x + w + 1}" y="${H - 26 - 22 * g.days / maxD}" width="${Math.max(2, bw * 0.18)}" height="${22 * g.days / maxD}" class="yday"/>
       <text x="${x + w / 2}" y="${H - 10}" text-anchor="middle" class="tick">${n > 12 ? String(g.y).slice(2) : g.y}</text></g>`; }).join('')}</svg>
-    <p class="legend"><span><i style="background:var(--s2)"></i>species that year</span><span><i style="background:var(--s3)"></i>of them new to the survey</span><span><i style="background:var(--accent);opacity:.45"></i>survey days (small bar)</span></p>`;
+    <p class="legend"><span><i style="background:var(--s2)"></i>species that year</span><span><i style="background:var(--s3)"></i>of them new to the survey</span><span><i style="background:var(--accent);opacity:.45"></i>dates with records (small bar)</span></p>`;
   const all = [...A.units.values()].filter(u => yrs.length > 1 && u.years.size === yrs.length).length;
-  $('#yrNote').innerHTML = yrs.length > 1 ? `${fmt(all)} species were found in every one of the ${yrs.length} years. More effort usually finds more species, so read each year’s species alongside its survey days, records and observers before comparing years.` : '';
+  $('#yrNote').innerHTML = yrs.length > 1 ? `${fmt(all)} species were found in every one of the ${yrs.length} years. More effort usually finds more species, so read each year’s species alongside its dates with records, records and observers before comparing years.` : '';
 }
 function monthsStrip(arr) { const mx = Math.max(1, ...arr); return `<span class="mstrip">${arr.map((v, i) => `<i class="${v ? 'on' : ''}" style="${v ? `opacity:${0.35 + 0.65 * v / mx}` : ''}" title="${MONTHS[i]}: ${v} record${v === 1 ? '' : 's'}"></i>`).join('')}</span>`; }
 const TAXSORT = (a, b) => { for (const r of ['phylum', 'class', 'order', 'family']) { const x = a.L[r] || '~', y = b.L[r] || '~'; if (x !== y) return x < y ? -1 : 1; } return a.name.localeCompare(b.name); };
@@ -931,7 +932,7 @@ function renderChecklist() {
       <td class="num">${fmt(u.records)}</td><td class="num">${fmt(u.days.size)}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.years.size)}</td><td class="num dates">${u.first ? (u.first === u.last ? u.first : `${u.first}<br>${u.last}`) : ''}</td>
       <td>${u.kind === 'other' ? '' : monthsStrip(u.months)}</td><td class="num">${u.seq ? fmt(u.seq) : ''}</td><td class="num">${u.kind === 'other' ? '' : fmt(u.rg)}</td><td class="num">${u.vouch ? fmt(u.vouch) : ''}</td>${blOn ? `<td>${blCell(u)}</td>` : ''}</tr>`);
   }
-  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Survey days${MVHelp.tip('c_days', 'Survey days')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th><th class="num">Vouchers${MVHelp.tip('c_vouch', 'Vouchers')}</th>${blOn ? `<th>Baseline${MVHelp.tip('c_base', 'Baseline')}</th>` : ''}</tr></thead><tbody>${body.join('')}</tbody>`;
+  $('#ck').innerHTML = `<thead><tr><th>Species${MVHelp.tip('c_name', 'Species')}</th><th class="num">Records${MVHelp.tip('c_records', 'Records')}</th><th class="num">Dates with records${MVHelp.tip('c_days', 'Dates with records')}</th><th class="num">Years${MVHelp.tip('c_years', 'Years')}</th><th class="num">First / last${MVHelp.tip('c_first', 'First and last')}</th><th>Months${MVHelp.tip('c_months', 'Months')}</th><th class="num">ITS seq.${MVHelp.tip('c_seq', 'ITS sequenced')}</th><th class="num">Research grade${MVHelp.tip('c_rg', 'Research grade')}</th><th class="num">Vouchers${MVHelp.tip('c_vouch', 'Vouchers')}</th>${blOn ? `<th>Baseline${MVHelp.tip('c_base', 'Baseline')}</th>` : ''}</tr></thead><tbody>${body.join('')}</tbody>`;
   $('#ckSub').textContent = `${fmt(rows.filter(r => r.kind === 'sp').length)} species${q ? ' match the filter' : ''}`;
 }
 function renderPheno() {
@@ -941,8 +942,8 @@ function renderPheno() {
   for (const d of A.days.values()) { const mi = +d.date.slice(5, 7) - 1; for (const k of d.units) if (dm.has(k)) dm.get(k)[mi]++; }
   const mxE = Math.max(1, ...effort);
   $('#pheno').innerHTML = `<thead><tr><th>Species</th>${MONTHS.map(m => `<th class="mc">${m}</th>`).join('')}</tr></thead><tbody>
-    <tr class="eff"><td>Survey days</td>${effort.map(v => `<td class="mc"><span class="cell" style="background:color-mix(in oklab,var(--accent) ${v ? 15 + 70 * v / mxE : 0}%,transparent)">${v || ''}</span></td>`).join('')}</tr>
-    ${top.map(u => { const a = dm.get(u.key), mx = Math.max(1, ...a); return `<tr><td><i>${esc(u.name)}</i></td>${a.map((v, i) => `<td class="mc"><span class="cell" title="${MONTHS[i]}: ${v} survey day${v === 1 ? '' : 's'}" style="background:color-mix(in oklab,var(--good) ${v ? 18 + 72 * v / mx : 0}%,transparent)">${v || ''}</span></td>`).join('')}</tr>`; }).join('')}</tbody>`;
+    <tr class="eff"><td>Dates with records</td>${effort.map(v => `<td class="mc"><span class="cell" style="background:color-mix(in oklab,var(--accent) ${v ? 15 + 70 * v / mxE : 0}%,transparent)">${v || ''}</span></td>`).join('')}</tr>
+    ${top.map(u => { const a = dm.get(u.key), mx = Math.max(1, ...a); return `<tr><td><i>${esc(u.name)}</i></td>${a.map((v, i) => `<td class="mc"><span class="cell" title="${MONTHS[i]}: ${v} date with records${v === 1 ? '' : 's'}" style="background:color-mix(in oklab,var(--good) ${v ? 18 + 72 * v / mx : 0}%,transparent)">${v || ''}</span></td>`).join('')}</tr>`; }).join('')}</tbody>`;
 }
 function renderMap() {
   const pts = A.recs.filter(r => r.hasLoc && !r.obscured);
@@ -960,16 +961,28 @@ function renderMap() {
 function renderMethods() {
   const st = S.settings, o = A.o, c = S.chao || {};
   $('#methods').innerHTML = [
-    `<b>Source</b>: iNaturalist records of Fungi${o.slime ? ' and Mycetozoa (slime molds)' : ''} ${st.src === 'project' ? `in the project “${esc(st.proj.title)}” (id ${st.proj.id})` : st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : 'by anyone'}, observed ${st.d1} to ${st.d2}, read on ${todayIso()} through the iNaturalist API${o.rg ? ', research grade only' : ', all quality grades'}.${st.boundary ? ` Records were kept only if their point fell inside the boundary file “${esc(st.boundary.fileName)}” (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}, holes excluded)${st.edge === 'drop' ? ' and their stated accuracy did not reach past its edge' : ''}; records with obscured locations were excluded.` : ''}`,
+    `<b>Source</b>: iNaturalist records of Fungi${o.slime ? ' and Mycetozoa (slime molds)' : ''} ${st.src === 'project' ? `in the project “${esc(st.proj.title)}” (id ${st.proj.id})` : st.src === 'users' ? `by ${st.users.map(esc).join(', ')}` : 'by anyone'}, observed ${st.d1} to ${st.d2}, retrieved ${esc(S.retrievedAt || 'time not recorded')} through the iNaturalist API${o.rg ? ', research grade only' : ', all quality grades'}.${st.boundary ? ` Records were kept only if their point fell inside the boundary file “${esc(st.boundary.fileName)}” (${esc(MVBoundary.summary(st.boundary).replace(/^.*?: /, ''))}, holes excluded)${st.edge === 'drop' ? ' and their stated accuracy did not reach past its edge' : ''}; records with obscured locations were excluded.` : ''}`,
     `<b>Taxa</b>: names and higher taxonomy as currently on iNaturalist. Species are distinct taxa at species rank or below, with subspecies and varieties merged into their species${o.prov ? '; a record with a “Provisional Species Name” field counts as that provisional species' + (o.provSp === 'species' ? ' unless it is identified to species' : '') : ''}. Records identified only above species are listed separately and not counted.${o.lichen ? '' : ' Lichens were excluded by group (classes Lecanoromycetes and Arthoniomycetes; orders Candelariales, Coniocybales, Lichinales, Vezdaeales, Verrucariales, Pyrenulales, Trypetheliales, Strigulales, Monoblastiales; basidiolichen genera), which is approximate.'}`,
-    `<b>Effort</b>: a survey day is a date with at least one record. Species accumulation is the mean of 100 random orderings of the ${fmt(A.days.size)} survey days, with the central 95% of orderings shaded.`,
-    `<b>Richness estimate</b>: incidence-based Chao2 with the bias correction (m−1)/m and a log-normal 95% interval (Chao 1987; Chao & Chiu 2016), from Q1 = ${fmt(c.Q1)} species on one day and Q2 = ${fmt(c.Q2)} on two, over m = ${fmt(c.m)} days. Sample coverage follows Chao & Jost (2012). Fruiting-body surveys detect only species that fruited and were recorded, so the estimate is a lower bound.`,
+    `<b>Incidence unit</b>: a date with records is a calendar date with at least one retained record, not a verified survey event or comparable amount of search effort. Species accumulation is the mean of 100 random orderings of the ${fmt(A.days.size)} dates with records, with the central 95% of orderings shaded.`,
+    `<b>Richness estimate</b>: incidence-based Chao2 with the bias correction (m−1)/m and a log-normal 95% interval (Chao 1987; Chao & Chiu 2016), from Q1 = ${fmt(c.Q1)} species on one day and Q2 = ${fmt(c.Q2)} on two, over m = ${fmt(c.m)} days. Sample coverage follows Chao & Jost (2012). Fruiting-body records reflect detection and recording as well as occurrence. Unequal effort, detection and identification uncertainty affect interpretation; this is not a guaranteed floor for future finds or a standardized census.`,
     `<b>Identification</b>: iNaturalist identifications are not all verified; ${fmt(A.recs.length ? 100 * A.recs.filter(r => r.qg === 'research').length / A.recs.length : 0)}% of the records used are research grade, and ${fmt(A.recs.filter(r => r.seq).length)} have an ITS sequence.`,
   ].map(x => `<li>${x}</li>`).join('');
 }
 
 /* ---------- 5. downloads ---------- */
-function csv(rows) { return rows.map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n'); }
+function reportContext() {
+  return {
+    report_source: srcLabel(S.settings), report_period: S.settings.d1 + ' to ' + S.settings.d2,
+    report_retrieved_at: S.retrievedAt || 'not recorded', report_version: '2026-11-24.1',
+    report_settings: JSON.stringify(A.o),
+    report_units: 'Species-level identifications and optional provisional codes; survey_days means dates with records, not standardized events.',
+    report_limits: 'Exploratory, not independently validated. Counting units are not confirmed species boundaries. Uneven effort and detection limit comparisons. Estimates are conditional, not guaranteed future finds. Public obscured coordinates are not collecting locations.'
+  };
+}
+function csv(rows) {
+  const context = reportContext(), keys = Object.keys(context);
+  rows = rows.map((row, index) => [...row, ...(index === 0 ? keys : keys.map(key => context[key]))]);
+  return rows.map(r => r.map(x => { const s = String(x ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\n'); }
 function download(name, text, type = 'text/csv') { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([type === 'text/csv' ? '﻿' + text : text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
 const slug = () => { const st = S.settings; return `${(st.src === 'project' ? st.proj.slug || 'project' : st.src === 'users' ? st.users.join('-') : (st.boundary ? st.boundary.name : 'site')).toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40)}_${st.d1}_${st.d2}`; };
 const xml = s => String(s ?? '').replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
@@ -981,9 +994,9 @@ $('#dlDwc').onclick = () => { const o = A.o;
     ...A.recs.map(r => { const u = unitOf(r, o); return [`https://www.inaturalist.org/observations/${r.id}`, r.id, 'iNaturalist', 'HumanObservation', r.date, r.year, r.month, +r.date.slice(8, 10), r.uname || r.login, r.taxon.name, r.taxon.rank, r.slime ? 'Protozoa' : 'Fungi', r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', r.taxon.preferred_common_name || '',
       r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.hasLoc ? 'WGS84' : '', r.obscured ? 'Coordinates obscured by iNaturalist (up to about 22 km)' : '', r.place, r.qg === 'research' ? 'research grade' : r.qg === 'needs_id' ? 'needs ID' : r.qg || '', r.v.nums.map(x => x.replace(/^[^:]+:\s*/, '')).join(' | '), r.v.vouchered ? `voucher specimen${r.v.repo.length ? ' at ' + r.v.repo.join('; ') : ''}` : '', [...r.v.genbank.map(a => /^[A-Z]{1,2}\d{5,8}/.test(a) ? 'GenBank: ' + a : a), r.seq ? 'ITS sequence in iNaturalist observation field “DNA Barcode ITS”' : ''].filter(Boolean).join(' | '), r.prov ? `Provisional species name: ${r.prov}` : (u ? '' : 'Identified only above species'), r.lic]; })])); };
 const pointRecs = () => A.recs.filter(r => r.hasLoc);
-$('#dlGeo').onclick = () => download(`records_${slug()}.geojson`, JSON.stringify({ type: 'FeatureCollection', features: pointRecs().map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [+r.lon.toFixed(6), +r.lat.toFixed(6)] },
+$('#dlGeo').onclick = () => download(`records_${slug()}.geojson`, JSON.stringify({ type: 'FeatureCollection', report_context: reportContext(), features: pointRecs().map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [+r.lon.toFixed(6), +r.lat.toFixed(6)] },
   properties: { id: r.id, url: `https://www.inaturalist.org/observations/${r.id}`, date: r.date, observer: r.login, taxon: r.taxon.name, rank: r.taxon.rank, family: r.L.family || '', order: r.L.order || '', provisional: r.prov || null, its: r.seq, quality: r.qg, accuracy_m: r.acc ?? null, obscured: r.obscured } })) }), 'application/geo+json');
-$('#dlKml').onclick = () => download(`records_${slug()}.kml`, `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${xml(srcLabel(S.settings))} ${S.settings.d1} to ${S.settings.d2}</name>\n${pointRecs().map(r => `<Placemark><name>${xml(r.prov || r.taxon.name)}</name><description>${xml(`${r.date} · ${r.login} · ${r.qg}${r.obscured ? ' · obscured location' : ''} · https://www.inaturalist.org/observations/${r.id}`)}</description><TimeStamp><when>${r.date}</when></TimeStamp><Point><coordinates>${r.lon.toFixed(6)},${r.lat.toFixed(6)},0</coordinates></Point></Placemark>`).join('\n')}\n</Document></kml>`, 'application/vnd.google-earth.kml+xml');
+$('#dlKml').onclick = () => download(`records_${slug()}.kml`, `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>${xml(srcLabel(S.settings))} ${S.settings.d1} to ${S.settings.d2}</name><description>${xml(JSON.stringify(reportContext()))}</description>\n${pointRecs().map(r => `<Placemark><name>${xml(r.prov || r.taxon.name)}</name><description>${xml(`${r.date} · ${r.login} · ${r.qg}${r.obscured ? ' · obscured location' : ''} · https://www.inaturalist.org/observations/${r.id}`)}</description><TimeStamp><when>${r.date}</when></TimeStamp><Point><coordinates>${r.lon.toFixed(6)},${r.lat.toFixed(6)},0</coordinates></Point></Placemark>`).join('\n')}\n</Document></kml>`, 'application/vnd.google-earth.kml+xml');
 $('#dlSpec').onclick = () => { const V = A.recs.filter(r => r.v.vouchered).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.id - b.id);
   download(`specimens_${slug()}.csv`, csv([['date', 'scientific_name', 'provisional_name', 'phylum', 'class', 'order', 'family', 'genus', 'number_of_specimens', 'voucher_numbers', 'repository', 'voucher_flag', 'genbank_accessions', 'its_sequenced', 'sequencing_plate', 'collector', 'observer', 'latitude', 'longitude', 'coordinate_uncertainty_m', 'coordinates_obscured', 'locality', 'inaturalist_url'],
     ...V.map(r => [r.date, r.taxon.name, r.prov, r.L.phylum || '', r.L.class || '', r.L.order || '', r.L.family || '', r.L.genus || '', 1, r.v.nums.join(' | '), r.v.repo.join('; '), r.v.flag == null ? '' : r.v.flag ? 'yes' : 'no', r.v.genbank.join(' | '), r.seq ? 'yes' : '', r.v.plate.join('; '), collector(r), r.login, r.hasLoc ? r.lat.toFixed(6) : '', r.hasLoc ? r.lon.toFixed(6) : '', r.acc ?? '', r.obscured ? 'yes' : '', r.place, `https://www.inaturalist.org/observations/${r.id}`])])); };
@@ -991,8 +1004,14 @@ $('#dlNew').onclick = () => { const rows = [...A.units.values()].filter(u => !u.
   download(`new-to-site_${slug()}.csv`, csv([['phylum', 'class', 'order', 'family', 'species', 'records', 'survey_days', 'first_found', 'vouchered_records', 'its_sequenced_records', 'inaturalist_taxon_id'], ...rows.map(u => [u.L.phylum || '', u.L.class || '', u.L.order || '', u.L.family || '', u.name, u.records, u.days.size, u.first, u.vouch, u.seq, u.taxonId])])); };
 $('#dlMiss').onclick = () => download(`baseline-not-refound_${slug()}.csv`, csv([['name_on_list', 'group', 'inaturalist_status'], ...BL.M.base.filter(e => !BL.M.hit.has(e.key)).sort((a, b) => a.name.localeCompare(b.name)).map(e => { const r = BL.res[e.key]; return [e.name, e.group, r ? (r.none ? 'not found' : r.active ? 'current' : 'renamed') : 'not looked up']; })]));
 $('#dlRes').onclick = () => download(`baseline-matches_${slug()}.csv`, csv([['survey_species', 'baseline_name', 'matched_by'], ...[...A.units.values()].filter(u => !u.prov).sort(TAXSORT).map(u => { const b = BL.M.unit.get(u.key); return [u.name, b ? b.base.name : '', b ? b.how : 'new to the site']; })]));
-$('#dlDays').onclick = () => download(`survey-days_${slug()}.csv`, csv([['date', 'records', 'species', 'observers', 'observer_usernames'], ...[...A.days.values()].sort((a, b) => a.date < b.date ? -1 : 1).map(d => [d.date, d.records, d.units.size, d.people.size, [...d.people].join(' ')])]));
+$('#dlDays').onclick = () => download(`recorded-dates_${slug()}.csv`, csv([['date', 'records', 'species', 'observers', 'observer_usernames'], ...[...A.days.values()].sort((a, b) => a.date < b.date ? -1 : 1).map(d => [d.date, d.records, d.units.size, d.people.size, [...d.people].join(' ')])]));
 $('#dlYears').onclick = () => download(`year-by-year_${slug()}.csv`, csv([['year', 'survey_days', 'records', 'observers', 'species', 'new_to_survey', 'running_total'], ...S.yrs.map(g => [g.y, g.days, g.records, g.people.size, g.units.size, g.newN, g.cum])]));
+
+$('#dlSummary').onclick = () => {
+  const sections = ['#sumSub', '#lede', '#sumNote', '#compTiles', '#compNote', '#methods'];
+  const text = ['MYCOVIEW SURVEY REPORT — EXPLORATORY SUMMARY', ...Object.entries(reportContext()).map(([k, v]) => k + ': ' + v), '', ...sections.map(sel => $(sel).innerText)].join('\n\n');
+  download('summary_' + slug() + '.txt', text, 'text/plain');
+};
 
 /* ---------- wiring ---------- */
 $('#optProv').addEventListener('change', () => $('#provSpWrap').classList.toggle('muted', !$('#optProv').checked));

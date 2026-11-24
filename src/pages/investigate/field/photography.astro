@@ -1,6 +1,7 @@
 ---
 import '../../../styles/field-photo-frame.css';
 import FieldGuide from '../../../components/FieldGuide.astro';
+import FieldContext from '../../../components/FieldContext.astro';
 import { PHOTO_STEPS } from '../../../lib/field-guide-photos.js';
 // Phone photography for identification: the shot list, getting it in focus, and checking before you leave.
 const sources = [
@@ -80,6 +81,7 @@ const shots = [
 </section>
 
 <section id="observation">
+  <FieldContext />
   <h2>Make one iNaturalist observation</h2>
   <ol class="mv-guide-steps">
     <li><p>Add the photos you took of this mushroom.</p></li>

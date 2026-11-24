@@ -56,7 +56,7 @@ const plan = [
           <p><strong>The challenge</strong><br />{card.prompt}</p>
           <p><strong>Try it together</strong><br />{card.group}</p>
           <p><strong>Discuss</strong><br />{card.discussion}</p>
-          <details><summary>Reveal the science</summary><p>{card.insight}</p></details>
+          <details><summary aria-label={'Reveal the science: ' + card.title}>Reveal the science</summary><p>{card.insight}</p></details>
           <a class="station-text-link" href={card.resource}>{card.resourceLabel}</a>
         </article>)}
       </div>

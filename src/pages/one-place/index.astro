@@ -2,6 +2,7 @@
 import Photo from '../../components/Photo.astro';
 import Base from '../../layouts/Base.astro';
 import OnePlaceDashboard from '../../components/OnePlaceDashboard';
+import FieldContext from '../../components/FieldContext.astro';
 ---
 <Base title="One Place, A Thousand Questions" description="How to start a long-term biodiversity inventory in your backyard, a permitted woodland, or a familiar park—with practical iNaturalist guidance and a living example.">
 <div class="op-page">
@@ -26,7 +27,9 @@ import OnePlaceDashboard from '../../components/OnePlaceDashboard';
   </div><div class="op-resource-links"><a href="https://www.inaturalist.org/observations/upload" target="_blank" rel="noopener noreferrer">Start an iNaturalist observation</a><a href="https://www.inaturalist.org/projects/new" target="_blank" rel="noopener noreferrer">Explore iNaturalist Projects</a><a href="https://www.google.com/maps/d/" target="_blank" rel="noopener noreferrer">Draw a study boundary in Google My Maps</a></div></div></section>
   <section class="op-section op-cream" id="return-visit" aria-labelledby="return-visit-title">
     <div class="op-wrap op-narrow">
+      <FieldContext />
       <h2 id="return-visit-title">Log a return visit</h2>
+      <p>This is a template for your own notes. MycoView does not save your visit entries.</p>
       <p>Walk the same route again and record how long you looked. If you covered less ground, searched a different spot, or stayed longer, jot that down too. Keep these notes with your first visit so you can compare them.</p>
       <label for="one-place-visit-log"><strong>Copy this into your notes</strong></label>
       <textarea id="one-place-visit-log" class="op-visit-log" rows="7" readonly>Date:
@@ -34,7 +37,10 @@ Area or route covered:
 Minutes spent looking:
 Conditions:
 Finds or iNaturalist links:
-Anything different about this visit:</textarea>
+Anything different about this visit:
+If nothing was found, write “No fungi noticed” and keep the entry.</textarea>
+      <button type="button" id="copy-visit-template" class="button outline">Copy visit template</button>
+      <p id="visit-copy-status" role="status" aria-live="polite"></p>
       <p><strong>Example:</strong> April 13 · Lower trail from the bridge to the bend · 10 minutes · Damp after rain · No fungi noticed on this visit.</p>
       <p>Keep the entry even if you find nothing. It records when and how you looked. There’s no need to post an iNaturalist observation for a walk with no finds.</p>
     </div>
@@ -43,6 +49,21 @@ Anything different about this visit:</textarea>
   <section class="op-section"><div class="op-wrap op-outro"><div><h2>What you find is not everything that's there.</h2><p>Observation lists are shaped by weather, season, access, effort, detectability, equipment, and identification uncertainty. A record of 100 observed taxa doesn't mean a place contains only 100 taxa. If you want to compare sites—or years—record how and how often you searched.</p><p>On private land, secure permission before entering or collecting. On public land, check site-specific rules; many parks and preserves restrict specimen removal. Avoid publishing precise locations of sensitive species or private residential sites without consent.</p></div><aside><p>THE QUESTION TO KEEP</p><blockquote>What can I notice here today that I missed yesterday?</blockquote><a class="op-button" href="/learn/">Practice looking closer</a><p class="op-kyw-link">Why home and trail inventories matter, and how they’ll feed NEO Myco: <a href="/neo-myco/know-your-woods/">Know Your Woods</a></p></aside></div></section>
 </div>
 </Base>
+<script>
+  const copyButton = document.querySelector<HTMLButtonElement>('#copy-visit-template');
+  copyButton?.addEventListener('click', async () => {
+    const template = document.querySelector<HTMLTextAreaElement>('#one-place-visit-log');
+    const status = document.querySelector<HTMLElement>('#visit-copy-status');
+    if (!template || !status) return;
+    try {
+      await navigator.clipboard.writeText(template.value);
+      status.textContent = 'Visit template copied. Paste it into your own notes.';
+    } catch {
+      template.focus(); template.select();
+      status.textContent = 'Copy was unavailable. The template is selected; use your device’s Copy command, then paste it into your notes.';
+    }
+  });
+</script>
 <style is:global>
 .op-visit-log{display:block;width:100%;max-width:44rem;box-sizing:border-box;margin:8px 0 16px;padding:12px;border:1px solid #65805f;background:#fffefa;color:#173b30;font:inherit;line-height:1.5;resize:vertical}
 

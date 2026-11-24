@@ -1411,7 +1411,7 @@ function buildReport(forExport){
   return `
   <section><div class="card-head"><h2>${esc(A)} vs ${esc(B)}</h2><span class="small muted">ITS Bin Comparator build ${COMPARATOR_BUILD} · ${new Date().toLocaleDateString()} · ${metricName}</span></div>
   ${syntheticNotice?`<p class="banner"><strong>Synthetic example data.</strong> ${syntheticNotice}</p>`:''}
-  <div class="verdict ${rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${rec.cls}">${esc(rec.label)}</span></span><span class="small"><span class="tipped" data-tip="confidence">Confidence</span>: <strong>${esc(rec.conf)}</strong></span>
+  <div class="verdict ${rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${rec.cls}">${esc(rec.label)}</span></span><span class="small"><span class="tipped" data-tip="confidence">Heuristic confidence</span>: <strong>${esc(rec.conf)}</strong></span>
   <ul class="small">${rec.evidence.map(e=>`<li>${esc(e)}</li>`).join('')}</ul>
   <span class="small muted">Decision support from ITS alone. It is not a taxonomic ruling; morphology, ecology and other loci decide.</span></div></section>
   <section><div class="stats">
@@ -1963,7 +1963,8 @@ function renderTakeaway(){
     <ul class="tk-list">${x.items.map(([c,s])=>`<li class="${c}">${esc(s)}</li>`).join('')}</ul>
     ${x.std?`<div class="tk-std"><h3><span class="tipped" data-tip="calStd">Against the ${esc(t.cal.genus)} standard</span></h3>${calGaugeSVG(t.cal,t.pair)}<p class="tk-std-v ${x.std.cls}">${esc(x.std.verdict)}</p><ul class="tk-list">${x.std.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul></div>`:
     `<div class="tk-std"><p class="small" style="margin:0;max-width:78ch"><strong><span class="tipped" data-tip="refPoints">Reference points.</span></strong> UNITE builds species hypotheses at 98.5% similarity (1.5% difference). A large study of filamentous fungi (Vu et al. 2019) found 99.6% ITS identity separated species best overall. A single cutoff fits many genera poorly, though. A standard built from the genus is a better yardstick, and the closest related species are better still: species within one genus vary unevenly.</p>${t.genus?`<div class="row" style="margin-top:8px"><button type="button" class="shrink" data-calbuild="${esc(t.genus)}">Build the ${esc(t.genus)} standard</button></div>`:''}</div>`}
-    <div class="tk-verdict ${t.rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${t.rec.cls}">${esc(x.plain)}</span></span><span class="small muted">Tool's call: ${esc(t.rec.label)} · confidence ${esc(t.rec.conf)} · cutoff ${fmt(t.thrE.pct,2)}% from ${esc(t.thrE.src)}</span></div>
+    <div class="tk-verdict ${t.rec.cls}"><span class="lab"><span class="tipped" data-tip="v_${t.rec.cls}">${esc(x.plain)}</span></span><span class="small muted">Tool's call: ${esc(t.rec.label)} · heuristic confidence ${esc(t.rec.conf)} · cutoff ${fmt(t.thrE.pct,2)}% from ${esc(t.thrE.src)}</span></div>
+    <p class="small muted">Confidence is heuristic, not a calibrated probability or validated identification. Interpret it with the settings and evidence limits.</p>
     <p class="tk-next"><strong>Suggested next step:</strong> ${esc(x.next)}</p>
     <p class="small muted" style="margin:0">ITS differences alone cannot establish species boundaries. Counts follow your settings (a gap counts once however long it is; homopolymer gaps ${t.opt.ignoreHP?'are skipped':'are counted'}). The Report tab below has the full reasoning.</p>
   </div>`;
@@ -1972,7 +1973,7 @@ $('#takeaway').addEventListener('click',e=>{const g=e.target.dataset.calbuild;if
 $('#copyTake').addEventListener('click',async()=>{
   const t=takeawayData();if(!t||!t.dAB.length){log('Run the analysis and choose two groups first.','warn');return;}
   const x=takeawayText(t);
-  const txt=`${t.A} vs ${t.B}\n${x.head} ${x.sub}\n${x.items.map(i=>'- '+i[1]).join('\n')}${x.std?`\n${x.std.verdict}\n${x.std.lines.map(l=>'- '+l).join('\n')}`:''}\n${x.plain} (${t.rec.label}; confidence ${t.rec.conf}; cutoff ${fmt(t.thrE.pct,2)}% from ${t.thrE.src})\nNext step: ${x.next}`;
+  const txt=`${t.A} vs ${t.B}\n${x.head} ${x.sub}\n${x.items.map(i=>'- '+i[1]).join('\n')}${x.std?`\n${x.std.verdict}\n${x.std.lines.map(l=>'- '+l).join('\n')}`:''}\n${x.plain} (${t.rec.label}; heuristic confidence ${t.rec.conf}; cutoff ${fmt(t.thrE.pct,2)}% from ${t.thrE.src})\nConfidence is heuristic, not a calibrated probability or independent validation.\nNext step: ${x.next}`;
   try{await navigator.clipboard.writeText(txt);$('#copyTake').textContent='Copied';setTimeout(()=>$('#copyTake').textContent='Copy summary',1500);}
   catch(e){log('Your browser blocked copying. Select the takeaway text and copy it by hand.','warn');}
 });
@@ -2324,8 +2325,9 @@ function inatComment(fmtMd,full){
   L.push('');L.push(b('Sequences compared'));li(listSide('A',t.itA));li(listSide('B',t.itB));
   if(full){const o=t.opt;L.push('');L.push(b('Methods'));
     li(`Pairwise alignment (affine gaps, free end gaps), ${o.metric==='k2p'?'K2P distance':'p-distance'}; indels counted ${o.indelMode==='events'?'once per event':o.indelMode==='bases'?'once per base':'not at all'}; ${o.ignoreHP?'homopolymer-length indels ignored':'homopolymer indels counted'}; ambiguity codes ${o.ambMode==='compatible'?'matched where compatible':o.ambMode==='mismatch'?'counted as differences':'ignored'}; ${o.trim?'trimmed to ITS1–5.8S–ITS2':'whole reads'}.`);
-    li(`Recommendation: ${t.rec.label} (confidence ${t.rec.conf}; cutoff ${fmt(t.thrE.pct,2)}% from ${t.thrE.src}).`);
+    li(`Recommendation: ${t.rec.label} (heuristic confidence ${t.rec.conf}; cutoff ${fmt(t.thrE.pct,2)}% from ${t.thrE.src}).`);
     const techA=[...new Set(t.itA.map(s=>s.tech))].join(', '),techB=[...new Set(t.itB.map(s=>s.tech))].join(', ');li(`Sequencing: A ${techA}; B ${techB}.`);}
+  L.push('Confidence is heuristic, not a calibrated probability or independent scientific validation.');
   L.push('');L.push(i(`ITS similarity alone does not establish species identity. Compared with the MycoView ITS Bin Comparator, ${(d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`)(new Date())}: ${TOOL_URL}`));
   return L.join('\n');
 }
@@ -2786,7 +2788,7 @@ const TIPS={
  histBetween:'Pairs with one sequence from A and one from B.',
  techPair:'Which methods were used to read the two sequences in each pair.',
  indelPerPair:'Average number of gap events per pair. If mixed-method pairs have more, the method may be adding false gaps.',
- confidence:'How much to trust the suggestion. It rises with more sequences per group and clearer separation.',
+ confidence:'A heuristic description based on sample size and separation under the selected settings. It is not a calibrated probability or independent scientific validation.',
  v_conspecific:'ITS gives no sign the groups differ more than individuals within one species do. Merging is worth considering.',
  v_distinct:'The sampled groups show a barcode gap and meet the selected distance and fixed-difference thresholds.',
  v_ambiguous:'ITS alone does not settle it. More sequences, type material, or a second gene (TEF1, RPB2) would help.',

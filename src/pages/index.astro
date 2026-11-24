@@ -18,6 +18,7 @@ const { data: sheet } = await loadFeaturedSheet();
 
   <section class="hp-hero" aria-labelledby="hp-title">
     <div class="hp-hero-copy">
+      <a class="hp-link" href="#return-actions">Returning? Pick your next action</a>
       <h1 id="hp-title">See fungi differently.</h1>
       <p class="hp-sub">Learn to notice and document fungi, then follow the evidence as far as you like.</p>
       <p class="hp-lede" id="hp-lede" set:html={renderLede(sheet)} />
@@ -32,7 +33,7 @@ const { data: sheet } = await loadFeaturedSheet();
     </div>
   </section>
 
-  <nav class="hp-return" aria-labelledby="hp-return-title">
+  <nav class="hp-return" id="return-actions" aria-labelledby="hp-return-title">
     <h2 id="hp-return-title">Pick up where you left off</h2>
     <a class="hp-link" href="/investigate/field/photography/#observation">Post your mushroom photos</a>
     <a class="hp-link" href="/one-place/#return-visit">Log a return visit</a>

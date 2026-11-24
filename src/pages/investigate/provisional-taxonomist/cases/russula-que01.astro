@@ -13,7 +13,7 @@ const shown = d.photos.slice(0, 24);
 const pct = (n: number) => Math.round((100 * n) / d.observations);
 const missing = [
   ['Spore print color', d.characters.sporePrint, 'Spore print color, from white to deep ochre, separates many Russula species.'],
-  ['Taste (mild or acrid)', d.characters.taste, 'A core Russula character. Taste a tiny piece and spit it out.'],
+  ['Taste (mild or acrid)', d.characters.taste, 'Record previously established specialist observations if available; otherwise leave this character unknown. Do not taste an unidentified fungus.'],
   ['Odor', d.characters.odor, 'Some Russula have distinctive odors.'],
   ['Chemical spot tests (iron salts, KOH, guaiac)', d.characters.chemicalTests, 'Color reactions on the stem help separate similar species.'],
   ['Nearby trees', d.characters.trees, 'Russula form partnerships with tree roots; the host can narrow the possibilities.'],
@@ -100,7 +100,7 @@ const tour = [
   <h2>If you find it this season, record these.</h2>
   <ul>
     <li><strong>A spore print,</strong> photographed on white paper next to a white reference. This is the biggest gap.</li>
-    <li><strong>Taste</strong> (mild or acrid) and <strong>odor</strong>, written in the observation notes.</li>
+    <li><strong>Odor</strong>, if noticed, written in the observation notes. Leave taste unknown unless an existing specialist record supplies it; do not taste an unidentified fungus.</li>
     <li><strong>The trees within about 10 meters,</strong> and the substrate.</li>
     <li><strong>Cap color in the field,</strong> in words, with one photo next to a gray card, and young and old caps if you have both.</li>
     <li><strong>A dried voucher,</strong> numbered and noted on the observation, and tissue for sequencing.</li>

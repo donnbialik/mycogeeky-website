@@ -8,7 +8,7 @@ import { researchPaths, tools } from '../../data/tools';
 export const GET: APIRoute = () => {
   const toolData = tools
     .filter((t) => t.lifecycle !== 'archived')
-    .map((t) => ({ id: t.id, name: t.name, href: t.href || '' }));
+    .map((t) => ({ id: t.id, name: t.name, href: t.href || '', access: t.access }));
   const pathData = researchPaths.map((p) => ({
     id: p.id,
     audience: p.audience,
@@ -50,7 +50,7 @@ export const GET: APIRoute = () => {
     + '.mvtb-sep{color:#B9AE9C}.mvtb-crumbs{display:flex;align-items:center;gap:10px}'
     + '.mvtb-path{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-left:auto}'
     + '.mvtb-step{color:#E6DDCD;font:400 13px/1.3 "Courier Prime",ui-monospace,monospace}'
-    + '.mvtb-step b{color:#FFFFFF;font-weight:700}.mvtb-nav{display:flex;gap:14px}.mvtb-planned{color:#B9AE9C}'
+    + '.mvtb-step b{color:#FFFFFF;font-weight:700}.mvtb-nav{display:flex;flex-wrap:wrap;gap:14px}.mvtb-planned{color:#B9AE9C}'
     + '.mvtb button{font:inherit;color:#FFFFFF;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}'
     + '.has-mvtb .site-home{display:none!important}'
     + '@media(max-width:700px){.mvtb-path{margin-left:0;width:100%}.mvtb-nav{width:100%;justify-content:space-between}}';
@@ -60,7 +60,7 @@ export const GET: APIRoute = () => {
   function stepLink(step, dir) {
     var t = byId[step.toolId], href = step.href || (t && t.href) || '';
     if (href && href.charAt(0) === '#') href = '/investigate/' + href;
-    var text = (dir < 0 ? 'Back: ' : 'Next: ') + esc(step.label);
+    var text = (dir < 0 ? 'Back: ' : 'Next: ') + esc(step.label) + (t && t.access === 'invitation' ? ' (restricted preview)' : '');
     return href ? '<a href="' + esc(href) + '">' + text + '</a>' : '<span class="mvtb-planned">' + text + ' (planned)</span>';
   }
   function render() {

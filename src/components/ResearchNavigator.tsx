@@ -73,7 +73,7 @@ export default function ResearchNavigator(){
  },[selectedChoice,chosen,evidence,missingComparison,goal,noStructuredEffort]);
  const report=useMemo(()=>[
   'MYCOVIEW RESEARCH NAVIGATOR — EXPLORATORY BRIEF',
-  'Framework library version: draft-1.0 | Independent scientific review: pending',
+  'Framework library version: draft-1.1 | Independent scientific review: pending',
   'Not a validated experiment or automatic biological conclusion.',
   '',
   'RESEARCH AREA',areas.find(a=>a.id===area)?.title??area,
@@ -104,6 +104,10 @@ export default function ResearchNavigator(){
   '',
   'GOAL-SPECIFIC NEXT STEPS',...learningSteps.map((x,i)=>`${i+1}. ${x}`),
   'ADDITIONAL METHODOLOGICAL TASKS',...suggested.map((x,i)=>`${i+1}. ${x}`),
+  ...(chosen.id==='BIO-02'?['APPLY THIS PATHWAY ON MYCOVIEW',
+   'Plan repeat visits: https://mycoview.com/one-place/#get-started — record route, time, conditions and visits with no finds.',
+   ...(evidence.length?['Review recorded diversity: https://mycoview.com/investigate/survey-report/ — experimental; needs a public iNaturalist project, observers or boundary and dates. A descriptive summary is not a standardized census or proof of differences.']:[]),
+   'Interpret reports: https://mycoview.com/investigate/observations-to-decisions/ — what observations can and cannot support.']:[]),
   '',
   'CURATED RESOURCES',...resources.map(r=>`${r.title}: ${r.url}\n  Purpose: ${r.purpose}\n  Caution: ${r.limits}`),
   '',
@@ -176,6 +180,15 @@ export default function ResearchNavigator(){
     <section className="mv-nav-result-section"><h3>Additional planning considerations</h3><ol>{suggested.map((x,i)=><li key={i}>{x}</li>)}</ol></section>
     <section className="mv-nav-result-section"><h3>Curated research sources</h3><div className="mv-nav-resource-grid">{resources.map(r=><a key={r.id} href={r.url} target={r.url.startsWith('http')?'_blank':undefined} rel={r.url.startsWith('http')?'noopener noreferrer':undefined}><strong>{r.title}</strong><span>{r.purpose}</span><small>Limit: {r.limits}</small></a>)}</div></section>
     </>}
+    {chosen.id==='BIO-02'&&<section className="mv-nav-result-section">
+      <h3>Apply this pathway on MycoView</h3>
+      <p>{evidence.length===0?'Start by planning repeat visits and recording your effort. You do not need existing records to begin.':noStructuredEffort?'Use existing records to explore what has been reported. Uneven search effort prevents a simple comparison of site totals.':'You have described documented effort. Check the sampling design and comparability before interpreting differences; the tools below do not validate those assumptions.'}</p>
+      <ul>
+        <li><a href="/one-place/#get-started">Plan repeat visits — One Place</a>: a public guide to recording route, time, conditions and visits with no finds.</li>
+        {evidence.length>0&&<li><a href="/investigate/survey-report/">Review recorded diversity — Survey Report</a>: an experimental public tool requiring an iNaturalist project, observer list or site boundary and dates. Descriptive summaries are not a standardized census or proof of a site difference.</li>}
+        <li><a href="/investigate/observations-to-decisions/">Interpret observations for land managers</a>: learn what a report can and cannot support.</li>
+      </ul>
+    </section>}
     <section className="mv-nav-related"><h3>Related questions worth exploring</h3><div>{chosen.related.map(id=>frameworkById[id]).filter(Boolean).map(f=><button type="button" key={f.id} onClick={()=>{setFramework(f.id);setStage(1)}}>{f.id} · {f.title}</button>)}</div></section>
     <div className="mv-nav-export"><button type="button" onClick={copy}>Copy technical research brief</button><button type="button" onClick={download}>Download technical brief (.txt)</button>{feedback&&<p role="status" className={'mv-nav-action-status is-'+feedbackTone}>{feedback}</p>}</div>
     <details className="mv-nav-full"><summary>View full, shareable technical brief</summary><pre tabIndex={0}>{report}</pre></details>

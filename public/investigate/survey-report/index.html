@@ -202,6 +202,11 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
 #map{height:420px}
 @media (max-width:1180px){.form{grid-template-columns:1fr 1fr 1fr}.form .wide{grid-column:1/-1}}
 @media (max-width:560px){.form{grid-template-columns:1fr}.hb{grid-template-columns:minmax(90px,120px) 1fr 32px}.mstrip i{width:5px}}
+.aclist li[aria-selected="true"]{outline:2px solid var(--accent);outline-offset:-2px;background:var(--bg)}
+#projWrap{display:flex;flex-direction:column;gap:5px}
+#projHelp,#projStatus{font-size:.85rem}
+#statusBox{padding-top:0;padding-bottom:0}
+#statusTxt:not(:empty){padding:12px 0}
 </style>
 <link rel="stylesheet" href="/investigate/shared/lab-tool.css"><!-- Lab tier theme -->
 <script src="/investigate/shared/lab-theme.js"></script>
@@ -235,16 +240,18 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
       <label class="inline"><input type="radio" name="src" value="site"> Everyone at a site (boundary file)</label><button type="button" class="mv-i" data-help="src_site" aria-label="What does Everyone at a site mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
     </div>
     <div class="opts" id="bOpts" style="margin:8px 0 10px">
-      <span class="optlabel">Site boundary<button type="button" class="mv-i" data-help="boundary" aria-label="What does Site boundary mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
-      <input type="file" id="bFile" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json">
+      <span class="optlabel"><label for="bFile">Site boundary</label><button type="button" class="mv-i" data-help="boundary" aria-label="What does Site boundary mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
+      <input type="file" id="bFile" aria-describedby="bTxt" accept=".kml,.kmz,.geojson,.json,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/geo+json">
       <span id="bShape"></span><span class="muted" id="bTxt">Optional for a project or people: only records inside it count.</span>
       <button type="button" class="ghost hidden" id="bClear">Remove</button>
       <label class="inline hidden" id="bEdgeWrap">Records near the edge<button type="button" class="mv-i" data-help="edge" aria-label="What does Records near the edge mean?" aria-expanded="false" aria-controls="mv-pop">i</button> <select id="bEdge"><option value="keep" selected>count a record if its point is inside</option><option value="drop">leave it out if its accuracy reaches past the edge</option></select></label>
     </div>
     <form id="form" class="form" autocomplete="off">
-      <label class="wide" id="projWrap"><span>Project<button type="button" class="mv-i" data-help="project" aria-label="What does Project mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
-        <span class="ac"><input type="text" id="proj" placeholder="Start typing a project name" aria-autocomplete="list" aria-controls="projList"><ul class="aclist hidden" id="projList" role="listbox"></ul></span>
-      </label>
+      <div class="wide" id="projWrap"><span><label for="proj">Project</label><button type="button" class="mv-i" data-help="project" aria-label="What does Project mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
+        <span class="ac"><input type="text" id="proj" placeholder="Start typing a project name" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="projList" aria-describedby="projHelp"><ul class="aclist hidden" id="projList" role="listbox" aria-label="Matching projects"></ul></span>
+        <small id="projHelp">Type at least two characters. Use arrow keys and Enter to select a project.</small>
+        <span id="projStatus" role="status" aria-live="polite" aria-atomic="true"></span>
+      </div>
       <label class="wide hidden" id="usersWrap"><span>Usernames<button type="button" class="mv-i" data-help="users" aria-label="What does Usernames mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span> <input type="text" id="users" placeholder="one or more, separated by commas"></label>
       <label><span>From<button type="button" class="mv-i" data-help="dates" aria-label="What does Dates mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span> <input type="date" id="d1"></label>
       <label><span>To</span> <input type="date" id="d2"></label>
@@ -254,11 +261,11 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
       <button class="primary" id="goBtn" type="submit">Build the report</button>
     </form>
     <p class="hint">Records are read once; the options below change the report straight away, without reloading. New here? <a href="#" id="example">Try an example: Summit Metro Parks Biodiversity Project, 2025</a></p>
-    <div id="formMsg" class="msg"></div>
+    <div id="formMsg" class="msg" role="alert" aria-atomic="true"></div>
   </section>
 
-  <section id="statusBox" class="status hidden">
-    <div class="txt" id="statusTxt"></div>
+  <section id="statusBox" class="status">
+    <div class="txt" id="statusTxt" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="prog" id="prog"></div>
   </section>
 
@@ -310,7 +317,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
 
     <section class="card" style="margin-top:14px">
       <h2>Compared with a baseline list<button type="button" class="mv-i" data-help="baseline" aria-label="What does Compared with a baseline list mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="blSub"></span></h2>
-      <div class="row"><input type="file" id="blFile" accept=".csv,.tsv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+      <div class="row"><label for="blFile">Baseline species list</label><input type="file" id="blFile" aria-describedby="blTxt" accept=".csv,.tsv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
         <span class="muted" id="blTxt">A past species list for this site (CSV, Excel or text), e.g. an earlier inventory or the NPSpecies list. Read in your browser, not uploaded.</span>
         <button type="button" class="ghost hidden" id="blClear">Remove</button></div>
       <div class="row hidden" id="blCols" style="margin-top:6px"><label class="inline">Names from <select id="blName" style="width:auto"></select></label><button type="button" class="mv-i" data-help="bl_cols" aria-label="What does Names from mean?" aria-expanded="false" aria-controls="mv-pop">i</button></div>
@@ -334,7 +341,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
     <section class="card" style="margin-top:14px">
       <h2>Checklist<button type="button" class="mv-i" data-help="checklist" aria-label="What does Checklist mean?" aria-expanded="false" aria-controls="mv-pop">i</button><span class="sub" id="ckSub"></span></h2>
       <div class="row" style="margin-bottom:8px">
-        <input type="search" id="ckFilter" placeholder="Filter by name or group" style="width:240px">
+        <label for="ckFilter">Filter checklist</label><input type="search" id="ckFilter" placeholder="Filter by name or group" style="width:240px">
         <label class="inline">Sort <select id="ckSort" style="width:auto"><option value="tax" selected>by group (taxonomic)</option><option value="days">by dates with records found</option><option value="records">by records</option><option value="name">by name</option><option value="first">by first found</option></select></label>
         <label class="inline"><input type="checkbox" id="ckOther"> Also list records not identified to species</label><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button>
         <label class="inline hidden" id="ckNewWrap"><input type="checkbox" id="ckNew"> Only species new to the site</label><span class="hidden" id="ckNewTip"><button type="button" class="mv-i" data-help="ck_new" aria-label="What does new to the site mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span><span hidden><button type="button" class="mv-i" data-help="ckOther" aria-label="What does Not to species mean?" aria-expanded="false" aria-controls="mv-pop">i</button></span>
@@ -377,6 +384,7 @@ details.recon{margin-top:10px;font-size:13px} details.recon summary{cursor:point
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="/investigate/shared/boundary.js"></script>
 <script src="/investigate/shared/help.js"></script>
+<script src="/investigate/survey-report/project-picker.js"></script>
 <script>
 'use strict';
 const INAT = 'https://api.inaturalist.org', FUNGI = 47170, SLIME = 47685;
@@ -502,12 +510,13 @@ const S = { run: 0, obs: [], settings: {}, proj: null, boundary: null, tax: new 
   $('#bFile').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; $('#bTxt').textContent = 'Reading…';
     try { S.boundary = await MVBoundary.readFile(f); bSync(); } catch (err) { S.boundary = null; bSync(); $('#bTxt').innerHTML = `<span class="err">${esc(err.message)}</span>`; } });
   $('#bClear').onclick = () => { S.boundary = null; $('#bFile').value = ''; bSync(); };
-  const input = $('#proj'), list = $('#projList'); let timer = null, items = [];
-  input.addEventListener('input', () => { S.proj = null; clearTimeout(timer); const q = input.value.trim(); if (q.length < 2) { list.classList.add('hidden'); return; }
-    timer = setTimeout(async () => { try { const d = await getJSON(`${INAT}/v1/projects/autocomplete?q=${encodeURIComponent(q)}&per_page=8`); items = d.results;
-      list.innerHTML = items.map((p, i) => `<li data-i="${i}">${esc(p.title)}</li>`).join(''); list.classList.toggle('hidden', !items.length); } catch (e) { list.classList.add('hidden'); } }, 250); });
-  list.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (!li) return; e.preventDefault(); const p = items[+li.dataset.i]; S.proj = { id: p.id, title: p.title, slug: p.slug }; input.value = p.title; list.classList.add('hidden'); });
-  input.addEventListener('blur', () => setTimeout(() => list.classList.add('hidden'), 150));
+  const input = $('#proj');
+  window.initSurveyProjectPicker({
+    input, list: $('#projList'), status: $('#projStatus'),
+    search: async query => (await getJSON(`${INAT}/v1/projects/autocomplete?q=${encodeURIComponent(query)}&per_page=8`)).results,
+    onEdit: () => { S.proj = null; clearFormError(input); },
+    onPick: p => { S.proj = { id: p.id, title: p.title, slug: p.slug }; clearFormError(input); }
+  });
   const last = store.get('survey.last');
   if (last) { if (last.proj) { S.proj = last.proj; input.value = last.proj.title; } if (last.users) $('#users').value = last.users; if (last.d1) $('#d1').value = last.d1; if (last.d2) $('#d2').value = last.d2;
     if (last.src && last.src !== 'site') { document.querySelector(`input[name=src][value=${last.src}]`).checked = true; srcSync(); } }
@@ -557,14 +566,35 @@ function lineage(t) { const L = {}; for (const id of t.ancestor_ids || []) { con
 function isLichen(L) { return LICHEN_CLASSES.has(L.class) || LICHEN_ORDERS.has(L.order) || LICHEN_GENERA.has(L.genus); }
 
 /* ---------- 2. run ---------- */
+function clearFormError(field) {
+  const targets = field ? [field] : document.querySelectorAll('[aria-invalid="true"]');
+  for (const el of targets) {
+    el.removeAttribute('aria-invalid');
+    const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(id => id && id !== 'formMsg');
+    if (ids.length) el.setAttribute('aria-describedby', ids.join(' ')); else el.removeAttribute('aria-describedby');
+  }
+  $('#formMsg').textContent = '';
+}
+function formError(message, selector) {
+  const el = $(selector);
+  el.setAttribute('aria-invalid', 'true');
+  const ids = new Set((el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+  ids.add('formMsg'); el.setAttribute('aria-describedby', [...ids].join(' '));
+  $('#formMsg').textContent = message; el.focus();
+}
+for (const id of ['users', 'd1', 'd2', 'bFile']) {
+  $('#' + id).addEventListener('input', e => clearFormError(e.target));
+  $('#' + id).addEventListener('change', e => clearFormError(e.target));
+}
+document.querySelectorAll('input[name=src]').forEach(el => el.addEventListener('change', () => clearFormError()));
 async function build() {
   const src = document.querySelector('input[name=src]:checked').value, d1 = $('#d1').value, d2 = $('#d2').value;
   const users = $('#users').value.split(/[,\s]+/).map(s => s.replace(/^@/, '').trim()).filter(Boolean);
-  $('#formMsg').textContent = '';
-  if (src === 'project' && !S.proj) { $('#formMsg').textContent = 'Pick a project from the list that appears as you type.'; return; }
-  if (src === 'users' && !users.length) { $('#formMsg').textContent = 'Enter at least one iNaturalist username.'; return; }
-  if (src === 'site' && !S.boundary) { $('#formMsg').textContent = 'Choose a site boundary file (KML, KMZ or GeoJSON) for “Everyone at a site”.'; return; }
-  if (!d1 || !d2 || d1 > d2) { $('#formMsg').textContent = 'Choose a start date before the end date.'; return; }
+  clearFormError();
+  if (src === 'project' && !S.proj) { formError('Pick a project from the list that appears as you type.', '#proj'); return; }
+  if (src === 'users' && !users.length) { formError('Enter at least one iNaturalist username.', '#users'); return; }
+  if (src === 'site' && !S.boundary) { formError('Choose a site boundary file (KML, KMZ or GeoJSON) for “Everyone at a site”.', '#bFile'); return; }
+  if (!d1 || !d2 || d1 > d2) { formError('Choose a start date on or before the end date.', !d1 || d1 > d2 ? '#d1' : '#d2'); return; }
   const run = ++S.run; S.settings = { src, proj: S.proj, users, d1, d2, boundary: S.boundary, edge: $('#bEdge').value };
   store.set('survey.last', { src, proj: S.proj, users: $('#users').value, d1, d2 });
   $('#goBtn').disabled = true; $('#statusBox').classList.remove('hidden'); $('#out').classList.add('hidden'); $('#prog').innerHTML = '';
@@ -572,7 +602,7 @@ async function build() {
   try {
     const r = await loadObs(run); if (!r || run !== S.run) return;
     setChip('#src-inat', 'live', 'live');
-    if (!r.obs.length) { $('#statusBox').classList.add('hidden'); $('#formMsg').textContent = 'No fungi records found for that survey and those dates.'; return; }
+    if (!r.obs.length) { $('#statusTxt').textContent = 'No fungi records found for that survey and those dates.'; return; }
     S.obs = r.obs; S.retrievedAt = new Date().toISOString(); S.truncated = r.truncated; S.allTotal = null;
     if (!S.settings.boundary) qInat(() => getJSON(`${INAT}/v1/observations?per_page=0&d1=${S.settings.d1}&d2=${S.settings.d2}${S.settings.src === 'project' ? `&project_id=${S.settings.proj.id}` : `&user_id=${S.settings.users.map(encodeURIComponent).join(',')}`}`)).then(d => { if (run === S.run) { S.allTotal = d.total_results; if (A) renderRecon(); } }, () => {});
     $('#statusTxt').textContent = 'Looking up the taxonomy (cached after the first time)…';

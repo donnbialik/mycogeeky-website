@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import activities from '../../data/curiosityActivities.json';
+const plan = [
+  { time: 'First 10 minutes', title: 'Notice before naming', text: 'Start with one find. Ask participants to describe it in their own words, then compare descriptions. Invite experienced participants to listen for a detail they missed.', link: '#alien-naturalist', label: 'The Alien Naturalist' },
+  { time: 'Next 25 minutes', title: 'Explore in pairs or small groups', text: 'Let people follow their own interests. Aim for one well-documented find per person or pair. Try the different viewpoints and share what each photograph reveals.', link: '#one-mushroom-record', label: 'One Mushroom, One Record' },
+  { time: 'Next 15 minutes', title: 'Compare evidence and questions', text: 'Gather the group. Compare two finds or two explanations for the same feature. Invite people to share what is still uncertain.', link: '#beautifully-wrong-hypothesis', label: 'The Beautifully Wrong Hypothesis' },
+  { time: 'Last 10 minutes', title: 'Choose something to carry forward', text: 'Ask each person what question they want to investigate or what they will photograph differently on their next walk. Sharing is optional.', link: '#twenty-questions', label: 'Twenty Questions, Zero Answers' }
+];
+---
+<Base title="Lead a mushroom walk" description="A flexible mushroom walk plan and free printable Curiosity Generator activity cards for clubs, forays, families, and naturalists.">
+  <div class="station-page walk-page">
+    <section class="station-hero station-hero-split">
+      <div class="station-hero-copy">
+        <h1>Lead a <em>mushroom walk.</em></h1>
+        <p class="lead">Help people discover what they can notice, document, and investigate together. A flexible plan for clubs, friends, families, and anyone leading a walk.</p>
+        <div class="station-actions">
+          <a class="station-button" href="#walk-plan">Plan the walk</a>
+          <a class="station-text-link" href="/downloads/curiosity-field-cards.pdf" download>Download the six field cards (PDF)</a>
+        </div>
+      </div>
+      <Photo src="myco-friends-1.jpg" alt="A group of friends exploring fungi together" loading="eager" decoding="async" />
+    </section>
+
+    <section class="station-content" id="prepare">
+      <div class="station-section-head"><h2>Before you go</h2></div>
+      <ul class="walk-checklist">
+        <li>Check site access and group rules, choose a route that suits the participants, and tell everyone what to bring.</li>
+        <li>Pick one or two cards. Bring a printed set, pencils, and a phone or notebook for recording observations.</li>
+        <li>Set expectations for respectful observation. Follow the site’s collecting rules, leave fungi in place unless collection is authorized, and keep the activity focused on learning.</li>
+        <li>Invite participants with or without identification experience. Ask before sharing anyone’s photos or notes.</li>
+      </ul>
+    </section>
+
+    <section class="station-content" id="walk-plan">
+      <div class="station-section-head"><h2>A flexible one-hour walk</h2></div>
+      <p>Use this as a starting point. Shorten, extend, or skip activities to suit your group and whatever happens to be fruiting.</p>
+      <ol class="walk-plan">
+        {plan.map(step => <li>
+          <span class="walk-time">{step.time}</span>
+          <div><h3>{step.title}</h3><p>{step.text}</p><a href={step.link}>{step.label}</a></div>
+        </li>)}
+      </ol>
+      <p>If there are no visible mushrooms, use <a href="#one-square-meter">The One-Square-Meter Universe</a> to look for fungal clues in a small area, or let the group practice describing lichens and other visible features along the trail.</p>
+    </section>
+
+    <section class="station-content" id="cards">
+      <div class="station-section-head"><h2>Curiosity Generator field cards</h2></div>
+      <p>Try one individually, with a partner, or as a group. Let everyone explore the challenge before revealing the science.</p>
+      <p><a class="station-button" href="/downloads/curiosity-field-cards.pdf" download>Download and print all six cards (PDF)</a></p>
+      <p class="station-footnote">US Letter, three pages, two cards per page. Cut along the borders. Fold the science strip behind the card until the discussion.</p>
+      <div class="walk-cards">
+        {activities.map(card => <article class="walk-card" id={card.id} aria-labelledby={card.id + '-title'}>
+          <h3 id={card.id + '-title'}>{card.title}</h3>
+          <p><strong>The challenge</strong><br />{card.prompt}</p>
+          <p><strong>Try it together</strong><br />{card.group}</p>
+          <p><strong>Discuss</strong><br />{card.discussion}</p>
+          <details><summary>Reveal the science</summary><p>{card.insight}</p></details>
+          <a class="station-text-link" href={card.resource}>{card.resourceLabel}</a>
+        </article>)}
+      </div>
+    </section>
+
+    <section class="station-content" id="after">
+      <div class="station-section-head"><h2>After the walk</h2></div>
+      <p>Share these three links with participants. Encourage them to post one observation from their own encounter, record the date and habitat, respond thoughtfully to any suggested identification, and return to the same place when they can.</p>
+      <div class="station-link-grid">
+        <a href="/investigate/field/photography/#observation">Make one iNaturalist observation</a>
+        <a href="/investigate/field/identifying/#suggested-id">Respond to a suggested ID</a>
+        <a href="/one-place/#return-visit">Log a return visit</a>
+      </div>
+      <p>Feel free to print the cards or share this page with your group. No affiliation with NEO Myco is needed.</p>
+      <a class="station-text-link" href="/learn/#play">Try more activities on MycoView</a>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .walk-page .station-content { max-width: 1060px; }
+  .walk-checklist { display: grid; gap: 12px; padding-left: 1.35rem; max-width: 76ch; }
+  .walk-plan { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .walk-plan li { display: grid; grid-template-columns: 10rem minmax(0,1fr); gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--ds-line-subtle); }
+  .walk-time { font-weight: 700; }
+  .walk-plan h3, .walk-card h3 { margin-top: 0; }
+  .walk-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+  .walk-card { background: var(--ds-paper-card, #fff); color: #20170c; border: 1px solid var(--ds-line-strong); padding: 24px; min-width: 0; }
+  .walk-card details { padding: 12px 0; border-top: 1px solid var(--ds-line-subtle); }
+  .walk-card summary { font-weight: 700; cursor: pointer; padding: 8px 0; }
+  .walk-card > a { display: inline-block; margin-top: 8px; }
+  @media (max-width: 700px) {
+    .walk-plan li { grid-template-columns: 1fr; gap: 6px; }
+    .walk-cards { grid-template-columns: 1fr; }
+    .walk-card { padding: 18px; }
+  }
+</style>

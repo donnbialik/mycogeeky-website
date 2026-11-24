@@ -11,9 +11,11 @@ const sources = [
   { cite: 'FunDiS. <em>Dry your specimens.</em>', url: 'https://fundis.org/sequence/collect-dry/dry-your-specimens' },
   { cite: 'FunDiS. <em>Temporary storage of vouchers.</em>', url: 'https://fundis.org/sequence/voucher/temporary-storage' },
   { cite: 'iNaturalist. <em>Building a global movement for nature</em>: webinar FAQs (Seek vs iNaturalist; why common species and non-Research-Grade observations matter).', url: 'https://www.inaturalist.org/blog/139715-building-a-global-movement-for-nature-webinar-recording-resources' },
+  { cite: 'FunDiS. <em>Fungal Collection Protocol.</em>', url: 'https://www.fundis.org/fungal-collection-protocol' },
 ];
 const tour = [
   { title: 'A collection, start to finish', body: '<p>Collecting for science isn’t one moment in the woods. It’s about a day and a half of small jobs, and each one depends on the last. This walk-through follows one collection all the way through.</p>' },
+  { sel: '#before-collecting', title: 'Should you collect?', body: '<p>Check that you have a reason to keep the specimen, permission to take it, and a plan to label and dry it. You can also post photos and leave the mushroom in place.</p>' },
   { sel: '#before', title: 'Before you go', body: '<p>Decide how many collections you can actually finish. The limit isn’t the woods, it’s your evening and your dehydrator.</p>' },
   { sel: '#field', title: 'In the field', body: '<p>Photos first, then a number, then its own container. In that order, every time.</p>' },
   { sel: '#evening', title: 'That evening', body: '<p>Upload, label, and get everything on the dehydrator the same day.</p>' },
@@ -23,6 +25,17 @@ const tour = [
 ];
 ---
 <FieldGuide title="A collection, start to finish" description="What collecting fungi for science actually looks like, step by step: planning, photos and numbering in the field, uploading and drying that evening, bagging next morning, and sequencing later." eyebrow="FIELD RESEARCH TOOLKIT / START TO FINISH" heading="One collection, <em>woods to GenBank.</em>" lead="Not a gear list. This is what the work looks like over the day and a half after you pick a mushroom, and why each step is there." tourKey="field-start-to-finish" tour={tour} sources={sources} current="start">
+
+<section id="before-collecting" aria-labelledby="before-collecting-title">
+  <h2 id="before-collecting-title">Should you collect this mushroom?</h2>
+  <p>A dried specimen can help when a feature needs to be checked later under a microscope or a project has asked for material to sequence.</p>
+  <ul>
+    <li><strong>Check permission before you pick.</strong> Find out who manages the site and whether your planned collection is allowed. Get permission or a permit if required.<sup class="mv-ref"><a href="#sources">6</a></sup></li>
+    <li><strong>Make a plan to preserve it.</strong> Have a way to give the specimen a number, link it to its observation and start drying it as soon as possible.<sup class="mv-ref"><a href="#sources">2</a></sup><sup class="mv-ref"><a href="#sources">3</a></sup></li>
+  </ul>
+  <p>If you’re unsure about permission or can’t preserve it, leave it in place. Take photos of the cap, underside and stem where visible, note what it was growing on, and post the observation. Use the <a href="/investigate/field/photography/#shots">phone photo checklist</a>.</p>
+  <p>If you have a reason to collect and both checks are in place, <a href="#before">decide how many specimens you can finish</a>.</p>
+</section>
 
 <section id="before">
 

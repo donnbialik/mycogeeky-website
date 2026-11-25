@@ -15,6 +15,10 @@ const ROLE_CLS = { type_reference: 'agree', working_reference: 'minor', included
 const rolePill = r => `<span class="pill ${ROLE_CLS[r.role] || ''}" title="${esc(r.changed.role ? r.changed.role.reason : r.role_reason || '')}">${esc(ROLES[r.role] || r.role)}</span>`;
 const kindPill = k => k === 'named' ? '' : ` <span class="pill ${k === 'candidate' ? 'experimental' : k === 'unidentified' ? 'notassessed' : 'test'}">${esc(NAME_KINDS[k])}</span>`;
 const synNote = n => { const m = String(n || '').match(/\(([^)]+)\)$/); return m ? ` · synonym (${esc(m[1])})` : ''; };
+// A long reason shows its first words and opens to the full text (it was cut at 120 characters with no sign of it).
+const CLIP = 110;
+const clipped = t => t.length <= CLIP + 10 ? esc(t)
+  : `<details class="xp-more"><summary><span class="xp-clip">${esc(t.slice(0, CLIP).replace(/\s+\S*$/, ''))}…</span> <span class="xp-more-link"></span></summary>${esc(t)}</details>`;
 const reasonOf = r => { const t = r.changed.role ? r.changed.role.reason : r.role_reason; return t === 'kept by the genus run' ? '' : t || ''; };
 const nm = s => `<em>${esc(s)}</em>`;
 const country = c => (c || '').split(':')[0] || '';
@@ -52,7 +56,7 @@ function drawRecs() {
     rs.slice(0, max).map(r => `<tr>${owner ? `<td><input type="checkbox" data-acc="${esc(r.accession)}" ${sel.has(r.accession) ? 'checked' : ''} aria-label="Select ${esc(r.accession)}" /></td>` : ''}
     <td>${gb(r.accession)}${inatNote(r)}</td>
     <td>${nm(r.working_name)}${kindPill(r.name_kind)}${r.name_as_deposited && r.name_as_deposited !== r.working_name ? `<div class="muted small">deposited as ${nm(r.name_as_deposited)}${synNote(r.name_note)}</div>` : ''}</td>
-    <td>${rolePill(r)}${reasonOf(r) ? `<div class="muted small">${esc(reasonOf(r).slice(0, 120))}</div>` : ''}</td>
+    <td>${rolePill(r)}${reasonOf(r) ? `<div class="muted small">${clipped(reasonOf(r))}</div>` : ''}</td>
     <td class="small">${esc(r.type_material || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="small">${esc(r.country || '')}</td>
     <td class="small">${esc(r.regions || 'not located')}${r.length ? `<div class="muted">${r.length} bp</div>` : ''}</td>
     <td class="small">${esc(r.engine_match || '')}</td>

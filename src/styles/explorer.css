@@ -76,3 +76,8 @@
 .pill.rg{background:#d8e8cf;color:#1f4a2c}.pill.na{background:#eceae4;color:#5b5b52}
 
 .xp-nav-after{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:.92rem}
+
+/* working set: a long reason opens to its full text */
+.xp-more summary{cursor:pointer;list-style:none}.xp-more summary::-webkit-details-marker{display:none}
+.xp-more-link::after{content:"more";text-decoration:underline}.xp-more[open] .xp-more-link::after{content:"less"}
+.xp-more[open] .xp-clip{display:none}

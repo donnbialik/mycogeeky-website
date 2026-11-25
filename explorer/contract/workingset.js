@@ -14,8 +14,11 @@ export const NAME_KINDS = { named: 'Published name', provisional: 'Provisional n
 export const FIELDS = ['role', 'working_name', 'name_kind'];
 const SNAP = /^[a-z0-9][a-z0-9-]{1,63}$/;
 const GENUS = /^[A-Z][a-z]+$/;
-export const ACCESSION = /^[A-Z]{1,2}_?\d{5,8}(\.\d+)?$/;
-const ACC_IN_TEXT = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d+)?)\b/g;
+// GenBank accessions (MH827070.1) and iNaturalist observations with an ITS sequence (iNat407281883; engine fetch_inat.py).
+export const ACCESSION = /^(?:[A-Z]{1,2}_?\d{5,8}(\.\d+)?|iNat\d{5,10})$/;
+const ACC_IN_TEXT = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d+)?|iNat\d{5,10})\b/g;
+export const isInat = a => /^iNat\d+$/.test(String(a || ''));
+export const recordUrl = a => isInat(a) ? `https://www.inaturalist.org/observations/${String(a).slice(4)}` : `https://www.ncbi.nlm.nih.gov/nuccore/${encodeURIComponent(a)}`;
 export const accessionsIn = s => [...new Set([...String(s || '').matchAll(ACC_IN_TEXT)].map(m => m[1]))];
 
 // The starting name kind when no change says otherwise: "Genus sp." alone is identified to genus only; a quoted
@@ -38,7 +41,7 @@ export function validateWorkingSet(s) {
   for (const r of s.records) {
     const w = `record ${String(r && r.accession).slice(0, 20)}`;
     if (!r || typeof r !== 'object') { e.push('each record must be an object'); continue; }
-    if (!ACCESSION.test(r.accession || '')) e.push(`${w}: accession must look like MH827070.1`);
+    if (!ACCESSION.test(r.accession || '')) e.push(`${w}: accession must look like MH827070.1 or iNat407281883`);
     if (seen.has(r.accession)) e.push(`${w}: duplicate accession`); seen.add(r.accession);
     if (!ROLES[r.role]) e.push(`${w}: unknown role ${r.role}`);
     if (typeof r.working_name !== 'string' || !r.working_name) e.push(`${w}: working_name is required`);

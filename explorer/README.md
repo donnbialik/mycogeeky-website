@@ -2,7 +2,9 @@
 
 Release 1 is a **restricted evidence-exploration and human-review application**. It displays immutable evidence
 releases computed offline by the engine (private repository `barcode-reliability-explorer`) and records human
-reviews. It performs no sequence analysis (that is release 2) and it is **not** an identification service.
+reviews. The server performs no sequence analysis (that is release 2) and the Explorer is **not** an identification service.
+One exception runs in the reviewer's browser only: the working-set page can *place* one pasted sequence among the
+working set's records (see below); nothing is sent to the server and no name is chosen.
 
 | Path | What it is |
 |---|---|
@@ -45,6 +47,20 @@ generated into `dist/`**; `npm run explorer:scan` fails the build check if one i
    until you have reviewed (an owner reveal is audited); nothing becomes an accepted reference without an explicit
    owner acceptance into a **future** release.
 
+## Working sets: iNaturalist records and sequence placement
+
+* **iNaturalist records.** A working set may contain records `iNat<observation id>` (engine `fetch_inat.py`): iNaturalist
+  observations with a 'DNA Barcode ITS' field. They link to the observation and carry a pill; "name from sequence?" marks
+  an observation whose name may have been inferred from that very sequence (Species Name Override or Barcode Inferred
+  Species field). They start as *Included*, never as references. The contract accepts both id forms.
+* **Place a sequence** (tab on `/explorer/working-set/`, `src/scripts/explorer/placement.js`). A reviewer pastes one ITS
+  sequence; the page loads the working set's sequences through the existing FASTA export (audited as an export),
+  aligns the sequence in the browser against every type and working reference plus the 40 most similar other records,
+  and lists the nearest working names and records with distance, differences and how much of the sequence each
+  comparison covers. References covering under half of it are marked partial and ranked last. No threshold, no name
+  chosen, nothing stored; the method is stated on the page. Distances are plain pairwise distances and can differ
+  slightly from the engine's.
+
 ## Genus decisions (question sets and the decision ledger)
 
 A genus review report (engine: `harness/genus/genus_report.py`) raises questions: which sequence fixes what a name means
@@ -70,7 +86,7 @@ reviewer in D1).
 ## Tests
 
 ```bash
-npm run explorer:test      # shared suite in-process (node:sqlite stands in for D1)
+npm run explorer:test      # shared suite in-process (node:sqlite stands in for D1), plus placement unit tests
 npm run build && npm run explorer:e2e   # the same suite over HTTP on the real Cloudflare runtime (wrangler: workerd + local D1)
 npm run explorer:scan      # the built site contains no evidence
 ```

@@ -50,7 +50,8 @@ generated into `dist/`**; `npm run explorer:scan` fails the build check if one i
 ## Working sets: iNaturalist records and sequence placement
 
 * **iNaturalist records.** A working set may contain records `iNat<observation id>` (engine `fetch_inat.py`): iNaturalist
-  observations with a 'DNA Barcode ITS' field. They link to the observation and carry a pill; "name from sequence?" marks
+  observations with a 'DNA Barcode ITS' field; a further ITS field of the same observation is `iNat<id>-2` (ITS #2) or
+  `-A` / `-B` (sequence variants), one specimen. They link to the observation and carry a pill; "name from sequence?" marks
   an observation whose name may have been inferred from that very sequence (Species Name Override or Barcode Inferred
   Species field). They start as *Included*, never as references. The contract accepts both id forms.
 * **Place a sequence** (tab on `/explorer/working-set/`, `src/scripts/explorer/placement.js`). A reviewer pastes one ITS

@@ -7,7 +7,7 @@ let v, order = [];
 // Distances: one decimal at 1% and above, two below (small differences matter there).
 const num = x => { const n = Number(x); return Number.isFinite(n) && String(x).trim() !== '' && /^-?[0-9.]+$/.test(String(x).trim()) && !Number.isInteger(n) ? (Math.abs(n) >= 1 ? n.toFixed(1) : n.toFixed(2)) : x; };
 // GenBank accessions anywhere in the question or the evidence link to the GenBank record.
-const ACC = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d{1,2})?|iNat\d{5,10})\b/g;
+const ACC = /\b([A-Z]{1,2}_?\d{5,8}(?:\.\d{1,2})?|iNat\d{5,10}(?:-[0-9A-Z])?)\b/g;
 const gb = a => `<a href="${recordUrl(a)}" target="_blank" rel="noopener noreferrer">${esc(a)}</a>`;
 const linked = t => esc(t).replace(ACC, m => gb(m));
 const ACC_KEYS = { accessions: 'GenBank records', type_sequences: 'Type sequences', reference_sequences: 'Reference sequences', records: null };

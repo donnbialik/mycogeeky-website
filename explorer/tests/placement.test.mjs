@@ -67,6 +67,11 @@ test('working-set contract accepts iNaturalist record ids and links them to iNat
   assert.deepEqual(validateWorkingSet({ ...base, records: [rec('MH827070.1'), rec('iNat407281883')] }), []);
   assert.equal(validateWorkingSet({ ...base, records: [rec('inat407281883')] }).length, 1);
   assert.equal(validateWorkingSet({ ...base, records: [rec('iNat12')] }).length, 1);
+  assert.deepEqual(validateWorkingSet({ ...base, records: [rec('iNat91450993-2'), rec('iNat395103507-A')] }), []);
+  assert.equal(validateWorkingSet({ ...base, records: [rec('iNat91450993-22')] }).length, 1);
+  assert.equal(recordUrl('iNat91450993-2'), 'https://www.inaturalist.org/observations/91450993');
+  assert.ok(isInat('iNat395103507-B'));
+  assert.deepEqual(accessionsIn('iNat91450993-2 differs from OM972598.1'), ['iNat91450993-2', 'OM972598.1']);
   assert.deepEqual(accessionsIn('use iNat407281883 and MH827070.1'), ['iNat407281883', 'MH827070.1']);
   assert.ok(isInat('iNat407281883') && !isInat('MH827070.1'));
   assert.equal(recordUrl('iNat407281883'), 'https://www.inaturalist.org/observations/407281883');

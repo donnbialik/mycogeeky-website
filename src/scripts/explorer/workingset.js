@@ -7,8 +7,9 @@ let me = null, ws = null, tab = 'names', sel = new Set(), nameFilter = null, seq
 const FULL = 'ITS1+5.8S+ITS2';
 const gb = a => `<a href="${recordUrl(a)}" target="_blank" rel="noopener">${esc(a)}</a>`;
 // An iNaturalist record: say so, and say when its name may have been inferred from this very sequence.
+const inatField = a => { const m = /-(\w)$/.exec(a); return !m ? '' : /\d/.test(m[1]) ? ` · ITS #${m[1]}` : ` · variant ${m[1]}`; };
 const inatNote = r => !isInat(r.accession) ? '' : ` <span class="pill test" title="${esc(r.inat_names && r.inat_names.may_come_from_sequence
-  ? 'iNaturalist observation; its name may have been inferred from this sequence (Species Name Override or Barcode Inferred Species field)' : 'iNaturalist observation')}">iNat${r.inat_names && r.inat_names.may_come_from_sequence ? ' · name from sequence?' : ''}</span>`;
+  ? 'iNaturalist observation; its name may have been inferred from this sequence (Species Name Override or Barcode Inferred Species field)' : 'iNaturalist observation')}">iNat${inatField(r.accession)}${r.inat_names && r.inat_names.may_come_from_sequence ? ' · name from sequence?' : ''}</span>`;
 const decisionLink = ref => { const [s, q] = String(ref).split('/'); return `<a href="/explorer/decision/?set=${encodeURIComponent(s)}&id=${encodeURIComponent(q)}">${esc(q)}</a>`; };
 const ROLE_CLS = { type_reference: 'agree', working_reference: 'minor', included: '', held: 'insufficient', outgroup: 'notassessed', excluded: 'conflict' };
 const rolePill = r => `<span class="pill ${ROLE_CLS[r.role] || ''}" title="${esc(r.changed.role ? r.changed.role.reason : r.role_reason || '')}">${esc(ROLES[r.role] || r.role)}</span>`;
@@ -98,8 +99,9 @@ function draw() {
 
 // ---- Place a sequence (placement.js; computed in the browser, the pasted sequence is not sent anywhere) ----
 const pct = v => v == null ? '' : v < 1 ? v.toFixed(2) : v.toFixed(1);
-const cov = x => `${Math.round(100 * x.coverage)}%${x.coverage < SHORT ? ' <span class="pill minor" title="This reference covers under half of the pasted sequence; it ranks after the others">partial</span>' : ''}`;
-const hit = x => x ? `${gb(x.record.accession)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${cov(x)})</span>` : '<span class="muted">none aligned</span>';
+const partial = x => x.coverage < SHORT ? ' <span class="pill minor" title="This reference covers under half of the pasted sequence; it ranks after the others">partial</span>' : '';
+const cov = x => `${Math.round(100 * x.coverage)}%${partial(x)}`;
+const hit = x => x ? `${gb(x.record.accession)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${Math.round(100 * x.coverage)}%)</span>${partial(x)}` : '<span class="muted">none aligned</span>';
 async function sequences() {
   if (seqs && seqs.genus === ws.genus && seqs.snapshot === ws.snapshot.id) return seqs.map;
   const roles = Object.keys(ROLES).filter(k => k !== 'excluded').join(',');

@@ -1,0 +1,109 @@
+---
+// PUBLIC page: how an invited reviewer answers genus questions in the Barcode Reliability Explorer.
+// It contains no evidence data (the evidence is restricted to signed-in reviewers); it describes the pages and rules.
+// Keep it in step with src/scripts/explorer/decision.js, explorer/server/decisions.js (adjudicateQuestion) and the
+// question types in explorer/contract/questions.js.
+import Base from '../../../layouts/Base.astro';
+import '../../../styles/explorer.css';
+
+const types = [
+  ['Add a reference sequence (D2)', 'A name has records but nothing that fixes what it means in sequence data: no sequenced type, no material identified by the describing authors.', 'A ranked candidate (give the accession), a literature epitype or neotype (accession and citation), curator material (accession and basis), or “none available yet”.', 'One'],
+  ['Accept a reference sequence (D1)', 'The report proposes a sequence that is not a type, such as material identified by the authors, as a name’s reference.', 'Accept or reject, with your reason.', 'One'],
+  ['Types ITS cannot tell apart (D3)', 'The type sequences of two or more names do not differ on the part of ITS they share.', 'Published synonymy (give the citation), “distinct but unresolved on ITS”, or “needs full ITS of the types”.', 'Two'],
+  ['Possible misapplied name (D4)', 'Records deposited under one name match the reference sequence of another.', 'A misapplied name (the pattern is labelled), a synonym, “the reference sequence is wrong or too short”, or “unresolved”.', 'Two'],
+  ['Unnamed group (D5)', 'Records that group together and match no reference sequence.', 'An existing provisional name (give it), a named species with no reference yet (give the name), a candidate undescribed taxon, or “needs more data”.', 'Two'],
+  ['Record problem (D6)', 'One record has something wrong with it, such as conflicting region boundaries.', 'Keep, or exclude as a chimera or contaminant, or as low quality.', 'One'],
+  ['Type sequences too short (D7)', 'Many type sequences cover only part of ITS, often ITS2 alone.', 'Whether a fragment may serve as a reference: yes (labelled as fragment-based), only together with full-ITS material, or no.', 'One'],
+  ['Herbarium type under another name (D8)', 'A record’s voucher is a herbarium type of a different name from the one it is deposited under.', 'A synonym (use it for the deposited name), use it for the type’s own name, or a voucher mix-up (ignore it).', 'Two'],
+  ['Type filed under another genus (D9)', 'A type sequence on a type list is filed by NCBI under a different genus.', 'It belongs in this genus (use it), it was correctly transferred out (do not use it), or NCBI misfiled it.', 'Two'],
+  ['Synonym types disagree (D10)', 'Names treated as one species, but the type of one synonym sits closer to another species.', 'Variation within one species, a synonym that is a distinct species (give the name), a wrong type sequence (give the accession), or “needs full ITS of the types”.', 'Two'],
+];
+---
+<Base tier="lab" title="Reviewing a genus · Barcode Reliability Explorer" description="Why the Barcode Reliability Explorer exists, why genus review matters, and how invited reviewers answer genus questions.">
+  <section class="station-hero station-hero-solo"><div class="station-hero-copy">
+    <h1>Reviewing a genus</h1>
+    <p class="lead">You have been invited because you know these fungi. The Explorer does the sorting a computer can do; the questions it cannot settle on its own come to you. This page explains why the work matters, how it fits together, and how to use the review pages.</p>
+    <div class="tag-row"><span class="tag">for invited reviewers</span><span class="tag neutral">about 10 minutes to read</span></div>
+  </div></section>
+
+  <section class="section soft"><div class="container narrow xp" style="padding:0">
+    <h2>Why the Explorer exists</h2>
+    <p>ITS sequences are how most of us now check what a collection is, and how new species are argued for. But the reference data are a mess. GenBank holds many sequences under names that were wrong when they were deposited, or have been applied to a different species since; a name used for eastern North American material can belong to a western or European species. Many type sequences are short ITS2 fragments of old herbarium material. iNaturalist adds thousands more sequences, many of them named from the sequence itself, and provisional names multiply, often written several ways.</p>
+    <p>Anyone describing a species, or clarifying what a North American name really means, has to work out which of those sequences can be trusted, which types have been sequenced, and what is missing: which material to request from a herbarium. Done by hand, that is slow, and the reasoning is rarely written down where the next person can find it.</p>
+    <p>The Explorer does the mechanical part for a whole genus. It gathers every ITS record from GenBank and iNaturalist, finds the type sequences, compares every record with them, measures where ITS can and cannot separate the names, and flags conflicts. <strong>It does not identify anything and applies no identification threshold.</strong> Where the evidence needs interpreting, it asks a person.</p>
+
+    <h2 style="margin-top:36px">Why your answers matter</h2>
+    <ul>
+      <li><strong>They turn a pile of sequences into a curated reference set:</strong> misapplied names labelled, references fixed for names that had none, bad records set aside. Each genus keeps that set as its working set.</li>
+      <li><strong>They are meant to be the foundation for trees good enough to publish.</strong> The working set is what phylogenies for new species descriptions and revisions will be built from.</li>
+      <li><strong>They show what is known and what is not.</strong> A decided “needs full ITS of the types” is as useful as a name: it tells the next person exactly what to sequence or request.</li>
+      <li><strong>They are credited and checkable.</strong> Every decision keeps the reviewers’ names, reasoning and citations, so anyone can see why a record is treated the way it is, and challenge it with evidence.</li>
+    </ul>
+
+    <h2 style="margin-top:36px">A genus is never finished</h2>
+    <p>New sequences keep arriving: newly sequenced types, new studies, new iNaturalist and club collections. So each genus is re-run from time to time and a new report is issued. <strong>Decided answers carry over.</strong> The engine applies them, and a question asked again shows the earlier decision and whether its evidence has changed since; if it has not, your earlier answer can be filled in again for you to check and save. Follow-up rounds should therefore be much lighter than the first.</p>
+    <p class="muted">The exception is a large addition, such as a herbarium releasing a batch of type sequences or a big study being deposited. That can raise many new questions at once, and that genus then needs a fuller second pass.</p>
+
+    <h2 style="margin-top:36px">Before you start</h2>
+    <ul>
+      <li><strong>Sign in</strong> at <a href="/explorer/decisions/">mycoview.com/explorer/decisions</a> with the e-mail address your invitation was sent to. You receive a one-time code by e-mail; there is no password.</li>
+      <li><strong>A short tour</strong> opens the first time you visit Genus decisions and the first question you open. Replay it any time with <strong>Take the tour</strong>.</li>
+      <li><strong>Your first answers are test answers.</strong> They are saved and shown, but never count toward a decision, so you can try the pages freely. Once the site owner enables formal answers for you, you choose test or formal for each answer.</li>
+      <li><strong>You answer blind.</strong> You see other reviewers’ answers to a question only after you have saved your own.</li>
+      <li><strong>Nothing here changes GenBank or iNaturalist.</strong> An answer is a curation decision with your name and reasoning attached. It changes how the Explorer treats records; the original records keep their deposited names.</li>
+    </ul>
+  </div></section>
+
+  <section class="section"><div class="container narrow xp" style="padding:0">
+    <h2>Where to start</h2>
+    <p>Open <strong>Genus decisions</strong> and choose a genus in <strong>Report</strong>. The list opens on the <strong>first queue</strong>: the few questions whose answers could change a species’ barcode gap or set a reference sequence. Each says why it is first. Choose <em>all</em> in <strong>Queue</strong> to see the rest. Use <strong>Your answer → not answered yet</strong> to see what is left for you; it also hides questions you marked as beyond your expertise.</p>
+
+    <h2 style="margin-top:36px">Answering a question</h2>
+    <ol>
+      <li><strong>Read the question</strong> and the line under it: how many records it affects and whether it needs one reviewer or two.</li>
+      <li><strong>Look at “Evidence from the report”.</strong> Distances are percentages of compared positions, and “Compared on” says which part of ITS was compared. A short region (ITS2 alone, say) carries less information than full ITS.</li>
+      <li><strong>Check “The records”.</strong> Each accession opens its GenBank or iNaturalist record in a new tab. Names are shown as deposited: treat them as claims, not facts.</li>
+      <li><strong>Choose an answer.</strong> Some answers ask for a detail, such as an accession, a name or a citation; give it in the box that appears.</li>
+      <li><strong>Write your reasoning.</strong> It is required: what you compared and why it settles the question. Add <strong>citations</strong> where you can: DOIs, accessions, herbarium numbers, Index Fungorum or MycoBank numbers.</li>
+      <li><strong>Choose test or formal</strong> and <strong>Save answer</strong>. “Next question you haven’t answered” takes you on, first-queue questions before the rest.</li>
+    </ol>
+    <p class="muted small">Changed your mind? Answer again. The new answer replaces your earlier one, and both stay in the history.</p>
+
+    <h2 style="margin-top:36px">When a question is beyond you</h2>
+    <p>Nobody knows every group, and some questions turn on literature or material you may not have. On the question page, <strong>Mark as beyond my expertise</strong> instead of guessing, and say what would help if you can: a specialist in the group, full ITS of the types, a particular paper. It is not an answer: it never counts, never disputes another reviewer’s answer, and the question is left for others. It tells the site owner who should be asked. You can undo it, or answer the question later.</p>
+
+    <h2 style="margin-top:36px">How answers become decisions</h2>
+    <ul>
+      <li><strong>Questions that change which name records belong to</strong> (D3, D4, D5, D8, D9, D10) need <strong>two reviewers giving the same formal answer</strong>. With one formal answer the question shows “awaiting second reviewer”.</li>
+      <li><strong>The others</strong> (D1, D2, D6, D7) are decided by <strong>one formal answer</strong>.</li>
+      <li>If formal answers differ, the question is <strong>disputed</strong>. Each reviewer can see the other’s reasoning and change their own answer; nothing is decided until they agree.</li>
+      <li>A decided answer is applied to the genus’s working set straight away (for example, records are relabelled), with your name, the date and the reason. Answers that change the underlying data, such as a new reference sequence or an excluded record, take effect in the genus’s next rebuild.</li>
+    </ul>
+  </div></section>
+
+  <section class="section soft"><div class="container xp" style="padding:0">
+    <h2>The kinds of question</h2>
+    <div class="xp-panel xp-scroll"><table><thead><tr><th>Kind</th><th>What it asks</th><th>Possible answers</th><th>Reviewers</th></tr></thead>
+      <tbody>{types.map(([a, b, c, d]) => <tr><td><strong>{a}</strong></td><td>{b}</td><td class="muted">{c}</td><td>{d}</td></tr>)}</tbody></table></div>
+    <p class="muted small">Every question also offers “other”, which asks you to explain.</p>
+  </div></section>
+
+  <section class="section"><div class="container narrow xp" style="padding:0">
+    <h2>Tools that help</h2>
+    <ul>
+      <li><strong>Working sets</strong> (in the Explorer’s menu): every record of the genus with its working name, its role (type reference, included, outgroup, excluded) and why it has that role. Search by accession or name, filter by role, and see every change made by a decision.</li>
+      <li><strong>Place a sequence</strong> (a tab on the working-set page): paste one ITS sequence to see which records and names it sits nearest to, how far, and over how much of it. This is a placement, not an identification: no threshold is applied and no name is chosen. The sequence is compared in your browser and not sent anywhere.</li>
+      <li><strong>Downloads</strong> on the working-set page: FASTA of the references, included and outgroup records, or of the type references only, and a CSV of every record, for your own alignments and trees.</li>
+    </ul>
+
+    <h2 style="margin-top:36px">Good habits</h2>
+    <ul>
+      <li><strong>“Unresolved”, “needs full ITS” and “needs more data” are good answers.</strong> Saying the evidence cannot decide is better than guessing, and it tells everyone what is missing.</li>
+      <li><strong>Mind the region.</strong> Many type sequences are short ITS2 fragments of old herbarium material. Two names looking identical on ITS2 alone says little about full ITS.</li>
+      <li><strong>Mind where an iNaturalist name came from.</strong> A record labelled “iNat · name from sequence?” may have been named from its own sequence, so its name is not independent evidence about that sequence.</li>
+      <li><strong>Write reasoning someone else can check:</strong> which records, which distances, which paper. Your answer is read by the next reviewer and kept with the decision.</li>
+      <li><strong>Think a question itself is wrong?</strong> Answer “other”, say what is wrong, and tell the person who invited you. If it is simply outside your experience, mark it as beyond your expertise.</li>
+    </ul>
+    <p style="margin-top:30px"><a class="button primary" href="/explorer/decisions/">Go to Genus decisions</a> <span class="muted small">Restricted to invited reviewers.</span> · <a href="/investigate/explorer/">About the Explorer</a></p>
+  </div></section>
+</Base>

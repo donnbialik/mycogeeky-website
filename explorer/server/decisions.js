@@ -33,6 +33,17 @@ export function adjudicateQuestion(formal, need) {
 const pub = r => ({ id: r.id, reviewer: r.display_name, mode: r.mode, choice: r.choice, detail: r.detail, rationale: r.rationale, citation: r.citation,
   evidence_sha256: r.evidence_sha256, supersedes: r.supersedes, created_at: r.created_at });
 
+// "Beyond my expertise" marks (migration 0006). Current state per reviewer = their latest row. Before the migration
+// is applied the table does not exist; then nobody has passed.
+async function passesOf(env, setId, qid) {
+  try {
+    const rows = (await env.DB.prepare(`SELECT p.*, r.display_name FROM question_passes p JOIN reviewers r ON r.id = p.reviewer_id
+        WHERE p.set_id = ?${qid ? ' AND p.question_id = ?' : ''} ORDER BY p.id`).bind(...(qid ? [setId, qid] : [setId])).all()).results;
+    const cur = new Map(); for (const p of rows) cur.set(`${p.question_id}|${p.reviewer_id}`, p);
+    return [...cur.values()].filter(p => p.action === 'pass');
+  } catch { return []; }
+}
+
 async function scopeOf(env, me) {
   if (me.role === 'owner') return null;
   const rows = (await env.DB.prepare('SELECT genus FROM reviewer_genera WHERE reviewer_id = ?').bind(me.id).all()).results;
@@ -103,11 +114,13 @@ export async function getSet(env, me, setId, h) {
   if (!s) return h.err(404, 'no such question set');
   const qs = (await env.DB.prepare('SELECT set_id, id, type, subject, reviewers_needed, records_affected, body_json FROM questions WHERE set_id = ? ORDER BY type, records_affected DESC, id').bind(setId).all()).results;
   const by = {}; for (const d of await decisionsOf(env, setId)) (by[d.question_id] ||= []).push(d);
+  const passed = {}; for (const p of await passesOf(env, setId)) (passed[p.question_id] ||= []).push(p);
   return h.json({ set: s, scope: await scopeOf(env, me), questions: qs.map(q => {
     const cur = currentDecisions(by[q.id] || []); const mine = cur.find(d => d.reviewer_id === me.id); const body = JSON.parse(q.body_json);
     return { id: q.id, type: q.type, kind: QUESTION_TYPES[q.type], subject: q.subject, question: body.question, reviewers_needed: q.reviewers_needed,
       records_affected: q.records_affected, outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed).status,
-      my_choice: mine ? mine.choice : null, my_mode: mine ? mine.mode : null, queue: body.queue || null, queue_reason: body.queue_reason || null };
+      my_choice: mine ? mine.choice : null, my_mode: mine ? mine.mode : null, queue: body.queue || null, queue_reason: body.queue_reason || null,
+      my_pass: (passed[q.id] || []).some(p => p.reviewer_id === me.id), passes: (passed[q.id] || []).length };
   }) });
 }
 
@@ -142,7 +155,33 @@ export async function getQuestion(env, me, setId, qid, reveal, h) {
     outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed), prior, my_previous,
     may_decide: !s.withdrawn && me.role !== 'observer' && (!scope || scope.includes(s.genus)),
     my_decisions: mine.map(pub), others: show ? all.filter(d => d.reviewer_id !== me.id).map(pub) : null, others_hidden: !show,
-    others_count: new Set(all.filter(d => d.reviewer_id !== me.id).map(d => d.reviewer_id)).size });
+    others_count: new Set(all.filter(d => d.reviewer_id !== me.id).map(d => d.reviewer_id)).size,
+    ...await passView(env, me, setId, qid) });
+}
+
+// Everyone sees how many reviewers passed; only the owner sees who and their notes (to find the right reviewer).
+async function passView(env, me, setId, qid) {
+  const ps = await passesOf(env, setId, qid); const mine = ps.find(p => p.reviewer_id === me.id);
+  return { my_pass: mine ? { note: mine.note, created_at: mine.created_at } : null, passes_count: ps.length,
+    passes: me.role === 'owner' ? ps.map(p => ({ reviewer: p.display_name, note: p.note, created_at: p.created_at })) : null };
+}
+
+export async function postPass(env, me, setId, qid, b, h) {
+  if (me.role === 'observer') return h.err(403, 'observers cannot mark questions');
+  const q = await env.DB.prepare('SELECT q.id, s.genus FROM questions q JOIN question_sets s ON s.id = q.set_id WHERE q.set_id = ? AND q.id = ?').bind(setId, qid).first();
+  if (!q) return h.err(404, 'no such question');
+  if (await env.DB.prepare('SELECT set_id FROM question_set_withdrawals WHERE set_id = ?').bind(setId).first()) return h.err(409, 'this question set has been withdrawn; use the current set of this genus');
+  const scope = await scopeOf(env, me);
+  if (scope && !scope.includes(q.genus)) return h.err(403, `you review ${scope.join(', ')}, not ${q.genus}`);
+  const action = b && b.action === 'withdraw' ? 'withdraw' : 'pass';
+  const note = b && b.note != null ? String(b.note).trim() : '';
+  if (note.length > 500) return h.err(400, 'keep the note under 500 characters');
+  const has = (await passesOf(env, setId, qid)).some(p => p.reviewer_id === me.id);
+  if (action === 'pass' && has) return h.err(409, 'you have already marked this question as beyond your expertise');
+  if (action === 'withdraw' && !has) return h.err(409, 'you have not marked this question');
+  await env.DB.prepare('INSERT INTO question_passes (set_id, question_id, reviewer_id, action, note, created_at) VALUES (?,?,?,?,?,?)')
+    .bind(setId, qid, me.id, action, action === 'pass' ? (note || null) : null, new Date().toISOString()).run();
+  return h.json({ ok: true, action }, 201);
 }
 
 export async function postDecision(env, me, b, h) {

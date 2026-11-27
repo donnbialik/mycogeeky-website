@@ -44,7 +44,7 @@ export function suite(test, ctx) {
   });
   test('owner applies the schema once; it is recorded and audited', async () => {
     const m = await as(OWNER, 'POST', 'admin/migrate', {});
-    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions', '0004_question_set_withdrawals', '0005_working_sets']);
+    assert.equal(m.status, 200, JSON.stringify(m.body)); assert.deepEqual(m.body.applied, ['0001_release1', '0002_supplements', '0003_genus_decisions', '0004_question_set_withdrawals', '0005_working_sets', '0006_question_passes']);
     assert.deepEqual((await as(OWNER, 'POST', 'admin/migrate', {})).body.applied, []);
     assert.ok((await as(OWNER, 'GET', 'admin/status')).body.migrations.every(x => x.applied && !x.changed_since_applied));
   });
@@ -205,6 +205,27 @@ export function suite(test, ctx) {
     assert.equal((await as(R2, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.others.length, 1, 'answers shown once you have answered');
     assert.equal((await as(R2, 'POST', 'decisions', dec('TES-D4-002', h, { mode: 'formal', supersedes: d.body.decision_id }))).status, 201);
     assert.equal((await as(R1, 'GET', `question-sets/${SET}/questions/TES-D4-002`)).body.outcome.status, 'decided');
+  });
+  test("beyond my expertise: not an answer, never counts; observers refused; withdraw; owner sees who and why", async () => {
+    const P = (email, qid, b) => as(email, 'POST', `question-sets/${SET}/questions/${qid}/pass`, b);
+    assert.equal((await P(OBS, 'TES-D5-003', {})).status, 403, 'observers cannot pass');
+    assert.equal((await P(R1, 'TES-D9-999', {})).status, 404);
+    assert.equal((await P(R1, 'TES-D5-003', { note: 'x'.repeat(501) })).status, 400);
+    assert.equal((await P(R1, 'TES-D5-003', { note: 'needs a Testus specialist' })).status, 201);
+    assert.equal((await P(R1, 'TES-D5-003', {})).status, 409, 'cannot pass twice');
+    const before = (await as(R1, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body;
+    assert.equal(before.outcome.status, 'open', 'a pass is not an answer'); assert.equal(before.my_decisions.length, 0);
+    assert.equal(before.my_pass.note, 'needs a Testus specialist'); assert.equal(before.passes, null, 'reviewers do not see who passed');
+    const r2 = (await as(R2, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body;
+    assert.equal(r2.passes_count, 1); assert.equal(r2.my_pass, null); assert.equal(r2.others_count, 0, 'a pass is not counted as another answer');
+    const own = (await as(OWNER, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body;
+    assert.equal(own.passes.length, 1); assert.equal(own.passes[0].note, 'needs a Testus specialist');
+    const row = (await as(R1, 'GET', 'question-sets/' + SET)).body.questions.find(q => q.id === 'TES-D5-003');
+    assert.equal(row.my_pass, true); assert.equal(row.passes, 1); assert.equal(row.my_choice, null);
+    assert.equal((await P(R1, 'TES-D5-003', { action: 'withdraw' })).status, 201);
+    assert.equal((await P(R1, 'TES-D5-003', { action: 'withdraw' })).status, 409, 'nothing left to withdraw');
+    const after = (await as(R1, 'GET', `question-sets/${SET}/questions/TES-D5-003`)).body; assert.equal(after.my_pass, null); assert.equal(after.passes_count, 0);
+    const led = await as(OWNER, 'GET', `question-sets/${SET}/ledger`); assert.ok(!JSON.stringify(led.body).includes('Testus specialist'), 'passes are not in the ledger');
   });
   test('two-reviewer answers that need a name must name the same thing; test decisions never count', async () => {
     const h = await qh(R1, 'TES-D5-003');

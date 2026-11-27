@@ -3,7 +3,7 @@
 import Base from './Base.astro';
 import '../styles/explorer.css';
 const { title, active } = Astro.props;
-const links = [['worksets', 'Working sets', '/explorer/working-set/'], ['decisions', 'Genus decisions', '/explorer/decisions/'], ['records', 'Release records', '/explorer/'], ['cases', 'Release review cases', '/explorer/cases/'], ['methods', 'Methods and limits', '/investigate/explorer/']];
+const links = [['worksets', 'Working sets', '/explorer/working-set/'], ['decisions', 'Genus decisions', '/explorer/decisions/'], ['records', 'Release records', '/explorer/'], ['cases', 'Release review cases', '/explorer/cases/'], ['guide', 'How to review', '/investigate/explorer/reviewing/'], ['methods', 'Methods and limits', '/investigate/explorer/']];
 ---
 <Base title={`${title} · Explorer`} description="Barcode Reliability Explorer: restricted reviewer preview." tier="lab">
   <div class="container xp">

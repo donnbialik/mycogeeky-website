@@ -107,7 +107,7 @@ export async function getSet(env, me, setId, h) {
     const cur = currentDecisions(by[q.id] || []); const mine = cur.find(d => d.reviewer_id === me.id); const body = JSON.parse(q.body_json);
     return { id: q.id, type: q.type, kind: QUESTION_TYPES[q.type], subject: q.subject, question: body.question, reviewers_needed: q.reviewers_needed,
       records_affected: q.records_affected, outcome: adjudicateQuestion(cur.filter(d => d.mode === 'formal'), q.reviewers_needed).status,
-      my_choice: mine ? mine.choice : null, my_mode: mine ? mine.mode : null };
+      my_choice: mine ? mine.choice : null, my_mode: mine ? mine.mode : null, queue: body.queue || null, queue_reason: body.queue_reason || null };
   }) });
 }
 

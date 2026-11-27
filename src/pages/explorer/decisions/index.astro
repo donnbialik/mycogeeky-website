@@ -9,6 +9,7 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
   <div class="xp-panel">
     <div class="xp-filters">
       <div class="wide"><label for="set">Report</label><select id="set"></select></div>
+      <div><label for="queue">Queue</label><select id="queue"><option value="">all</option><option value="first">first</option><option value="later">later</option></select></div>
       <div><label for="kind">Kind</label><select id="kind"><option value="">all</option></select></div>
       <div><label for="outcome">Outcome</label><select id="outcome"><option value="">all</option><option>open</option><option>awaiting second reviewer</option><option>disputed</option><option>decided</option></select></div>
       <div><label for="mine">Your answer</label><select id="mine"><option value="">all</option><option value="none">not answered yet</option><option value="some">answered</option></select></div>

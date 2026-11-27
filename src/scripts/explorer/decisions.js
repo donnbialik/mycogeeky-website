@@ -8,9 +8,10 @@ function strip(s) {
     <strong>computationally generated; answers are recorded separately and nothing here renames a record</strong>` : '<strong>No genus question set has been imported yet.</strong> The owner imports one from the set-up page.';
 }
 function draw() {
-  const k = $('kind').value, o = $('outcome').value, m = $('mine').value;
-  const rows = view.questions.filter(q => (!k || q.type === k) && (!o || q.outcome === o) && (!m || (m === 'none' ? !q.my_choice : !!q.my_choice)));
-  $('rows').innerHTML = rows.map(q => `<tr><td><a href="/explorer/decision/?set=${encodeURIComponent(view.set.id)}&id=${encodeURIComponent(q.id)}">${esc(q.id)}</a><div class="muted small">${esc(q.question.slice(0, 140))}${q.question.length > 140 ? '…' : ''}</div></td>
+  const k = $('kind').value, o = $('outcome').value, m = $('mine').value, u = $('queue').value;
+  const rows = view.questions.filter(q => (!k || q.type === k) && (!o || q.outcome === o) && (!m || (m === 'none' ? !q.my_choice : !!q.my_choice)) && (!u || q.queue === u))
+    .sort((a, b) => (a.queue === 'first' ? 0 : 1) - (b.queue === 'first' ? 0 : 1));
+  $('rows').innerHTML = rows.map(q => `<tr><td><a href="/explorer/decision/?set=${encodeURIComponent(view.set.id)}&id=${encodeURIComponent(q.id)}">${esc(q.id)}</a>${q.queue === 'first' ? ' <span class="pill test">first queue</span>' : ''}<div class="muted small">${esc(q.question.slice(0, 140))}${q.question.length > 140 ? '…' : ''}</div>${q.queue === 'first' && q.queue_reason ? `<div class="small">Why first: ${esc(q.queue_reason.replace(/^Q-[A-Z]+:\s*/, ''))}</div>` : ''}</td>
     <td>${outcomePill(q.outcome)}</td><td>${q.my_choice ? `${esc(q.my_choice)} <span class="pill ${esc(q.my_mode)}">${esc(q.my_mode)}</span>` : '<span class="muted">none</span>'}</td>
     <td>${esc(q.kind)}</td><td>${/^unnamed group:/i.test(q.subject) ? `unnamed group: <em>${esc(q.subject.replace(/^unnamed group:\s*/i, ''))}</em>` : `<em>${esc(q.subject)}</em>`}</td><td>${q.reviewers_needed}</td><td>${q.records_affected}</td></tr>`).join('') || '<tr><td colspan="7">No questions match.</td></tr>';
 }
@@ -19,6 +20,9 @@ async function load(id) {
   $('scope').textContent = view.scope ? `You can answer questions for ${view.scope.join(', ')}; other genera are read-only for you.` : '';
   const types = [...new Set(view.questions.map(q => q.type))].sort();
   $('kind').innerHTML = '<option value="">all</option>' + types.map(t => `<option value="${t}">${esc(QUESTION_TYPES[t])}</option>`).join('');
+  // A set with a first review queue opens on it; older sets without one show everything.
+  const queued = view.questions.some(q => q.queue);
+  $('queue').disabled = !queued; $('queue').value = queued ? 'first' : '';
   history.replaceState(null, '', '?set=' + encodeURIComponent(id)); draw();
 }
 (async () => {
@@ -33,5 +37,5 @@ async function load(id) {
   $('set').value = sets.some(s => s.id === want) ? want : current[0].id;
   await load($('set').value);
   $('set').addEventListener('change', () => load($('set').value).catch(showError));
-  for (const id of ['kind', 'outcome', 'mine']) $(id).addEventListener('change', draw);
+  for (const id of ['kind', 'outcome', 'mine', 'queue']) $(id).addEventListener('change', draw);
 })().catch(showError);

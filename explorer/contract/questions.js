@@ -10,6 +10,7 @@ export const QUESTION_TYPES = {
   D5: 'Unnamed group', D6: 'Record problem', D7: 'Type sequences too short', D8: 'Herbarium type under another name', D9: 'Type filed under another genus',
   D10: 'Synonym types disagree',
 };
+export const QUEUES = ['first', 'later'];
 export const TWO_REVIEWER_TYPES = ['D3', 'D4', 'D5', 'D8', 'D9', 'D10'];
 const SET_ID = /^[a-z0-9][a-z0-9-]{1,63}$/;
 const Q_ID = /^[A-Z]{2,4}-D(?:[1-9]|1\d)-\d{3,4}$/;
@@ -41,6 +42,9 @@ export function validateQuestionSet(s) {
     if (q.reviewers_needed !== (TWO_REVIEWER_TYPES.includes(q.type) ? 2 : 1)) e.push(`${w}: reviewers_needed must be ${TWO_REVIEWER_TYPES.includes(q.type) ? 2 : 1} for ${q.type}`);
     if (!Number.isInteger(q.records_affected) || q.records_affected < 0) e.push(`${w}: records_affected must be a whole number`);
     if (q.evidence == null || typeof q.evidence !== 'object') e.push(`${w}: evidence must be an object`);
+    // Optional review queue (engine review_queue.py): 'first' questions could change a barcode gap or set a reference.
+    if (q.queue !== undefined && !QUEUES.includes(q.queue)) e.push(`${w}: queue must be ${QUEUES.join(' or ')}`);
+    if (q.queue_reason !== undefined && (typeof q.queue_reason !== 'string' || q.queue_reason.length > 500)) e.push(`${w}: queue_reason must be a short text`);
     if (JSON.stringify(q).length > 200000) e.push(`${w}: too large`);
   }
   return e;

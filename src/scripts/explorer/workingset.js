@@ -105,7 +105,11 @@ function draw() {
 const pct = v => v == null ? '' : v < 1 ? v.toFixed(2) : v.toFixed(1);
 const partial = x => x.coverage < SHORT ? ' <span class="pill minor" title="This reference covers under half of the pasted sequence; it ranks after the others">partial</span>' : '';
 const cov = x => `${Math.round(100 * x.coverage)}%${partial(x)}`;
-const hit = x => x ? `${gb(x.record.accession)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${Math.round(100 * x.coverage)}%)</span>${partial(x)}` : '<span class="muted">none aligned</span>';
+// When a record was deposited under another name (a synonym, a variety), say so: the nearest "type reference" of
+// G. marginata can be a type of G. venenata, and it must not read as marginata's own type.
+const depAs = r => r.name_as_deposited && r.name_as_deposited !== r.working_name
+  ? ` <span class="muted small">(${r.role === 'type_reference' ? 'type of' : 'deposited as'} ${nm(r.name_as_deposited)})</span>` : '';
+const hit = x => x ? `${gb(x.record.accession)}${depAs(x.record)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${Math.round(100 * x.coverage)}%)</span>${partial(x)}` : '<span class="muted">none aligned</span>';
 async function sequences() {
   if (seqs && seqs.genus === ws.genus && seqs.snapshot === ws.snapshot.id) return seqs.map;
   const roles = Object.keys(ROLES).filter(k => k !== 'excluded').join(',');
@@ -140,7 +144,7 @@ async function runPlacement() {
       </tbody></table></div>
       <h3>Nearest records</h3>
       <div class="xp-scroll"><table><thead><tr><th>Record</th><th>Working name</th><th>Role</th><th>Distance</th><th title="Substitutions plus gap runs, over the compared columns">Differences</th><th>Covers</th><th>Country</th></tr></thead><tbody>
-      ${res.nearest.slice(0, 15).map(x => `<tr><td>${gb(x.record.accession)}${inatNote(x.record)}</td><td>${nm(x.record.working_name)}</td><td>${rolePill(x.record)}</td>
+      ${res.nearest.slice(0, 15).map(x => `<tr><td>${gb(x.record.accession)}${inatNote(x.record)}</td><td>${nm(x.record.working_name)}${depAs(x.record)}</td><td>${rolePill(x.record)}</td>
         <td><strong>${pct(x.pct)}%</strong></td><td class="small">${x.subs} sub${x.subs === 1 ? '' : 's'} + ${x.indels} gap run${x.indels === 1 ? '' : 's'} / ${x.compared}</td><td class="small">${cov(x)}</td><td class="small">${esc(country(x.record.country))}</td></tr>`).join('')}
       </tbody></table></div>`;
   } catch (e) { $('pstat').textContent = ''; showError(e); }

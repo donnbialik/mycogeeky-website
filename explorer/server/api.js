@@ -325,6 +325,10 @@ export async function onRequest(context) {
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 1) return Q.listSets(env, me, H, me.role === 'owner' && url.searchParams.get('withdrawn') === '1');
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 2) return Q.getSet(env, me, parts[1], H);
     if (M === 'GET' && parts[0] === 'question-sets' && parts.length === 4 && parts[2] === 'questions') return Q.getQuestion(env, me, parts[1], parts[3], url.searchParams.get('reveal') === '1', H);
+    if (M === 'POST' && parts[0] === 'question-sets' && parts.length === 5 && parts[2] === 'questions' && parts[4] === 'pass') {
+      if (!applied.some(m => m.id === '0006_question_passes')) return err(503, "the database needs the 'beyond my expertise' update; the owner applies it on the set-up page");
+      return Q.postPass(env, me, parts[1], parts[3], await request.json(), H);
+    }
     if (M === 'POST' && parts[0] === 'decisions' && parts.length === 1) {
       const b = await request.json();
       const res = await Q.postDecision(env, me, b, H);

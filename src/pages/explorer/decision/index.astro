@@ -2,22 +2,22 @@
 import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
 ---
 <ExplorerLayout title="Genus decision" active="decisions">
-  <p class="ds-label"><a href="/explorer/decisions/" id="back">All questions</a> · <span id="qid"></span></p>
+  <p class="ds-label"><a href="/explorer/decisions/" id="back">All questions</a> · <span id="qid"></span> · <button type="button" class="xp-linkbtn" id="tourBtn">Take the tour</button></p>
   <h1 id="title">Loading the question.</h1>
   <p id="kind" class="muted"></p>
   <div id="prior"></div>
   <div class="xp-msg info"><strong>Outcome: <span id="outcome"></span>.</strong> <span id="rule"></span> Names in the question are as deposited in GenBank or in the herbarium record. An answer is a curation decision with your name and reasoning attached; it does not rename anything in GenBank.</div>
   <div class="xp-grid">
     <div>
-      <section class="xp-panel"><h2>Question</h2><p id="question"></p></section>
-      <section class="xp-panel"><h2>Evidence from the report</h2><dl class="xp-kv" id="evidence"></dl>
+      <section class="xp-panel" id="questionBox"><h2>Question</h2><p id="question"></p></section>
+      <section class="xp-panel" id="evidenceBox"><h2>Evidence from the report</h2><dl class="xp-kv" id="evidence"></dl>
         <p class="muted small">Distances are percentages of compared positions; "Compared on" says which part of ITS. A short region carries less information than full ITS.</p></section>
       <section class="xp-panel" id="recordsBox" hidden><h2 id="recordsHead">The records</h2>
-        <p class="muted small">Each accession opens its GenBank record in a new tab. Names are as deposited; country, voucher and study as GenBank gives them. The study is the title the submitters gave in GenBank, which is often the paper's working title.</p>
+        <p class="muted small">Each accession opens its GenBank or iNaturalist record in a new tab. Names are as deposited; country, voucher and study as GenBank gives them. The study is the title the submitters gave in GenBank, which is often the paper's working title.</p>
         <div class="xp-scroll" style="max-height:520px"><table><thead><tr><th>GenBank</th><th>Role</th><th>Name as deposited</th><th>Country</th><th>Voucher</th><th>Length</th><th>Study (GenBank)</th></tr></thead><tbody id="records"></tbody></table></div></section>
     </div>
     <div>
-      <section class="xp-panel"><h2>Your answer</h2>
+      <section class="xp-panel" id="answerBox"><h2>Your answer</h2>
         <div id="myPrev"></div>
         <form id="f" novalidate>
           <fieldset style="border:0;padding:0;margin:0"><legend class="sr-only">Answer</legend><div id="options"></div></fieldset>
@@ -33,7 +33,8 @@ import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
           <p class="xp-nav-after"><a href="/explorer/decisions/" id="backList" class="secondary-link">All questions</a> <a href="#" id="nextQ" class="secondary-link" hidden>Next question you haven't answered</a></p>
         </form>
       </section>
-      <section class="xp-panel"><h2>Answers</h2><ul class="xp-history" id="hist"></ul><div id="others"></div></section>
+      <section class="xp-panel" id="passBox"><h2>Beyond my expertise?</h2><div id="passState"></div></section>
+      <section class="xp-panel" id="answersBox"><h2>Answers</h2><ul class="xp-history" id="hist"></ul><div id="others"></div></section>
     </div>
   </div>
 </ExplorerLayout>

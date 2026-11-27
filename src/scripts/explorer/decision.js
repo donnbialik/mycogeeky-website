@@ -2,6 +2,7 @@
 import { api, post, esc, $, whoami, showError } from './common.js';
 import { needsDetail } from '../../../explorer/contract/questions.js';
 import { recordUrl } from '../../../explorer/contract/workingset.js';
+import { offerTour } from './tour.js';
 const P = new URLSearchParams(location.search); const setId = P.get('set'), qid = P.get('id');
 let v, order = [];
 // Distances: one decimal at 1% and above, two below (small differences matter there).
@@ -65,6 +66,28 @@ function render() {
   const may = v.may_decide; for (const el of $('f').querySelectorAll('input,textarea,button')) el.disabled = !may;
   if (!may) $('msg').innerHTML = '<div class="xp-msg info">You can read this question but not answer it (observer, or a reviewer for other genera).</div>';
 }
+// "Beyond my expertise": not an answer; it never counts. It tells the owner the question needs someone else.
+function renderPass() {
+  const mp = v.my_pass, may = v.may_decide;
+  const who = v.passes ? (v.passes.length ? '<ul class="small">' + v.passes.map(p => `<li><strong>${esc(p.reviewer)}</strong> · ${esc(p.created_at.slice(0, 10))}${p.note ? ': ' + esc(p.note) : ''}</li>`).join('') + '</ul>' : '')
+    : '';
+  const count = v.passes_count ? `<p class="muted small">${v.passes_count} reviewer${v.passes_count === 1 ? ' has' : 's have'} marked this question as beyond their expertise.</p>` : '';
+  $('passState').innerHTML = mp
+    ? `<div class="xp-msg info small">You marked this question as beyond your expertise on ${esc(mp.created_at.slice(0, 10))}${mp.note ? `: “${esc(mp.note)}”` : ''}. It is left for other reviewers. You can still answer it later.
+       <div style="margin-top:6px"><button type="button" class="secondary" id="unpass">Undo</button></div></div>${who}`
+    : `<p class="small">If this question is outside what you can judge (a group you do not know, literature you cannot reach), say so instead of answering. It does not count as an answer and tells the site owner the question needs someone else.</p>
+       <label for="passNote">What would help? <span class="xp-hint">optional: a specialist in this group, full ITS of the types, a paper…</span></label>
+       <input type="text" id="passNote" maxlength="500" ${may ? '' : 'disabled'} />
+       <p><button type="button" class="secondary" id="pass" ${may ? '' : 'disabled'}>Mark as beyond my expertise</button></p>${count}${who}`;
+}
+$('passBox').addEventListener('click', async ev => {
+  const id = ev.target.id; if (id !== 'pass' && id !== 'unpass') return;
+  try {
+    await post(`question-sets/${encodeURIComponent(setId)}/questions/${encodeURIComponent(qid)}/pass`, id === 'pass' ? { note: $('passNote').value } : { action: 'withdraw' });
+    [v, { questions: order }] = await Promise.all([api(`question-sets/${encodeURIComponent(setId)}/questions/${encodeURIComponent(qid)}`), api('question-sets/' + encodeURIComponent(setId))]);
+    renderPass(); renderAnswers();
+  } catch (e) { $('passState').insertAdjacentHTML('beforeend', `<div class="xp-msg bad small">${esc(e.message)}</div>`); }
+});
 function renderAnswers() {
   const sup = new Set(v.my_decisions.filter(d => d.supersedes).map(d => d.supersedes));
   $('hist').innerHTML = v.my_decisions.length ? v.my_decisions.slice().reverse().map(d => `<li class="${sup.has(d.id) ? 'sup' : ''}"><span class="pill ${d.mode}">${d.mode}</span> <strong>${esc(d.choice)}</strong>${d.detail ? ': ' + esc(d.detail) : ''}
@@ -75,7 +98,7 @@ function renderAnswers() {
     : (v.others.length ? '<h3>Other reviewers</h3><ul class="xp-history">' + v.others.map(d => `<li><span class="pill ${d.mode}">${d.mode}</span> <strong>${esc(d.reviewer)}</strong>: ${esc(d.choice)}${d.detail ? ': ' + esc(d.detail) : ''}<div>${esc(d.rationale)}</div>${d.citation ? `<div class="muted small">${esc(d.citation)}</div>` : ''}</li>`).join('') + '</ul>' : '');
   const cur = v.my_decisions.filter(d => !sup.has(d.id)).pop();
   const i = order.findIndex(x => x.id === qid);
-  const rest = order.slice(i + 1).concat(order.slice(0, Math.max(0, i))).filter(x => !x.my_choice && x.id !== qid);
+  const rest = order.slice(i + 1).concat(order.slice(0, Math.max(0, i))).filter(x => !x.my_choice && !x.my_pass && x.id !== qid);
   const next = rest.find(x => x.queue === 'first') || rest.find(x => x.queue !== 'later') || rest[0];   // first queue before the rest
   $('nextQ').hidden = !next; if (next) $('nextQ').href = `/explorer/decision/?set=${encodeURIComponent(setId)}&id=${encodeURIComponent(next.id)}`;
   $('supNote').textContent = cur ? `Saving now records a correction of your answer #${cur.id}. The earlier answer stays in the history.` : '';
@@ -91,7 +114,17 @@ $('options').addEventListener('change', () => { const c = (document.querySelecto
   $('detailBox').hidden = !need; $('detailHint').textContent = need ? `(${c})` : ''; });
 async function load() {
   const [me, x] = await Promise.all([api('me'), api(`question-sets/${encodeURIComponent(setId)}/questions/${encodeURIComponent(qid)}`)]);
-  v = x; whoami(me); order = (await api('question-sets/' + encodeURIComponent(setId))).questions; render(); renderAnswers();
+  v = x; whoami(me); order = (await api('question-sets/' + encodeURIComponent(setId))).questions; render(); renderAnswers(); renderPass();
+  offerTour('decision', () => [
+    { title: 'A genus question', text: 'Each question comes from the genus review report. The line under the title says how many records it affects, how many reviewers must agree, and, for the first queue, why it matters now.', target: '#kind' },
+    { title: 'The question', text: 'Names are as deposited in GenBank, iNaturalist or the herbarium record. Treat them as claims to check.', target: '#questionBox' },
+    { title: 'Evidence from the report', text: 'Distances are percentages of compared positions. “Compared on” says which part of ITS was compared: ITS2 alone carries far less information than full ITS.', target: '#evidenceBox' },
+    { title: 'The records', text: 'Every record behind the question, with voucher, country and study. Each accession opens the GenBank or iNaturalist record in a new tab.', target: '#recordsBox' },
+    { title: 'Your answer', text: 'Pick an answer, give the detail it asks for, and write your reasoning: what you compared and why it settles the question. Citations help the next reviewer.', target: '#answerBox' },
+    { title: 'Test or formal', text: 'Test answers are saved but never count. Formal answers count once the site owner has enabled them for you. You can correct an answer later; both stay in the history.', target: '.xp-mode' },
+    { title: 'Beyond your expertise?', text: 'Say so here instead of guessing. It is not an answer, never counts, and tells the owner the question needs someone else.', target: '#passBox' },
+    { title: 'Answers', text: 'Your answers, and other reviewers’ answers once you have given your own, so that answers are independent.', target: '#answersBox' },
+  ], $('tourBtn'));
   $('formalRadio').disabled = !me.formal_reviews_enabled || !v.may_decide;
   $('modeNote').textContent = me.formal_reviews_enabled ? 'Formal answers count toward the outcome.' : 'Formal answers are not enabled for your account yet. Test answers are saved and shown, but never count.';
 }

@@ -246,4 +246,23 @@ export const MIGRATIONS = [
       ...noChange('ws_changes', 'working-set changes are append-only; an undo is a new change'),
     ],
   },
+  {
+    // "Beyond my expertise": a reviewer says a genus question is outside what they can judge, optionally saying what
+    // would help (a specialist, full ITS of the types...). It is NOT an answer: it never counts toward an outcome,
+    // never disputes one and is not in the decision ledger. Append-only; withdrawing is a new 'withdraw' row.
+    id: '0006_question_passes',
+    statements: [
+      `CREATE TABLE question_passes (
+         id INTEGER PRIMARY KEY,
+         set_id TEXT NOT NULL,
+         question_id TEXT NOT NULL,
+         reviewer_id INTEGER NOT NULL REFERENCES reviewers(id),
+         action TEXT NOT NULL CHECK (action IN ('pass', 'withdraw')),
+         note TEXT,
+         created_at TEXT NOT NULL,
+         FOREIGN KEY (set_id, question_id) REFERENCES questions(set_id, id))`,
+      `CREATE INDEX question_passes_question ON question_passes(set_id, question_id)`,
+      ...noChange('question_passes', 'question passes are append-only; withdrawing is a new row'),
+    ],
+  },
 ];

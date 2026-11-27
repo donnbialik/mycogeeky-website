@@ -2,20 +2,20 @@
 import ExplorerLayout from '../../../layouts/ExplorerLayout.astro';
 ---
 <ExplorerLayout title="Genus decisions" active="decisions">
-  <p class="ds-label">Genus review reports · decision queue</p>
+  <p class="ds-label">Genus review reports · decision queue · <button type="button" class="xp-linkbtn" id="tourBtn">Take the tour</button> · <a href="/investigate/explorer/reviewing/">How to review</a></p>
   <h1>Genus decisions</h1>
   <p class="lead">Questions raised by a genus review report: which sequence fixes what a name means, which names ITS cannot tell apart, which GenBank names are misapplied, what unnamed groups are. A decided answer changes the genus <a href="/explorer/working-set/">working set</a> at once (for example, excluding a record or setting a reference), and the next run of the report reads the decisions too.</p>
-  <div class="xp-msg info small"><strong>How answers count.</strong> Only formal answers count, and only once the owner has enabled formal answers for you. Questions about which name records belong to (types ITS cannot tell apart, misapplied names, unnamed groups, types filed under another name or genus) need two reviewers giving the same answer; different answers leave the question disputed. Other questions need one. You see other reviewers' answers only after giving your own.</div>
+  <div class="xp-msg info small" id="howCount"><strong>How answers count.</strong> Only formal answers count, and only once the owner has enabled formal answers for you. Questions about which name records belong to (types ITS cannot tell apart, misapplied names, unnamed groups, types filed under another name or genus) need two reviewers giving the same answer; different answers leave the question disputed. Other questions need one. You see other reviewers' answers only after giving your own. A question outside your expertise can be marked as such on its page; that is not an answer and never counts.</div>
   <div class="xp-panel">
     <div class="xp-filters">
       <div class="wide"><label for="set">Report</label><select id="set"></select></div>
       <div><label for="queue">Queue</label><select id="queue"><option value="">all</option><option value="first">first</option><option value="later">later</option></select></div>
       <div><label for="kind">Kind</label><select id="kind"><option value="">all</option></select></div>
       <div><label for="outcome">Outcome</label><select id="outcome"><option value="">all</option><option>open</option><option>awaiting second reviewer</option><option>disputed</option><option>decided</option></select></div>
-      <div><label for="mine">Your answer</label><select id="mine"><option value="">all</option><option value="none">not answered yet</option><option value="some">answered</option></select></div>
+      <div><label for="mine">Your answer</label><select id="mine"><option value="">all</option><option value="none">not answered yet</option><option value="some">answered</option><option value="pass">beyond my expertise</option></select></div>
     </div>
     <p class="muted small" id="scope"></p>
-    <div class="xp-scroll"><table>
+    <div class="xp-scroll" id="listBox"><table>
       <thead><tr><th>Question</th><th>Outcome</th><th>Your answer</th><th>Kind</th><th>Subject</th><th title='Reviewers who must give the same answer'>Reviewers</th><th title='Records affected'>Records</th></tr></thead>
       <tbody id="rows"><tr><td colspan="7" class="muted">Loading the questions.</td></tr></tbody></table></div>
   </div>

@@ -40,7 +40,8 @@ function render() {
   $('qid').textContent = `${s.genus} · report ${s.id} · question ${q.id} · ${v.evidence_sha256.slice(0, 12)}`;
   $('title').innerHTML = `${esc(q.kind)}: <em>${linked(String(q.subject).replace(/^unnamed group:\s*/i, ''))}</em>`;
   $('backList').href = '/explorer/decisions/?set=' + encodeURIComponent(s.id);
-  $('kind').textContent = `${q.records_affected} records affected · needs ${q.reviewers_needed} reviewer${q.reviewers_needed > 1 ? 's' : ''} giving the same answer`;
+  $('kind').textContent = `${q.records_affected} records affected · needs ${q.reviewers_needed} reviewer${q.reviewers_needed > 1 ? 's' : ''} giving the same answer` +
+    (q.queue === 'first' && q.queue_reason ? ` · first queue: ${q.queue_reason.replace(/^Q-[A-Z]+:\s*/, '')}` : '');
   $('xp-release').innerHTML = `<strong>${esc(s.genus)} report ${esc(s.id)}</strong> · GenBank snapshot ${esc(s.snapshot)} · engine ${esc(s.header.engine)} · <strong>computationally generated question</strong>`;
   $('question').innerHTML = linked(tidy(q.question));
   const ev = Object.entries(q.evidence || {});
@@ -74,7 +75,8 @@ function renderAnswers() {
     : (v.others.length ? '<h3>Other reviewers</h3><ul class="xp-history">' + v.others.map(d => `<li><span class="pill ${d.mode}">${d.mode}</span> <strong>${esc(d.reviewer)}</strong>: ${esc(d.choice)}${d.detail ? ': ' + esc(d.detail) : ''}<div>${esc(d.rationale)}</div>${d.citation ? `<div class="muted small">${esc(d.citation)}</div>` : ''}</li>`).join('') + '</ul>' : '');
   const cur = v.my_decisions.filter(d => !sup.has(d.id)).pop();
   const i = order.findIndex(x => x.id === qid);
-  const next = order.slice(i + 1).concat(order.slice(0, Math.max(0, i))).find(x => !x.my_choice && x.id !== qid);
+  const rest = order.slice(i + 1).concat(order.slice(0, Math.max(0, i))).filter(x => !x.my_choice && x.id !== qid);
+  const next = rest.find(x => x.queue === 'first') || rest.find(x => x.queue !== 'later') || rest[0];   // first queue before the rest
   $('nextQ').hidden = !next; if (next) $('nextQ').href = `/explorer/decision/?set=${encodeURIComponent(setId)}&id=${encodeURIComponent(next.id)}`;
   $('supNote').textContent = cur ? `Saving now records a correction of your answer #${cur.id}. The earlier answer stays in the history.` : '';
 }

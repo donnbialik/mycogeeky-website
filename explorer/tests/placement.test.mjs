@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseQuery, parseFasta, align, distance, place, revcomp, SHORT } from '../../src/scripts/explorer/placement.js';
 import { validateWorkingSet, accessionsIn, recordUrl, isInat } from '../contract/workingset.js';
+import { validateQuestionSet } from '../contract/questions.js';
 
 // A deterministic pseudo-random ITS-like sequence, and controlled variants of it.
 function rnd(n, seed) { let x = seed; let s = ''; for (let i = 0; i < n; i++) { x = (x * 1103515245 + 12345) % 2147483648; s += 'ACGT'[x % 4]; } return s; }
@@ -76,4 +77,13 @@ test('working-set contract accepts iNaturalist record ids and links them to iNat
   assert.ok(isInat('iNat407281883') && !isInat('MH827070.1'));
   assert.equal(recordUrl('iNat407281883'), 'https://www.inaturalist.org/observations/407281883');
   assert.equal(recordUrl('MH827070.1'), 'https://www.ncbi.nlm.nih.gov/nuccore/MH827070.1');
+});
+
+test('question-set contract: optional first/later review queue', () => {
+  const q = (x = {}) => ({ id: 'GAL-D2-003', type: 'D2', subject: 'Galerina semilanceata', question: 'Add a reference?', options: ['a', 'b'], reviewers_needed: 1, records_affected: 3, evidence: {}, ...x });
+  const set = qs => ({ contract: 'bre-questions/1', set: 'galerina-2026-11-27', genus: 'Galerina', snapshot: '2026-11-25', engine: 't', status: 'computationally generated', questions: qs });
+  assert.deepEqual(validateQuestionSet(set([q()])), []);
+  assert.deepEqual(validateQuestionSet(set([q({ queue: 'first', queue_reason: 'Q-REF: 173 collections and no reference' })])), []);
+  assert.equal(validateQuestionSet(set([q({ queue: 'soon' })])).length, 1);
+  assert.equal(validateQuestionSet(set([q({ queue: 'later', queue_reason: 'x'.repeat(501) })])).length, 1);
 });

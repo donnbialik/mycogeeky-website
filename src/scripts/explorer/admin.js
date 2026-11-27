@@ -76,7 +76,7 @@ $('simport').addEventListener('click', async () => {
 $('r-add').addEventListener('click', async () => {
   try { const email = $('r-email').value.trim(), name = $('r-name').value.trim(), role = $('r-role').value;
     await post('reviewers', { email, display_name: name, role }); say('rmsg', 'ok', 'Added.'); await loadAll();
-    $('inviteText').value = `Hello ${name},\n\nI have added you as a ${role} on the Barcode Reliability Explorer, where genus review reports raise questions about GenBank ITS records: which sequence fixes what a name means, which names ITS cannot tell apart, and which names are misapplied.\n\nOpen ${location.origin}/explorer/decisions/ and sign in with this e-mail address (${email}); you will receive a one-time code. Your answers are saved as test answers until I enable formal answers for you, and you see other reviewers' answers only after giving your own.\n\nThank you!`;
+    $('inviteText').value = `Hello ${name},\n\nI have added you as a ${role} on the Barcode Reliability Explorer, where genus review reports raise questions about GenBank ITS records: which sequence fixes what a name means, which names ITS cannot tell apart, and which names are misapplied.\n\nOpen ${location.origin}/explorer/decisions/ and sign in with this e-mail address (${email}); you will receive a one-time code. Your answers are saved as test answers until I enable formal answers for you, and you see other reviewers' answers only after giving your own.\n\nA short guide to reviewing (about 10 minutes): ${location.origin}/investigate/explorer/reviewing/\n\nThank you!`;
     $('invite').hidden = false; }
   catch (e) { say('rmsg', 'bad', esc(e.message)); }
 });

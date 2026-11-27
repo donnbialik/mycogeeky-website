@@ -15,6 +15,10 @@ const ROLE_CLS = { type_reference: 'agree', working_reference: 'minor', included
 const rolePill = r => `<span class="pill ${ROLE_CLS[r.role] || ''}" title="${esc(r.changed.role ? r.changed.role.reason : r.role_reason || '')}">${esc(ROLES[r.role] || r.role)}</span>`;
 const kindPill = k => k === 'named' ? '' : ` <span class="pill ${k === 'candidate' ? 'experimental' : k === 'unidentified' ? 'notassessed' : 'test'}">${esc(NAME_KINDS[k])}</span>`;
 const synNote = n => { const m = String(n || '').match(/\(([^)]+)\)$/); return m ? ` · synonym (${esc(m[1])})` : ''; };
+// A long reason shows its first words and opens to the full text (it was cut at 120 characters with no sign of it).
+const CLIP = 110;
+const clipped = t => t.length <= CLIP + 10 ? esc(t)
+  : `<details class="xp-more"><summary><span class="xp-clip">${esc(t.slice(0, CLIP).replace(/\s+\S*$/, ''))}…</span> <span class="xp-more-link"></span></summary>${esc(t)}</details>`;
 const reasonOf = r => { const t = r.changed.role ? r.changed.role.reason : r.role_reason; return t === 'kept by the genus run' ? '' : t || ''; };
 const nm = s => `<em>${esc(s)}</em>`;
 const country = c => (c || '').split(':')[0] || '';
@@ -52,7 +56,7 @@ function drawRecs() {
     rs.slice(0, max).map(r => `<tr>${owner ? `<td><input type="checkbox" data-acc="${esc(r.accession)}" ${sel.has(r.accession) ? 'checked' : ''} aria-label="Select ${esc(r.accession)}" /></td>` : ''}
     <td>${gb(r.accession)}${inatNote(r)}</td>
     <td>${nm(r.working_name)}${kindPill(r.name_kind)}${r.name_as_deposited && r.name_as_deposited !== r.working_name ? `<div class="muted small">deposited as ${nm(r.name_as_deposited)}${synNote(r.name_note)}</div>` : ''}</td>
-    <td>${rolePill(r)}${reasonOf(r) ? `<div class="muted small">${esc(reasonOf(r).slice(0, 120))}</div>` : ''}</td>
+    <td>${rolePill(r)}${reasonOf(r) ? `<div class="muted small">${clipped(reasonOf(r))}</div>` : ''}</td>
     <td class="small">${esc(r.type_material || '')}</td><td class="small">${esc(r.voucher || '')}</td><td class="small">${esc(r.country || '')}</td>
     <td class="small">${esc(r.regions || 'not located')}${r.length ? `<div class="muted">${r.length} bp</div>` : ''}</td>
     <td class="small">${esc(r.engine_match || '')}</td>
@@ -101,7 +105,11 @@ function draw() {
 const pct = v => v == null ? '' : v < 1 ? v.toFixed(2) : v.toFixed(1);
 const partial = x => x.coverage < SHORT ? ' <span class="pill minor" title="This reference covers under half of the pasted sequence; it ranks after the others">partial</span>' : '';
 const cov = x => `${Math.round(100 * x.coverage)}%${partial(x)}`;
-const hit = x => x ? `${gb(x.record.accession)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${Math.round(100 * x.coverage)}%)</span>${partial(x)}` : '<span class="muted">none aligned</span>';
+// When a record was deposited under another name (a synonym, a variety), say so: the nearest "type reference" of
+// G. marginata can be a type of G. venenata, and it must not read as marginata's own type.
+const depAs = r => r.name_as_deposited && r.name_as_deposited !== r.working_name
+  ? ` <span class="muted small">(${r.role === 'type_reference' ? 'type of' : 'deposited as'} ${nm(r.name_as_deposited)})</span>` : '';
+const hit = x => x ? `${gb(x.record.accession)}${depAs(x.record)} · <strong>${pct(x.pct)}%</strong> <span class="muted small">(${x.diffs}/${x.compared}, covers ${Math.round(100 * x.coverage)}%)</span>${partial(x)}` : '<span class="muted">none aligned</span>';
 async function sequences() {
   if (seqs && seqs.genus === ws.genus && seqs.snapshot === ws.snapshot.id) return seqs.map;
   const roles = Object.keys(ROLES).filter(k => k !== 'excluded').join(',');
@@ -136,7 +144,7 @@ async function runPlacement() {
       </tbody></table></div>
       <h3>Nearest records</h3>
       <div class="xp-scroll"><table><thead><tr><th>Record</th><th>Working name</th><th>Role</th><th>Distance</th><th title="Substitutions plus gap runs, over the compared columns">Differences</th><th>Covers</th><th>Country</th></tr></thead><tbody>
-      ${res.nearest.slice(0, 15).map(x => `<tr><td>${gb(x.record.accession)}${inatNote(x.record)}</td><td>${nm(x.record.working_name)}</td><td>${rolePill(x.record)}</td>
+      ${res.nearest.slice(0, 15).map(x => `<tr><td>${gb(x.record.accession)}${inatNote(x.record)}</td><td>${nm(x.record.working_name)}${depAs(x.record)}</td><td>${rolePill(x.record)}</td>
         <td><strong>${pct(x.pct)}%</strong></td><td class="small">${x.subs} sub${x.subs === 1 ? '' : 's'} + ${x.indels} gap run${x.indels === 1 ? '' : 's'} / ${x.compared}</td><td class="small">${cov(x)}</td><td class="small">${esc(country(x.record.country))}</td></tr>`).join('')}
       </tbody></table></div>`;
   } catch (e) { $('pstat').textContent = ''; showError(e); }
